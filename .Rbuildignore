@@ -1,2 +1,8 @@
-^\.travis\.yml$
+^.*\.Rproj$
+^\.Rproj\.user$
+^.gitignore$
+^.travis.yml$
+^codecov\.yml$
+^Dockerfile$
+^\.httr-oauth$
 ^LICENSE\.md$
