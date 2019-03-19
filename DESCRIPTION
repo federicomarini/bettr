@@ -1,0 +1,16 @@
+Package: bettr
+Title: A Better Way To Explore What Is Best
+Version: 0.0.0.9000
+Authors@R: 
+    c(person("Federico", "Marini", role="aut", email="marinif@uni-mainz.de"),
+    person("Charlotte", "Soneson", role=c("aut", "cre"), email="charlottesoneson@gmail.com"))
+Description: bettr provides a set of interactive visualization methods to explore
+    the results of a benchmarking study, where typically more than a single performance
+    measures are computed. 
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
