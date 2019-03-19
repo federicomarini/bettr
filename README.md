@@ -1,5 +1,7 @@
 # `bettr`: a better way to explore what is best
 
+[![Travis build status](https://travis-ci.org/federicomarini/bettr.svg?branch=master)](https://travis-ci.org/federicomarini/bettr)
+
 As new methods come along, it becomes essential to compare them to existing ones with an objective and fair approach.
 
 Apart from the benchmarking strategy itself, which can differ in function of the different procedures involved, we typically calculate many different performance measures, which we use to reflect different aspects. 
