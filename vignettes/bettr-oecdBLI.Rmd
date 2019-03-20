@@ -1,0 +1,60 @@
+---
+title: "Exploring the OECD Better Life Index results"
+author: "Fede"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Retrieving the data
+
+Data from the OECD Better Life Index can be retrieved from https://stats.oecd.org/index.aspx?DataSetCode=BLI.
+
+Follow the link to download the data for 2017.
+
+TODO: deliver the raw data alongside the package?
+
+Summarizing the results up, we can proceed like this:
+
+```{r}
+oecd_raw <- read.delim("~/Downloads/BLI_20032019113535075.csv")
+
+tibble::glimpse(oecd_raw)
+head(oecd_raw)
+
+# aggregating at different levels of inequality...
+reshape2::dcast(oecd_raw,
+                Country ~ Indicator, 
+                value.var = "Value",
+                fun.aggregate = mean,
+                na.rm = TRUE) ->
+  oecd_wide_aggr
+
+# filtering on the Inequality, keeping only the total
+reshape2::dcast(oecd_raw %>% filter(Inequality=="Total"),
+                Country ~ Indicator, 
+                value.var = "Value") ->
+  oecd_wide_total
+
+summary(oecd_wide_total)
+```
+
+```{r}
+DT::datatable(oecd_wide_total)
+```
+
+Potential interesting things to touch upon:
+
+- https://arxiv.org/abs/1608.04556
+
+
