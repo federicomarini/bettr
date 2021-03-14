@@ -14,5 +14,17 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
+Imports: 
+    dplyr (>= 1.0),
+    tidyr,
+    ggplot2,
+    shiny (>= 1.6),
+    tibble,
+    ComplexHeatmap,
+    bslib,
+    rlang,
+    circlize,
+    stats,
+    grid
