@@ -12,7 +12,8 @@ Encoding: UTF-8
 LazyData: true
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat (>= 3.0.0)
 VignetteBuilder: knitr
 RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
@@ -27,4 +28,7 @@ Imports:
     rlang,
     circlize,
     stats,
-    grid
+    grid,
+    GGally,
+    methods
+Config/testthat/edition: 3
