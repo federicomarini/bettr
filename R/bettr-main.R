@@ -105,12 +105,23 @@ bettr <- function(df, methodCol = "Method", metricCol = "Metric",
                         tabPanel("Parallel coordinates", 
                                  shiny::plotOutput("bettrParCoordplot"))
                     ),
-                    shiny::radioButtons(inputId = "scaleType",
-                                        label = "Scaling of \n metrics",
-                                        choices = c("None", "z-score",
-                                                    "[0,1]", "[-1,1]",
-                                                    "Rank"),
-                                        selected = "None")
+                    shiny::fluidRow(
+                        shiny::column(4, 
+                                      shiny::radioButtons(
+                                          inputId = "scaleType",
+                                          label = "Scaling of \n metrics",
+                                          choices = c("None", "z-score",
+                                                      "[0,1]", "[-1,1]",
+                                                      "Rank"),
+                                          selected = "None"
+                                      )
+                        ), 
+                        shiny::column(4, 
+                                      shiny::uiOutput(
+                                          outputId = "highlightMethodUI"
+                                      )
+                        )
+                    )
                 ),
                 
                 ## Controls
@@ -134,8 +145,16 @@ bettr <- function(df, methodCol = "Method", metricCol = "Metric",
         values <- shiny::reactiveValues(
             df = df,
             nMetrics = length(unique(df[[metricCol]])),
-            metrics = unique(df[[metricCol]])
+            metrics = unique(df[[metricCol]]),
+            methods = unique(df[[methodCol]])
         )
+        
+        output$highlightMethodUI <- shiny::renderUI({
+            shiny::selectizeInput(inputId = "highlightMethod",
+                                  label = "Highlight method",
+                                  choices = c("---", values$methods), 
+                                  selected = "---")
+        })
         
         ## Limit the possible weights (have to be in (0, 1)) ------------------
         ## Limit the values to [0.001, 1 - (nMetrics * 0.001)]
@@ -274,6 +293,11 @@ bettr <- function(df, methodCol = "Method", metricCol = "Metric",
                     tidyr::spread(key = !!rlang::sym(metricCol),
                                   value = !!rlang::sym(valueCol), fill = NA) %>%
                     as.data.frame()
+                lwidths <- rep(1L, length(values$metrics))
+                names(lwidths) <- values$metrics
+                if (input$highlightMethod != "---") {
+                    lwidths[input$highlightMethod] <- 3L
+                }
                 GGally::ggparcoord(
                     mat, 
                     columns = match(setdiff(colnames(mat), methodCol),
@@ -286,7 +310,8 @@ bettr <- function(df, methodCol = "Method", metricCol = "Metric",
                     ggplot2::theme_minimal() + 
                     ggplot2::theme(axis.text.x = ggplot2::element_text(
                         angle = 90, hjust = 1, vjust = 0.5)) + 
-                    ggplot2::labs(x = "")
+                    ggplot2::labs(x = "") + 
+                    ggplot2::scale_size_manual(values = lwidths)
             }
         })
         
