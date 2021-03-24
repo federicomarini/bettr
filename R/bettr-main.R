@@ -20,8 +20,8 @@
 #'   reactiveValues observeEvent updateNumericInput isolate renderPlot
 #'   tagList shinyApp tabPanel
 #' @importFrom stats sd
-#' @importFrom ggplot2 ggplot aes geom_bar theme_minimal
-#' @importFrom GGally ggparcoord
+#' @importFrom ggplot2 ggplot aes geom_bar theme_minimal geom_boxplot geom_line 
+#'   geom_point scale_size_manual theme
 #' @importFrom dplyr group_by summarize mutate ungroup arrange select filter 
 #'   %>%
 #' @importFrom tidyr spread
@@ -286,32 +286,26 @@ bettr <- function(df, methodCol = "Method", metricCol = "Metric",
             if (is.null(values$df)) {
                 NULL
             } else {
-                mat <- values$df %>%
-                    dplyr::select(c(!!rlang::sym(methodCol),
-                                    !!rlang::sym(metricCol),
-                                    !!rlang::sym(valueCol))) %>%
-                    tidyr::spread(key = !!rlang::sym(metricCol),
-                                  value = !!rlang::sym(valueCol), fill = NA) %>%
-                    as.data.frame()
-                lwidths <- rep(1L, length(values$metrics))
-                names(lwidths) <- values$metrics
+                lwidths <- rep(0.75, length(values$methods))
+                names(lwidths) <- values$methods
                 if (input$highlightMethod != "---") {
-                    lwidths[input$highlightMethod] <- 3L
+                    lwidths[input$highlightMethod] <- 2.5
                 }
-                GGally::ggparcoord(
-                    mat, 
-                    columns = match(setdiff(colnames(mat), methodCol),
-                                    colnames(mat)),
-                    groupColumn = match(methodCol, colnames(mat)),
-                    scale = "globalminmax", 
-                    showPoints = TRUE, 
-                    boxplot = TRUE
-                ) + 
-                    ggplot2::theme_minimal() + 
-                    ggplot2::theme(axis.text.x = ggplot2::element_text(
-                        angle = 90, hjust = 1, vjust = 0.5)) + 
-                    ggplot2::labs(x = "") + 
-                    ggplot2::scale_size_manual(values = lwidths)
+                ggplot2::ggplot(values$df,
+                                aes(x = !!rlang::sym(metricCol), 
+                                    y = !!rlang::sym(valueCol))) + 
+                    ggplot2::geom_boxplot(outlier.size = -1) + 
+                    ggplot2::geom_line(aes(group = !!rlang::sym(methodCol),
+                                           color = !!rlang::sym(methodCol),
+                                           size = !!rlang::sym(methodCol)),
+                                       alpha = 0.75) +
+                    ggplot2::geom_point(aes(group = !!rlang::sym(methodCol),
+                                            color = !!rlang::sym(methodCol))) +
+                    ggplot2::scale_size_manual(values = lwidths) +
+                    ggplot2::theme_minimal() +
+                    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90,
+                                                                       hjust = 1,
+                                                                       vjust = 0.5))
             }
         })
         
