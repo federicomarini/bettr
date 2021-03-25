@@ -29,5 +29,6 @@ Imports:
     circlize,
     stats,
     grid,
-    methods
+    methods,
+    cowplot
 Config/testthat/edition: 3
