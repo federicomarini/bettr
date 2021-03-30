@@ -85,6 +85,7 @@ jobs:
         run: |
           brew install harfbuzz
           brew install fribidi
+          brew cask install xquartz
 
       - name: Install dependencies
         run: |
@@ -102,7 +103,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Check
-        run: rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "warning", check_dir = "check")
+        run: rcmdcheck::rcmdcheck(args = c("--no-manual", "--no-multiarch"), error_on = "warning", check_dir = "check")
         shell: Rscript {0}
 
       # - name: BiocCheck
