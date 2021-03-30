@@ -6,3 +6,4 @@
 ^Dockerfile$
 ^\.httr-oauth$
 ^LICENSE\.md$
+^\.github$

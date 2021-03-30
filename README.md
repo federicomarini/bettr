@@ -1,6 +1,8 @@
 # `bettr`: a better way to explore what is best
 
-[![Travis build status](https://travis-ci.org/federicomarini/bettr.svg?branch=master)](https://travis-ci.org/federicomarini/bettr)
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/federicomarini/bettr/workflows/R-CMD-check/badge.svg)](https://github.com/federicomarini/bettr/actions)
+<!-- badges: end -->
 
 As new methods come along, it becomes essential to compare them to existing ones with an objective and fair approach.
 
