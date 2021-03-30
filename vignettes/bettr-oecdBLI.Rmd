@@ -4,7 +4,7 @@ author: "Fede"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{Exploring the OECD Better Life Index results}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -26,7 +26,7 @@ TODO: deliver the raw data alongside the package?
 
 Summarizing the results up, we can proceed like this:
 
-```{r}
+```{r, eval = FALSE}
 oecd_raw <- read.delim("~/Downloads/BLI_20032019113535075.csv")
 
 tibble::glimpse(oecd_raw)
@@ -49,7 +49,7 @@ reshape2::dcast(oecd_raw %>% filter(Inequality=="Total"),
 summary(oecd_wide_total)
 ```
 
-```{r}
+```{r, eval = FALSE}
 DT::datatable(oecd_wide_total)
 ```
 
