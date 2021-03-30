@@ -20,10 +20,12 @@
 #'   reactiveValues observeEvent updateNumericInput isolate renderPlot
 #'   tagList shinyApp tabPanel
 #' @importFrom stats sd
-#' @importFrom ggplot2 ggplot aes geom_bar theme_minimal
-#' @importFrom GGally ggparcoord
+#' @importFrom ggplot2 ggplot aes geom_bar theme_minimal geom_boxplot geom_line 
+#'   geom_point scale_size_manual theme geom_col coord_polar facet_wrap 
+#'   element_blank labs ylim expand_limits
 #' @importFrom dplyr group_by summarize mutate ungroup arrange select filter 
-#'   %>%
+#'   %>% pull
+#' @importFrom cowplot draw_plot
 #' @importFrom tidyr spread
 #' @importFrom ComplexHeatmap Heatmap columnAnnotation rowAnnotation
 #'   anno_barplot
@@ -58,6 +60,9 @@ bettr <- function(df, methodCol = "Method", metricCol = "Metric",
                                                 names(initialWeights)) && 
                                         !all(initialWeights == 0))
     })
+    
+    df[[methodCol]] <- as.character(df[[methodCol]])
+    df[[metricCol]] <- as.character(df[[metricCol]])
     
     ## Define column names assigned by the function ---------------------------
     scoreCol <- "Score"
@@ -103,14 +108,29 @@ bettr <- function(df, methodCol = "Method", metricCol = "Metric",
                         tabPanel("Heatmap", 
                                  shiny::plotOutput("bettrHeatmap")),
                         tabPanel("Parallel coordinates", 
-                                 shiny::plotOutput("bettrParCoordplot"))
+                                 shiny::plotOutput("bettrParCoordplot")),
+                        tabPanel("Polar plot", 
+                                 shiny::plotOutput("bettrPolarplot")),
+                        tabPanel("Bar/polar plot",
+                                 shiny::plotOutput("bettrBarPolarplot"))
                     ),
-                    shiny::radioButtons(inputId = "scaleType",
-                                        label = "Scaling of \n metrics",
-                                        choices = c("None", "z-score",
-                                                    "[0,1]", "[-1,1]",
-                                                    "Rank"),
-                                        selected = "None")
+                    shiny::fluidRow(
+                        shiny::column(4, 
+                                      shiny::radioButtons(
+                                          inputId = "scaleType",
+                                          label = "Scaling of \n metrics",
+                                          choices = c("None", "z-score",
+                                                      "[0,1]", "[-1,1]",
+                                                      "Rank"),
+                                          selected = "None"
+                                      )
+                        ), 
+                        shiny::column(4, 
+                                      shiny::uiOutput(
+                                          outputId = "highlightMethodUI"
+                                      )
+                        )
+                    )
                 ),
                 
                 ## Controls
@@ -134,8 +154,16 @@ bettr <- function(df, methodCol = "Method", metricCol = "Metric",
         values <- shiny::reactiveValues(
             df = df,
             nMetrics = length(unique(df[[metricCol]])),
-            metrics = unique(df[[metricCol]])
+            metrics = unique(df[[metricCol]]),
+            methods = unique(df[[methodCol]])
         )
+        
+        output$highlightMethodUI <- shiny::renderUI({
+            shiny::selectizeInput(inputId = "highlightMethod",
+                                  label = "Highlight method",
+                                  choices = c("---", values$methods), 
+                                  selected = "---")
+        })
         
         ## Limit the possible weights (have to be in (0, 1)) ------------------
         ## Limit the values to [0.001, 1 - (nMetrics * 0.001)]
@@ -267,26 +295,123 @@ bettr <- function(df, methodCol = "Method", metricCol = "Metric",
             if (is.null(values$df)) {
                 NULL
             } else {
-                mat <- values$df %>%
-                    dplyr::select(c(!!rlang::sym(methodCol),
-                                    !!rlang::sym(metricCol),
-                                    !!rlang::sym(valueCol))) %>%
-                    tidyr::spread(key = !!rlang::sym(metricCol),
-                                  value = !!rlang::sym(valueCol), fill = NA) %>%
-                    as.data.frame()
-                GGally::ggparcoord(
-                    mat, 
-                    columns = match(setdiff(colnames(mat), methodCol),
-                                    colnames(mat)),
-                    groupColumn = match(methodCol, colnames(mat)),
-                    scale = "globalminmax", 
-                    showPoints = TRUE, 
-                    boxplot = TRUE
-                ) + 
-                    ggplot2::theme_minimal() + 
+                lwidths <- rep(0.75, length(values$methods))
+                names(lwidths) <- values$methods
+                if (input$highlightMethod != "---") {
+                    lwidths[input$highlightMethod] <- 2.5
+                }
+                ggplot2::ggplot(values$df,
+                                aes(x = !!rlang::sym(metricCol), 
+                                    y = !!rlang::sym(valueCol))) + 
+                    ggplot2::geom_boxplot(outlier.size = -1) + 
+                    ggplot2::geom_line(aes(group = !!rlang::sym(methodCol),
+                                           color = !!rlang::sym(methodCol),
+                                           size = !!rlang::sym(methodCol)),
+                                       alpha = 0.75) +
+                    ggplot2::geom_point(aes(group = !!rlang::sym(methodCol),
+                                            color = !!rlang::sym(methodCol))) +
+                    ggplot2::scale_size_manual(values = lwidths) +
+                    ggplot2::theme_minimal() +
+                    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90,
+                                                                       hjust = 1,
+                                                                       vjust = 0.5))
+            }
+        })
+        
+        output$bettrPolarplot <- shiny::renderPlot({
+            if (is.null(values$df)) {
+                NULL
+            } else {
+                levs <- values$df %>%
+                    dplyr::group_by(!!rlang::sym(methodCol)) %>%
+                    dplyr::summarize(
+                        "{scoreCol}" := sum(!!rlang::sym(weightCol) *
+                                                !!rlang::sym(valueCol),
+                                            na.rm = TRUE)
+                    ) %>%
+                    dplyr::arrange(dplyr::desc(!!rlang::sym(scoreCol))) %>%
+                    dplyr::pull(!!rlang::sym(methodCol))
+                ggplot2::ggplot(values$df %>% 
+                                    dplyr::mutate("{methodCol}" := 
+                                                      factor(!!rlang::sym(methodCol),
+                                                             levels = levs)),
+                                ggplot2::aes(x = !!rlang::sym(metricCol), 
+                                             y = !!rlang::sym(valueCol),
+                                             fill = !!rlang::sym(metricCol))) + 
+                    ggplot2::geom_col(width = 1, color = "white") +
+                    ggplot2::coord_polar() + 
+                    ggplot2::facet_wrap(facets = methodCol) +
+                    ggplot2::theme_minimal() +
+                    ggplot2::theme(axis.text = ggplot2::element_blank())
+            }
+        })
+        
+        output$bettrBarPolarplot <- shiny::renderPlot({
+            if (is.null(values$df)) {
+                NULL
+            } else {
+                ## Define polar plots
+                rplots <- lapply(values$methods, function(m) {
+                    ggplot2::ggplot(values$df %>% 
+                                        dplyr::filter(!!rlang::sym(methodCol) == m),
+                                    ggplot2::aes(x = !!rlang::sym(metricCol), 
+                                                 y = !!rlang::sym(valueCol),
+                                                 fill = !!rlang::sym(metricCol))) + 
+                        ggplot2::geom_col(width = 1, color = "white") +
+                        ggplot2::ylim(min(0, min(values$df[[valueCol]])),
+                                      max(values$df[[valueCol]])) + 
+                        ggplot2::coord_polar() + 
+                        ggplot2::theme_minimal() +
+                        ggplot2::theme(axis.text = ggplot2::element_blank(),
+                                       legend.position = "none",
+                                       plot.background = ggplot2::element_blank(),
+                                       plot.margin = unit(c(0, 0, 0, 0), "cm"),
+                                       panel.spacing = unit(0, "cm")) + 
+                        ggplot2::labs(x = "", y = "")
+                })
+                names(rplots) <- values$methods
+                
+                scores <- values$df %>%
+                    dplyr::group_by(!!rlang::sym(methodCol)) %>%
+                    dplyr::summarize(
+                        "{scoreCol}" := sum(!!rlang::sym(weightCol) *
+                                                !!rlang::sym(valueCol),
+                                            na.rm = TRUE)
+                    ) %>%
+                    dplyr::arrange(dplyr::desc(!!rlang::sym(scoreCol)))
+                levs <- scores %>%
+                    dplyr::pull(!!rlang::sym(methodCol))
+                rx <- length(levs)
+                ry <- max(0, max(scores[[scoreCol]])) - min(0, min(scores[[scoreCol]]))
+                sx <- 2.5
+                sy <- ry/rx * sx
+                
+                bplot <- ggplot2::ggplot(values$df %>% 
+                                    dplyr::mutate("{methodCol}" := 
+                                                      factor(!!rlang::sym(methodCol),
+                                                             levels = levs)),
+                                ggplot2::aes(x = !!rlang::sym(methodCol), 
+                                             y = !!rlang::sym(weightCol) * 
+                                                 !!rlang::sym(valueCol),
+                                             fill = !!rlang::sym(metricCol))) +
+                    ggplot2::geom_bar(stat = "identity", width = 0.1) + 
+                    ggplot2::theme_minimal() +
                     ggplot2::theme(axis.text.x = ggplot2::element_text(
-                        angle = 90, hjust = 1, vjust = 0.5)) + 
-                    ggplot2::labs(x = "")
+                        angle = 90, hjust = 1, vjust = 0.5)) +
+                    ggplot2::expand_limits(y = max(scores[[scoreCol]]) + sy)
+                bplot <- bplot + 
+                    theme(legend.position = "none")
+                for (i in seq_along(levs)) {
+                    l <- levs[i]
+                    bplot <- bplot +
+                        cowplot::draw_plot(
+                            rplots[[l]], x = (i - sx/2 - 0.1), 
+                            y = scores[[scoreCol]][scores[[methodCol]] == l],
+                            width = sx, height = sy, scale = 1.5, 
+                            hjust = 0, vjust = 0,
+                            halign = 0.5, valign = 0.5)
+                }
+                bplot
             }
         })
         
