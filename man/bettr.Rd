@@ -7,20 +7,18 @@
 bettr(
   df,
   methodCol = "Method",
-  metricCol = "Metric",
-  valueCol = "Value",
+  metrics = setdiff(colnames(df), methodCol),
   initialWeights = NULL
 )
 }
 \arguments{
-\item{df}{A \code{data.frame} in long format. Must have at least
-three columns: one providing the method ID (for the methods
-that we want to compare), one providing the metric ID, and
-one providing the value of each metric for each method.}
+\item{df}{A \code{data.frame} in wide format.}
 
-\item{methodCol, metricCol, valueCol}{Character scalars,
-indicating which columns of \code{df} that contain method IDs, metric IDs
-and metric values, respectively.}
+\item{methodCol}{Character scalar, indicating which column of \code{df}
+that contains method IDs.}
+
+\item{metrics}{Character vector, indicating which of the columns of
+\code{df} that correspond to metrics of interest.}
 
 \item{initialWeights}{Named numeric vector providing initial weights for
 aggregating the metric scores. Must have one entry per metric included
