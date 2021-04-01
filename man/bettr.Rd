@@ -18,12 +18,13 @@ bettr(
 \item{methodCol}{Character scalar, indicating which column of \code{df}
 that contains method IDs.}
 
+\item{metrics_num, metrics_cat}{Character vectors, indicating which of the
+columns of \code{df} that correspond to, numeric and categorical,
+respectively, metrics of interest.}
+
 \item{initialWeights}{Named numeric vector providing initial weights for
 aggregating the metric scores. Must have one entry per metric included
 in \code{df}.}
-
-\item{metrics}{Character vector, indicating which of the columns of
-\code{df} that correspond to metrics of interest.}
 }
 \description{
 Launch bettr app to explore and aggregate performance metrics

@@ -22,10 +22,10 @@ test_that("bettr stops with invalid inputs", {
                  fixed = TRUE)
     
     ## metricCol
-    expect_error(bettr(df = df, metrics = 1), 
+    expect_error(bettr(df = df, metrics_num = 1), 
                  regexp = 'all(metrics %in% colnames(df)) is not TRUE',
                  fixed = TRUE)
-    expect_error(bettr(df = df, metrics = c("m1", "m2", "m3", "m4")), 
+    expect_error(bettr(df = df, metrics_num = c("m1", "m2", "m3", "m4")), 
                  regexp = 'all(metrics %in% colnames(df)) is not TRUE',
                  fixed = TRUE)
 
@@ -45,7 +45,7 @@ test_that("bettr runs with valid inputs", {
                      Metric = rep(c("m1", "m2", "m3"), 3),
                      Value = runif(n = 9, min = 0, max = 3)) %>%
         tidyr::spread(key = Metric, value = Value)
-    app <- bettr(df, methodCol = "Method", metrics = c("m1", "m2", "m3"),
+    app <- bettr(df, methodCol = "Method", metrics_num = c("m1", "m2", "m3"),
                  initialWeights = NULL)
     expect_s3_class(app, "shiny.appobj")
     

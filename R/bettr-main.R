@@ -3,8 +3,9 @@
 #' @param df A \code{data.frame} in wide format. 
 #' @param methodCol Character scalar, indicating which column of \code{df} 
 #'   that contains method IDs.
-#' @param metrics Character vector, indicating which of the columns of 
-#'   \code{df} that correspond to metrics of interest.
+#' @param metrics_num,metrics_cat Character vectors, indicating which of the 
+#'   columns of \code{df} that correspond to, numeric and categorical, 
+#'   respectively, metrics of interest.
 #' @param initialWeights Named numeric vector providing initial weights for 
 #'   aggregating the metric scores. Must have one entry per metric included 
 #'   in \code{df}.
@@ -13,19 +14,20 @@
 #' 
 #' @author Charlotte Soneson
 #' 
-#' @importFrom shiny navbarPage plotOutput numericInput br fluidRow titlePanel
-#'   fluidRow column tabsetPanel radioButtons actionButton uiOutput 
-#'   reactiveValues observeEvent updateNumericInput isolate renderPlot
-#'   tagList shinyApp tabPanel tags HTML
+#' @importFrom shiny tagList sliderInput shinyApp renderUI renderPlot 
+#'   updateNumericInput observeEvent validate need observe outputOptions tags 
+#'   HTML tagList renderUI radioButtons numericInput checkboxInput column 
+#'   plotOutput uiOutput column fluidRow tabPanelBody tabsetPanel 
+#'   updateTabsetPanel selectizeInput reactive reactiveValues uiOutput hr 
+#'   actionButton br tabPanel titlePanel navbarPage
 #' @importFrom sortable rank_list
-#' @importFrom stats sd
-#' @importFrom ggplot2 ggplot aes geom_bar theme_minimal geom_boxplot geom_line 
-#'   geom_point scale_size_manual theme geom_col coord_polar facet_wrap 
-#'   element_blank labs ylim expand_limits
+#' @importFrom ggplot2 expand_limits theme element_text theme_minimal geom_bar 
+#'   aes ggplot labs element_blank coord_polar ylim geom_col facet_wrap 
+#'   scale_size_manual geom_point geom_line geom_boxplot coord_flip geom_jitter 
 #' @importFrom dplyr group_by summarize mutate ungroup arrange select filter 
-#'   %>% pull
-#' @importFrom cowplot draw_plot
-#' @importFrom tidyr spread
+#'   %>% pull desc
+#' @importFrom cowplot draw_plot plot_grid
+#' @importFrom tidyr spread gather
 #' @importFrom ComplexHeatmap Heatmap columnAnnotation rowAnnotation
 #'   anno_barplot
 #' @importFrom tibble tibble column_to_rownames
@@ -90,14 +92,14 @@ bettr <- function(df, methodCol = "Method",
                     9, 
                     shiny::tabsetPanel(
                         type = "tabs",
-                        tabPanel("Heatmap", 
-                                 shiny::plotOutput("bettrHeatmap")),
-                        tabPanel("Parallel coordinates", 
-                                 shiny::plotOutput("bettrParCoordplot")),
-                        tabPanel("Polar plot", 
-                                 shiny::plotOutput("bettrPolarplot")),
-                        tabPanel("Bar/polar plot",
-                                 shiny::plotOutput("bettrBarPolarplot"))
+                        shiny::tabPanel("Heatmap", 
+                                        shiny::plotOutput("bettrHeatmap")),
+                        shiny::tabPanel("Parallel coordinates", 
+                                        shiny::plotOutput("bettrParCoordplot")),
+                        shiny::tabPanel("Polar plot", 
+                                        shiny::plotOutput("bettrPolarplot")),
+                        shiny::tabPanel("Bar/polar plot",
+                                        shiny::plotOutput("bettrBarPolarplot"))
                     ),
                     
                     ## Some white space ---------------------------------------
@@ -147,7 +149,6 @@ bettr <- function(df, methodCol = "Method",
             tmp <- values$df
             for (m in values$metrics) {
                 if (is.numeric(values$df[[m]])) {
-                    print(input[[paste0(m, "_flip")]])
                     tmp[[m]] <- transformNumericVariable(
                         x = values$df[[m]],
                         flip = input[[paste0(m, "_flip")]], 
@@ -301,13 +302,27 @@ bettr <- function(df, methodCol = "Method",
                                  suspendWhenHidden = FALSE)
         })
         
+        ## Create summary plots for transformed metric ------------------------
         shiny::observe({
             lapply(values$metrics, function(m) {
                 output[[paste0(m, "_plotsummary")]] <- shiny::renderPlot({
                     shiny::validate(
                         shiny::need(procdata(), "No processed data")
                     )
-                    hist(procdata()[[m]])
+                    cowplot::plot_grid(
+                        ggplot2::ggplot(data.frame(metric = procdata()[[m]]),
+                                        ggplot2::aes(x = metric)) + 
+                            ggplot2::geom_bar() + 
+                            ggplot2::theme_minimal(),
+                        ggplot2::ggplot(data.frame(metric = procdata()[[m]]),
+                                        ggplot2::aes(x = 1, y = metric)) + 
+                            ggplot2::geom_boxplot(outlier.size = -1) + 
+                            ggplot2::geom_jitter(width = 0.2, size = 2, 
+                                                 pch = 1) + 
+                            ggplot2::theme_minimal() +
+                            ggplot2::coord_flip(),
+                        ncol = 1
+                    )
                 })
             })
             
@@ -324,7 +339,7 @@ bettr <- function(df, methodCol = "Method",
             }
         })
         
-        ## Define plots -------------------------------------------------------
+        ## Parallel coordinates plot ------------------------------------------
         output$bettrParCoordplot <- shiny::renderPlot({
             if (is.null(longdata())) {
                 NULL
@@ -346,12 +361,12 @@ bettr <- function(df, methodCol = "Method",
                                             color = !!rlang::sym(methodCol))) +
                     ggplot2::scale_size_manual(values = lwidths) +
                     ggplot2::theme_minimal() +
-                    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90,
-                                                                       hjust = 1,
-                                                                       vjust = 0.5))
+                    ggplot2::theme(axis.text.x = ggplot2::element_text(
+                        angle = 90, hjust = 1, vjust = 0.5))
             }
         })
         
+        ## Polar plot ---------------------------------------------------------
         output$bettrPolarplot <- shiny::renderPlot({
             if (is.null(longdata())) {
                 NULL
@@ -380,6 +395,7 @@ bettr <- function(df, methodCol = "Method",
             }
         })
         
+        ## Bar + polar plot ---------------------------------------------------
         output$bettrBarPolarplot <- shiny::renderPlot({
             if (is.null(longdata())) {
                 NULL
@@ -399,8 +415,8 @@ bettr <- function(df, methodCol = "Method",
                         ggplot2::theme(axis.text = ggplot2::element_blank(),
                                        legend.position = "none",
                                        plot.background = ggplot2::element_blank(),
-                                       plot.margin = unit(c(0, 0, 0, 0), "cm"),
-                                       panel.spacing = unit(0, "cm")) + 
+                                       plot.margin = grid::unit(c(0, 0, 0, 0), "cm"),
+                                       panel.spacing = grid::unit(0, "cm")) + 
                         ggplot2::labs(x = "", y = "")
                 })
                 names(rplots) <- values$methods
@@ -434,7 +450,7 @@ bettr <- function(df, methodCol = "Method",
                         angle = 90, hjust = 1, vjust = 0.5)) +
                     ggplot2::expand_limits(y = max(scores[[scoreCol]]) + sy)
                 bplot <- bplot + 
-                    theme(legend.position = "none")
+                    ggplot2::theme(legend.position = "none")
                 for (i in seq_along(levs)) {
                     l <- levs[i]
                     bplot <- bplot +
@@ -449,23 +465,7 @@ bettr <- function(df, methodCol = "Method",
             }
         })
         
-        ## This gets kind of strange with negative values
-        output$bettrBarplot <- shiny::renderPlot({
-            if (is.null(longdata())) {
-                NULL
-            } else {
-                ggplot2::ggplot(longdata(), 
-                                ggplot2::aes(x = !!rlang::sym(methodCol),
-                                             y = !!rlang::sym(weightCol) * 
-                                                 !!rlang::sym(valueCol),
-                                             fill = !!rlang::sym(metricCol))) + 
-                    ggplot2::geom_bar(stat = "identity", position = "stack") + 
-                    ggplot2::theme_minimal() + 
-                    ggplot2::theme(axis.text.x = ggplot2::element_text(
-                        angle = 90, hjust = 1, vjust = 0.5))
-            }
-        })
-        
+        ## Heatmap ------------------------------------------------------------
         output$bettrHeatmap <- shiny::renderPlot({
             if (is.null(longdata())) {
                 NULL
