@@ -16,7 +16,8 @@
 #' @importFrom shiny navbarPage plotOutput numericInput br fluidRow titlePanel
 #'   fluidRow column tabsetPanel radioButtons actionButton uiOutput 
 #'   reactiveValues observeEvent updateNumericInput isolate renderPlot
-#'   tagList shinyApp tabPanel
+#'   tagList shinyApp tabPanel tags HTML
+#' @importFrom sortable rank_list
 #' @importFrom stats sd
 #' @importFrom ggplot2 ggplot aes geom_bar theme_minimal geom_boxplot geom_line 
 #'   geom_point scale_size_manual theme geom_col coord_polar facet_wrap 
@@ -34,8 +35,13 @@
 #' @importFrom circlize colorRamp2
 #' @importFrom methods is
 #' 
-bettr <- function(df, methodCol = "Method", metrics = setdiff(colnames(df), methodCol),
+bettr <- function(df, methodCol = "Method", 
+                  metrics_num = setdiff(colnames(df), methodCol),
+                  metrics_cat = c(),
                   initialWeights = NULL) {
+    ## All metrics (numeric and categorical) ----------------------------------
+    metrics <- c(metrics_num, metrics_cat)
+    
     ## Check input arguments --------------------------------------------------
     stopifnot(exprs = {
         methods::is(df, "data.frame")
@@ -47,7 +53,12 @@ bettr <- function(df, methodCol = "Method", metrics = setdiff(colnames(df), meth
                                         !is.null(names(initialWeights)) &&
                                         all(metrics %in%
                                                 names(initialWeights)) &&
-                                        !all(initialWeights == 0))
+                                        !all(initialWeights == 0) && 
+                                        all(initialWeights >= 0) && 
+                                        all(initialWeights <= 1))
+        all(sapply(metrics_num, function(m) is.numeric(df[[m]])))
+        all(sapply(metrics_cat, function(m) is.factor(df[[m]]) || 
+                       is.character(df[[m]])))
     })
 
     ## Define column names assigned by the function ---------------------------
@@ -58,11 +69,11 @@ bettr <- function(df, methodCol = "Method", metrics = setdiff(colnames(df), meth
     
     ## Assign initial weights -------------------------------------------------
     if (is.null(initialWeights)) {
-        nMetrics <- length(metrics)
-        initialWeights <- rep(0.2, nMetrics)
+        initialWeights <- rep(0.2, length(metrics))
         names(initialWeights) <- metrics
     } else {
-        ## TODO: Scale initial weights to [0,1]
+        ## Round initial weights to closest 0.05 to fit with the sliders
+        initialWeights <- round(initialWeights * 20) / 20
     }
 
     ## UI definition ----------------------------------------------------------
@@ -88,8 +99,11 @@ bettr <- function(df, methodCol = "Method", metrics = setdiff(colnames(df), meth
                         tabPanel("Bar/polar plot",
                                  shiny::plotOutput("bettrBarPolarplot"))
                     ),
+                    
+                    ## Some white space ---------------------------------------
                     shiny::br(),
                     shiny::br(),
+                    
                     ## Variable transformations -------------------------------
                     shiny::fluidRow(
                         shiny::column(
@@ -99,12 +113,12 @@ bettr <- function(df, methodCol = "Method", metrics = setdiff(colnames(df), meth
                         shiny::column(
                             9, 
                             shiny::uiOutput(outputId = 
-                                                "metricManipulationSummaryID")
+                                                "metricManipulationSummaryUI")
                         )
                     )
                 ),
                 
-                ## Controls ---------------------------------------------------
+                ## Weight controls --------------------------------------------
                 shiny::column(
                     3, 
                     shiny::uiOutput(outputId = "highlightMethodUI"),
@@ -128,11 +142,12 @@ bettr <- function(df, methodCol = "Method", metrics = setdiff(colnames(df), meth
             methods = unique(df[[methodCol]])
         )
         
-        ## Processed data
+        ## Processed data -----------------------------------------------------
         procdata <- shiny::reactive({
             tmp <- values$df
             for (m in values$metrics) {
                 if (is.numeric(values$df[[m]])) {
+                    print(input[[paste0(m, "_flip")]])
                     tmp[[m]] <- transformNumericVariable(
                         x = values$df[[m]],
                         flip = input[[paste0(m, "_flip")]], 
@@ -143,25 +158,31 @@ bettr <- function(df, methodCol = "Method", metrics = setdiff(colnames(df), meth
                 } else {
                     tmp[[m]] <- transformCategoricalVariable(
                         x = values$df[[m]],
-                        levels = unique(values$df[[m]])
+                        levels = input[[paste0(m, "_levels")]]
                     )
                 }
             }
             tmp
         })
         
+        ## Long-form data for plotting ----------------------------------------
+        ## Needs to use the processed data, since we must make sure that the 
+        ## value that goes in the 'value' column is numeric
         longdata <- shiny::reactive({
             pd <- procdata() %>%
                 dplyr::select(!!rlang::sym(methodCol), 
                               dplyr::contains(values$metrics)) %>%
                 tidyr::gather(key = "Metric", value = "ScaledValue", 
                               -!!rlang::sym(methodCol))
-            for (m in metrics) {
-                pd[[weightCol]][pd$Metric == m] <- input[[paste0(m, "_weight")]]
+            ## Add weight column for later score calculations
+            for (m in values$metrics) {
+                pd[[weightCol]][pd$Metric == m] <- 
+                    input[[paste0(m, "_weight")]]
             }
             pd
         })
         
+        ## UI element to select method to highlight ---------------------------
         output$highlightMethodUI <- shiny::renderUI({
             shiny::selectizeInput(inputId = "highlightMethod",
                                   label = "Highlight method",
@@ -169,6 +190,7 @@ bettr <- function(df, methodCol = "Method", metrics = setdiff(colnames(df), meth
                                   selected = "---")
         })
         
+        ## UI element to select metric to transform ---------------------------
         output$metricToManipulateUI <- shiny::renderUI({
             shiny::selectizeInput(inputId = "metricToManipulate",
                                   label = "Select metric",
@@ -176,53 +198,122 @@ bettr <- function(df, methodCol = "Method", metrics = setdiff(colnames(df), meth
                                   selected = "---")
         })
         
-        ## Data transformations
+        ## Display transformation options for selected metric -----------------
         shiny::observeEvent(input$metricToManipulate, {
             shiny::updateTabsetPanel(inputId = "metricManipulationSummary", 
                                      selected = input$metricToManipulate)
         })
-        ## Make one tab panel per metric
+        
+        ## UI element to transform metric values ------------------------------
         shiny::observe({
-            output$metricManipulationSummaryID <- shiny::renderUI({
-                do.call(shiny::tabsetPanel, 
-                        c(list(type = "hidden", 
-                               id = "metricManipulationSummary"), 
-                          lapply(values$metrics, function(i) {
-                              shiny::tabPanelBody(
-                                  value = i, 
-                                  shiny::fluidRow(
-                                      shiny::column(4, 
-                                                    shiny::checkboxInput(
-                                                        inputId = paste0(i, "_flip"), 
-                                                        label = paste("Flip", i), 
-                                                        value = FALSE
-                                                    ),
-                                                    shiny::numericInput(
-                                                        inputId = paste0(i, "_offset"),
-                                                        label = paste("Offset", i), 
-                                                        value = 0
-                                                    ),
-                                                    shiny::radioButtons(
-                                                        inputId = paste0(i, "_transform"),
-                                                        label = paste("Transform", i),
-                                                        choices = c("None", "z-score",
-                                                                    "[0,1]", "[-1,1]",
-                                                                    "Rank"),
-                                                        selected = "None"
-                                                    )
-                                      ), 
-                                      shiny::column(8, 
-                                                    shiny::plotOutput(
-                                                        outputId = paste0(i, "_plotsummary")
-                                                    )) 
-                                  )
+            output$metricManipulationSummaryUI <- shiny::renderUI({
+                do.call(
+                    shiny::tabsetPanel, 
+                    c(list(type = "hidden", 
+                           id = "metricManipulationSummary", 
+                           ## Empty body when "---" is selected
+                           shiny::tabPanelBody(
+                               value = "---",
+                               NULL
+                           )),
+                      ## One tab panel per metric. The actual panel content is 
+                      ## created below (it's different for numeric and 
+                      ## categorical variables)
+                      lapply(values$metrics, function(i) {
+                          shiny::tabPanelBody(
+                              value = i, 
+                              shiny::fluidRow(
+                                  ## Input controls
+                                  shiny::column(
+                                      4,
+                                      shiny::uiOutput(
+                                          outputId = paste0(i, "_transformUI")
+                                      )
+                                  ),
+                                  ## Summary plots
+                                  shiny::column(
+                                      8, 
+                                      shiny::plotOutput(
+                                          outputId = paste0(i, "_plotsummary")
+                                      )
+                                  ) 
                               )
-                          })
-                        )
+                          )
+                      })
+                    )
                 )
             })
         })
 
+        ## Create transformation interface for numeric metrics ----------------
+        lapply(metrics_num, function(m) {
+            output[[paste0(m, "_transformUI")]] <- shiny::renderUI({
+                shiny::tagList(
+                    shiny::checkboxInput(
+                        inputId = paste0(m, "_flip"),
+                        label = paste("Flip", m),
+                        value = FALSE
+                    ),
+                    shiny::numericInput(
+                        inputId = paste0(m, "_offset"),
+                        label = paste("Offset", m),
+                        value = 0
+                    ),
+                    shiny::radioButtons(
+                        inputId = paste0(m, "_transform"),
+                        label = paste("Transform", m),
+                        choices = c("None", "z-score",
+                                    "[0,1]", "[-1,1]",
+                                    "Rank"),
+                        selected = "None"
+                    )
+                )
+            })
+        })
+        ## Create transformation interface for categorical metrics ------------
+        lapply(metrics_cat, function(m) {
+            output[[paste0(m, "_transformUI")]] <- shiny::renderUI({
+                shiny::tagList(
+                    sortable::rank_list(
+                        text = "Levels",
+                        labels = levels(factor(values$df[[m]])),
+                        input_id = paste0(m, "_levels"),
+                        class = c("default-sortable", "custom-sortable")
+                    ),
+                    ## Set the colors for the levels ranked list box
+                    ## First color is surrounding, second is levels
+                    shiny::tags$style(
+                        shiny::HTML(".rank-list-container.custom-sortable {
+                                    background-color: #3c453c;
+                                    }
+                                    .custom-sortable .rank-list-item {
+                                    background-color: #02075d;
+                                    }
+                                    ")
+                    )
+                )
+            })
+        })
+        ## Make sure that hidden tabs (metrics that are currently not being
+        ## transformed) are not suspended 
+        lapply(metrics, function(m) {
+            shiny::outputOptions(output, paste0(m, "_transformUI"),
+                                 suspendWhenHidden = FALSE)
+        })
+        
+        shiny::observe({
+            lapply(values$metrics, function(m) {
+                output[[paste0(m, "_plotsummary")]] <- shiny::renderPlot({
+                    shiny::validate(
+                        shiny::need(procdata(), "No processed data")
+                    )
+                    hist(procdata()[[m]])
+                })
+            })
+            
+        })
+        
+        
         ## Reset all weights upon action button click -------------------------
         shiny::observeEvent(input$resetWeights, {
             for (j in values$metrics) {
@@ -444,14 +535,6 @@ bettr <- function(df, methodCol = "Method", metrics = setdiff(colnames(df), meth
             }
         })
         
-        shiny::observe({
-            lapply(values$metrics, function(m) {
-                output[[paste0(m, "_plotsummary")]] <- renderPlot({
-                    hist(procdata()[[m]])
-                })
-            })
-            
-        })
         
         ## Define weight controls ---------------------------------------------
         output$weights <- shiny::renderUI({
