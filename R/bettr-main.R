@@ -135,7 +135,11 @@ bettr <- function(df, idCol = "Method",
                     shiny::tabsetPanel(
                         type = "tabs",
                         shiny::tabPanel("Heatmap", 
-                                        shiny::plotOutput("bettrHeatmap")),
+                                        shiny::numericInput(inputId = "heatmap_height",
+                                                            label = "Plot height",
+                                                            value = 400, min = 200,
+                                                            max = 1000, step = 10),
+                                        shiny::uiOutput("bettrHeatmapUI")),
                         shiny::tabPanel("Parallel coordinates", 
                                         shiny::plotOutput("bettrParCoordplot")),
                         shiny::tabPanel("Polar plot", 
@@ -310,17 +314,17 @@ bettr <- function(df, idCol = "Method",
                 shiny::tagList(
                     shiny::checkboxInput(
                         inputId = paste0(m, "_flip"),
-                        label = paste("Flip", m),
+                        label = "Flip",
                         value = initialFlips[m]
                     ),
                     shiny::numericInput(
                         inputId = paste0(m, "_offset"),
-                        label = paste("Offset", m),
+                        label = "Offset",
                         value = initialOffsets[m]
                     ),
                     shiny::radioButtons(
                         inputId = paste0(m, "_transform"),
-                        label = paste("Transform", m),
+                        label = "Transform",
                         choices = c("None", "z-score",
                                     "[0,1]", "[-1,1]",
                                     "Rank"),
@@ -538,6 +542,12 @@ bettr <- function(df, idCol = "Method",
         })
         
         ## Heatmap ------------------------------------------------------------
+        output$bettrHeatmapUI <- shiny::renderUI({
+            shiny::plotOutput(
+                "bettrHeatmap",
+                height = paste0(input$heatmap_height,
+                                "px"))
+        })
         output$bettrHeatmap <- shiny::renderPlot({
             if (is.null(longdata())) {
                 NULL
