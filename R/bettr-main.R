@@ -1,8 +1,8 @@
 #' Launch bettr app to explore and aggregate performance metrics
 #' 
 #' @param df A \code{data.frame} in wide format. 
-#' @param methodCol Character scalar, indicating which column of \code{df} 
-#'   that contains method IDs.
+#' @param idCol Character scalar, indicating which column of \code{df} 
+#'   that contains IDs of the entities to be compared (e.g., methods).
 #' @param metrics_num,metrics_cat Character vectors, indicating which of the 
 #'   columns of \code{df} that correspond to, numeric and categorical, 
 #'   respectively, metrics of interest.
@@ -40,8 +40,8 @@
 #' @importFrom circlize colorRamp2
 #' @importFrom methods is
 #' 
-bettr <- function(df, methodCol = "Method", 
-                  metrics_num = setdiff(colnames(df), methodCol),
+bettr <- function(df, idCol = "Method", 
+                  metrics_num = setdiff(colnames(df), idCol),
                   metrics_cat = c(),
                   initialWeights = NULL,
                   metricGroups = list()) {
@@ -51,9 +51,9 @@ bettr <- function(df, methodCol = "Method",
     ## Check input arguments --------------------------------------------------
     stopifnot(exprs = {
         methods::is(df, "data.frame")
-        methods::is(methodCol, "character")
-        length(methodCol) == 1
-        methodCol %in% colnames(df)
+        methods::is(idCol, "character")
+        length(idCol) == 1
+        idCol %in% colnames(df)
         all(metrics %in% colnames(df))
         is.null(initialWeights) || (is.numeric(initialWeights) &&
                                         !is.null(names(initialWeights)) &&
@@ -154,7 +154,7 @@ bettr <- function(df, methodCol = "Method",
             metrics = metrics,
             nMetrics = length(metrics),
             metricGroups = metricGroups,
-            methods = unique(df[[methodCol]])
+            methods = unique(df[[idCol]])
         )
         
         ## Processed data -----------------------------------------------------
@@ -184,10 +184,10 @@ bettr <- function(df, methodCol = "Method",
         ## value that goes in the 'value' column is numeric
         longdata <- shiny::reactive({
             pd <- procdata() %>%
-                dplyr::select(!!rlang::sym(methodCol), 
+                dplyr::select(!!rlang::sym(idCol), 
                               dplyr::contains(values$metrics)) %>%
                 tidyr::gather(key = "Metric", value = "ScaledValue", 
-                              -!!rlang::sym(methodCol))
+                              -!!rlang::sym(idCol))
             ## Add weight column for later score calculations
             for (m in values$metrics) {
                 pd[[weightCol]][pd$Metric == m] <- 
@@ -211,7 +211,7 @@ bettr <- function(df, methodCol = "Method",
         ## UI element to select method to highlight ---------------------------
         output$highlightMethodUI <- shiny::renderUI({
             shiny::selectizeInput(inputId = "highlightMethod",
-                                  label = "Highlight method",
+                                  label = "Highlight ID",
                                   choices = c("---", values$methods), 
                                   selected = "---")
         })
@@ -394,12 +394,12 @@ bettr <- function(df, methodCol = "Method",
                         ggplot2::geom_boxplot(outlier.size = -1)
                 }
                 gp + 
-                    ggplot2::geom_line(aes(group = !!rlang::sym(methodCol),
-                                           color = !!rlang::sym(methodCol),
-                                           size = !!rlang::sym(methodCol)),
+                    ggplot2::geom_line(aes(group = !!rlang::sym(idCol),
+                                           color = !!rlang::sym(idCol),
+                                           size = !!rlang::sym(idCol)),
                                        alpha = 0.75) +
-                    ggplot2::geom_point(aes(group = !!rlang::sym(methodCol),
-                                            color = !!rlang::sym(methodCol))) +
+                    ggplot2::geom_point(aes(group = !!rlang::sym(idCol),
+                                            color = !!rlang::sym(idCol))) +
                     ggplot2::scale_size_manual(values = lwidths) +
                     ggplot2::theme_minimal() +
                     ggplot2::theme(axis.text.x = ggplot2::element_text(
@@ -413,24 +413,24 @@ bettr <- function(df, methodCol = "Method",
                 NULL
             } else {
                 levs <- longdata() %>%
-                    dplyr::group_by(!!rlang::sym(methodCol)) %>%
+                    dplyr::group_by(!!rlang::sym(idCol)) %>%
                     dplyr::summarize(
                         "{scoreCol}" := sum(!!rlang::sym(weightCol) *
                                                 !!rlang::sym(valueCol),
                                             na.rm = TRUE)
                     ) %>%
                     dplyr::arrange(dplyr::desc(!!rlang::sym(scoreCol))) %>%
-                    dplyr::pull(!!rlang::sym(methodCol))
+                    dplyr::pull(!!rlang::sym(idCol))
                 ggplot2::ggplot(longdata() %>% 
-                                    dplyr::mutate("{methodCol}" := 
-                                                      factor(!!rlang::sym(methodCol),
+                                    dplyr::mutate("{idCol}" := 
+                                                      factor(!!rlang::sym(idCol),
                                                              levels = levs)),
                                 ggplot2::aes(x = !!rlang::sym(metricCol), 
                                              y = !!rlang::sym(valueCol),
                                              fill = !!rlang::sym(metricCol))) + 
                     ggplot2::geom_col(width = 1, color = "white") +
                     ggplot2::coord_polar() + 
-                    ggplot2::facet_wrap(facets = methodCol) +
+                    ggplot2::facet_wrap(facets = idCol) +
                     ggplot2::theme_minimal() +
                     ggplot2::theme(axis.text = ggplot2::element_blank())
             }
@@ -444,7 +444,7 @@ bettr <- function(df, methodCol = "Method",
                 ## Define polar plots
                 rplots <- lapply(values$methods, function(m) {
                     ggplot2::ggplot(longdata() %>% 
-                                        dplyr::filter(!!rlang::sym(methodCol) == m),
+                                        dplyr::filter(!!rlang::sym(idCol) == m),
                                     ggplot2::aes(x = !!rlang::sym(metricCol), 
                                                  y = !!rlang::sym(valueCol),
                                                  fill = !!rlang::sym(metricCol))) + 
@@ -463,7 +463,7 @@ bettr <- function(df, methodCol = "Method",
                 names(rplots) <- values$methods
                 
                 scores <- longdata() %>%
-                    dplyr::group_by(!!rlang::sym(methodCol)) %>%
+                    dplyr::group_by(!!rlang::sym(idCol)) %>%
                     dplyr::summarize(
                         "{scoreCol}" := sum(!!rlang::sym(weightCol) *
                                                 !!rlang::sym(valueCol),
@@ -471,17 +471,17 @@ bettr <- function(df, methodCol = "Method",
                     ) %>%
                     dplyr::arrange(dplyr::desc(!!rlang::sym(scoreCol)))
                 levs <- scores %>%
-                    dplyr::pull(!!rlang::sym(methodCol))
+                    dplyr::pull(!!rlang::sym(idCol))
                 rx <- length(levs)
                 ry <- max(0, max(scores[[scoreCol]])) - min(0, min(scores[[scoreCol]]))
                 sx <- 2.5
                 sy <- ry/rx * sx
                 
                 bplot <- ggplot2::ggplot(longdata() %>% 
-                                    dplyr::mutate("{methodCol}" := 
-                                                      factor(!!rlang::sym(methodCol),
+                                    dplyr::mutate("{idCol}" := 
+                                                      factor(!!rlang::sym(idCol),
                                                              levels = levs)),
-                                ggplot2::aes(x = !!rlang::sym(methodCol), 
+                                ggplot2::aes(x = !!rlang::sym(idCol), 
                                              y = !!rlang::sym(weightCol) * 
                                                  !!rlang::sym(valueCol),
                                              fill = !!rlang::sym(metricCol))) +
@@ -497,7 +497,7 @@ bettr <- function(df, methodCol = "Method",
                     bplot <- bplot +
                         cowplot::draw_plot(
                             rplots[[l]], x = (i - sx/2 - 0.1), 
-                            y = scores[[scoreCol]][scores[[methodCol]] == l],
+                            y = scores[[scoreCol]][scores[[idCol]] == l],
                             width = sx, height = sy, scale = 1.5, 
                             hjust = 0, vjust = 0,
                             halign = 0.5, valign = 0.5)
@@ -512,7 +512,7 @@ bettr <- function(df, methodCol = "Method",
                 NULL
             } else {
                 rowAnnot <- longdata() %>%
-                    dplyr::group_by(!!rlang::sym(methodCol)) %>%
+                    dplyr::group_by(!!rlang::sym(idCol)) %>%
                     dplyr::summarize(
                         "{scoreCol}" := sum(!!rlang::sym(weightCol) *
                                                 !!rlang::sym(valueCol),
@@ -520,21 +520,21 @@ bettr <- function(df, methodCol = "Method",
                     ) %>%
                     dplyr::arrange(dplyr::desc(!!rlang::sym(scoreCol)))
                 tmp <- longdata()
-                tmp[[methodCol]] <- factor(tmp[[methodCol]], 
-                                           levels = rowAnnot[[methodCol]])
+                tmp[[idCol]] <- factor(tmp[[idCol]], 
+                                           levels = rowAnnot[[idCol]])
                 mat <- tmp %>%
-                    dplyr::select(c(!!rlang::sym(methodCol),
+                    dplyr::select(c(!!rlang::sym(idCol),
                                     !!rlang::sym(metricCol),
                                     !!rlang::sym(valueCol))) %>%
                     tidyr::spread(key = !!rlang::sym(metricCol),
                                   value = !!rlang::sym(valueCol), fill = NA) %>%
                     as.data.frame() %>%
-                    tibble::column_to_rownames(var = methodCol) %>%
+                    tibble::column_to_rownames(var = idCol) %>%
                     as.matrix()
                 rowAnnot <- rowAnnot[match(rownames(mat), 
-                                           rowAnnot[[methodCol]]), ,
+                                           rowAnnot[[idCol]]), ,
                                      drop = FALSE] %>% as.data.frame() %>%
-                    tibble::column_to_rownames(var = methodCol)
+                    tibble::column_to_rownames(var = idCol)
                 
                 colAnnot <- longdata() %>%
                     dplyr::filter(!duplicated(!!rlang::sym(metricCol))) %>%

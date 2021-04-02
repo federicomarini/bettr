@@ -6,8 +6,8 @@
 \usage{
 bettr(
   df,
-  methodCol = "Method",
-  metrics_num = setdiff(colnames(df), methodCol),
+  idCol = "Method",
+  metrics_num = setdiff(colnames(df), idCol),
   metrics_cat = c(),
   initialWeights = NULL,
   metricGroups = list()
@@ -16,8 +16,8 @@ bettr(
 \arguments{
 \item{df}{A \code{data.frame} in wide format.}
 
-\item{methodCol}{Character scalar, indicating which column of \code{df}
-that contains method IDs.}
+\item{idCol}{Character scalar, indicating which column of \code{df}
+that contains IDs of the entities to be compared (e.g., methods).}
 
 \item{metrics_num, metrics_cat}{Character vectors, indicating which of the
 columns of \code{df} that correspond to, numeric and categorical,
