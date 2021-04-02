@@ -51,45 +51,14 @@ bettr <- function(df, idCol = "Method",
     ## All metrics (numeric and categorical) ----------------------------------
     metrics <- c(metrics_num, metrics_cat)
     
-    allowedTransforms <- c("None", "z-score", "[0,1]", "[-1,1]", "Rank")
+    .checkInputArguments(df = df, idCol = idCol, metrics_num = metrics_num,
+                         metrics_cat = metrics_cat, 
+                         initialWeights = initialWeights,
+                         initialFlips = initialFlips,
+                         initialOffsets = initialOffsets,
+                         initialTransforms = initialTransforms,
+                         metricGroups = metricGroups)
     
-    ## Check input arguments --------------------------------------------------
-    stopifnot(exprs = {
-        methods::is(df, "data.frame")
-        methods::is(idCol, "character")
-        length(idCol) == 1
-        idCol %in% colnames(df)
-        all(metrics %in% colnames(df))
-        is.null(initialWeights) || (is.numeric(initialWeights) &&
-                                        !is.null(names(initialWeights)) &&
-                                        all(metrics %in%
-                                                names(initialWeights)) &&
-                                        !all(initialWeights == 0) && 
-                                        all(initialWeights >= 0) && 
-                                        all(initialWeights <= 1))
-        all(sapply(metrics_num, function(m) is.numeric(df[[m]])))
-        all(sapply(metrics_cat, function(m) is.factor(df[[m]]) || 
-                       is.character(df[[m]])))
-        is.list(metricGroups)
-        length(metricGroups) == 0 || (!is.null(names(metricGroups)) &&
-                                          all(sapply(metricGroups, function(mg) {
-                                              all(metrics %in% names(mg))
-                                          })))
-        is.null(initialFlips) || (is.logical(initialFlips) && 
-                                      !is.null(names(initialFlips)) && 
-                                      all(metrics_num %in% names(initialFlips)))
-        is.null(initialOffsets) || (is.numeric(initialOffsets) && 
-                                        !is.null(names(initialOffsets)) && 
-                                        all(metrics_num %in% 
-                                                names(initialOffsets)))
-        is.null(initialTransforms) || (is.character(initialTransforms) && 
-                                           !is.null(names(initialTransforms)) && 
-                                           all(metrics_num %in% 
-                                                   names(initialTransforms)) && 
-                                           all(initialTransforms %in% 
-                                                   allowedTransforms))
-    })
-
     ## Define column names assigned by the function ---------------------------
     scoreCol <- "Score"
     weightCol <- "Weight"
