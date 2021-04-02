@@ -10,6 +10,9 @@ bettr(
   metrics_num = setdiff(colnames(df), idCol),
   metrics_cat = c(),
   initialWeights = NULL,
+  initialFlips = NULL,
+  initialOffsets = NULL,
+  initialTransforms = NULL,
   metricGroups = list()
 )
 }
@@ -26,6 +29,10 @@ respectively, metrics of interest.}
 \item{initialWeights}{Named numeric vector providing initial weights for
 aggregating the metric scores. Must have one entry per metric included
 in \code{df}.}
+
+\item{initialFlips, initialOffsets, initialTransforms}{Named vectors
+giving the initial value of the flip, offset and transforms for each
+metric.}
 
 \item{metricGroups}{Named list of named character vectors. Each list entry
 corresponds to one grouping of metrics. The grouping much be a named

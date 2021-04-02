@@ -9,6 +9,9 @@
 #' @param initialWeights Named numeric vector providing initial weights for 
 #'   aggregating the metric scores. Must have one entry per metric included 
 #'   in \code{df}.
+#' @param initialFlips,initialOffsets,initialTransforms Named vectors 
+#'   giving the initial value of the flip, offset and transforms for each 
+#'   metric. 
 #' @param metricGroups Named list of named character vectors. Each list entry 
 #'   corresponds to one grouping of metrics. The grouping much be a named 
 #'   vector indicating the respective group for each metric. 
@@ -42,11 +45,13 @@
 #' 
 bettr <- function(df, idCol = "Method", 
                   metrics_num = setdiff(colnames(df), idCol),
-                  metrics_cat = c(),
-                  initialWeights = NULL,
-                  metricGroups = list()) {
+                  metrics_cat = c(), initialWeights = NULL,
+                  initialFlips = NULL, initialOffsets = NULL,
+                  initialTransforms = NULL, metricGroups = list()) {
     ## All metrics (numeric and categorical) ----------------------------------
     metrics <- c(metrics_num, metrics_cat)
+    
+    allowedTransforms <- c("None", "z-score", "[0,1]", "[-1,1]", "Rank")
     
     ## Check input arguments --------------------------------------------------
     stopifnot(exprs = {
@@ -70,6 +75,19 @@ bettr <- function(df, idCol = "Method",
                                           all(sapply(metricGroups, function(mg) {
                                               all(metrics %in% names(mg))
                                           })))
+        is.null(initialFlips) || (is.logical(initialFlips) && 
+                                      !is.null(names(initialFlips)) && 
+                                      all(metrics_num %in% names(initialFlips)))
+        is.null(initialOffsets) || (is.numeric(initialOffsets) && 
+                                        !is.null(names(initialOffsets)) && 
+                                        all(metrics_num %in% 
+                                                names(initialOffsets)))
+        is.null(initialTransforms) || (is.character(initialTransforms) && 
+                                           !is.null(names(initialTransforms)) && 
+                                           all(metrics_num %in% 
+                                                   names(initialTransforms)) && 
+                                           all(initialTransforms %in% 
+                                                   allowedTransforms))
     })
 
     ## Define column names assigned by the function ---------------------------
@@ -78,6 +96,20 @@ bettr <- function(df, idCol = "Method",
     metricCol <- "Metric"
     valueCol <- "ScaledValue"
     groupCol <- "Group"
+    
+    ## Assign initial values of flips, offsets and transforms -----------------
+    if (is.null(initialFlips)) {
+        initialFlips <- rep(FALSE, length(metrics_num))
+        names(initialFlips) <- metrics_num
+    }
+    if (is.null(initialOffsets)) {
+        initialOffsets <- rep(0, length(metrics_num))
+        names(initialOffsets) <- metrics_num
+    }
+    if (is.null(initialTransforms)) {
+        initialTransforms <- rep("None", length(metrics_num))
+        names(initialTransforms) <- metrics_num
+    }
     
     ## Assign initial weights -------------------------------------------------
     if (is.null(initialWeights)) {
@@ -278,12 +310,12 @@ bettr <- function(df, idCol = "Method",
                     shiny::checkboxInput(
                         inputId = paste0(m, "_flip"),
                         label = paste("Flip", m),
-                        value = FALSE
+                        value = initialFlips[m]
                     ),
                     shiny::numericInput(
                         inputId = paste0(m, "_offset"),
                         label = paste("Offset", m),
-                        value = 0
+                        value = initialOffsets[m]
                     ),
                     shiny::radioButtons(
                         inputId = paste0(m, "_transform"),
@@ -291,7 +323,7 @@ bettr <- function(df, idCol = "Method",
                         choices = c("None", "z-score",
                                     "[0,1]", "[-1,1]",
                                     "Rank"),
-                        selected = "None"
+                        selected = initialTransforms[m]
                     )
                 )
             })
