@@ -242,10 +242,11 @@ bettr <- function(df, idCol = "Method",
         })
         ## UI element to select method to highlight ---------------------------
         output$highlightMethodUI <- shiny::renderUI({
-            shiny::selectizeInput(inputId = "highlightMethod",
-                                  label = "Highlight ID",
-                                  choices = c("---", values$methods), 
-                                  selected = "---")
+            shiny::selectInput(inputId = "highlightMethod",
+                               label = "Highlight ID",
+                               choices = values$methods, 
+                               selected = NULL, 
+                               multiple = TRUE)
         })
         
         ## UI element to select metric to transform ---------------------------
@@ -403,9 +404,7 @@ bettr <- function(df, idCol = "Method",
             } else {
                 lwidths <- rep(0.75, length(values$methods))
                 names(lwidths) <- values$methods
-                if (input$highlightMethod != "---") {
-                    lwidths[input$highlightMethod] <- 2.5
-                }
+                lwidths[input$highlightMethod] <- 2.5
                 if (input$metricGrouping != "---") {
                     tmp <- longdata() %>% 
                         dplyr::arrange(!!rlang::sym(groupCol)) %>%
@@ -588,7 +587,9 @@ bettr <- function(df, idCol = "Method",
                     Score = ComplexHeatmap::anno_barplot(
                         rowAnnot[[scoreCol]],
                         width = grid::unit(2, "cm"), 
-                        baseline = 0)
+                        baseline = 0,
+                        axis = TRUE,
+                        axis_param = list(side = "top"))
                 )
                 if (groupCol %in% colnames(colAnnot)) {
                     colAnnot <- ComplexHeatmap::columnAnnotation(
