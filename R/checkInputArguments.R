@@ -1,3 +1,7 @@
+#' @keywords internal
+#' 
+#' @importFrom methods is
+#' 
 .checkInputArguments <- function(df, idCol, metrics_num, metrics_cat,
                                  initialWeights, initialFlips, 
                                  initialOffsets, initialTransforms, 

@@ -3,13 +3,13 @@
 #' @importFrom dplyr group_by summarize arrange desc filter select contains
 #' @importFrom tidyr spread
 #' @importFrom tibble column_to_rownames tibble
-#' @importFrom rlang sym
+#' @importFrom rlang sym :=
 #' @importFrom ComplexHeatmap rowAnnotation anno_barplot columnAnnotation 
 #'   Heatmap
 #' @importFrom grid gpar
 #' @importFrom circlize colorRamp2
 #' 
-.makeHeatmap <- function(df, idCol, scoreCol, weightCol, valueCol, metricCol,
+.makeHeatmap <- function(df, idCol, metricCol, valueCol, weightCol, scoreCol, 
                          groupCol) {
     rowAnnot <- df %>%
         dplyr::group_by(!!rlang::sym(idCol)) %>%

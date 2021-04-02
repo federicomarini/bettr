@@ -27,21 +27,13 @@
 #'   updateTabsetPanel selectizeInput reactive reactiveValues uiOutput hr 
 #'   actionButton br tabPanel titlePanel navbarPage
 #' @importFrom sortable rank_list
-#' @importFrom ggplot2 expand_limits theme element_text theme_minimal geom_bar 
-#'   aes ggplot labs element_blank coord_polar ylim geom_col facet_wrap 
-#'   scale_size_manual geom_point geom_line geom_boxplot coord_flip geom_jitter 
-#' @importFrom dplyr group_by summarize mutate ungroup arrange select filter 
-#'   %>% pull desc contains
-#' @importFrom cowplot draw_plot plot_grid
-#' @importFrom tidyr spread gather
-#' @importFrom ComplexHeatmap Heatmap columnAnnotation rowAnnotation
-#'   anno_barplot
-#' @importFrom tibble tibble column_to_rownames
+#' @importFrom ggplot2 theme_minimal geom_bar aes ggplot geom_boxplot 
+#'   coord_flip geom_jitter 
+#' @importFrom dplyr select %>% contains
+#' @importFrom cowplot plot_grid
+#' @importFrom tidyr gather
 #' @importFrom bslib bs_theme
-#' @importFrom rlang sym :=
-#' @importFrom grid gpar unit
-#' @importFrom circlize colorRamp2
-#' @importFrom methods is
+#' @importFrom rlang sym
 #' 
 bettr <- function(df, idCol = "Method", 
                   metrics_num = setdiff(colnames(df), idCol),
@@ -375,11 +367,11 @@ bettr <- function(df, idCol = "Method",
             if (is.null(longdata())) {
                 NULL
             } else {
-                .makeParCoordPlot(df = longdata(), methods = values$methods,
+                .makeParCoordPlot(df = longdata(), idCol = idCol, 
+                                  metricCol = metricCol, valueCol = valueCol, 
+                                  groupCol = groupCol, methods = values$methods,
                                   highlightMethod = input$highlightMethod, 
-                                  metricGrouping = input$metricGrouping, 
-                                  groupCol = groupCol, metricCol = metricCol, 
-                                  valueCol = valueCol, idCol = idCol)
+                                  metricGrouping = input$metricGrouping)
             }
         })
         
@@ -389,8 +381,8 @@ bettr <- function(df, idCol = "Method",
                 NULL
             } else {
                 .makePolarPlot(df = longdata(), idCol = idCol, 
-                               weightCol = weightCol, valueCol = valueCol, 
-                               scoreCol = scoreCol, metricCol = metricCol)
+                               metricCol = metricCol, valueCol = valueCol,
+                               weightCol = weightCol, scoreCol = scoreCol)
             }
         })
         
@@ -399,10 +391,10 @@ bettr <- function(df, idCol = "Method",
             if (is.null(longdata())) {
                 NULL
             } else {
-                .makeBarPolarPlot(df = longdata(), methods = values$methods, 
-                                  idCol = idCol, metricCol = metricCol, 
-                                  valueCol = valueCol, scoreCol = scoreCol, 
-                                  weightCol = weightCol)
+                .makeBarPolarPlot(df = longdata(), idCol = idCol, 
+                                  metricCol = metricCol, valueCol = valueCol, 
+                                  weightCol = weightCol, scoreCol = scoreCol, 
+                                  methods = values$methods)
             }
         })
         
@@ -418,8 +410,8 @@ bettr <- function(df, idCol = "Method",
                 NULL
             } else {
                 .makeHeatmap(df = longdata(), idCol = idCol, 
-                             scoreCol = scoreCol, weightCol = weightCol, 
-                             valueCol = valueCol, metricCol = metricCol,
+                             metricCol = metricCol, valueCol = valueCol, 
+                             weightCol = weightCol, scoreCol = scoreCol, 
                              groupCol = groupCol)
             }
         })

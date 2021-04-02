@@ -1,13 +1,13 @@
 #' @keywords internal
 #' 
 #' @importFrom dplyr arrange mutate
-#' @importFrom rlang sym
+#' @importFrom rlang sym :=
 #' @importFrom ggplot2 ggplot aes geom_boxplot geom_line geom_point 
-#'   scale_size_manual theme_minimal theme
+#'   scale_size_manual theme_minimal theme element_text
 #'   
-.makeParCoordPlot <- function(df, methods, highlightMethod, 
-                              metricGrouping, groupCol, metricCol, 
-                              valueCol, idCol) {
+.makeParCoordPlot <- function(df, idCol, metricCol, valueCol, groupCol,
+                              methods, highlightMethod, 
+                              metricGrouping) {
     lwidths <- rep(0.75, length(methods))
     names(lwidths) <- methods
     lwidths[highlightMethod] <- 2.5

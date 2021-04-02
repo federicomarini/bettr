@@ -1,14 +1,14 @@
 #' @keywords internal
 #' 
 #' @importFrom dplyr filter group_by summarize arrange desc pull mutate
-#' @importFrom rlang sym
+#' @importFrom rlang sym :=
 #' @importFrom ggplot2 ggplot aes geom_col ylim coord_polar theme_minimal 
-#'   theme element_blank labs geom_bar expand_limits
+#'   theme element_blank labs geom_bar expand_limits element_text
 #' @importFrom cowplot draw_plot
 #' @importFrom grid unit
 #' 
-.makeBarPolarPlot <- function(df, methods, idCol, metricCol, valueCol, 
-                              scoreCol, weightCol) {
+.makeBarPolarPlot <- function(df, idCol, metricCol, valueCol, 
+                              weightCol, scoreCol, methods) {
     ## Define polar plots
     rplots <- lapply(methods, function(m) {
         ggplot2::ggplot(df %>% 
