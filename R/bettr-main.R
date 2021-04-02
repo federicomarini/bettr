@@ -9,6 +9,9 @@
 #' @param initialWeights Named numeric vector providing initial weights for 
 #'   aggregating the metric scores. Must have one entry per metric included 
 #'   in \code{df}.
+#' @param metricGroups Named list of named character vectors. Each list entry 
+#'   corresponds to one grouping of metrics. The grouping much be a named 
+#'   vector indicating the respective group for each metric. 
 #'  
 #' @export
 #' 
@@ -25,7 +28,7 @@
 #'   aes ggplot labs element_blank coord_polar ylim geom_col facet_wrap 
 #'   scale_size_manual geom_point geom_line geom_boxplot coord_flip geom_jitter 
 #' @importFrom dplyr group_by summarize mutate ungroup arrange select filter 
-#'   %>% pull desc
+#'   %>% pull desc contains
 #' @importFrom cowplot draw_plot plot_grid
 #' @importFrom tidyr spread gather
 #' @importFrom ComplexHeatmap Heatmap columnAnnotation rowAnnotation
@@ -40,7 +43,8 @@
 bettr <- function(df, methodCol = "Method", 
                   metrics_num = setdiff(colnames(df), methodCol),
                   metrics_cat = c(),
-                  initialWeights = NULL) {
+                  initialWeights = NULL,
+                  metricGroups = list()) {
     ## All metrics (numeric and categorical) ----------------------------------
     metrics <- c(metrics_num, metrics_cat)
     
@@ -61,6 +65,11 @@ bettr <- function(df, methodCol = "Method",
         all(sapply(metrics_num, function(m) is.numeric(df[[m]])))
         all(sapply(metrics_cat, function(m) is.factor(df[[m]]) || 
                        is.character(df[[m]])))
+        is.list(metricGroups)
+        length(metricGroups) == 0 || (!is.null(names(metricGroups)) &&
+                                          all(sapply(metricGroups, function(mg) {
+                                              all(metrics %in% names(mg))
+                                          })))
     })
 
     ## Define column names assigned by the function ---------------------------
@@ -68,6 +77,7 @@ bettr <- function(df, methodCol = "Method",
     weightCol <- "Weight"
     metricCol <- "Metric"
     valueCol <- "ScaledValue"
+    groupCol <- "Group"
     
     ## Assign initial weights -------------------------------------------------
     if (is.null(initialWeights)) {
@@ -123,6 +133,8 @@ bettr <- function(df, methodCol = "Method",
                 ## Weight controls --------------------------------------------
                 shiny::column(
                     3, 
+                    shiny::uiOutput(outputId = "metricGroupingUI"),
+                    shiny::hr(color = "white"),
                     shiny::uiOutput(outputId = "highlightMethodUI"),
                     shiny::hr(color = "white"), 
                     shiny::uiOutput(outputId = "weights"),
@@ -141,6 +153,7 @@ bettr <- function(df, methodCol = "Method",
             df = df,
             metrics = metrics,
             nMetrics = length(metrics),
+            metricGroups = metricGroups,
             methods = unique(df[[methodCol]])
         )
         
@@ -180,9 +193,21 @@ bettr <- function(df, methodCol = "Method",
                 pd[[weightCol]][pd$Metric == m] <- 
                     input[[paste0(m, "_weight")]]
             }
+            ## Add grouping of metrics
+            if (input$metricGrouping != "---") {
+                pd[[groupCol]] <- 
+                    values$metricGroups[[input$metricGrouping]][pd$Metric]
+            }
             pd
         })
         
+        ## UI element to select grouping of metrics ---------------------------
+        output$metricGroupingUI <- shiny::renderUI({
+            shiny::selectizeInput(inputId = "metricGrouping",
+                                  label = "Grouping of metrics",
+                                  choices = c("---", names(values$metricGroups)),
+                                  selected = "---")
+        })
         ## UI element to select method to highlight ---------------------------
         output$highlightMethodUI <- shiny::renderUI({
             shiny::selectizeInput(inputId = "highlightMethod",
@@ -349,10 +374,26 @@ bettr <- function(df, methodCol = "Method",
                 if (input$highlightMethod != "---") {
                     lwidths[input$highlightMethod] <- 2.5
                 }
-                ggplot2::ggplot(longdata(),
-                                aes(x = !!rlang::sym(metricCol), 
-                                    y = !!rlang::sym(valueCol))) + 
-                    ggplot2::geom_boxplot(outlier.size = -1) + 
+                if (input$metricGrouping != "---") {
+                    tmp <- longdata() %>% 
+                        dplyr::arrange(!!rlang::sym(groupCol)) %>%
+                        dplyr::mutate("{metricCol}" := factor(
+                            !!rlang::sym(metricCol),
+                            levels = unique(!!rlang::sym(metricCol))))
+                    gp <- ggplot2::ggplot(tmp,
+                                          aes(x = !!rlang::sym(metricCol), 
+                                              y = !!rlang::sym(valueCol))) + 
+                        ggplot2::geom_boxplot(outlier.size = -1,
+                                              aes(fill = !!rlang::sym(groupCol)),
+                                              alpha = 0.4)
+                } else {
+                    tmp <- longdata()
+                    gp <- ggplot2::ggplot(tmp,
+                                          aes(x = !!rlang::sym(metricCol), 
+                                              y = !!rlang::sym(valueCol))) + 
+                        ggplot2::geom_boxplot(outlier.size = -1)
+                }
+                gp + 
                     ggplot2::geom_line(aes(group = !!rlang::sym(methodCol),
                                            color = !!rlang::sym(methodCol),
                                            size = !!rlang::sym(methodCol)),
@@ -494,9 +535,17 @@ bettr <- function(df, methodCol = "Method",
                                            rowAnnot[[methodCol]]), ,
                                      drop = FALSE] %>% as.data.frame() %>%
                     tibble::column_to_rownames(var = methodCol)
+                
                 colAnnot <- longdata() %>%
                     dplyr::filter(!duplicated(!!rlang::sym(metricCol))) %>%
-                    dplyr::select(c(!!rlang::sym(metricCol), weightCol)) 
+                    dplyr::select(c(metricCol, weightCol,
+                                    dplyr::contains(groupCol))) 
+                if (groupCol %in% colnames(colAnnot)) {
+                    colAnnot <- colAnnot %>%
+                        dplyr::arrange(!!rlang::sym(groupCol))
+                    mat <- mat[, match(colAnnot[[metricCol]], 
+                                       colnames(mat)), drop = FALSE]
+                }
                 colAnnot <- tibble::tibble(
                     colAnnot[match(colnames(mat), 
                                    colAnnot[[metricCol]]), , 
@@ -509,12 +558,22 @@ bettr <- function(df, methodCol = "Method",
                         width = grid::unit(2, "cm"), 
                         baseline = 0)
                 )
-                colAnnot <- ComplexHeatmap::columnAnnotation(
-                    Weight = ComplexHeatmap::anno_barplot(
-                        colAnnot[[weightCol]],
-                        height = grid::unit(2, "cm"), 
-                        baseline = 0)
-                )
+                if (groupCol %in% colnames(colAnnot)) {
+                    colAnnot <- ComplexHeatmap::columnAnnotation(
+                        Weight = ComplexHeatmap::anno_barplot(
+                            colAnnot[[weightCol]],
+                            height = grid::unit(2, "cm"), 
+                            baseline = 0),
+                        Group = colAnnot[[groupCol]]
+                    )
+                } else {
+                    colAnnot <- ComplexHeatmap::columnAnnotation(
+                        Weight = ComplexHeatmap::anno_barplot(
+                            colAnnot[[weightCol]],
+                            height = grid::unit(2, "cm"), 
+                            baseline = 0)
+                    )
+                }
                 
                 heatmapCols = circlize::colorRamp2(
                     seq(min(mat), max(mat), length = 3), 

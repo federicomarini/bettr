@@ -9,7 +9,8 @@ bettr(
   methodCol = "Method",
   metrics_num = setdiff(colnames(df), methodCol),
   metrics_cat = c(),
-  initialWeights = NULL
+  initialWeights = NULL,
+  metricGroups = list()
 )
 }
 \arguments{
@@ -25,6 +26,10 @@ respectively, metrics of interest.}
 \item{initialWeights}{Named numeric vector providing initial weights for
 aggregating the metric scores. Must have one entry per metric included
 in \code{df}.}
+
+\item{metricGroups}{Named list of named character vectors. Each list entry
+corresponds to one grouping of metrics. The grouping much be a named
+vector indicating the respective group for each metric.}
 }
 \description{
 Launch bettr app to explore and aggregate performance metrics
