@@ -1,4 +1,4 @@
-getTransf <- function(v) {
+.getTransf <- function(v) {
     if (v == "None") {
         return(function(a) a)
     } else if (v == "z-score") {
@@ -13,7 +13,7 @@ getTransf <- function(v) {
 }
 
 #' @importFrom Hmisc cut2
-transformNumericVariable <- function(x, flip = FALSE, offset = 0, 
+.transformNumericVariable <- function(x, flip = FALSE, offset = 0, 
                                      transf = function(a) a, 
                                      bincuts = NULL) {
     stopifnot(exprs = {
@@ -44,7 +44,7 @@ transformNumericVariable <- function(x, flip = FALSE, offset = 0,
     x
 }
 
-transformCategoricalVariable <- function(x, levels = NULL) {
+.transformCategoricalVariable <- function(x, levels = NULL) {
     ## If no levels are specified, use the default ones. 
     ## If some levels are specified but they don't cover all the values in x, 
     ## add missing values from x in the beginning.

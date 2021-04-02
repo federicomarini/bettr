@@ -198,15 +198,15 @@ bettr <- function(df, idCol = "Method",
             tmp <- values$df
             for (m in values$metrics) {
                 if (is.numeric(values$df[[m]])) {
-                    tmp[[m]] <- transformNumericVariable(
+                    tmp[[m]] <- .transformNumericVariable(
                         x = values$df[[m]],
                         flip = input[[paste0(m, "_flip")]], 
                         offset = input[[paste0(m, "_offset")]], 
-                        transf = getTransf(input[[paste0(m, "_transform")]]), 
+                        transf = .getTransf(input[[paste0(m, "_transform")]]), 
                         bincuts = NULL
                     )
                 } else {
-                    tmp[[m]] <- transformCategoricalVariable(
+                    tmp[[m]] <- .transformCategoricalVariable(
                         x = values$df[[m]],
                         levels = input[[paste0(m, "_levels")]]
                     )
@@ -406,39 +406,11 @@ bettr <- function(df, idCol = "Method",
             if (is.null(longdata())) {
                 NULL
             } else {
-                lwidths <- rep(0.75, length(values$methods))
-                names(lwidths) <- values$methods
-                lwidths[input$highlightMethod] <- 2.5
-                if (input$metricGrouping != "---") {
-                    tmp <- longdata() %>% 
-                        dplyr::arrange(!!rlang::sym(groupCol)) %>%
-                        dplyr::mutate("{metricCol}" := factor(
-                            !!rlang::sym(metricCol),
-                            levels = unique(!!rlang::sym(metricCol))))
-                    gp <- ggplot2::ggplot(tmp,
-                                          aes(x = !!rlang::sym(metricCol), 
-                                              y = !!rlang::sym(valueCol))) + 
-                        ggplot2::geom_boxplot(outlier.size = -1,
-                                              aes(fill = !!rlang::sym(groupCol)),
-                                              alpha = 0.4)
-                } else {
-                    tmp <- longdata()
-                    gp <- ggplot2::ggplot(tmp,
-                                          aes(x = !!rlang::sym(metricCol), 
-                                              y = !!rlang::sym(valueCol))) + 
-                        ggplot2::geom_boxplot(outlier.size = -1)
-                }
-                gp + 
-                    ggplot2::geom_line(aes(group = !!rlang::sym(idCol),
-                                           color = !!rlang::sym(idCol),
-                                           size = !!rlang::sym(idCol)),
-                                       alpha = 0.75) +
-                    ggplot2::geom_point(aes(group = !!rlang::sym(idCol),
-                                            color = !!rlang::sym(idCol))) +
-                    ggplot2::scale_size_manual(values = lwidths) +
-                    ggplot2::theme_minimal() +
-                    ggplot2::theme(axis.text.x = ggplot2::element_text(
-                        angle = 90, hjust = 1, vjust = 0.5))
+                .makeParCoordPlot(df = longdata(), methods = values$methods,
+                                  highlightMethod = input$highlightMethod, 
+                                  metricGrouping = input$metricGrouping, 
+                                  groupCol = groupCol, metricCol = metricCol, 
+                                  valueCol = valueCol, idCol = idCol)
             }
         })
         
