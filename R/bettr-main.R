@@ -419,27 +419,9 @@ bettr <- function(df, idCol = "Method",
             if (is.null(longdata())) {
                 NULL
             } else {
-                levs <- longdata() %>%
-                    dplyr::group_by(!!rlang::sym(idCol)) %>%
-                    dplyr::summarize(
-                        "{scoreCol}" := sum(!!rlang::sym(weightCol) *
-                                                !!rlang::sym(valueCol),
-                                            na.rm = TRUE)
-                    ) %>%
-                    dplyr::arrange(dplyr::desc(!!rlang::sym(scoreCol))) %>%
-                    dplyr::pull(!!rlang::sym(idCol))
-                ggplot2::ggplot(longdata() %>% 
-                                    dplyr::mutate("{idCol}" := 
-                                                      factor(!!rlang::sym(idCol),
-                                                             levels = levs)),
-                                ggplot2::aes(x = !!rlang::sym(metricCol), 
-                                             y = !!rlang::sym(valueCol),
-                                             fill = !!rlang::sym(metricCol))) + 
-                    ggplot2::geom_col(width = 1, color = "white") +
-                    ggplot2::coord_polar() + 
-                    ggplot2::facet_wrap(facets = idCol) +
-                    ggplot2::theme_minimal() +
-                    ggplot2::theme(axis.text = ggplot2::element_blank())
+                .makePolarPlot(df = longdata(), idCol = idCol, 
+                               weightCol = weightCol, valueCol = valueCol, 
+                               scoreCol = scoreCol, metricCol = metricCol)
             }
         })
         
