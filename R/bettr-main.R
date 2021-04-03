@@ -96,17 +96,37 @@ bettr <- function(df, idCol = "Method",
                     shiny::tabsetPanel(
                         type = "tabs",
                         shiny::tabPanel("Heatmap", 
-                                        shiny::numericInput(inputId = "heatmap_height",
-                                                            label = "Plot height",
-                                                            value = 400, min = 200,
-                                                            max = 1000, step = 10),
+                                        shiny::numericInput(
+                                            inputId = "heatmap_height",
+                                            label = "Plot height",
+                                            value = 400, min = 200,
+                                            max = 1000, step = 10
+                                        ),
                                         shiny::uiOutput("bettrHeatmapUI")),
                         shiny::tabPanel("Parallel coordinates", 
-                                        shiny::plotOutput("bettrParCoordplot")),
+                                        shiny::numericInput(
+                                            inputId = "parcoord_height",
+                                            label = "Plot height",
+                                            value = 400, min = 200,
+                                            max = 1000, step = 10
+                                        ),
+                                        shiny::uiOutput("bettrParCoordplotUI")),
                         shiny::tabPanel("Polar plot", 
-                                        shiny::plotOutput("bettrPolarplot")),
+                                        shiny::numericInput(
+                                            inputId = "polar_height",
+                                            label = "Plot height",
+                                            value = 400, min = 200,
+                                            max = 1000, step = 10
+                                        ),
+                                        shiny::uiOutput("bettrPolarplotUI")),
                         shiny::tabPanel("Bar/polar plot",
-                                        shiny::plotOutput("bettrBarPolarplot"))
+                                        shiny::numericInput(
+                                            inputId = "barpolar_height",
+                                            label = "Plot height",
+                                            value = 400, min = 200,
+                                            max = 1000, step = 10
+                                        ),
+                                        shiny::uiOutput("bettrBarPolarplotUI"))
                     ),
                     
                     ## Some white space ---------------------------------------
@@ -363,6 +383,11 @@ bettr <- function(df, idCol = "Method",
         })
         
         ## Parallel coordinates plot ------------------------------------------
+        output$bettrParCoordplotUI <- shiny::renderUI({
+            shiny::plotOutput(
+                "bettrParCoordplot",
+                height = paste0(input$parcoord_height, "px"))
+        })
         output$bettrParCoordplot <- shiny::renderPlot({
             if (is.null(longdata())) {
                 NULL
@@ -376,6 +401,11 @@ bettr <- function(df, idCol = "Method",
         })
         
         ## Polar plot ---------------------------------------------------------
+        output$bettrPolarplotUI <- shiny::renderUI({
+            shiny::plotOutput(
+                "bettrPolarplot",
+                height = paste0(input$polar_height, "px"))
+        })
         output$bettrPolarplot <- shiny::renderPlot({
             if (is.null(longdata())) {
                 NULL
@@ -387,6 +417,11 @@ bettr <- function(df, idCol = "Method",
         })
         
         ## Bar + polar plot ---------------------------------------------------
+        output$bettrBarPolarplotUI <- shiny::renderUI({
+            shiny::plotOutput(
+                "bettrBarPolarplot",
+                height = paste0(input$barpolar_height, "px"))
+        })
         output$bettrBarPolarplot <- shiny::renderPlot({
             if (is.null(longdata())) {
                 NULL
@@ -402,8 +437,7 @@ bettr <- function(df, idCol = "Method",
         output$bettrHeatmapUI <- shiny::renderUI({
             shiny::plotOutput(
                 "bettrHeatmap",
-                height = paste0(input$heatmap_height,
-                                "px"))
+                height = paste0(input$heatmap_height, "px"))
         })
         output$bettrHeatmap <- shiny::renderPlot({
             if (is.null(longdata())) {

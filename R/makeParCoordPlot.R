@@ -8,9 +8,17 @@
 .makeParCoordPlot <- function(df, idCol, metricCol, valueCol, groupCol,
                               methods, highlightMethod, 
                               metricGrouping) {
+    
     lwidths <- rep(0.75, length(methods))
     names(lwidths) <- methods
     lwidths[highlightMethod] <- 2.5
+    
+    alphas <- rep(1, length(methods))
+    names(alphas) <- methods
+    if (any(highlightMethod %in% methods)) {
+        alphas[setdiff(methods, highlightMethod)] <- 0.3
+    }
+    
     if (metricGrouping != "---") {
         tmp <- df %>% 
             dplyr::arrange(!!rlang::sym(groupCol)) %>%
@@ -33,11 +41,12 @@
     gp + 
         ggplot2::geom_line(ggplot2::aes(group = !!rlang::sym(idCol),
                                         color = !!rlang::sym(idCol),
-                                        size = !!rlang::sym(idCol)),
-                           alpha = 0.75) +
+                                        size = !!rlang::sym(idCol),
+                                        alpha = !!rlang::sym(idCol))) +
         ggplot2::geom_point(ggplot2::aes(group = !!rlang::sym(idCol),
                                          color = !!rlang::sym(idCol))) +
         ggplot2::scale_size_manual(values = lwidths) +
+        ggplot2::scale_alpha_manual(values = alphas) + 
         ggplot2::theme_minimal() +
         ggplot2::theme(axis.text.x = ggplot2::element_text(
             angle = 90, hjust = 1, vjust = 0.5))

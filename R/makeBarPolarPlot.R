@@ -45,15 +45,13 @@
     sx <- 2.5
     sy <- ry/rx * sx
     
-    bplot <- ggplot2::ggplot(df %>% 
+    bplot <- ggplot2::ggplot(scores %>% 
                                  dplyr::mutate("{idCol}" := 
                                                    factor(!!rlang::sym(idCol),
                                                           levels = levs)),
                              ggplot2::aes(x = !!rlang::sym(idCol), 
-                                          y = !!rlang::sym(weightCol) * 
-                                              !!rlang::sym(valueCol),
-                                          fill = !!rlang::sym(metricCol))) +
-        ggplot2::geom_bar(stat = "identity", width = 0.1) + 
+                                          y = !!rlang::sym(scoreCol))) +
+        ggplot2::geom_bar(stat = "identity", width = 0.2, fill = "grey") + 
         ggplot2::theme_minimal() +
         ggplot2::theme(axis.text.x = ggplot2::element_text(
             angle = 90, hjust = 1, vjust = 0.5)) +
