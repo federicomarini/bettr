@@ -15,6 +15,8 @@
 #' @param metricGroups Named list of named character vectors. Each list entry 
 #'   corresponds to one grouping of metrics. The grouping much be a named 
 #'   vector indicating the respective group for each metric. 
+#' @param bstheme Character scalar giving the bootswatch theme for the app 
+#'   (see https://bootswatch.com/). Default 'darkly'.
 #'  
 #' @export
 #' 
@@ -39,10 +41,13 @@ bettr <- function(df, idCol = "Method",
                   metrics_num = setdiff(colnames(df), idCol),
                   metrics_cat = c(), initialWeights = NULL,
                   initialFlips = NULL, initialOffsets = NULL,
-                  initialTransforms = NULL, metricGroups = list()) {
+                  initialTransforms = NULL, metricGroups = list(),
+                  bstheme = "darkly") {
+    
     ## All metrics (numeric and categorical) ----------------------------------
     metrics <- c(metrics_num, metrics_cat)
     
+    ## Check validity of input arguments --------------------------------------
     .checkInputArguments(df = df, idCol = idCol, metrics_num = metrics_num,
                          metrics_cat = metrics_cat, 
                          initialWeights = initialWeights,
@@ -51,7 +56,7 @@ bettr <- function(df, idCol = "Method",
                          initialTransforms = initialTransforms,
                          metricGroups = metricGroups)
     
-    ## Define column names assigned by the function ---------------------------
+    ## Define column names assigned internally ---- ---------------------------
     scoreCol <- "Score"
     weightCol <- "Weight"
     metricCol <- "Metric"
@@ -85,7 +90,7 @@ bettr <- function(df, idCol = "Method",
     p_layout <- 
         shiny::navbarPage(
             shiny::titlePanel("bettr"),
-            theme = bslib::bs_theme(bootswatch = "darkly"),
+            theme = bslib::bs_theme(bootswatch = bstheme),
             
             shiny::br(),
             
@@ -220,26 +225,33 @@ bettr <- function(df, idCol = "Method",
         
         ## UI element to select grouping of metrics ---------------------------
         output$metricGroupingUI <- shiny::renderUI({
-            shiny::selectizeInput(inputId = "metricGrouping",
-                                  label = "Grouping of metrics",
-                                  choices = c("---", names(values$metricGroups)),
-                                  selected = "---")
+            shiny::selectizeInput(
+                inputId = "metricGrouping",
+                label = "Grouping of metrics",
+                choices = c("---", names(values$metricGroups)),
+                selected = "---"
+            )
         })
+        
         ## UI element to select method to highlight ---------------------------
         output$highlightMethodUI <- shiny::renderUI({
-            shiny::selectInput(inputId = "highlightMethod",
-                               label = "Highlight ID",
-                               choices = values$methods, 
-                               selected = NULL, 
-                               multiple = TRUE)
+            shiny::selectInput(
+                inputId = "highlightMethod",
+                label = "Highlight ID",
+                choices = values$methods, 
+                selected = NULL, 
+                multiple = TRUE
+            )
         })
         
         ## UI element to select metric to transform ---------------------------
         output$metricToManipulateUI <- shiny::renderUI({
-            shiny::selectizeInput(inputId = "metricToManipulate",
-                                  label = "Select metric",
-                                  choices = c("---", values$metrics),
-                                  selected = "---")
+            shiny::selectizeInput(
+                inputId = "metricToManipulate",
+                label = "Select metric to transform",
+                choices = c("---", values$metrics),
+                selected = "---"
+            )
         })
         
         ## Display transformation options for selected metric -----------------
@@ -314,6 +326,7 @@ bettr <- function(df, idCol = "Method",
                 )
             })
         })
+        
         ## Create transformation interface for categorical metrics ------------
         lapply(metrics_cat, function(m) {
             output[[paste0(m, "_transformUI")]] <- shiny::renderUI({
@@ -338,6 +351,7 @@ bettr <- function(df, idCol = "Method",
                 )
             })
         })
+        
         ## Make sure that hidden tabs (metrics that are currently not being
         ## transformed) are not suspended 
         lapply(metrics, function(m) {
