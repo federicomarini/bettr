@@ -13,7 +13,8 @@ bettr(
   initialFlips = NULL,
   initialOffsets = NULL,
   initialTransforms = NULL,
-  metricGroups = list()
+  metricGroups = list(),
+  bstheme = "darkly"
 )
 }
 \arguments{
@@ -37,6 +38,9 @@ metric.}
 \item{metricGroups}{Named list of named character vectors. Each list entry
 corresponds to one grouping of metrics. The grouping much be a named
 vector indicating the respective group for each metric.}
+
+\item{bstheme}{Character scalar giving the bootswatch theme for the app
+(see https://bootswatch.com/). Default 'darkly'.}
 }
 \description{
 Launch bettr app to explore and aggregate performance metrics
