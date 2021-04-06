@@ -10,15 +10,25 @@
 #' @importFrom circlize colorRamp2
 #' 
 .makeHeatmap <- function(df, idCol, metricCol, valueCol, weightCol, scoreCol, 
-                         groupCol) {
+                         groupCol, ordering = "high-to-low") {
+    if (!(ordering %in% c("high-to-low", "low-to-high"))) {
+        stop("ordering must be 'high-to-low' or 'low-to-high'")
+    }
+    
     rowAnnot <- df %>%
         dplyr::group_by(!!rlang::sym(idCol)) %>%
         dplyr::summarize(
             "{scoreCol}" := sum(!!rlang::sym(weightCol) *
                                     !!rlang::sym(valueCol),
                                 na.rm = TRUE)
-        ) %>%
-        dplyr::arrange(dplyr::desc(!!rlang::sym(scoreCol)))
+        ) 
+    if (ordering == "high-to-low") {
+        rowAnnot <- rowAnnot %>%
+            dplyr::arrange(dplyr::desc(!!rlang::sym(scoreCol)))
+    } else {
+        rowAnnot <- rowAnnot %>%
+            dplyr::arrange(!!rlang::sym(scoreCol))
+    }
     tmp <- df
     tmp[[idCol]] <- factor(tmp[[idCol]], 
                            levels = rowAnnot[[idCol]])

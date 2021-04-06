@@ -101,11 +101,28 @@ bettr <- function(df, idCol = "Method",
                     shiny::tabsetPanel(
                         type = "tabs",
                         shiny::tabPanel("Heatmap", 
-                                        shiny::numericInput(
-                                            inputId = "heatmap_height",
-                                            label = "Plot height",
-                                            value = 400, min = 200,
-                                            max = 1000, step = 10
+                                        shiny::fluidRow(
+                                            shiny::column(
+                                                4,
+                                                shiny::numericInput(
+                                                    inputId = "heatmap_height",
+                                                    label = "Plot height",
+                                                    value = 400, min = 200,
+                                                    max = 1000, step = 10
+                                                )
+                                            ),
+                                            shiny::column(1),
+                                            shiny::column(
+                                                6,
+                                                shiny::radioButtons(
+                                                    inputId = "heatmap_id_ordering",
+                                                    label = "ID ordering by score",
+                                                    choices = c("high-to-low", 
+                                                                "low-to-high"),
+                                                    selected = "high-to-low",
+                                                    inline = TRUE
+                                                )
+                                            )
                                         ),
                                         shiny::uiOutput("bettrHeatmapUI")),
                         shiny::tabPanel("Parallel coordinates", 
@@ -460,7 +477,8 @@ bettr <- function(df, idCol = "Method",
                 .makeHeatmap(df = longdata(), idCol = idCol, 
                              metricCol = metricCol, valueCol = valueCol, 
                              weightCol = weightCol, scoreCol = scoreCol, 
-                             groupCol = groupCol)
+                             groupCol = groupCol,
+                             ordering = input$heatmap_id_ordering)
             }
         })
         
