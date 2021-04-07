@@ -134,19 +134,53 @@ bettr <- function(df, idCol = "Method",
                                         ),
                                         shiny::uiOutput("bettrParCoordplotUI")),
                         shiny::tabPanel("Polar plot", 
-                                        shiny::numericInput(
-                                            inputId = "polar_height",
-                                            label = "Plot height",
-                                            value = 400, min = 200,
-                                            max = 1000, step = 10
+                                        shiny::fluidRow(
+                                            shiny::column(
+                                                4,
+                                                shiny::numericInput(
+                                                    inputId = "polar_height",
+                                                    label = "Plot height",
+                                                    value = 400, min = 200,
+                                                    max = 1000, step = 10
+                                                )
+                                            ),
+                                            shiny::column(1),
+                                            shiny::column(
+                                                6,
+                                                shiny::radioButtons(
+                                                    inputId = "polar_id_ordering",
+                                                    label = "ID ordering by score",
+                                                    choices = c("high-to-low", 
+                                                                "low-to-high"),
+                                                    selected = "high-to-low",
+                                                    inline = TRUE
+                                                )
+                                            )
                                         ),
                                         shiny::uiOutput("bettrPolarplotUI")),
                         shiny::tabPanel("Bar/polar plot",
-                                        shiny::numericInput(
-                                            inputId = "barpolar_height",
-                                            label = "Plot height",
-                                            value = 400, min = 200,
-                                            max = 1000, step = 10
+                                        shiny::fluidRow(
+                                            shiny::column(
+                                                4,
+                                                shiny::numericInput(
+                                                    inputId = "barpolar_height",
+                                                    label = "Plot height",
+                                                    value = 400, min = 200,
+                                                    max = 1000, step = 10
+                                                )
+                                            ),
+                                            shiny::column(1),
+                                            shiny::column(
+                                                6,
+                                                shiny::radioButtons(
+                                                    inputId = "barpolar_id_ordering",
+                                                    label = "ID ordering by score",
+                                                    choices = c("high-to-low", 
+                                                                "low-to-high"),
+                                                    selected = "high-to-low",
+                                                    inline = TRUE
+                                                )
+                                            )
                                         ),
                                         shiny::uiOutput("bettrBarPolarplotUI"))
                     ),
@@ -443,7 +477,8 @@ bettr <- function(df, idCol = "Method",
             } else {
                 .makePolarPlot(df = longdata(), idCol = idCol, 
                                metricCol = metricCol, valueCol = valueCol,
-                               weightCol = weightCol, scoreCol = scoreCol)
+                               weightCol = weightCol, scoreCol = scoreCol,
+                               ordering = input$polar_id_ordering)
             }
         })
         
@@ -460,7 +495,8 @@ bettr <- function(df, idCol = "Method",
                 .makeBarPolarPlot(df = longdata(), idCol = idCol, 
                                   metricCol = metricCol, valueCol = valueCol, 
                                   weightCol = weightCol, scoreCol = scoreCol, 
-                                  methods = values$methods)
+                                  methods = values$methods,
+                                  ordering = input$barpolar_id_ordering)
             }
         })
         

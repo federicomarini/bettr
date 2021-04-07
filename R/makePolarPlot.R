@@ -6,15 +6,25 @@
 #'   theme_minimal theme element_blank
 #' 
 .makePolarPlot <- function(df, idCol, metricCol, valueCol, weightCol, 
-                           scoreCol) {
+                           scoreCol, ordering = "high-to-low") {
+    if (!(ordering %in% c("high-to-low", "low-to-high"))) {
+        stop("ordering must be 'high-to-low' or 'low-to-high'")
+    }
     levs <- df %>%
         dplyr::group_by(!!rlang::sym(idCol)) %>%
         dplyr::summarize(
             "{scoreCol}" := sum(!!rlang::sym(weightCol) *
                                     !!rlang::sym(valueCol),
                                 na.rm = TRUE)
-        ) %>%
-        dplyr::arrange(dplyr::desc(!!rlang::sym(scoreCol))) %>%
+        )
+    if (ordering == "high-to-low") {
+        levs <- levs %>%
+            dplyr::arrange(dplyr::desc(!!rlang::sym(scoreCol)))
+    } else {
+        levs <- levs %>%
+            dplyr::arrange(!!rlang::sym(scoreCol))
+    }
+    levs <- levs %>%
         dplyr::pull(!!rlang::sym(idCol))
     ggplot2::ggplot(df %>% 
                         dplyr::mutate("{idCol}" := 

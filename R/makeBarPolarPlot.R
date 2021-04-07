@@ -8,7 +8,11 @@
 #' @importFrom grid unit
 #' 
 .makeBarPolarPlot <- function(df, idCol, metricCol, valueCol, 
-                              weightCol, scoreCol, methods) {
+                              weightCol, scoreCol, methods, 
+                              ordering = "high-to-low") {
+    if (!(ordering %in% c("high-to-low", "low-to-high"))) {
+        stop("ordering must be 'high-to-low' or 'low-to-high'")
+    }
     ## Define polar plots
     rplots <- lapply(methods, function(m) {
         ggplot2::ggplot(df %>% 
@@ -36,8 +40,14 @@
             "{scoreCol}" := sum(!!rlang::sym(weightCol) *
                                     !!rlang::sym(valueCol),
                                 na.rm = TRUE)
-        ) %>%
-        dplyr::arrange(dplyr::desc(!!rlang::sym(scoreCol)))
+        ) 
+    if (ordering == "high-to-low") {
+        scores <- scores %>%
+            dplyr::arrange(dplyr::desc(!!rlang::sym(scoreCol)))
+    } else {
+        scores <- scores %>%
+            dplyr::arrange(!!rlang::sym(scoreCol))
+    }
     levs <- scores %>%
         dplyr::pull(!!rlang::sym(idCol))
     rx <- length(levs)
