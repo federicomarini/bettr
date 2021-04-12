@@ -13,6 +13,7 @@ bettr(
   initialFlips = NULL,
   initialOffsets = NULL,
   initialTransforms = NULL,
+  initialCuts = NULL,
   metricGroups = list(),
   bstheme = "darkly"
 )
@@ -34,6 +35,9 @@ in \code{df}.}
 \item{initialFlips, initialOffsets, initialTransforms}{Named vectors
 giving the initial value of the flip, offset and transforms for each
 metric.}
+
+\item{initialCuts}{Named list giving the initial values of cut points used to
+make each metric categorical.}
 
 \item{metricGroups}{Named list of named character vectors. Each list entry
 corresponds to one grouping of metrics. The grouping much be a named

@@ -36,7 +36,7 @@
     x <- get("transf")(x)
     
     ## Step 4: binarize
-    if (!is.null(bincuts)) {
+    if (!is.null(bincuts) && length(bincuts) != 0) {
         x <- Hmisc::cut2(x, cuts = bincuts)
         x <- as.numeric(x)
     }

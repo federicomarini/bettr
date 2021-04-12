@@ -12,6 +12,8 @@
 #' @param initialFlips,initialOffsets,initialTransforms Named vectors 
 #'   giving the initial value of the flip, offset and transforms for each 
 #'   metric. 
+#' @param initialCuts Named list giving the initial values of cut points used to
+#'   make each metric categorical.
 #' @param metricGroups Named list of named character vectors. Each list entry 
 #'   corresponds to one grouping of metrics. The grouping much be a named 
 #'   vector indicating the respective group for each metric. 
@@ -41,8 +43,8 @@ bettr <- function(df, idCol = "Method",
                   metrics_num = setdiff(colnames(df), idCol),
                   metrics_cat = c(), initialWeights = NULL,
                   initialFlips = NULL, initialOffsets = NULL,
-                  initialTransforms = NULL, metricGroups = list(),
-                  bstheme = "darkly") {
+                  initialTransforms = NULL, initialCuts = NULL,
+                  metricGroups = list(), bstheme = "darkly") {
     
     ## All metrics (numeric and categorical) ----------------------------------
     metrics <- c(metrics_num, metrics_cat)
@@ -54,7 +56,8 @@ bettr <- function(df, idCol = "Method",
                          initialFlips = initialFlips,
                          initialOffsets = initialOffsets,
                          initialTransforms = initialTransforms,
-                         metricGroups = metricGroups)
+                         initialCuts = initialCuts,
+                         metricGroups = metricGroups, bstheme = bstheme)
     
     ## Define column names assigned internally ---- ---------------------------
     scoreCol <- "Score"
@@ -240,7 +243,7 @@ bettr <- function(df, idCol = "Method",
                         flip = input[[paste0(m, "_flip")]], 
                         offset = input[[paste0(m, "_offset")]], 
                         transf = .getTransf(input[[paste0(m, "_transform")]]), 
-                        bincuts = NULL
+                        bincuts = sort(as.numeric(input[[paste0(m, "_bincuts")]]))
                     )
                 } else {
                     tmp[[m]] <- .transformCategoricalVariable(
@@ -373,6 +376,14 @@ bettr <- function(df, idCol = "Method",
                                     "[0,1]", "[-1,1]",
                                     "Rank"),
                         selected = initialTransforms[m]
+                    ),
+                    shiny::selectizeInput(
+                        inputId = paste0(m, "_bincuts"),
+                        label = "Cut points for\ncategorization",
+                        choices = initialCuts[[m]],
+                        selected = initialCuts[[m]],
+                        multiple = TRUE,
+                        options = list(create = TRUE)
                     )
                 )
             })
@@ -425,8 +436,8 @@ bettr <- function(df, idCol = "Method",
                         ggplot2::ggplot(data.frame(metric = procdata()[[m]]),
                                         ggplot2::aes(x = 1, y = metric)) + 
                             ggplot2::geom_boxplot(outlier.size = -1) + 
-                            ggplot2::geom_jitter(width = 0.2, size = 2, 
-                                                 pch = 1) + 
+                            ggplot2::geom_jitter(width = 0.2, height = 0,
+                                                 size = 4, pch = 1) + 
                             ggplot2::theme_minimal() +
                             ggplot2::coord_flip(),
                         ncol = 1

@@ -5,7 +5,7 @@
 .checkInputArguments <- function(df, idCol, metrics_num, metrics_cat,
                                  initialWeights, initialFlips, 
                                  initialOffsets, initialTransforms, 
-                                 metricGroups) {
+                                 initialCuts, metricGroups, bstheme) {
     metrics <- c(metrics_num, metrics_cat)
     allowedTransforms <- c("None", "z-score", "[0,1]", "[-1,1]", "Rank")
     
@@ -86,4 +86,14 @@
                  paste(allowedTransforms, collapse = ", "))
         }
     }
+    
+    if (!is.null(initialCuts)) {
+        if (!(methods::is(initialCuts, "list") && 
+              !is.null(names(initialCuts)) && 
+              all(vapply(initialCuts, is.numeric, FALSE)))) {
+            stop("initialCuts must be a named list with numeric vectors",
+                 "as elements")
+        }
+    }
+    
 }
