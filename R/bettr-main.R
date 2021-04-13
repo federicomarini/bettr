@@ -163,6 +163,14 @@ bettr <- function(df, idCol = "Method",
                                         value = 10, min = 2, max = 20, step = 1
                                     )
                                 ),
+                                shiny::column(
+                                    2,
+                                    shiny::checkboxInput(
+                                        inputId = "barpolar_showcomp",
+                                        label = "Show\nscore\ncomposition",
+                                        value = FALSE
+                                    )
+                                ),
                                 shiny::column(1),
                                 shiny::column(
                                     6,
@@ -500,7 +508,8 @@ bettr <- function(df, idCol = "Method",
                                   weightCol = weightCol, scoreCol = scoreCol, 
                                   methods = values$methods, 
                                   labelSize = input$barpolar_labelsize,
-                                  ordering = input$barpolar_id_ordering)
+                                  ordering = input$barpolar_id_ordering,
+                                  showComposition = input$barpolar_showcomp)
             }
         })
         

@@ -9,7 +9,8 @@
 #' 
 .makeBarPolarPlot <- function(df, idCol, metricCol, valueCol, 
                               weightCol, scoreCol, methods, labelSize,
-                              ordering = "high-to-low") {
+                              ordering = "high-to-low", 
+                              showComposition = FALSE) {
     if (!(ordering %in% c("high-to-low", "low-to-high"))) {
         stop("ordering must be 'high-to-low' or 'low-to-high'")
     }
@@ -63,13 +64,27 @@
     sx <- 2.5
     sy <- ry/rx * sx
     
-    bplot <- ggplot2::ggplot(scores %>% 
-                                 dplyr::mutate("{idCol}" := 
-                                                   factor(.data[[idCol]],
-                                                          levels = levs)),
-                             ggplot2::aes(x = .data[[idCol]], 
-                                          y = .data[[scoreCol]])) +
-        ggplot2::geom_bar(stat = "identity", width = 0.2, fill = "grey") + 
+    
+    if (showComposition) {
+        bplot <- ggplot2::ggplot(df %>% 
+                                     dplyr::mutate("{idCol}" := 
+                                                       factor(.data[[idCol]],
+                                                              levels = levs)),
+                                 ggplot2::aes(x = .data[[idCol]], 
+                                              y = .data[[weightCol]] * 
+                                                  .data[[valueCol]])) + 
+            ggplot2::geom_bar(stat = "identity", width = 0.2,
+                              aes(fill = .data[[metricCol]]))
+    } else {
+        bplot <- ggplot2::ggplot(scores %>% 
+                                     dplyr::mutate("{idCol}" := 
+                                                       factor(.data[[idCol]],
+                                                              levels = levs)),
+                                 ggplot2::aes(x = .data[[idCol]], 
+                                              y = .data[[scoreCol]])) + 
+            ggplot2::geom_bar(stat = "identity", width = 0.2, fill = "grey")
+    }
+    bplot <- bplot + 
         ggplot2::theme_minimal() +
         ggplot2::theme(
             axis.text.x = ggplot2::element_text(
