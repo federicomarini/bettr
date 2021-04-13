@@ -9,11 +9,8 @@
 #' @param initialWeights Named numeric vector providing initial weights for 
 #'   aggregating the metric scores. Must have one entry per metric included 
 #'   in \code{df}.
-#' @param initialFlips,initialOffsets,initialTransforms Named vectors 
-#'   giving the initial value of the flip, offset and transforms for each 
-#'   metric. 
-#' @param initialCuts Named list giving the initial values of cut points used to
-#'   make each metric categorical.
+#' @param initialTransforms Named list with initial values of transformation 
+#'   parameters for each metric.
 #' @param metricGroups Named list of named character vectors. Each list entry 
 #'   corresponds to one grouping of metrics. The grouping much be a named 
 #'   vector indicating the respective group for each metric. 
@@ -42,8 +39,7 @@
 bettr <- function(df, idCol = "Method", 
                   metrics_num = setdiff(colnames(df), idCol),
                   metrics_cat = c(), initialWeights = NULL,
-                  initialFlips = NULL, initialOffsets = NULL,
-                  initialTransforms = NULL, initialCuts = NULL,
+                  initialTransforms = list(),
                   metricGroups = list(), bstheme = "darkly") {
     
     ## All metrics (numeric and categorical) ----------------------------------
@@ -53,32 +49,18 @@ bettr <- function(df, idCol = "Method",
     .checkInputArguments(df = df, idCol = idCol, metrics_num = metrics_num,
                          metrics_cat = metrics_cat, 
                          initialWeights = initialWeights,
-                         initialFlips = initialFlips,
-                         initialOffsets = initialOffsets,
                          initialTransforms = initialTransforms,
-                         initialCuts = initialCuts,
                          metricGroups = metricGroups, bstheme = bstheme)
     
-    ## Define column names assigned internally ---- ---------------------------
+    ## Add non-specified initializations and check validity -------------------
+    initialTransforms <- .completeInitialization(initialTransforms, metrics)
+    
+    ## Define column names assigned internally --------------------------------
     scoreCol <- "Score"
     weightCol <- "Weight"
     metricCol <- "Metric"
     valueCol <- "ScaledValue"
     groupCol <- "Group"
-    
-    ## Assign initial values of flips, offsets and transforms -----------------
-    if (is.null(initialFlips)) {
-        initialFlips <- rep(FALSE, length(metrics_num))
-        names(initialFlips) <- metrics_num
-    }
-    if (is.null(initialOffsets)) {
-        initialOffsets <- rep(0, length(metrics_num))
-        names(initialOffsets) <- metrics_num
-    }
-    if (is.null(initialTransforms)) {
-        initialTransforms <- rep("None", length(metrics_num))
-        names(initialTransforms) <- metrics_num
-    }
     
     ## Assign initial weights -------------------------------------------------
     if (is.null(initialWeights)) {
@@ -103,89 +85,97 @@ bettr <- function(df, idCol = "Method",
                     9, 
                     shiny::tabsetPanel(
                         type = "tabs",
-                        shiny::tabPanel("Heatmap", 
-                                        shiny::fluidRow(
-                                            shiny::column(
-                                                4,
-                                                shiny::numericInput(
-                                                    inputId = "heatmap_height",
-                                                    label = "Plot height",
-                                                    value = 400, min = 200,
-                                                    max = 1000, step = 10
-                                                )
-                                            ),
-                                            shiny::column(1),
-                                            shiny::column(
-                                                6,
-                                                shiny::radioButtons(
-                                                    inputId = "heatmap_id_ordering",
-                                                    label = "ID ordering by score",
-                                                    choices = c("high-to-low", 
-                                                                "low-to-high"),
-                                                    selected = "high-to-low",
-                                                    inline = TRUE
-                                                )
-                                            )
-                                        ),
-                                        shiny::uiOutput("bettrHeatmapUI")),
-                        shiny::tabPanel("Parallel coordinates", 
-                                        shiny::numericInput(
-                                            inputId = "parcoord_height",
-                                            label = "Plot height",
-                                            value = 400, min = 200,
-                                            max = 1000, step = 10
-                                        ),
-                                        shiny::uiOutput("bettrParCoordplotUI")),
-                        shiny::tabPanel("Polar plot", 
-                                        shiny::fluidRow(
-                                            shiny::column(
-                                                4,
-                                                shiny::numericInput(
-                                                    inputId = "polar_height",
-                                                    label = "Plot height",
-                                                    value = 400, min = 200,
-                                                    max = 1000, step = 10
-                                                )
-                                            ),
-                                            shiny::column(1),
-                                            shiny::column(
-                                                6,
-                                                shiny::radioButtons(
-                                                    inputId = "polar_id_ordering",
-                                                    label = "ID ordering by score",
-                                                    choices = c("high-to-low", 
-                                                                "low-to-high"),
-                                                    selected = "high-to-low",
-                                                    inline = TRUE
-                                                )
-                                            )
-                                        ),
-                                        shiny::uiOutput("bettrPolarplotUI")),
-                        shiny::tabPanel("Bar/polar plot",
-                                        shiny::fluidRow(
-                                            shiny::column(
-                                                4,
-                                                shiny::numericInput(
-                                                    inputId = "barpolar_height",
-                                                    label = "Plot height",
-                                                    value = 400, min = 200,
-                                                    max = 1000, step = 10
-                                                )
-                                            ),
-                                            shiny::column(1),
-                                            shiny::column(
-                                                6,
-                                                shiny::radioButtons(
-                                                    inputId = "barpolar_id_ordering",
-                                                    label = "ID ordering by score",
-                                                    choices = c("high-to-low", 
-                                                                "low-to-high"),
-                                                    selected = "high-to-low",
-                                                    inline = TRUE
-                                                )
-                                            )
-                                        ),
-                                        shiny::uiOutput("bettrBarPolarplotUI"))
+                        shiny::tabPanel(
+                            "Heatmap", 
+                            shiny::fluidRow(
+                                shiny::column(
+                                    4,
+                                    shiny::numericInput(
+                                        inputId = "heatmap_height",
+                                        label = "Plot height",
+                                        value = 400, min = 200,
+                                        max = 1000, step = 10
+                                    )
+                                ),
+                                shiny::column(1),
+                                shiny::column(
+                                    6,
+                                    shiny::radioButtons(
+                                        inputId = "heatmap_id_ordering",
+                                        label = "ID ordering by score",
+                                        choices = c("high-to-low", 
+                                                    "low-to-high"),
+                                        selected = "high-to-low",
+                                        inline = TRUE
+                                    )
+                                )
+                            ),
+                            shiny::uiOutput("bettrHeatmapUI")
+                        ),
+                        shiny::tabPanel(
+                            "Parallel coordinates", 
+                            shiny::numericInput(
+                                inputId = "parcoord_height",
+                                label = "Plot height",
+                                value = 400, min = 200,
+                                max = 1000, step = 10
+                            ),
+                            shiny::uiOutput("bettrParCoordplotUI")
+                        ),
+                        shiny::tabPanel(
+                            "Polar plot", 
+                            shiny::fluidRow(
+                                shiny::column(
+                                    4,
+                                    shiny::numericInput(
+                                        inputId = "polar_height",
+                                        label = "Plot height",
+                                        value = 400, min = 200,
+                                        max = 1000, step = 10
+                                    )
+                                ),
+                                shiny::column(1),
+                                shiny::column(
+                                    6,
+                                    shiny::radioButtons(
+                                        inputId = "polar_id_ordering",
+                                        label = "ID ordering by score",
+                                        choices = c("high-to-low", 
+                                                    "low-to-high"),
+                                        selected = "high-to-low",
+                                        inline = TRUE
+                                    )
+                                )
+                            ),
+                            shiny::uiOutput("bettrPolarplotUI")
+                        ),
+                        shiny::tabPanel(
+                            "Bar/polar plot",
+                            shiny::fluidRow(
+                                shiny::column(
+                                    4,
+                                    shiny::numericInput(
+                                        inputId = "barpolar_height",
+                                        label = "Plot height",
+                                        value = 400, min = 200,
+                                        max = 1000, step = 10
+                                    )
+                                ),
+                                shiny::column(1),
+                                shiny::column(
+                                    6,
+                                    shiny::radioButtons(
+                                        inputId = "barpolar_id_ordering",
+                                        label = "ID ordering by score",
+                                        choices = c("high-to-low", 
+                                                    "low-to-high"),
+                                        selected = "high-to-low",
+                                        inline = TRUE
+                                    )
+                                )
+                            ),
+                            shiny::uiOutput("bettrBarPolarplotUI")
+                        )
                     ),
                     
                     ## Some white space ---------------------------------------
@@ -362,12 +352,12 @@ bettr <- function(df, idCol = "Method",
                     shiny::checkboxInput(
                         inputId = paste0(m, "_flip"),
                         label = "Flip",
-                        value = initialFlips[m]
+                        value = initialTransforms[[m]][["flip"]]
                     ),
                     shiny::numericInput(
                         inputId = paste0(m, "_offset"),
                         label = "Offset",
-                        value = initialOffsets[m]
+                        value = initialTransforms[[m]][["offset"]]
                     ),
                     shiny::radioButtons(
                         inputId = paste0(m, "_transform"),
@@ -375,13 +365,13 @@ bettr <- function(df, idCol = "Method",
                         choices = c("None", "z-score",
                                     "[0,1]", "[-1,1]",
                                     "Rank"),
-                        selected = initialTransforms[m]
+                        selected = initialTransforms[[m]][["transform"]]
                     ),
                     shiny::selectizeInput(
                         inputId = paste0(m, "_bincuts"),
                         label = "Cut points for\ncategorization",
-                        choices = initialCuts[[m]],
-                        selected = initialCuts[[m]],
+                        choices = initialTransforms[[m]][["cuts"]],
+                        selected = initialTransforms[[m]][["cuts"]],
                         multiple = TRUE,
                         options = list(create = TRUE)
                     )
@@ -434,7 +424,8 @@ bettr <- function(df, idCol = "Method",
                             ggplot2::geom_bar() + 
                             ggplot2::theme_minimal(),
                         ggplot2::ggplot(data.frame(metric = procdata()[[m]]),
-                                        ggplot2::aes(x = 1, y = .data[["metric"]])) + 
+                                        ggplot2::aes(x = 1, 
+                                                     y = .data[["metric"]])) + 
                             ggplot2::geom_boxplot(outlier.size = -1) + 
                             ggplot2::geom_jitter(width = 0.2, height = 0,
                                                  size = 4, pch = 1) + 

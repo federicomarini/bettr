@@ -3,12 +3,10 @@
 #' @importFrom methods is
 #' 
 .checkInputArguments <- function(df, idCol, metrics_num, metrics_cat,
-                                 initialWeights, initialFlips, 
-                                 initialOffsets, initialTransforms, 
-                                 initialCuts, metricGroups, bstheme) {
+                                 initialWeights, initialTransforms, 
+                                 metricGroups, bstheme) {
     metrics <- c(metrics_num, metrics_cat)
-    allowedTransforms <- c("None", "z-score", "[0,1]", "[-1,1]", "Rank")
-    
+
     ## Check input arguments --------------------------------------------------
     if (!methods::is(df, "data.frame")) {
         stop("df must be a data.frame")
@@ -57,43 +55,4 @@
                  "must be a named vector with one value per metric")
         }
     }
-    
-    if (!is.null(initialFlips)) {
-        if (!(is.logical(initialFlips) && 
-              !is.null(names(initialFlips)) && 
-              all(metrics_num %in% names(initialFlips)))) {
-            stop("initialFlips must be a named logical vector with one",
-                 "value per numeric metric")
-        }
-    }
-    
-    if (!is.null(initialOffsets)) {
-        if (!(is.numeric(initialOffsets) && 
-              !is.null(names(initialOffsets)) && 
-              all(metrics_num %in% names(initialOffsets)))) {
-            stop("initialOffsets must be a named numeric vector with one",
-                 "value per numeric metric")
-        }
-    }
-    
-    if (!is.null(initialTransforms)) {
-        if (!(is.character(initialTransforms) && 
-              !is.null(names(initialTransforms)) && 
-              all(metrics_num %in% names(initialTransforms)) && 
-              all(initialTransforms %in% allowedTransforms))) {
-            stop("initialTransforms must be a named character vector with one",
-                 "value per numeric metric. The allowed transforms are ",
-                 paste(allowedTransforms, collapse = ", "))
-        }
-    }
-    
-    if (!is.null(initialCuts)) {
-        if (!(methods::is(initialCuts, "list") && 
-              !is.null(names(initialCuts)) && 
-              all(vapply(initialCuts, is.numeric, FALSE)))) {
-            stop("initialCuts must be a named list with numeric vectors",
-                 "as elements")
-        }
-    }
-    
 }
