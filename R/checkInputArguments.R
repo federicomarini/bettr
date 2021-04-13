@@ -1,0 +1,99 @@
+#' @keywords internal
+#' 
+#' @importFrom methods is
+#' 
+.checkInputArguments <- function(df, idCol, metrics_num, metrics_cat,
+                                 initialWeights, initialFlips, 
+                                 initialOffsets, initialTransforms, 
+                                 initialCuts, metricGroups, bstheme) {
+    metrics <- c(metrics_num, metrics_cat)
+    allowedTransforms <- c("None", "z-score", "[0,1]", "[-1,1]", "Rank")
+    
+    ## Check input arguments --------------------------------------------------
+    if (!methods::is(df, "data.frame")) {
+        stop("df must be a data.frame")
+    }
+    if (!methods::is(idCol, "character") || length(idCol) != 1) {
+        stop("idCol must be a character scalar")
+    }
+    if (!(idCol %in% colnames(df))) {
+        stop("idCol must point to a column of df")
+    }
+    
+    if (!all(metrics %in% colnames(df))) {
+        stop("All elements of metrics must point to columns of df")
+    }
+    
+    if (!is.null(initialWeights)) {
+        if (!(is.numeric(initialWeights) && 
+              !is.null(names(initialWeights)) &&
+               all(metrics %in% names(initialWeights)) &&
+               !all(initialWeights == 0) && 
+               all(initialWeights >= 0) && all(initialWeights <= 1))) {
+            stop("initialWeights must be a named numeric vector with",
+                 "values between 0 and 1, and with one value for each metric")
+        }
+    }
+    
+    if (!all(sapply(metrics_num, function(m) is.numeric(df[[m]])))) {
+        stop("All metrics in metrics_num must correspond to numeric",
+             "columns in df")
+    }
+    if (!all(sapply(metrics_cat, function(m) is.factor(df[[m]]) || 
+                    is.character(df[m])))) {
+        stop("All metrics in metrics_cat must correspond to factor",
+             "or character columns in df")
+    }
+    
+    if (!is.list(metricGroups)) {
+        stop("metricGroups must be a list")
+    }
+    if (length(metricGroups) != 0) {
+        if (!(!is.null(names(metricGroups)) &&
+               all(sapply(metricGroups, function(mg) {
+                   all(metrics %in% names(mg))
+               })))) {
+            stop("metricGroups must be a named list, and each list element",
+                 "must be a named vector with one value per metric")
+        }
+    }
+    
+    if (!is.null(initialFlips)) {
+        if (!(is.logical(initialFlips) && 
+              !is.null(names(initialFlips)) && 
+              all(metrics_num %in% names(initialFlips)))) {
+            stop("initialFlips must be a named logical vector with one",
+                 "value per numeric metric")
+        }
+    }
+    
+    if (!is.null(initialOffsets)) {
+        if (!(is.numeric(initialOffsets) && 
+              !is.null(names(initialOffsets)) && 
+              all(metrics_num %in% names(initialOffsets)))) {
+            stop("initialOffsets must be a named numeric vector with one",
+                 "value per numeric metric")
+        }
+    }
+    
+    if (!is.null(initialTransforms)) {
+        if (!(is.character(initialTransforms) && 
+              !is.null(names(initialTransforms)) && 
+              all(metrics_num %in% names(initialTransforms)) && 
+              all(initialTransforms %in% allowedTransforms))) {
+            stop("initialTransforms must be a named character vector with one",
+                 "value per numeric metric. The allowed transforms are ",
+                 paste(allowedTransforms, collapse = ", "))
+        }
+    }
+    
+    if (!is.null(initialCuts)) {
+        if (!(methods::is(initialCuts, "list") && 
+              !is.null(names(initialCuts)) && 
+              all(vapply(initialCuts, is.numeric, FALSE)))) {
+            stop("initialCuts must be a named list with numeric vectors",
+                 "as elements")
+        }
+    }
+    
+}

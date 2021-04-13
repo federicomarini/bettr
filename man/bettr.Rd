@@ -6,25 +6,45 @@
 \usage{
 bettr(
   df,
-  methodCol = "Method",
-  metricCol = "Metric",
-  valueCol = "Value",
-  initialWeights = NULL
+  idCol = "Method",
+  metrics_num = setdiff(colnames(df), idCol),
+  metrics_cat = c(),
+  initialWeights = NULL,
+  initialFlips = NULL,
+  initialOffsets = NULL,
+  initialTransforms = NULL,
+  initialCuts = NULL,
+  metricGroups = list(),
+  bstheme = "darkly"
 )
 }
 \arguments{
-\item{df}{A \code{data.frame} in long format. Must have at least
-three columns: one providing the method ID (for the methods
-that we want to compare), one providing the metric ID, and
-one providing the value of each metric for each method.}
+\item{df}{A \code{data.frame} in wide format.}
 
-\item{methodCol, metricCol, valueCol}{Character scalars,
-indicating which columns of \code{df} that contain method IDs, metric IDs
-and metric values, respectively.}
+\item{idCol}{Character scalar, indicating which column of \code{df}
+that contains IDs of the entities to be compared (e.g., methods).}
+
+\item{metrics_num, metrics_cat}{Character vectors, indicating which of the
+columns of \code{df} that correspond to, numeric and categorical,
+respectively, metrics of interest.}
 
 \item{initialWeights}{Named numeric vector providing initial weights for
 aggregating the metric scores. Must have one entry per metric included
 in \code{df}.}
+
+\item{initialFlips, initialOffsets, initialTransforms}{Named vectors
+giving the initial value of the flip, offset and transforms for each
+metric.}
+
+\item{initialCuts}{Named list giving the initial values of cut points used to
+make each metric categorical.}
+
+\item{metricGroups}{Named list of named character vectors. Each list entry
+corresponds to one grouping of metrics. The grouping much be a named
+vector indicating the respective group for each metric.}
+
+\item{bstheme}{Character scalar giving the bootswatch theme for the app
+(see https://bootswatch.com/). Default 'darkly'.}
 }
 \description{
 Launch bettr app to explore and aggregate performance metrics
