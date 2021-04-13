@@ -37,7 +37,7 @@
 #' @importFrom cowplot plot_grid
 #' @importFrom tidyr gather
 #' @importFrom bslib bs_theme
-#' @importFrom rlang sym
+#' @importFrom rlang .data
 #' 
 bettr <- function(df, idCol = "Method", 
                   metrics_num = setdiff(colnames(df), idCol),
@@ -260,10 +260,10 @@ bettr <- function(df, idCol = "Method",
         ## value that goes in the 'value' column is numeric
         longdata <- shiny::reactive({
             pd <- procdata() %>%
-                dplyr::select(!!rlang::sym(idCol), 
+                dplyr::select(.data[[idCol]], 
                               dplyr::contains(values$metrics)) %>%
                 tidyr::gather(key = "Metric", value = "ScaledValue", 
-                              -!!rlang::sym(idCol))
+                              -.data[[idCol]])
             ## Add weight column for later score calculations
             for (m in values$metrics) {
                 pd[[weightCol]][pd$Metric == m] <- 

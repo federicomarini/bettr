@@ -3,7 +3,7 @@
 #' @importFrom dplyr group_by summarize arrange desc filter select contains
 #' @importFrom tidyr spread
 #' @importFrom tibble column_to_rownames tibble
-#' @importFrom rlang sym :=
+#' @importFrom rlang .data :=
 #' @importFrom ComplexHeatmap rowAnnotation anno_barplot columnAnnotation 
 #'   Heatmap
 #' @importFrom grid gpar
@@ -16,28 +16,28 @@
     }
     
     rowAnnot <- df %>%
-        dplyr::group_by(!!rlang::sym(idCol)) %>%
+        dplyr::group_by(.data[[idCol]]) %>%
         dplyr::summarize(
-            "{scoreCol}" := sum(!!rlang::sym(weightCol) *
-                                    !!rlang::sym(valueCol),
+            "{scoreCol}" := sum(.data[[weightCol]] *
+                                    .data[[valueCol]],
                                 na.rm = TRUE)
         ) 
     if (ordering == "high-to-low") {
         rowAnnot <- rowAnnot %>%
-            dplyr::arrange(dplyr::desc(!!rlang::sym(scoreCol)))
+            dplyr::arrange(dplyr::desc(.data[[scoreCol]]))
     } else {
         rowAnnot <- rowAnnot %>%
-            dplyr::arrange(!!rlang::sym(scoreCol))
+            dplyr::arrange(.data[[scoreCol]])
     }
     tmp <- df
     tmp[[idCol]] <- factor(tmp[[idCol]], 
                            levels = rowAnnot[[idCol]])
     mat <- tmp %>%
-        dplyr::select(c(!!rlang::sym(idCol),
-                        !!rlang::sym(metricCol),
-                        !!rlang::sym(valueCol))) %>%
-        tidyr::spread(key = !!rlang::sym(metricCol),
-                      value = !!rlang::sym(valueCol), fill = NA) %>%
+        dplyr::select(c(.data[[idCol]],
+                        .data[[metricCol]],
+                        .data[[valueCol]])) %>%
+        tidyr::spread(key = .data[[metricCol]],
+                      value = .data[[valueCol]], fill = NA) %>%
         as.data.frame() %>%
         tibble::column_to_rownames(var = idCol) %>%
         as.matrix()
@@ -47,12 +47,12 @@
         tibble::column_to_rownames(var = idCol)
     
     colAnnot <- df %>%
-        dplyr::filter(!duplicated(!!rlang::sym(metricCol))) %>%
+        dplyr::filter(!duplicated(.data[[metricCol]])) %>%
         dplyr::select(c(metricCol, weightCol,
                         dplyr::contains(groupCol))) 
     if (groupCol %in% colnames(colAnnot)) {
         colAnnot <- colAnnot %>%
-            dplyr::arrange(!!rlang::sym(groupCol))
+            dplyr::arrange(.data[[groupCol]])
         mat <- mat[, match(colAnnot[[metricCol]], 
                            colnames(mat)), drop = FALSE]
     }
