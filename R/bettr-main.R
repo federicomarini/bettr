@@ -11,9 +11,10 @@
 #'   in \code{df}.
 #' @param initialTransforms Named list with initial values of transformation 
 #'   parameters for each metric.
-#' @param metricGroups Named list of named character vectors. Each list entry 
-#'   corresponds to one grouping of metrics. The grouping much be a named 
-#'   vector indicating the respective group for each metric. 
+#' @param metricInfo \code{data.frame} with annotations for metrics. Must have 
+#'   a column named 'Metric' identifying the respective metrics.
+#' @param idInfo \code{data.frame} with annotations for entities. Must have a 
+#'   column named according to \code{idCol} identifying the respective entities. 
 #' @param bstheme Character scalar giving the bootswatch theme for the app 
 #'   (see https://bootswatch.com/). Default 'darkly'.
 #'  
@@ -41,20 +42,11 @@ bettr <- function(df, idCol = "Method",
                   metrics_num = setdiff(colnames(df), idCol),
                   metrics_cat = c(), initialWeights = NULL,
                   initialTransforms = list(),
-                  metricGroups = list(), bstheme = "darkly") {
+                  metricInfo = NULL, idInfo = NULL,
+                  bstheme = "darkly") {
     
     ## All metrics (numeric and categorical) ----------------------------------
     metrics <- c(metrics_num, metrics_cat)
-    
-    ## Check validity of input arguments --------------------------------------
-    .checkInputArguments(df = df, idCol = idCol, metrics_num = metrics_num,
-                         metrics_cat = metrics_cat, 
-                         initialWeights = initialWeights,
-                         initialTransforms = initialTransforms,
-                         metricGroups = metricGroups, bstheme = bstheme)
-    
-    ## Add non-specified initializations and check validity -------------------
-    initialTransforms <- .completeInitialization(initialTransforms, metrics)
     
     ## Define column names assigned internally --------------------------------
     scoreCol <- "Score"
@@ -62,6 +54,17 @@ bettr <- function(df, idCol = "Method",
     metricCol <- "Metric"
     valueCol <- "ScaledValue"
     groupCol <- "Group"
+    
+    ## Check validity of input arguments --------------------------------------
+    .checkInputArguments(df = df, idCol = idCol, metrics_num = metrics_num,
+                         metrics_cat = metrics_cat, metricCol = metricCol,
+                         initialWeights = initialWeights,
+                         initialTransforms = initialTransforms,
+                         metricInfo = metricInfo, idInfo = idInfo, 
+                         bstheme = bstheme)
+    
+    ## Add non-specified initializations and check validity -------------------
+    initialTransforms <- .completeInitialization(initialTransforms, metrics)
     
     ## Assign initial weights -------------------------------------------------
     if (is.null(initialWeights)) {
@@ -229,7 +232,8 @@ bettr <- function(df, idCol = "Method",
             df = df,
             metrics = metrics,
             nMetrics = length(metrics),
-            metricGroups = metricGroups,
+            metricInfo = metricInfo,
+            idInfo = idInfo,
             methods = unique(df[[idCol]])
         )
         
@@ -272,7 +276,8 @@ bettr <- function(df, idCol = "Method",
             ## Add grouping of metrics
             if (input$metricGrouping != "---") {
                 pd[[groupCol]] <- 
-                    values$metricGroups[[input$metricGrouping]][pd$Metric]
+                    values$metricInfo[[input$metricGrouping]][
+                        match(pd$Metric, values$metricInfo[[metricCol]])]
             }
             pd
         })
@@ -282,7 +287,8 @@ bettr <- function(df, idCol = "Method",
             shiny::selectizeInput(
                 inputId = "metricGrouping",
                 label = "Grouping of metrics",
-                choices = c("---", names(values$metricGroups)),
+                choices = c("---", setdiff(colnames(values$metricInfo), 
+                                           metricCol)),
                 selected = "---"
             )
         })
@@ -526,6 +532,8 @@ bettr <- function(df, idCol = "Method",
                              metricCol = metricCol, valueCol = valueCol, 
                              weightCol = weightCol, scoreCol = scoreCol, 
                              groupCol = groupCol, 
+                             metricInfo = values$metricInfo,
+                             idInfo = values$idInfo,
                              labelSize = input$heatmap_labelsize,
                              ordering = input$heatmap_id_ordering)
             }

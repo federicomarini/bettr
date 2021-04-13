@@ -3,8 +3,8 @@
 #' @importFrom methods is
 #' 
 .checkInputArguments <- function(df, idCol, metrics_num, metrics_cat,
-                                 initialWeights, initialTransforms, 
-                                 metricGroups, bstheme) {
+                                 metricCol, initialWeights, initialTransforms, 
+                                 metricInfo, idInfo, bstheme) {
     metrics <- c(metrics_num, metrics_cat)
 
     ## Check input arguments --------------------------------------------------
@@ -16,6 +16,9 @@
     }
     if (!(idCol %in% colnames(df))) {
         stop("idCol must point to a column of df")
+    }
+    if (!is.null(idInfo) && !(idCol %in% colnames(idInfo))) {
+        stop("idInfo must have a column named ", idCol)
     }
     
     if (!all(metrics %in% colnames(df))) {
@@ -43,16 +46,10 @@
              "or character columns in df")
     }
     
-    if (!is.list(metricGroups)) {
+    if (!is.null(metricInfo) && !methods::is(metricInfo, "data.frame")) {
         stop("metricGroups must be a list")
     }
-    if (length(metricGroups) != 0) {
-        if (!(!is.null(names(metricGroups)) &&
-               all(sapply(metricGroups, function(mg) {
-                   all(metrics %in% names(mg))
-               })))) {
-            stop("metricGroups must be a named list, and each list element",
-                 "must be a named vector with one value per metric")
-        }
+    if (!is.null(metricInfo) && !(metricCol %in% colnames(metricInfo))) {
+        stop("metricInfo must have a column named ", metricCol)
     }
 }

@@ -11,7 +11,8 @@ bettr(
   metrics_cat = c(),
   initialWeights = NULL,
   initialTransforms = list(),
-  metricGroups = list(),
+  metricInfo = NULL,
+  idInfo = NULL,
   bstheme = "darkly"
 )
 }
@@ -32,9 +33,11 @@ in \code{df}.}
 \item{initialTransforms}{Named list with initial values of transformation
 parameters for each metric.}
 
-\item{metricGroups}{Named list of named character vectors. Each list entry
-corresponds to one grouping of metrics. The grouping much be a named
-vector indicating the respective group for each metric.}
+\item{metricInfo}{\code{data.frame} with annotations for metrics. Must have
+a column named 'Metric' identifying the respective metrics.}
+
+\item{idInfo}{\code{data.frame} with annotations for entities. Must have a
+column named according to \code{idCol} identifying the respective entities.}
 
 \item{bstheme}{Character scalar giving the bootswatch theme for the app
 (see https://bootswatch.com/). Default 'darkly'.}
