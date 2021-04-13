@@ -28,6 +28,7 @@
 #'   updateTabsetPanel selectizeInput reactive reactiveValues uiOutput hr 
 #'   actionButton br tabPanel titlePanel navbarPage
 #' @importFrom sortable rank_list
+#' @importFrom shinyjqui jqui_resizable
 #' @importFrom ggplot2 theme_minimal geom_bar aes ggplot geom_boxplot 
 #'   coord_flip geom_jitter 
 #' @importFrom dplyr select %>% contains
@@ -89,13 +90,8 @@ bettr <- function(df, idCol = "Method",
                             "Heatmap", 
                             shiny::fluidRow(
                                 shiny::column(
-                                    4,
-                                    shiny::numericInput(
-                                        inputId = "heatmap_height",
-                                        label = "Plot height",
-                                        value = 400, min = 200,
-                                        max = 1000, step = 10
-                                    )
+                                    4
+                                    ## Can add some plot controls here
                                 ),
                                 shiny::column(1),
                                 shiny::column(
@@ -114,25 +110,15 @@ bettr <- function(df, idCol = "Method",
                         ),
                         shiny::tabPanel(
                             "Parallel coordinates", 
-                            shiny::numericInput(
-                                inputId = "parcoord_height",
-                                label = "Plot height",
-                                value = 400, min = 200,
-                                max = 1000, step = 10
-                            ),
+                            ## Can add some plot controls here
                             shiny::uiOutput("bettrParCoordplotUI")
                         ),
                         shiny::tabPanel(
                             "Polar plot", 
                             shiny::fluidRow(
                                 shiny::column(
-                                    4,
-                                    shiny::numericInput(
-                                        inputId = "polar_height",
-                                        label = "Plot height",
-                                        value = 400, min = 200,
-                                        max = 1000, step = 10
-                                    )
+                                    4
+                                    ## Can add some plot controls here
                                 ),
                                 shiny::column(1),
                                 shiny::column(
@@ -153,13 +139,8 @@ bettr <- function(df, idCol = "Method",
                             "Bar/polar plot",
                             shiny::fluidRow(
                                 shiny::column(
-                                    4,
-                                    shiny::numericInput(
-                                        inputId = "barpolar_height",
-                                        label = "Plot height",
-                                        value = 400, min = 200,
-                                        max = 1000, step = 10
-                                    )
+                                    4
+                                    ## Can add some plot controls here
                                 ),
                                 shiny::column(1),
                                 shiny::column(
@@ -451,9 +432,8 @@ bettr <- function(df, idCol = "Method",
         
         ## Parallel coordinates plot ------------------------------------------
         output$bettrParCoordplotUI <- shiny::renderUI({
-            shiny::plotOutput(
-                "bettrParCoordplot",
-                height = paste0(input$parcoord_height, "px"))
+            shinyjqui::jqui_resizable(shiny::plotOutput(
+                "bettrParCoordplot"))
         })
         output$bettrParCoordplot <- shiny::renderPlot({
             if (is.null(longdata())) {
@@ -469,9 +449,8 @@ bettr <- function(df, idCol = "Method",
         
         ## Polar plot ---------------------------------------------------------
         output$bettrPolarplotUI <- shiny::renderUI({
-            shiny::plotOutput(
-                "bettrPolarplot",
-                height = paste0(input$polar_height, "px"))
+            shinyjqui::jqui_resizable(shiny::plotOutput(
+                "bettrPolarplot"))
         })
         output$bettrPolarplot <- shiny::renderPlot({
             if (is.null(longdata())) {
@@ -486,9 +465,8 @@ bettr <- function(df, idCol = "Method",
         
         ## Bar + polar plot ---------------------------------------------------
         output$bettrBarPolarplotUI <- shiny::renderUI({
-            shiny::plotOutput(
-                "bettrBarPolarplot",
-                height = paste0(input$barpolar_height, "px"))
+            shinyjqui::jqui_resizable(shiny::plotOutput(
+                "bettrBarPolarplot"))
         })
         output$bettrBarPolarplot <- shiny::renderPlot({
             if (is.null(longdata())) {
@@ -504,9 +482,8 @@ bettr <- function(df, idCol = "Method",
         
         ## Heatmap ------------------------------------------------------------
         output$bettrHeatmapUI <- shiny::renderUI({
-            shiny::plotOutput(
-                "bettrHeatmap",
-                height = paste0(input$heatmap_height, "px"))
+            shinyjqui::jqui_resizable(shiny::plotOutput(
+                "bettrHeatmap"))
         })
         output$bettrHeatmap <- shiny::renderPlot({
             if (is.null(longdata())) {
