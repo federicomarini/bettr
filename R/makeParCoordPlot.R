@@ -7,7 +7,7 @@
 #'   
 .makeParCoordPlot <- function(df, idCol, metricCol, valueCol, groupCol,
                               methods, highlightMethod, 
-                              metricGrouping) {
+                              metricGrouping, labelSize) {
     
     lwidths <- rep(0.75, length(methods))
     names(lwidths) <- methods
@@ -47,7 +47,13 @@
                                          color = .data[[idCol]])) +
         ggplot2::scale_size_manual(values = lwidths) +
         ggplot2::scale_alpha_manual(values = alphas) + 
+        ggplot2::labs(y = "Relative value") + 
         ggplot2::theme_minimal() +
-        ggplot2::theme(axis.text.x = ggplot2::element_text(
-            angle = 90, hjust = 1, vjust = 0.5))
+        ggplot2::theme(
+            axis.text.x = ggplot2::element_text(
+                angle = 90, hjust = 1, vjust = 0.5, size = labelSize),
+            axis.text.y = ggplot2::element_text(size = labelSize),
+            axis.title = ggplot2::element_text(size = labelSize),
+            legend.text = ggplot2::element_text(size = labelSize),
+            legend.title = ggplot2::element_text(size = labelSize))
 }

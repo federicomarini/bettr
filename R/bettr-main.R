@@ -90,8 +90,12 @@ bettr <- function(df, idCol = "Method",
                             "Heatmap", 
                             shiny::fluidRow(
                                 shiny::column(
-                                    4
-                                    ## Can add some plot controls here
+                                    2,
+                                    shiny::numericInput(
+                                        inputId = "heatmap_labelsize",
+                                        label = "Label size", 
+                                        value = 10, min = 2, max = 20, step = 1
+                                    )
                                 ),
                                 shiny::column(1),
                                 shiny::column(
@@ -110,15 +114,28 @@ bettr <- function(df, idCol = "Method",
                         ),
                         shiny::tabPanel(
                             "Parallel coordinates", 
-                            ## Can add some plot controls here
+                            shiny::fluidRow(
+                                shiny::column(
+                                    2,
+                                    shiny::numericInput(
+                                        inputId = "parcoord_labelsize",
+                                        label = "Label size", 
+                                        value = 10, min = 2, max = 20, step = 1
+                                    )
+                                )
+                            ),
                             shiny::uiOutput("bettrParCoordplotUI")
                         ),
                         shiny::tabPanel(
                             "Polar plot", 
                             shiny::fluidRow(
                                 shiny::column(
-                                    4
-                                    ## Can add some plot controls here
+                                    2,
+                                    shiny::numericInput(
+                                        inputId = "polar_labelsize",
+                                        label = "Label size", 
+                                        value = 10, min = 2, max = 20, step = 1
+                                    )
                                 ),
                                 shiny::column(1),
                                 shiny::column(
@@ -139,8 +156,12 @@ bettr <- function(df, idCol = "Method",
                             "Bar/polar plot",
                             shiny::fluidRow(
                                 shiny::column(
-                                    4
-                                    ## Can add some plot controls here
+                                    2,
+                                    shiny::numericInput(
+                                        inputId = "barpolar_labelsize",
+                                        label = "Label size", 
+                                        value = 10, min = 2, max = 20, step = 1
+                                    )
                                 ),
                                 shiny::column(1),
                                 shiny::column(
@@ -443,7 +464,8 @@ bettr <- function(df, idCol = "Method",
                                   metricCol = metricCol, valueCol = valueCol, 
                                   groupCol = groupCol, methods = values$methods,
                                   highlightMethod = input$highlightMethod, 
-                                  metricGrouping = input$metricGrouping)
+                                  metricGrouping = input$metricGrouping,
+                                  labelSize = input$parcoord_labelsize)
             }
         })
         
@@ -459,6 +481,7 @@ bettr <- function(df, idCol = "Method",
                 .makePolarPlot(df = longdata(), idCol = idCol, 
                                metricCol = metricCol, valueCol = valueCol,
                                weightCol = weightCol, scoreCol = scoreCol,
+                               labelSize = input$polar_labelsize,
                                ordering = input$polar_id_ordering)
             }
         })
@@ -475,7 +498,8 @@ bettr <- function(df, idCol = "Method",
                 .makeBarPolarPlot(df = longdata(), idCol = idCol, 
                                   metricCol = metricCol, valueCol = valueCol, 
                                   weightCol = weightCol, scoreCol = scoreCol, 
-                                  methods = values$methods,
+                                  methods = values$methods, 
+                                  labelSize = input$barpolar_labelsize,
                                   ordering = input$barpolar_id_ordering)
             }
         })
@@ -492,7 +516,8 @@ bettr <- function(df, idCol = "Method",
                 .makeHeatmap(df = longdata(), idCol = idCol, 
                              metricCol = metricCol, valueCol = valueCol, 
                              weightCol = weightCol, scoreCol = scoreCol, 
-                             groupCol = groupCol,
+                             groupCol = groupCol, 
+                             labelSize = input$heatmap_labelsize,
                              ordering = input$heatmap_id_ordering)
             }
         })

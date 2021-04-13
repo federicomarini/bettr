@@ -10,7 +10,7 @@
 #' @importFrom circlize colorRamp2
 #' 
 .makeHeatmap <- function(df, idCol, metricCol, valueCol, weightCol, scoreCol, 
-                         groupCol, ordering = "high-to-low") {
+                         groupCol, labelSize, ordering = "high-to-low") {
     if (!(ordering %in% c("high-to-low", "low-to-high"))) {
         stop("ordering must be 'high-to-low' or 'low-to-high'")
     }
@@ -100,6 +100,11 @@
         cluster_rows = FALSE, 
         cluster_columns = FALSE, 
         row_names_side = "left",
+        row_names_gp = grid::gpar(fontsize = labelSize),
+        column_names_gp = grid::gpar(fontsize = labelSize),
+        row_title = idCol,
+        column_title = metricCol,
+        column_title_side = "bottom",
         top_annotation = colAnnot, 
         right_annotation = rowAnnot
     )

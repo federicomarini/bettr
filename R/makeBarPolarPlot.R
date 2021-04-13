@@ -4,11 +4,11 @@
 #' @importFrom rlang .data :=
 #' @importFrom ggplot2 ggplot aes geom_col ylim coord_polar theme_minimal 
 #'   theme element_blank labs geom_bar expand_limits element_text
-#' @importFrom cowplot draw_plot
+#' @importFrom cowplot draw_plot get_legend plot_grid
 #' @importFrom grid unit
 #' 
 .makeBarPolarPlot <- function(df, idCol, metricCol, valueCol, 
-                              weightCol, scoreCol, methods, 
+                              weightCol, scoreCol, methods, labelSize,
                               ordering = "high-to-low") {
     if (!(ordering %in% c("high-to-low", "low-to-high"))) {
         stop("ordering must be 'high-to-low' or 'low-to-high'")
@@ -26,13 +26,21 @@
             ggplot2::coord_polar() + 
             ggplot2::theme_minimal() +
             ggplot2::theme(axis.text = ggplot2::element_blank(),
-                           legend.position = "none",
+                           legend.text = ggplot2::element_text(size = labelSize),
+                           legend.title = ggplot2::element_text(size = labelSize),
                            plot.background = ggplot2::element_blank(),
                            plot.margin = grid::unit(c(0, 0, 0, 0), "cm"),
                            panel.spacing = grid::unit(0, "cm")) + 
             ggplot2::labs(x = "", y = "")
     })
     names(rplots) <- methods
+    
+    ## Get legend from one polar plot, remove it from all
+    legnd <- cowplot::get_legend(rplots[[1]])
+    
+    rplots <- lapply(rplots, function(rp) {
+        rp + ggplot2::theme(legend.position = "none")
+    })
     
     scores <- df %>%
         dplyr::group_by(.data[[idCol]]) %>%
@@ -63,8 +71,11 @@
                                           y = .data[[scoreCol]])) +
         ggplot2::geom_bar(stat = "identity", width = 0.2, fill = "grey") + 
         ggplot2::theme_minimal() +
-        ggplot2::theme(axis.text.x = ggplot2::element_text(
-            angle = 90, hjust = 1, vjust = 0.5)) +
+        ggplot2::theme(
+            axis.text.x = ggplot2::element_text(
+                angle = 90, hjust = 1, vjust = 0.5, size = labelSize),
+            axis.text.y = ggplot2::element_text(size = labelSize),
+            axis.title = ggplot2::element_text(size = labelSize)) +
         ggplot2::expand_limits(y = max(scores[[scoreCol]]) + sy)
     bplot <- bplot + 
         ggplot2::theme(legend.position = "none")
@@ -78,5 +89,5 @@
                 hjust = 0, vjust = 0,
                 halign = 0.5, valign = 0.5)
     }
-    bplot
+    cowplot::plot_grid(bplot, legnd, rel_widths = c(1, 0.2), nrow = 1)
 }
