@@ -430,11 +430,11 @@ bettr <- function(df, idCol = "Method",
                     )
                     cowplot::plot_grid(
                         ggplot2::ggplot(data.frame(metric = procdata()[[m]]),
-                                        ggplot2::aes(x = metric)) + 
+                                        ggplot2::aes(x = .data[["metric"]])) + 
                             ggplot2::geom_bar() + 
                             ggplot2::theme_minimal(),
                         ggplot2::ggplot(data.frame(metric = procdata()[[m]]),
-                                        ggplot2::aes(x = 1, y = metric)) + 
+                                        ggplot2::aes(x = 1, y = .data[["metric"]])) + 
                             ggplot2::geom_boxplot(outlier.size = -1) + 
                             ggplot2::geom_jitter(width = 0.2, height = 0,
                                                  size = 4, pch = 1) + 
