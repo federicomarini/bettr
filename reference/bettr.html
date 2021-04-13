@@ -132,10 +132,16 @@
 
     <pre class="usage"><span class='fu'>bettr</span><span class='op'>(</span>
   <span class='va'>df</span>,
-  methodCol <span class='op'>=</span> <span class='st'>"Method"</span>,
-  metricCol <span class='op'>=</span> <span class='st'>"Metric"</span>,
-  valueCol <span class='op'>=</span> <span class='st'>"Value"</span>,
-  initialWeights <span class='op'>=</span> <span class='cn'>NULL</span>
+  idCol <span class='op'>=</span> <span class='st'>"Method"</span>,
+  metrics_num <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/sets.html'>setdiff</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span><span class='op'>(</span><span class='va'>df</span><span class='op'>)</span>, <span class='va'>idCol</span><span class='op'>)</span>,
+  metrics_cat <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='op'>)</span>,
+  initialWeights <span class='op'>=</span> <span class='cn'>NULL</span>,
+  initialFlips <span class='op'>=</span> <span class='cn'>NULL</span>,
+  initialOffsets <span class='op'>=</span> <span class='cn'>NULL</span>,
+  initialTransforms <span class='op'>=</span> <span class='cn'>NULL</span>,
+  initialCuts <span class='op'>=</span> <span class='cn'>NULL</span>,
+  metricGroups <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
+  bstheme <span class='op'>=</span> <span class='st'>"darkly"</span>
 <span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -143,22 +149,46 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>df</th>
-      <td><p>A <code>data.frame</code> in long format. Must have at least
-three columns: one providing the method ID (for the methods
-that we want to compare), one providing the metric ID, and
-one providing the value of each metric for each method.</p></td>
+      <td><p>A <code>data.frame</code> in wide format.</p></td>
     </tr>
     <tr>
-      <th>methodCol, metricCol, valueCol</th>
-      <td><p>Character scalars,
-indicating which columns of <code>df</code> that contain method IDs, metric IDs
-and metric values, respectively.</p></td>
+      <th>idCol</th>
+      <td><p>Character scalar, indicating which column of <code>df</code>
+that contains IDs of the entities to be compared (e.g., methods).</p></td>
+    </tr>
+    <tr>
+      <th>metrics_num, metrics_cat</th>
+      <td><p>Character vectors, indicating which of the
+columns of <code>df</code> that correspond to, numeric and categorical,
+respectively, metrics of interest.</p></td>
     </tr>
     <tr>
       <th>initialWeights</th>
       <td><p>Named numeric vector providing initial weights for
 aggregating the metric scores. Must have one entry per metric included
 in <code>df</code>.</p></td>
+    </tr>
+    <tr>
+      <th>initialFlips, initialOffsets, initialTransforms</th>
+      <td><p>Named vectors
+giving the initial value of the flip, offset and transforms for each
+metric.</p></td>
+    </tr>
+    <tr>
+      <th>initialCuts</th>
+      <td><p>Named list giving the initial values of cut points used to
+make each metric categorical.</p></td>
+    </tr>
+    <tr>
+      <th>metricGroups</th>
+      <td><p>Named list of named character vectors. Each list entry
+corresponds to one grouping of metrics. The grouping much be a named
+vector indicating the respective group for each metric.</p></td>
+    </tr>
+    <tr>
+      <th>bstheme</th>
+      <td><p>Character scalar giving the bootswatch theme for the app
+(see https://bootswatch.com/). Default 'darkly'.</p></td>
     </tr>
     </table>
 
