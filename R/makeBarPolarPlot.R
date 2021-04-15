@@ -11,7 +11,7 @@
                               weightCol, scoreCol, methods, labelSize,
                               ordering = "high-to-low", 
                               showComposition = FALSE, 
-                              scaleFactorPolars = 1.5) {
+                              scaleFactorPolars = 1.5, metricColors) {
     if (!(ordering %in% c("high-to-low", "low-to-high"))) {
         stop("ordering must be 'high-to-low' or 'low-to-high'")
     }
@@ -24,9 +24,10 @@
                                      y = .data[[valueCol]],
                                      fill = .data[[metricCol]])) + 
             ggplot2::geom_col(width = 1, color = "white") +
-            ggplot2::ylim(min(0, min(df[[valueCol]])),
-                          max(df[[valueCol]])) + 
+            ggplot2::ylim(min(0, min(df[[valueCol]], na.rm = TRUE)),
+                          max(df[[valueCol]], na.rm = TRUE)) + 
             ggplot2::coord_polar() + 
+            ggplot2::scale_fill_manual(values = metricColors[[metricCol]]) + 
             ggplot2::theme_minimal() +
             ggplot2::theme(axis.text = ggplot2::element_blank(),
                            legend.text = ggplot2::element_text(size = labelSize),
@@ -78,7 +79,8 @@
                                               y = .data[[weightCol]] * 
                                                   .data[[valueCol]])) + 
             ggplot2::geom_bar(stat = "identity", width = 0.2,
-                              aes(fill = .data[[metricCol]]))
+                              aes(fill = .data[[metricCol]])) + 
+            ggplot2::scale_fill_manual(values = metricColors[[metricCol]])
     } else {
         ## Show only final score in bars
         bplot <- ggplot2::ggplot(scores %>% 

@@ -33,11 +33,14 @@
 #'   a column named 'Metric' identifying the respective metrics.
 #' @param metricColors Named list with colors used for columns of 
 #'   \code{metricInfo}. Should follow the format required for ComplexHeatmap 
-#'   heatmap annotations. 
+#'   heatmap annotations. The list can include an entry named 'Metric', which 
+#'   contains a named vector with colors to use for metrics. 
 #' @param idInfo \code{data.frame} with annotations for entities. Must have a 
 #'   column named according to \code{idCol} identifying the respective entities. 
 #' @param idColors Named list with colors used for columns of \code{idInfo}. 
 #'   Should follow the format required for ComplexHeatmap heatmap annotations. 
+#'   The list can include an entry named according to \code{idCol}, which 
+#'   contains a named vector with colors to use for entities. 
 #' @param bstheme Character scalar giving the bootswatch theme for the app 
 #'   (see https://bootswatch.com/). Default 'darkly'.
 #'  
@@ -112,8 +115,9 @@ bettr <- function(df, idCol = "Method",
     )
     
     ## Define annotation colors -----------------------------------------------
-    idColors <- .generateColors(idInfo, idColors)
-    metricColors <- .generateColors(metricInfo, metricColors)
+    idColors <- .generateColors(idInfo, idColors, ggplot2Columns = idCol)
+    metricColors <- .generateColors(metricInfo, metricColors, 
+                                    ggplot2Columns = metricCol)
     
     ## Add non-specified initializations and check validity -------------------
     initialTransforms <- .completeInitialization(initialTransforms, 
@@ -528,7 +532,8 @@ bettr <- function(df, idCol = "Method",
                                   highlightMethod = input$highlightMethod, 
                                   metricGrouping = input$metricGrouping,
                                   labelSize = input$parcoord_labelsize, 
-                                  metricColors = metricColors)
+                                  metricColors = metricColors,
+                                  idColors = idColors)
             }
         })
         
@@ -545,7 +550,8 @@ bettr <- function(df, idCol = "Method",
                                metricCol = metricCol, valueCol = valueCol,
                                weightCol = weightCol, scoreCol = scoreCol,
                                labelSize = input$polar_labelsize,
-                               ordering = input$polar_id_ordering)
+                               ordering = input$polar_id_ordering,
+                               metricColors = metricColors)
             }
         })
         
@@ -565,7 +571,8 @@ bettr <- function(df, idCol = "Method",
                                   labelSize = input$barpolar_labelsize,
                                   ordering = input$barpolar_id_ordering,
                                   showComposition = input$barpolar_showcomp,
-                                  scaleFactorPolars = input$barpolar_scalefactor)
+                                  scaleFactorPolars = input$barpolar_scalefactor, 
+                                  metricColors = metricColors)
             }
         })
         

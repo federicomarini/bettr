@@ -9,7 +9,7 @@
 .makeParCoordPlot <- function(df, idCol, metricCol, valueCol, groupCol,
                               methods, highlightMethod, 
                               metricGrouping, labelSize, 
-                              metricColors) {
+                              metricColors, idColors) {
     
     ## Define line widths -----------------------------------------------------
     lwidths <- rep(0.75, length(methods))
@@ -66,6 +66,7 @@
                                          color = .data[[idCol]])) +
         ggplot2::scale_size_manual(values = lwidths) +
         ggplot2::scale_alpha_manual(values = alphas) + 
+        ggplot2::scale_color_manual(values = idColors[[idCol]]) + 
         ggplot2::labs(y = "Relative value") + 
         ggplot2::theme_minimal() +
         ggplot2::theme(

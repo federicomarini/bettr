@@ -6,7 +6,8 @@
 #'   theme_minimal theme element_blank
 #' 
 .makePolarPlot <- function(df, idCol, metricCol, valueCol, weightCol, 
-                           scoreCol, labelSize, ordering = "high-to-low") {
+                           scoreCol, labelSize, ordering = "high-to-low",
+                           metricColors) {
     if (!(ordering %in% c("high-to-low", "low-to-high"))) {
         stop("ordering must be 'high-to-low' or 'low-to-high'")
     }
@@ -37,6 +38,7 @@
                                  fill = .data[[metricCol]])) + 
         ggplot2::geom_col(width = 1, color = "white") +
         ggplot2::coord_polar() + 
+        ggplot2::scale_fill_manual(values = metricColors[[metricCol]]) + 
         ggplot2::facet_wrap(facets = idCol) +
         ggplot2::labs(x = "", y = "") + 
         ggplot2::theme_minimal() +

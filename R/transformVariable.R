@@ -4,9 +4,11 @@
     } else if (v == "z-score") {
         return(function(a) scale(a, center = TRUE, scale = TRUE))
     } else if (v == "[0,1]") {
-        return(function(a) (a - min(a))/(max(a) - min(a)))
+        return(function(a) (a - min(a, na.rm = TRUE))/
+                   (max(a, na.rm = TRUE) - min(a, na.rm = TRUE)))
     } else if (v == "[-1,1]") {
-        return(function(a) (a - min(a) + a - max(a))/(max(a) - min(a)))
+        return(function(a) (a - min(a, na.rm = TRUE) + a - max(a, na.rm = TRUE))/
+                   (max(a, na.rm = TRUE) - min(a, na.rm = TRUE)))
     } else if (v == "Rank") {
         return(function(a) order(order(a)))
     }

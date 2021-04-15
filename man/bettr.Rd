@@ -57,13 +57,16 @@ a column named 'Metric' identifying the respective metrics.}
 
 \item{metricColors}{Named list with colors used for columns of
 \code{metricInfo}. Should follow the format required for ComplexHeatmap
-heatmap annotations.}
+heatmap annotations. The list can include an entry named 'Metric', which
+contains a named vector with colors to use for metrics.}
 
 \item{idInfo}{\code{data.frame} with annotations for entities. Must have a
 column named according to \code{idCol} identifying the respective entities.}
 
 \item{idColors}{Named list with colors used for columns of \code{idInfo}.
-Should follow the format required for ComplexHeatmap heatmap annotations.}
+Should follow the format required for ComplexHeatmap heatmap annotations.
+The list can include an entry named according to \code{idCol}, which
+contains a named vector with colors to use for entities.}
 
 \item{bstheme}{Character scalar giving the bootswatch theme for the app
 (see https://bootswatch.com/). Default 'darkly'.}

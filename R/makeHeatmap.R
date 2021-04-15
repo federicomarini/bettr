@@ -126,15 +126,31 @@
         colAnnotBottom <- NULL
     }
 
-    heatmapCols = circlize::colorRamp2(
-        seq(min(mat), max(mat), length = 3), 
-        c("blue", "#EEEEEE", "red")
-    )
-    
+    minmat <- min(mat, na.rm = TRUE)
+    maxmat <- max(mat, na.rm = TRUE)
+    if (minmat < 0) {
+        if (maxmat <= 0) {
+            heatmapCols = circlize::colorRamp2(
+                c(minmat, maxmat), 
+                c("blue", "#EEEEEE")
+            )
+        } else if (maxmat > 0) {
+            heatmapCols = circlize::colorRamp2(
+                c(minmat, 0, maxmat), 
+                c("blue", "#EEEEEE", "red")
+            )
+        }
+    } else {
+        heatmapCols = circlize::colorRamp2(
+            c(minmat, maxmat), 
+            c("#EEEEEE", "red")
+        )
+    }
+
     ComplexHeatmap::Heatmap(
         matrix = mat, name = "Relative\nvalue",
         col = heatmapCols,
-        na_col = "lightgrey",
+        na_col = "white",
         rect_gp = grid::gpar(col = "white", lwd = 1),
         cluster_rows = FALSE, 
         cluster_columns = FALSE, 
