@@ -7,43 +7,87 @@
 bettr(
   df,
   idCol = "Method",
-  metrics_num = setdiff(colnames(df), idCol),
-  metrics_cat = c(),
+  metrics = setdiff(colnames(df), idCol),
   initialWeights = NULL,
   initialTransforms = list(),
   metricInfo = NULL,
+  metricColors = NULL,
   idInfo = NULL,
+  idColors = NULL,
   bstheme = "darkly"
 )
 }
 \arguments{
-\item{df}{A \code{data.frame} in wide format.}
+\item{df}{A \code{data.frame} in wide format. Should contain one column
+with the IDs of the entities to be compared, and one column for each
+metric to use for the comparison.}
 
-\item{idCol}{Character scalar, indicating which column of \code{df}
+\item{idCol}{Character scalar, indicating the name of the column of \code{df}
 that contains IDs of the entities to be compared (e.g., methods).}
 
-\item{metrics_num, metrics_cat}{Character vectors, indicating which of the
-columns of \code{df} that correspond to, numeric and categorical,
-respectively, metrics of interest.}
+\item{metrics}{Character vector, indicating which of the
+columns of \code{df} that correspond to metrics of interest. Only metrics
+included here will be displayed.}
 
 \item{initialWeights}{Named numeric vector providing initial weights for
-aggregating the metric scores. Must have one entry per metric included
-in \code{df}.}
+each metric to use for aggregating them into a final score. Must contain
+one entry per metric included in \code{metrics_num} or \code{metrics_cat}.}
 
 \item{initialTransforms}{Named list with initial values of transformation
-parameters for each metric.}
+parameters for each metric. Each list entry should correspond to one
+metric, and take the form of a list with up to four elements, named:
+\itemize{
+\item \code{flip:} Logical scalar; whether or not to flip the sign of the
+metric values. Defaults to \code{FALSE}.
+\item \code{offset:} Numeric scalar; offset to add to the (flipped)
+metric values. Defaults to \code{0}.
+\item \code{transform:} Character scalar; one of 'None', 'z-score',
+'[0,1]', '[-1,1]' or 'Rank', indicating which transform to apply to
+the metric values (after any flipping and/or adding the offset).
+Defaults to 'None'.
+\item \code{cuts:} Numeric vector or \code{NULL}; the cut points that will
+be used to bin the metric values (after the other transformations).
+Defaults to \code{NULL}.
+}
+Only values deviating from the defaults need to be explicitly specified,
+the others will be initialized to their default values.}
 
 \item{metricInfo}{\code{data.frame} with annotations for metrics. Must have
 a column named 'Metric' identifying the respective metrics.}
 
+\item{metricColors}{Named list with colors used for columns of
+\code{metricInfo}. Should follow the format required for ComplexHeatmap
+heatmap annotations.}
+
 \item{idInfo}{\code{data.frame} with annotations for entities. Must have a
 column named according to \code{idCol} identifying the respective entities.}
+
+\item{idColors}{Named list with colors used for columns of \code{idInfo}.
+Should follow the format required for ComplexHeatmap heatmap annotations.}
 
 \item{bstheme}{Character scalar giving the bootswatch theme for the app
 (see https://bootswatch.com/). Default 'darkly'.}
 }
 \description{
 Launch bettr app to explore and aggregate performance metrics
+}
+\examples{
+df <- data.frame(Method = c("M1", "M2", "M3"), metric1 = c(1, 2, 3),
+                 metric2 = c(3, 1, 2), metric3 = factor(c("a", "a", "b")))
+initialTransforms <- list(metric1 = list(flip = TRUE, offset = 4))
+metricInfo <- data.frame(Metric = c("metric1", "metric2", "metric3"),
+                         Group = c("G1", "G2", "G2"))
+idInfo <- data.frame(Method = c("M1", "M2", "M3"), 
+                     Type = c("T1", "T1", "T2"))
+metricColors = list(Group = c(G1 = "red", G2 = "blue"))
+if (interactive()) {
+    bettr(df = df, idCol = "Method", 
+    metrics = c("metric1", "metric2", "metric3"),
+    initialTransforms = initialTransforms,
+    metricInfo = metricInfo, metricColors = metricColors,
+    idInfo = idInfo)
+}
+
 }
 \author{
 Charlotte Soneson

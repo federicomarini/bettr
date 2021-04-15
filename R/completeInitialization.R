@@ -59,7 +59,7 @@
              paste(allowedTransforms, collapse = ", "))
     }
     if (entry == "cuts" && (!is.numeric(value))) {
-        stop("Specified offsets must be numeric vectors")
+        stop("Specified cuts must be numeric vectors")
     }
     
     ## Otherwise, return the specified value

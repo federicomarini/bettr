@@ -2,24 +2,30 @@
 #' 
 #' @importFrom dplyr arrange mutate
 #' @importFrom rlang .data :=
+#' @importFrom scales rescale
 #' @importFrom ggplot2 ggplot aes geom_boxplot geom_line geom_point 
-#'   scale_size_manual theme_minimal theme element_text
+#'   scale_size_manual theme_minimal theme element_text scale_fill_manual
 #'   
 .makeParCoordPlot <- function(df, idCol, metricCol, valueCol, groupCol,
                               methods, highlightMethod, 
-                              metricGrouping, labelSize) {
+                              metricGrouping, labelSize, 
+                              metricColors) {
     
+    ## Define line widths -----------------------------------------------------
     lwidths <- rep(0.75, length(methods))
     names(lwidths) <- methods
     lwidths[highlightMethod] <- 2.5
     
+    ## Define line transparencies ---------------------------------------------
     alphas <- rep(1, length(methods))
     names(alphas) <- methods
     if (any(highlightMethod %in% methods)) {
         alphas[setdiff(methods, highlightMethod)] <- 0.3
     }
     
+    ## Construct plot ---------------------------------------------------------
     if (metricGrouping != "---") {
+        ## Reorder metrics according to the chosen grouping
         tmp <- df %>% 
             dplyr::arrange(.data[[groupCol]]) %>%
             dplyr::mutate("{metricCol}" := factor(
@@ -31,6 +37,17 @@
             ggplot2::geom_boxplot(outlier.size = -1,
                                   ggplot2::aes(fill = .data[[groupCol]]),
                                   alpha = 0.4)
+        if (methods::is(metricColors[[metricGrouping]], "function")) {
+            gp <- gp + 
+                ggplot2::scale_fill_gradientn(
+                    colors = do.call(metricColors[[metricGrouping]], 
+                                     list(sort(unique(tmp[[groupCol]])))), 
+                    values = scales::rescale(sort(unique(tmp[[groupCol]])))
+                )
+        } else {
+            gp <- gp + 
+                ggplot2::scale_fill_manual(values = metricColors[[metricGrouping]])
+        }
     } else {
         tmp <- df
         gp <- ggplot2::ggplot(tmp,
@@ -38,6 +55,8 @@
                                            y = .data[[valueCol]])) + 
             ggplot2::geom_boxplot(outlier.size = -1)
     }
+    
+    ## Plot
     gp + 
         ggplot2::geom_line(ggplot2::aes(group = .data[[idCol]],
                                         color = .data[[idCol]],

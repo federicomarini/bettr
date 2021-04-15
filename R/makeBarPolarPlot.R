@@ -10,11 +10,13 @@
 .makeBarPolarPlot <- function(df, idCol, metricCol, valueCol, 
                               weightCol, scoreCol, methods, labelSize,
                               ordering = "high-to-low", 
-                              showComposition = FALSE) {
+                              showComposition = FALSE, 
+                              scaleFactorPolars = 1.5) {
     if (!(ordering %in% c("high-to-low", "low-to-high"))) {
         stop("ordering must be 'high-to-low' or 'low-to-high'")
     }
-    ## Define polar plots
+    
+    ## Define polar plots -----------------------------------------------------
     rplots <- lapply(methods, function(m) {
         ggplot2::ggplot(df %>% 
                             dplyr::filter(.data[[idCol]] == m),
@@ -43,6 +45,7 @@
         rp + ggplot2::theme(legend.position = "none")
     })
     
+    ## Define data for barplot ------------------------------------------------
     scores <- df %>%
         dplyr::group_by(.data[[idCol]]) %>%
         dplyr::summarize(
@@ -64,8 +67,9 @@
     sx <- 2.5
     sy <- ry/rx * sx
     
-    
+    ## Plot -------------------------------------------------------------------
     if (showComposition) {
+        ## Split bars by metric contribution to score
         bplot <- ggplot2::ggplot(df %>% 
                                      dplyr::mutate("{idCol}" := 
                                                        factor(.data[[idCol]],
@@ -76,6 +80,7 @@
             ggplot2::geom_bar(stat = "identity", width = 0.2,
                               aes(fill = .data[[metricCol]]))
     } else {
+        ## Show only final score in bars
         bplot <- ggplot2::ggplot(scores %>% 
                                      dplyr::mutate("{idCol}" := 
                                                        factor(.data[[idCol]],
@@ -91,18 +96,21 @@
                 angle = 90, hjust = 1, vjust = 0.5, size = labelSize),
             axis.text.y = ggplot2::element_text(size = labelSize),
             axis.title = ggplot2::element_text(size = labelSize)) +
-        ggplot2::expand_limits(y = max(scores[[scoreCol]]) + sy)
-    bplot <- bplot + 
+        ggplot2::expand_limits(y = max(scores[[scoreCol]]) + sy) + 
         ggplot2::theme(legend.position = "none")
+    
+    ## Add polar plots
     for (i in seq_along(levs)) {
         l <- levs[i]
         bplot <- bplot +
             cowplot::draw_plot(
                 rplots[[l]], x = (i - sx/2 - 0.1), 
                 y = scores[[scoreCol]][scores[[idCol]] == l],
-                width = sx, height = sy, scale = 1.5, 
+                width = sx, height = sy, scale = scaleFactorPolars, 
                 hjust = 0, vjust = 0,
                 halign = 0.5, valign = 0.5)
     }
+    
+    ## Add legend for metrics
     cowplot::plot_grid(bplot, legnd, rel_widths = c(1, 0.2), nrow = 1)
 }

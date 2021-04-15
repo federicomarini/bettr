@@ -10,11 +10,12 @@
     if (!(ordering %in% c("high-to-low", "low-to-high"))) {
         stop("ordering must be 'high-to-low' or 'low-to-high'")
     }
+    
+    ## Get ordering of methods by score ---------------------------------------
     levs <- df %>%
         dplyr::group_by(.data[[idCol]]) %>%
         dplyr::summarize(
-            "{scoreCol}" := sum(.data[[weightCol]] *
-                                    .data[[valueCol]],
+            "{scoreCol}" := sum(.data[[weightCol]] * .data[[valueCol]],
                                 na.rm = TRUE)
         )
     if (ordering == "high-to-low") {
@@ -24,8 +25,9 @@
         levs <- levs %>%
             dplyr::arrange(.data[[scoreCol]])
     }
-    levs <- levs %>%
-        dplyr::pull(.data[[idCol]])
+    levs <- levs %>% dplyr::pull(.data[[idCol]])
+    
+    ## Plot -------------------------------------------------------------------
     ggplot2::ggplot(df %>% 
                         dplyr::mutate("{idCol}" := 
                                           factor(.data[[idCol]],

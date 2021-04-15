@@ -1,20 +1,43 @@
 #' Launch bettr app to explore and aggregate performance metrics
 #' 
-#' @param df A \code{data.frame} in wide format. 
-#' @param idCol Character scalar, indicating which column of \code{df} 
+#' @param df A \code{data.frame} in wide format. Should contain one column 
+#'   with the IDs of the entities to be compared, and one column for each 
+#'   metric to use for the comparison.
+#' @param idCol Character scalar, indicating the name of the column of \code{df} 
 #'   that contains IDs of the entities to be compared (e.g., methods).
-#' @param metrics_num,metrics_cat Character vectors, indicating which of the 
-#'   columns of \code{df} that correspond to, numeric and categorical, 
-#'   respectively, metrics of interest.
+#' @param metrics Character vector, indicating which of the 
+#'   columns of \code{df} that correspond to metrics of interest. Only metrics
+#'   included here will be displayed.
 #' @param initialWeights Named numeric vector providing initial weights for 
-#'   aggregating the metric scores. Must have one entry per metric included 
-#'   in \code{df}.
+#'   each metric to use for aggregating them into a final score. Must contain 
+#'   one entry per metric included in \code{metrics_num} or \code{metrics_cat}.
 #' @param initialTransforms Named list with initial values of transformation 
-#'   parameters for each metric.
+#'   parameters for each metric. Each list entry should correspond to one 
+#'   metric, and take the form of a list with up to four elements, named:
+#'   \itemize{
+#'   \item \code{flip:} Logical scalar; whether or not to flip the sign of the 
+#'     metric values. Defaults to \code{FALSE}.
+#'   \item \code{offset:} Numeric scalar; offset to add to the (flipped) 
+#'     metric values. Defaults to \code{0}.
+#'   \item \code{transform:} Character scalar; one of 'None', 'z-score', 
+#'     '\[0,1\]', '\[-1,1\]' or 'Rank', indicating which transform to apply to 
+#'     the metric values (after any flipping and/or adding the offset). 
+#'     Defaults to 'None'.
+#'   \item \code{cuts:} Numeric vector or \code{NULL}; the cut points that will 
+#'     be used to bin the metric values (after the other transformations). 
+#'     Defaults to \code{NULL}. 
+#'   }
+#'   Only values deviating from the defaults need to be explicitly specified, 
+#'   the others will be initialized to their default values.
 #' @param metricInfo \code{data.frame} with annotations for metrics. Must have 
 #'   a column named 'Metric' identifying the respective metrics.
+#' @param metricColors Named list with colors used for columns of 
+#'   \code{metricInfo}. Should follow the format required for ComplexHeatmap 
+#'   heatmap annotations. 
 #' @param idInfo \code{data.frame} with annotations for entities. Must have a 
 #'   column named according to \code{idCol} identifying the respective entities. 
+#' @param idColors Named list with colors used for columns of \code{idInfo}. 
+#'   Should follow the format required for ComplexHeatmap heatmap annotations. 
 #' @param bstheme Character scalar giving the bootswatch theme for the app 
 #'   (see https://bootswatch.com/). Default 'darkly'.
 #'  
@@ -30,23 +53,35 @@
 #'   actionButton br tabPanel titlePanel navbarPage
 #' @importFrom sortable rank_list
 #' @importFrom shinyjqui jqui_resizable
-#' @importFrom ggplot2 theme_minimal geom_bar aes ggplot geom_boxplot 
-#'   coord_flip geom_jitter 
 #' @importFrom dplyr select %>% contains
-#' @importFrom cowplot plot_grid
 #' @importFrom tidyr gather
 #' @importFrom bslib bs_theme
 #' @importFrom rlang .data
 #' 
+#' @examples 
+#' df <- data.frame(Method = c("M1", "M2", "M3"), metric1 = c(1, 2, 3),
+#'                  metric2 = c(3, 1, 2), metric3 = factor(c("a", "a", "b")))
+#' initialTransforms <- list(metric1 = list(flip = TRUE, offset = 4))
+#' metricInfo <- data.frame(Metric = c("metric1", "metric2", "metric3"),
+#'                          Group = c("G1", "G2", "G2"))
+#' idInfo <- data.frame(Method = c("M1", "M2", "M3"), 
+#'                      Type = c("T1", "T1", "T2"))
+#' metricColors = list(Group = c(G1 = "red", G2 = "blue"))
+#' if (interactive()) {
+#'     bettr(df = df, idCol = "Method", 
+#'     metrics = c("metric1", "metric2", "metric3"),
+#'     initialTransforms = initialTransforms,
+#'     metricInfo = metricInfo, metricColors = metricColors,
+#'     idInfo = idInfo)
+#' }
+#' 
 bettr <- function(df, idCol = "Method", 
-                  metrics_num = setdiff(colnames(df), idCol),
-                  metrics_cat = c(), initialWeights = NULL,
+                  metrics = setdiff(colnames(df), idCol),
+                  initialWeights = NULL,
                   initialTransforms = list(),
-                  metricInfo = NULL, idInfo = NULL,
+                  metricInfo = NULL, metricColors = NULL,
+                  idInfo = NULL, idColors = NULL,
                   bstheme = "darkly") {
-    
-    ## All metrics (numeric and categorical) ----------------------------------
-    metrics <- c(metrics_num, metrics_cat)
     
     ## Define column names assigned internally --------------------------------
     scoreCol <- "Score"
@@ -54,26 +89,41 @@ bettr <- function(df, idCol = "Method",
     metricCol <- "Metric"
     valueCol <- "ScaledValue"
     groupCol <- "Group"
+    initialWeightValue <- 0.2
+    weightResolution <- 0.05
     
     ## Check validity of input arguments --------------------------------------
-    .checkInputArguments(df = df, idCol = idCol, metrics_num = metrics_num,
-                         metrics_cat = metrics_cat, metricCol = metricCol,
+    .checkInputArguments(df = df, idCol = idCol, metrics = metrics,
+                         metricCol = metricCol,
                          initialWeights = initialWeights,
                          initialTransforms = initialTransforms,
                          metricInfo = metricInfo, idInfo = idInfo, 
                          bstheme = bstheme)
     
+    ## Split metrics into numeric and categorical -----------------------------
+    metrics_classes <- vapply(df[, metrics], class, NA_character_)
+    metrics_num <- intersect(
+        metrics, names(metrics_classes[metrics_classes == "numeric"])
+    )
+    metrics_cat <- intersect(
+        metrics, names(metrics_classes[metrics_classes %in% 
+                                           c("factor", "character", 
+                                             "logical")])
+    )
+    
+    ## Define annotation colors -----------------------------------------------
+    idColors <- .generateColors(idInfo, idColors)
+    metricColors <- .generateColors(metricInfo, metricColors)
+    
     ## Add non-specified initializations and check validity -------------------
-    initialTransforms <- .completeInitialization(initialTransforms, metrics)
+    initialTransforms <- .completeInitialization(initialTransforms, 
+                                                 metrics_num)
     
     ## Assign initial weights -------------------------------------------------
-    if (is.null(initialWeights)) {
-        initialWeights <- rep(0.2, length(metrics))
-        names(initialWeights) <- metrics
-    } else {
-        ## Round initial weights to closest 0.05 to fit with the sliders
-        initialWeights <- round(initialWeights * 20) / 20
-    }
+    initialWeights <- .assignInitialWeights(
+        weights = initialWeights, metrics = metrics,
+        initialWeightValue = initialWeightValue,
+        weightResolution = weightResolution)
 
     ## UI definition ----------------------------------------------------------
     p_layout <- 
@@ -174,9 +224,18 @@ bettr <- function(df, idCol = "Method",
                                         value = FALSE
                                     )
                                 ),
+                                shiny::column(
+                                    2,
+                                    shiny::numericInput(
+                                        inputId = "barpolar_scalefactor",
+                                        label = "Scale\npolar plots",
+                                        value = 1.5,
+                                        min = 0.1, max = 3
+                                    )
+                                ),
                                 shiny::column(1),
                                 shiny::column(
-                                    6,
+                                    5,
                                     shiny::radioButtons(
                                         inputId = "barpolar_id_ordering",
                                         label = "ID ordering by score",
@@ -241,7 +300,7 @@ bettr <- function(df, idCol = "Method",
         procdata <- shiny::reactive({
             tmp <- values$df
             for (m in values$metrics) {
-                if (is.numeric(values$df[[m]])) {
+                if (m %in% metrics_num) {
                     tmp[[m]] <- .transformNumericVariable(
                         x = values$df[[m]],
                         flip = input[[paste0(m, "_flip")]], 
@@ -249,11 +308,14 @@ bettr <- function(df, idCol = "Method",
                         transf = .getTransf(input[[paste0(m, "_transform")]]), 
                         bincuts = sort(as.numeric(input[[paste0(m, "_bincuts")]]))
                     )
-                } else {
+                } else if (m %in% metrics_cat) {
                     tmp[[m]] <- .transformCategoricalVariable(
                         x = values$df[[m]],
                         levels = input[[paste0(m, "_levels")]]
                     )
+                } else {
+                    stop("Encountered metric that could not be identified ",
+                         "as numeric or categorical: ", m)
                 }
             }
             tmp
@@ -434,21 +496,7 @@ bettr <- function(df, idCol = "Method",
                     shiny::validate(
                         shiny::need(procdata(), "No processed data")
                     )
-                    cowplot::plot_grid(
-                        ggplot2::ggplot(data.frame(metric = procdata()[[m]]),
-                                        ggplot2::aes(x = .data[["metric"]])) + 
-                            ggplot2::geom_bar() + 
-                            ggplot2::theme_minimal(),
-                        ggplot2::ggplot(data.frame(metric = procdata()[[m]]),
-                                        ggplot2::aes(x = 1, 
-                                                     y = .data[["metric"]])) + 
-                            ggplot2::geom_boxplot(outlier.size = -1) + 
-                            ggplot2::geom_jitter(width = 0.2, height = 0,
-                                                 size = 4, pch = 1) + 
-                            ggplot2::theme_minimal() +
-                            ggplot2::coord_flip(),
-                        ncol = 1
-                    )
+                    .makeMetricSummaryPlot(x = procdata()[[m]])
                 })
             })
             
@@ -460,7 +508,7 @@ bettr <- function(df, idCol = "Method",
             for (j in values$metrics) {
                 shiny::updateNumericInput(
                     session, inputId = paste0(j, "_weight"), 
-                    value = 0.2
+                    value = initialWeightValue
                 )
             }
         })
@@ -479,7 +527,8 @@ bettr <- function(df, idCol = "Method",
                                   groupCol = groupCol, methods = values$methods,
                                   highlightMethod = input$highlightMethod, 
                                   metricGrouping = input$metricGrouping,
-                                  labelSize = input$parcoord_labelsize)
+                                  labelSize = input$parcoord_labelsize, 
+                                  metricColors = metricColors)
             }
         })
         
@@ -515,7 +564,8 @@ bettr <- function(df, idCol = "Method",
                                   methods = values$methods, 
                                   labelSize = input$barpolar_labelsize,
                                   ordering = input$barpolar_id_ordering,
-                                  showComposition = input$barpolar_showcomp)
+                                  showComposition = input$barpolar_showcomp,
+                                  scaleFactorPolars = input$barpolar_scalefactor)
             }
         })
         
@@ -535,7 +585,8 @@ bettr <- function(df, idCol = "Method",
                              metricInfo = values$metricInfo,
                              idInfo = values$idInfo,
                              labelSize = input$heatmap_labelsize,
-                             ordering = input$heatmap_id_ordering)
+                             ordering = input$heatmap_id_ordering, 
+                             idColors = idColors, metricColors = metricColors)
             }
         })
         
@@ -553,7 +604,7 @@ bettr <- function(df, idCol = "Method",
                                 value = initialWeights[i],
                                 min = 0,
                                 max = 1,
-                                step = 0.05
+                                step = weightResolution
                             )
                         }))
             }

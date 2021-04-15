@@ -2,11 +2,9 @@
 #' 
 #' @importFrom methods is
 #' 
-.checkInputArguments <- function(df, idCol, metrics_num, metrics_cat,
+.checkInputArguments <- function(df, idCol, metrics,
                                  metricCol, initialWeights, initialTransforms, 
                                  metricInfo, idInfo, bstheme) {
-    metrics <- c(metrics_num, metrics_cat)
-
     ## Check input arguments --------------------------------------------------
     if (!methods::is(df, "data.frame")) {
         stop("df must be a data.frame")
@@ -31,25 +29,33 @@
                all(metrics %in% names(initialWeights)) &&
                !all(initialWeights == 0) && 
                all(initialWeights >= 0) && all(initialWeights <= 1))) {
-            stop("initialWeights must be a named numeric vector with",
+            stop("initialWeights must be a named numeric vector with ",
                  "values between 0 and 1, and with one value for each metric")
         }
     }
     
-    if (!all(sapply(metrics_num, function(m) is.numeric(df[[m]])))) {
-        stop("All metrics in metrics_num must correspond to numeric",
-             "columns in df")
-    }
-    if (!all(sapply(metrics_cat, function(m) is.factor(df[[m]]) || 
-                    is.character(df[m])))) {
-        stop("All metrics in metrics_cat must correspond to factor",
-             "or character columns in df")
+    if (!is.null(metricInfo)) {
+        if (!methods::is(metricInfo, "data.frame")) {
+            stop("metricInfo must be a data.frame")
+        }
+        if (!(metricCol %in% colnames(metricInfo))) {
+            stop("metricInfo must have a column named ", metricCol)
+        }
+        if (!all(metrics %in% metricInfo[[metricCol]])) {
+            stop("metricInfo must contain information about all metrics")
+        }
     }
     
-    if (!is.null(metricInfo) && !methods::is(metricInfo, "data.frame")) {
-        stop("metricGroups must be a list")
-    }
-    if (!is.null(metricInfo) && !(metricCol %in% colnames(metricInfo))) {
-        stop("metricInfo must have a column named ", metricCol)
+    if (!is.null(idInfo)) {
+        if (!methods::is(idInfo, "data.frame")) {
+            stop("idInfo must be a data.frame")
+        }
+        if (!(idCol %in% colnames(idInfo))) {
+            stop("idInfo must have a column named ", idCol)
+        }
+        if (!all(df[[idCol]] %in% idInfo[[idCol]])) {
+            stop("idInfo must contain information about all entities")
+        }
     }
 }
+

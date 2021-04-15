@@ -11,7 +11,7 @@
 #' 
 .makeHeatmap <- function(df, idCol, metricCol, valueCol, weightCol, scoreCol, 
                          groupCol, metricInfo, idInfo, labelSize, 
-                         ordering = "high-to-low") {
+                         ordering = "high-to-low", idColors, metricColors) {
     if (!(ordering %in% c("high-to-low", "low-to-high"))) {
         stop("ordering must be 'high-to-low' or 'low-to-high'")
     }
@@ -45,7 +45,7 @@
         as.data.frame() %>%
         tibble::column_to_rownames(var = idCol) %>%
         as.matrix()
-    
+
     ## Match order of row annotations
     rowAnnot <- rowAnnot[match(rownames(mat), 
                                rowAnnot[[idCol]]), ,
@@ -59,7 +59,7 @@
         rownames(idInfo) <- idInfo[[idCol]]
         idInfo[[idCol]] <- NULL
     }
-    
+
     ## Match order of column annotations
     colAnnot <- df %>%
         dplyr::filter(!duplicated(.data[[metricCol]])) %>%
@@ -79,7 +79,7 @@
         as.data.frame()
     rownames(colAnnot) <- colAnnot[[metricCol]]
     colAnnot[[metricCol]] <- NULL
-    
+
     if (!is.null(metricInfo)) {
         metricInfo <- metricInfo[match(colnames(mat), 
                                        metricInfo[[metricCol]]), , 
@@ -102,7 +102,8 @@
     
     if (!is.null(idInfo)) {
         rowAnnotLeft <- ComplexHeatmap::rowAnnotation(
-            df = idInfo
+            df = idInfo,
+            col = idColors
         )
     } else {
         rowAnnotLeft <- NULL
@@ -118,7 +119,8 @@
     )
     if (!is.null(metricInfo)) {
         colAnnotBottom <- ComplexHeatmap::columnAnnotation(
-            df = metricInfo
+            df = metricInfo,
+            col = metricColors
         )
     } else {
         colAnnotBottom <- NULL
