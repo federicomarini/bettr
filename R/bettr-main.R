@@ -106,7 +106,8 @@ bettr <- function(df, idCol = "Method",
     ## Split metrics into numeric and categorical -----------------------------
     metrics_classes <- vapply(df[, metrics], class, NA_character_)
     metrics_num <- intersect(
-        metrics, names(metrics_classes[metrics_classes == "numeric"])
+        metrics, names(metrics_classes[metrics_classes %in% c("numeric", 
+                                                              "integer")])
     )
     metrics_cat <- intersect(
         metrics, names(metrics_classes[metrics_classes %in% 
@@ -115,9 +116,24 @@ bettr <- function(df, idCol = "Method",
     )
     
     ## Define annotation colors -----------------------------------------------
-    idColors <- .generateColors(idInfo, idColors, ggplot2Columns = idCol)
-    metricColors <- .generateColors(metricInfo, metricColors, 
-                                    ggplot2Columns = metricCol)
+    if (is.null(idInfo)) {
+        idColors <- .generateColors(
+            data.frame(id = unique(df[[idCol]])) %>% setNames(idCol),
+            idColors, ggplot2Columns = idCol
+        )
+    } else {
+        idColors <- .generateColors(idInfo, idColors, ggplot2Columns = idCol)
+    }
+    
+    if (is.null(metricInfo)) {
+        metricColors <- .generateColors(
+            data.frame(metric = metrics) %>% setNames(metricCol),
+            metricColors, ggplot2Columns = metricCol
+        )
+    } else {
+        metricColors <- .generateColors(metricInfo, metricColors, 
+                                        ggplot2Columns = metricCol)
+    }
     
     ## Add non-specified initializations and check validity -------------------
     initialTransforms <- .completeInitialization(initialTransforms, 
@@ -233,8 +249,8 @@ bettr <- function(df, idCol = "Method",
                                     shiny::numericInput(
                                         inputId = "barpolar_scalefactor",
                                         label = "Scale\npolar plots",
-                                        value = 1.5,
-                                        min = 0.1, max = 3
+                                        value = 1.5, step = 0.05,
+                                        min = 0.1, max = 3.1
                                     )
                                 ),
                                 shiny::column(1),
