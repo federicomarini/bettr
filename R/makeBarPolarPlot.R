@@ -1,7 +1,7 @@
 #' @keywords internal
 #' 
 #' @importFrom dplyr filter group_by summarize arrange desc pull mutate
-#' @importFrom rlang sym :=
+#' @importFrom rlang .data :=
 #' @importFrom ggplot2 ggplot aes geom_col ylim coord_polar theme_minimal 
 #'   theme element_blank labs geom_bar expand_limits element_text
 #' @importFrom cowplot draw_plot
@@ -16,10 +16,10 @@
     ## Define polar plots
     rplots <- lapply(methods, function(m) {
         ggplot2::ggplot(df %>% 
-                            dplyr::filter(!!rlang::sym(idCol) == m),
-                        ggplot2::aes(x = !!rlang::sym(metricCol), 
-                                     y = !!rlang::sym(valueCol),
-                                     fill = !!rlang::sym(metricCol))) + 
+                            dplyr::filter(.data[[idCol]] == m),
+                        ggplot2::aes(x = .data[[metricCol]], 
+                                     y = .data[[valueCol]],
+                                     fill = .data[[metricCol]])) + 
             ggplot2::geom_col(width = 1, color = "white") +
             ggplot2::ylim(min(0, min(df[[valueCol]])),
                           max(df[[valueCol]])) + 
@@ -35,21 +35,21 @@
     names(rplots) <- methods
     
     scores <- df %>%
-        dplyr::group_by(!!rlang::sym(idCol)) %>%
+        dplyr::group_by(.data[[idCol]]) %>%
         dplyr::summarize(
-            "{scoreCol}" := sum(!!rlang::sym(weightCol) *
-                                    !!rlang::sym(valueCol),
+            "{scoreCol}" := sum(.data[[weightCol]] *
+                                    .data[[valueCol]],
                                 na.rm = TRUE)
         ) 
     if (ordering == "high-to-low") {
         scores <- scores %>%
-            dplyr::arrange(dplyr::desc(!!rlang::sym(scoreCol)))
+            dplyr::arrange(dplyr::desc(.data[[scoreCol]]))
     } else {
         scores <- scores %>%
-            dplyr::arrange(!!rlang::sym(scoreCol))
+            dplyr::arrange(.data[[scoreCol]])
     }
     levs <- scores %>%
-        dplyr::pull(!!rlang::sym(idCol))
+        dplyr::pull(.data[[idCol]])
     rx <- length(levs)
     ry <- max(0, max(scores[[scoreCol]])) - min(0, min(scores[[scoreCol]]))
     sx <- 2.5
@@ -57,10 +57,10 @@
     
     bplot <- ggplot2::ggplot(scores %>% 
                                  dplyr::mutate("{idCol}" := 
-                                                   factor(!!rlang::sym(idCol),
+                                                   factor(.data[[idCol]],
                                                           levels = levs)),
-                             ggplot2::aes(x = !!rlang::sym(idCol), 
-                                          y = !!rlang::sym(scoreCol))) +
+                             ggplot2::aes(x = .data[[idCol]], 
+                                          y = .data[[scoreCol]])) +
         ggplot2::geom_bar(stat = "identity", width = 0.2, fill = "grey") + 
         ggplot2::theme_minimal() +
         ggplot2::theme(axis.text.x = ggplot2::element_text(

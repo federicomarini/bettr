@@ -1,7 +1,7 @@
 #' @keywords internal
 #' 
 #' @importFrom dplyr arrange mutate
-#' @importFrom rlang sym :=
+#' @importFrom rlang .data :=
 #' @importFrom ggplot2 ggplot aes geom_boxplot geom_line geom_point 
 #'   scale_size_manual theme_minimal theme element_text
 #'   
@@ -21,30 +21,30 @@
     
     if (metricGrouping != "---") {
         tmp <- df %>% 
-            dplyr::arrange(!!rlang::sym(groupCol)) %>%
+            dplyr::arrange(.data[[groupCol]]) %>%
             dplyr::mutate("{metricCol}" := factor(
-                !!rlang::sym(metricCol),
-                levels = unique(!!rlang::sym(metricCol))))
+                .data[[metricCol]],
+                levels = unique(.data[[metricCol]])))
         gp <- ggplot2::ggplot(tmp,
-                              ggplot2::aes(x = !!rlang::sym(metricCol), 
-                                           y = !!rlang::sym(valueCol))) + 
+                              ggplot2::aes(x = .data[[metricCol]], 
+                                           y = .data[[valueCol]])) + 
             ggplot2::geom_boxplot(outlier.size = -1,
-                                  ggplot2::aes(fill = !!rlang::sym(groupCol)),
+                                  ggplot2::aes(fill = .data[[groupCol]]),
                                   alpha = 0.4)
     } else {
         tmp <- df
         gp <- ggplot2::ggplot(tmp,
-                              ggplot2::aes(x = !!rlang::sym(metricCol), 
-                                           y = !!rlang::sym(valueCol))) + 
+                              ggplot2::aes(x = .data[[metricCol]], 
+                                           y = .data[[valueCol]])) + 
             ggplot2::geom_boxplot(outlier.size = -1)
     }
     gp + 
-        ggplot2::geom_line(ggplot2::aes(group = !!rlang::sym(idCol),
-                                        color = !!rlang::sym(idCol),
-                                        size = !!rlang::sym(idCol),
-                                        alpha = !!rlang::sym(idCol))) +
-        ggplot2::geom_point(ggplot2::aes(group = !!rlang::sym(idCol),
-                                         color = !!rlang::sym(idCol))) +
+        ggplot2::geom_line(ggplot2::aes(group = .data[[idCol]],
+                                        color = .data[[idCol]],
+                                        size = .data[[idCol]],
+                                        alpha = .data[[idCol]])) +
+        ggplot2::geom_point(ggplot2::aes(group = .data[[idCol]],
+                                         color = .data[[idCol]])) +
         ggplot2::scale_size_manual(values = lwidths) +
         ggplot2::scale_alpha_manual(values = alphas) + 
         ggplot2::theme_minimal() +
