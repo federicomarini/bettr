@@ -1,4 +1,4 @@
-#' @keywords internal
+#' @noRd
 #' 
 #' @importFrom dplyr arrange mutate
 #' @importFrom rlang .data :=

@@ -38,18 +38,19 @@ one entry per metric included in \code{metrics_num} or \code{metrics_cat}.}
 parameters for each metric. Each list entry should correspond to one
 metric, and take the form of a list with up to four elements, named:
 \itemize{
-\item \code{flip:} Logical scalar; whether or not to flip the sign of the
+\item \strong{flip}: Logical scalar; whether or not to flip the sign of the
 metric values. Defaults to \code{FALSE}.
-\item \code{offset:} Numeric scalar; offset to add to the (flipped)
+\item \strong{offset}: Numeric scalar; offset to add to the (flipped)
 metric values. Defaults to \code{0}.
-\item \code{transform:} Character scalar; one of 'None', 'z-score',
+\item \strong{transform}: Character scalar; one of 'None', 'z-score',
 '[0,1]', '[-1,1]' or 'Rank', indicating which transform to apply to
 the metric values (after any flipping and/or adding the offset).
 Defaults to 'None'.
-\item \code{cuts:} Numeric vector or \code{NULL}; the cut points that will
+\item \strong{cuts}: Numeric vector or \code{NULL}; the cut points that will
 be used to bin the metric values (after the other transformations).
 Defaults to \code{NULL}.
 }
+
 Only values deviating from the defaults need to be explicitly specified,
 the others will be initialized to their default values.}
 

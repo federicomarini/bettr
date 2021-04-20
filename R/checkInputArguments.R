@@ -1,4 +1,4 @@
-#' @keywords internal
+#' @noRd
 #' 
 #' @importFrom methods is
 #' 

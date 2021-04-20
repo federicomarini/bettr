@@ -1,45 +1,45 @@
 #' Launch bettr app to explore and aggregate performance metrics
 #' 
-#' @param df A \code{data.frame} in wide format. Should contain one column 
+#' @param df A `data.frame` in wide format. Should contain one column 
 #'   with the IDs of the entities to be compared, and one column for each 
 #'   metric to use for the comparison.
-#' @param idCol Character scalar, indicating the name of the column of \code{df} 
+#' @param idCol Character scalar, indicating the name of the column of `df` 
 #'   that contains IDs of the entities to be compared (e.g., methods).
 #' @param metrics Character vector, indicating which of the 
-#'   columns of \code{df} that correspond to metrics of interest. Only metrics
+#'   columns of `df` that correspond to metrics of interest. Only metrics
 #'   included here will be displayed.
 #' @param initialWeights Named numeric vector providing initial weights for 
 #'   each metric to use for aggregating them into a final score. Must contain 
-#'   one entry per metric included in \code{metrics_num} or \code{metrics_cat}.
+#'   one entry per metric included in `metrics_num` or `metrics_cat`.
 #' @param initialTransforms Named list with initial values of transformation 
 #'   parameters for each metric. Each list entry should correspond to one 
 #'   metric, and take the form of a list with up to four elements, named:
-#'   \itemize{
-#'   \item \code{flip:} Logical scalar; whether or not to flip the sign of the 
-#'     metric values. Defaults to \code{FALSE}.
-#'   \item \code{offset:} Numeric scalar; offset to add to the (flipped) 
-#'     metric values. Defaults to \code{0}.
-#'   \item \code{transform:} Character scalar; one of 'None', 'z-score', 
+#'   
+#'   * **flip**: Logical scalar; whether or not to flip the sign of the 
+#'     metric values. Defaults to `FALSE`.
+#'   * **offset**: Numeric scalar; offset to add to the (flipped) 
+#'     metric values. Defaults to `0`.
+#'   * **transform**: Character scalar; one of 'None', 'z-score', 
 #'     '\[0,1\]', '\[-1,1\]' or 'Rank', indicating which transform to apply to 
 #'     the metric values (after any flipping and/or adding the offset). 
 #'     Defaults to 'None'.
-#'   \item \code{cuts:} Numeric vector or \code{NULL}; the cut points that will 
+#'   * **cuts**: Numeric vector or `NULL`; the cut points that will 
 #'     be used to bin the metric values (after the other transformations). 
-#'     Defaults to \code{NULL}. 
-#'   }
+#'     Defaults to `NULL`. 
+#'
 #'   Only values deviating from the defaults need to be explicitly specified, 
 #'   the others will be initialized to their default values.
-#' @param metricInfo \code{data.frame} with annotations for metrics. Must have 
+#' @param metricInfo `data.frame` with annotations for metrics. Must have 
 #'   a column named 'Metric' identifying the respective metrics.
 #' @param metricColors Named list with colors used for columns of 
-#'   \code{metricInfo}. Should follow the format required for ComplexHeatmap 
+#'   `metricInfo`. Should follow the format required for ComplexHeatmap 
 #'   heatmap annotations. The list can include an entry named 'Metric', which 
 #'   contains a named vector with colors to use for metrics. 
-#' @param idInfo \code{data.frame} with annotations for entities. Must have a 
-#'   column named according to \code{idCol} identifying the respective entities. 
-#' @param idColors Named list with colors used for columns of \code{idInfo}. 
+#' @param idInfo `data.frame` with annotations for entities. Must have a 
+#'   column named according to `idCol` identifying the respective entities. 
+#' @param idColors Named list with colors used for columns of `idInfo`. 
 #'   Should follow the format required for ComplexHeatmap heatmap annotations. 
-#'   The list can include an entry named according to \code{idCol}, which 
+#'   The list can include an entry named according to `idCol`, which 
 #'   contains a named vector with colors to use for entities. 
 #' @param weightResolution Numeric scalar in (0,1), giving the resolution at 
 #'   which weights can be specified using the sliders in the interface.
