@@ -32,5 +32,8 @@ Imports:
     methods,
     cowplot,
     Hmisc,
-    sortable
+    sortable,
+    shinyjqui,
+    grDevices,
+    scales
 Config/testthat/edition: 3
