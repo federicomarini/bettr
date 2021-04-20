@@ -58,6 +58,8 @@
 
 
 
+<!-- dependencies from examples -->
+
 
   
 
@@ -133,14 +135,14 @@
     <pre class="usage"><span class='fu'>bettr</span><span class='op'>(</span>
   <span class='va'>df</span>,
   idCol <span class='op'>=</span> <span class='st'>"Method"</span>,
-  metrics_num <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/sets.html'>setdiff</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span><span class='op'>(</span><span class='va'>df</span><span class='op'>)</span>, <span class='va'>idCol</span><span class='op'>)</span>,
-  metrics_cat <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='op'>)</span>,
+  metrics <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/sets.html'>setdiff</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span><span class='op'>(</span><span class='va'>df</span><span class='op'>)</span>, <span class='va'>idCol</span><span class='op'>)</span>,
   initialWeights <span class='op'>=</span> <span class='cn'>NULL</span>,
-  initialFlips <span class='op'>=</span> <span class='cn'>NULL</span>,
-  initialOffsets <span class='op'>=</span> <span class='cn'>NULL</span>,
-  initialTransforms <span class='op'>=</span> <span class='cn'>NULL</span>,
-  initialCuts <span class='op'>=</span> <span class='cn'>NULL</span>,
-  metricGroups <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
+  initialTransforms <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
+  metricInfo <span class='op'>=</span> <span class='cn'>NULL</span>,
+  metricColors <span class='op'>=</span> <span class='cn'>NULL</span>,
+  idInfo <span class='op'>=</span> <span class='cn'>NULL</span>,
+  idColors <span class='op'>=</span> <span class='cn'>NULL</span>,
+  weightResolution <span class='op'>=</span> <span class='fl'>0.05</span>,
   bstheme <span class='op'>=</span> <span class='st'>"darkly"</span>
 <span class='op'>)</span></pre>
 
@@ -149,41 +151,76 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>df</th>
-      <td><p>A <code>data.frame</code> in wide format.</p></td>
+      <td><p>A <code>data.frame</code> in wide format. Should contain one column
+with the IDs of the entities to be compared, and one column for each
+metric to use for the comparison.</p></td>
     </tr>
     <tr>
       <th>idCol</th>
-      <td><p>Character scalar, indicating which column of <code>df</code>
+      <td><p>Character scalar, indicating the name of the column of <code>df</code>
 that contains IDs of the entities to be compared (e.g., methods).</p></td>
     </tr>
     <tr>
-      <th>metrics_num, metrics_cat</th>
-      <td><p>Character vectors, indicating which of the
-columns of <code>df</code> that correspond to, numeric and categorical,
-respectively, metrics of interest.</p></td>
+      <th>metrics</th>
+      <td><p>Character vector, indicating which of the
+columns of <code>df</code> that correspond to metrics of interest. Only metrics
+included here will be displayed.</p></td>
     </tr>
     <tr>
       <th>initialWeights</th>
       <td><p>Named numeric vector providing initial weights for
-aggregating the metric scores. Must have one entry per metric included
-in <code>df</code>.</p></td>
+each metric to use for aggregating them into a final score. Must contain
+one entry per metric included in <code>metrics_num</code> or <code>metrics_cat</code>.</p></td>
     </tr>
     <tr>
-      <th>initialFlips, initialOffsets, initialTransforms</th>
-      <td><p>Named vectors
-giving the initial value of the flip, offset and transforms for each
-metric.</p></td>
+      <th>initialTransforms</th>
+      <td><p>Named list with initial values of transformation
+parameters for each metric. Each list entry should correspond to one
+metric, and take the form of a list with up to four elements, named:</p><ul>
+<li><p><strong>flip</strong>: Logical scalar; whether or not to flip the sign of the
+metric values. Defaults to <code>FALSE</code>.</p></li>
+<li><p><strong>offset</strong>: Numeric scalar; offset to add to the (flipped)
+metric values. Defaults to <code>0</code>.</p></li>
+<li><p><strong>transform</strong>: Character scalar; one of 'None', 'z-score',
+'[0,1]', '[-1,1]' or 'Rank', indicating which transform to apply to
+the metric values (after any flipping and/or adding the offset).
+Defaults to 'None'.</p></li>
+<li><p><strong>cuts</strong>: Numeric vector or <code>NULL</code>; the cut points that will
+be used to bin the metric values (after the other transformations).
+Defaults to <code>NULL</code>.</p></li>
+</ul>
+
+<p>Only values deviating from the defaults need to be explicitly specified,
+the others will be initialized to their default values.</p></td>
     </tr>
     <tr>
-      <th>initialCuts</th>
-      <td><p>Named list giving the initial values of cut points used to
-make each metric categorical.</p></td>
+      <th>metricInfo</th>
+      <td><p><code>data.frame</code> with annotations for metrics. Must have
+a column named 'Metric' identifying the respective metrics.</p></td>
     </tr>
     <tr>
-      <th>metricGroups</th>
-      <td><p>Named list of named character vectors. Each list entry
-corresponds to one grouping of metrics. The grouping much be a named
-vector indicating the respective group for each metric.</p></td>
+      <th>metricColors</th>
+      <td><p>Named list with colors used for columns of
+<code>metricInfo</code>. Should follow the format required for ComplexHeatmap
+heatmap annotations. The list can include an entry named 'Metric', which
+contains a named vector with colors to use for metrics.</p></td>
+    </tr>
+    <tr>
+      <th>idInfo</th>
+      <td><p><code>data.frame</code> with annotations for entities. Must have a
+column named according to <code>idCol</code> identifying the respective entities.</p></td>
+    </tr>
+    <tr>
+      <th>idColors</th>
+      <td><p>Named list with colors used for columns of <code>idInfo</code>.
+Should follow the format required for ComplexHeatmap heatmap annotations.
+The list can include an entry named according to <code>idCol</code>, which
+contains a named vector with colors to use for entities.</p></td>
+    </tr>
+    <tr>
+      <th>weightResolution</th>
+      <td><p>Numeric scalar in (0,1), giving the resolution at
+which weights can be specified using the sliders in the interface.</p></td>
     </tr>
     <tr>
       <th>bstheme</th>
@@ -196,6 +233,24 @@ vector indicating the respective group for each metric.</p></td>
 
     <p>Charlotte Soneson</p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='va'>df</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>Method <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"M1"</span>, <span class='st'>"M2"</span>, <span class='st'>"M3"</span><span class='op'>)</span>, metric1 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>2</span>, <span class='fl'>3</span><span class='op'>)</span>,
+                 metric2 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>3</span>, <span class='fl'>1</span>, <span class='fl'>2</span><span class='op'>)</span>, metric3 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
+<span class='va'>initialTransforms</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>metric1 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>flip <span class='op'>=</span> <span class='cn'>TRUE</span>, offset <span class='op'>=</span> <span class='fl'>4</span><span class='op'>)</span><span class='op'>)</span>
+<span class='va'>metricInfo</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>Metric <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"metric1"</span>, <span class='st'>"metric2"</span>, <span class='st'>"metric3"</span><span class='op'>)</span>,
+                         Group <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"G1"</span>, <span class='st'>"G2"</span>, <span class='st'>"G2"</span><span class='op'>)</span><span class='op'>)</span>
+<span class='va'>idInfo</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>Method <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"M1"</span>, <span class='st'>"M2"</span>, <span class='st'>"M3"</span><span class='op'>)</span>, 
+                     Type <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"T1"</span>, <span class='st'>"T1"</span>, <span class='st'>"T2"</span><span class='op'>)</span><span class='op'>)</span>
+<span class='va'>metricColors</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>Group <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>G1 <span class='op'>=</span> <span class='st'>"red"</span>, G2 <span class='op'>=</span> <span class='st'>"blue"</span><span class='op'>)</span><span class='op'>)</span>
+<span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span>
+    <span class='fu'>bettr</span><span class='op'>(</span>df <span class='op'>=</span> <span class='va'>df</span>, idCol <span class='op'>=</span> <span class='st'>"Method"</span>, 
+    metrics <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"metric1"</span>, <span class='st'>"metric2"</span>, <span class='st'>"metric3"</span><span class='op'>)</span>,
+    initialTransforms <span class='op'>=</span> <span class='va'>initialTransforms</span>,
+    metricInfo <span class='op'>=</span> <span class='va'>metricInfo</span>, metricColors <span class='op'>=</span> <span class='va'>metricColors</span>,
+    idInfo <span class='op'>=</span> <span class='va'>idInfo</span><span class='op'>)</span>
+<span class='op'>}</span>
+
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
