@@ -62,6 +62,7 @@
 #' @importFrom tidyr gather
 #' @importFrom bslib bs_theme
 #' @importFrom rlang .data
+#' @importFrom stats setNames
 #' 
 #' @examples 
 #' df <- data.frame(Method = c("M1", "M2", "M3"), metric1 = c(1, 2, 3),
@@ -120,7 +121,7 @@ bettr <- function(df, idCol = "Method",
     ## Define annotation colors -----------------------------------------------
     if (is.null(idInfo)) {
         idColors <- .generateColors(
-            data.frame(id = unique(df[[idCol]])) %>% setNames(idCol),
+            data.frame(id = unique(df[[idCol]])) %>% stats::setNames(idCol),
             idColors, ggplot2Columns = idCol
         )
     } else {
@@ -129,7 +130,7 @@ bettr <- function(df, idCol = "Method",
     
     if (is.null(metricInfo)) {
         metricColors <- .generateColors(
-            data.frame(metric = metrics) %>% setNames(metricCol),
+            data.frame(metric = metrics) %>% stats::setNames(metricCol),
             metricColors, ggplot2Columns = metricCol
         )
     } else {
