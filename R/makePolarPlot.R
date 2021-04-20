@@ -26,7 +26,7 @@
         levs <- levs %>%
             dplyr::arrange(.data[[scoreCol]])
     }
-    levs <- levs %>% dplyr::pull(.data[[idCol]])
+    levs <- levs[[idCol]]
     
     ## Plot -------------------------------------------------------------------
     ggplot2::ggplot(df %>% 

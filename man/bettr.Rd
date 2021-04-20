@@ -14,6 +14,7 @@ bettr(
   metricColors = NULL,
   idInfo = NULL,
   idColors = NULL,
+  weightResolution = 0.05,
   bstheme = "darkly"
 )
 }
@@ -67,6 +68,9 @@ column named according to \code{idCol} identifying the respective entities.}
 Should follow the format required for ComplexHeatmap heatmap annotations.
 The list can include an entry named according to \code{idCol}, which
 contains a named vector with colors to use for entities.}
+
+\item{weightResolution}{Numeric scalar in (0,1), giving the resolution at
+which weights can be specified using the sliders in the interface.}
 
 \item{bstheme}{Character scalar giving the bootswatch theme for the app
 (see https://bootswatch.com/). Default 'darkly'.}

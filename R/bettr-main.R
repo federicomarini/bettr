@@ -41,6 +41,8 @@
 #'   Should follow the format required for ComplexHeatmap heatmap annotations. 
 #'   The list can include an entry named according to \code{idCol}, which 
 #'   contains a named vector with colors to use for entities. 
+#' @param weightResolution Numeric scalar in (0,1), giving the resolution at 
+#'   which weights can be specified using the sliders in the interface.
 #' @param bstheme Character scalar giving the bootswatch theme for the app 
 #'   (see https://bootswatch.com/). Default 'darkly'.
 #'  
@@ -84,7 +86,7 @@ bettr <- function(df, idCol = "Method",
                   initialTransforms = list(),
                   metricInfo = NULL, metricColors = NULL,
                   idInfo = NULL, idColors = NULL,
-                  bstheme = "darkly") {
+                  weightResolution = 0.05, bstheme = "darkly") {
     
     ## Define column names assigned internally --------------------------------
     scoreCol <- "Score"
@@ -93,7 +95,6 @@ bettr <- function(df, idCol = "Method",
     valueCol <- "ScaledValue"
     groupCol <- "Group"
     initialWeightValue <- 0.2
-    weightResolution <- 0.05
     
     ## Check validity of input arguments --------------------------------------
     .checkInputArguments(df = df, idCol = idCol, metrics = metrics,
@@ -101,6 +102,7 @@ bettr <- function(df, idCol = "Method",
                          initialWeights = initialWeights,
                          initialTransforms = initialTransforms,
                          metricInfo = metricInfo, idInfo = idInfo, 
+                         weightResolution = weightResolution, 
                          bstheme = bstheme)
     
     ## Split metrics into numeric and categorical -----------------------------

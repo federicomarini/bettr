@@ -4,7 +4,7 @@
 #' 
 .checkInputArguments <- function(df, idCol, metrics,
                                  metricCol, initialWeights, initialTransforms, 
-                                 metricInfo, idInfo, bstheme) {
+                                 metricInfo, idInfo, weightResolution, bstheme) {
     ## Check input arguments --------------------------------------------------
     if (!methods::is(df, "data.frame")) {
         stop("df must be a data.frame")
@@ -56,6 +56,11 @@
         if (!all(df[[idCol]] %in% idInfo[[idCol]])) {
             stop("idInfo must contain information about all entities")
         }
+    }
+    
+    if (!(is.numeric(weightResolution) && length(weightResolution) == 1 && 
+          weightResolution > 0 && weightResolution < 1)) {
+        stop("weightResolution must be a numeric scalar in (0,1)")
     }
 }
 
