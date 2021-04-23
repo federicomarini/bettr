@@ -4,7 +4,8 @@
 #' 
 .checkInputArguments <- function(df, idCol, metrics,
                                  metricCol, initialWeights, initialTransforms, 
-                                 metricInfo, idInfo, weightResolution, bstheme) {
+                                 metricInfo, idInfo, weightResolution, bstheme,
+                                 appTitle) {
     ## Check input arguments --------------------------------------------------
     if (!methods::is(df, "data.frame")) {
         stop("df must be a data.frame")
@@ -61,6 +62,10 @@
     if (!(is.numeric(weightResolution) && length(weightResolution) == 1 && 
           weightResolution > 0 && weightResolution < 1)) {
         stop("weightResolution must be a numeric scalar in (0,1)")
+    }
+    
+    if (!(is.character(appTitle) && length(appTitle) == 1)) {
+        stop("appTitle must be a character scalar")
     }
 }
 

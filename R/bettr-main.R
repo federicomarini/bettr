@@ -45,6 +45,8 @@
 #'   which weights can be specified using the sliders in the interface.
 #' @param bstheme Character scalar giving the bootswatch theme for the app 
 #'   (see https://bootswatch.com/). Default 'darkly'.
+#' @param appTitle Character scalar giving the title that will be used for 
+#'   the app. Defaults to 'bettr'.
 #'  
 #' @export
 #' 
@@ -87,7 +89,8 @@ bettr <- function(df, idCol = "Method",
                   initialTransforms = list(),
                   metricInfo = NULL, metricColors = NULL,
                   idInfo = NULL, idColors = NULL,
-                  weightResolution = 0.05, bstheme = "darkly") {
+                  weightResolution = 0.05, bstheme = "darkly",
+                  appTitle = "bettr") {
     
     ## Define column names assigned internally --------------------------------
     scoreCol <- "Score"
@@ -104,7 +107,7 @@ bettr <- function(df, idCol = "Method",
                          initialTransforms = initialTransforms,
                          metricInfo = metricInfo, idInfo = idInfo, 
                          weightResolution = weightResolution, 
-                         bstheme = bstheme)
+                         bstheme = bstheme, appTitle = appTitle)
     
     ## Split metrics into numeric and categorical -----------------------------
     metrics_classes <- vapply(df[, metrics], class, NA_character_)
@@ -151,7 +154,7 @@ bettr <- function(df, idCol = "Method",
     ## UI definition ----------------------------------------------------------
     p_layout <- 
         shiny::navbarPage(
-            shiny::titlePanel("bettr"),
+            shiny::titlePanel(appTitle),
             theme = bslib::bs_theme(bootswatch = bstheme),
             
             shiny::br(),

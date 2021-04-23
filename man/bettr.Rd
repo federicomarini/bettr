@@ -15,7 +15,8 @@ bettr(
   idInfo = NULL,
   idColors = NULL,
   weightResolution = 0.05,
-  bstheme = "darkly"
+  bstheme = "darkly",
+  appTitle = "bettr"
 )
 }
 \arguments{
@@ -75,6 +76,9 @@ which weights can be specified using the sliders in the interface.}
 
 \item{bstheme}{Character scalar giving the bootswatch theme for the app
 (see https://bootswatch.com/). Default 'darkly'.}
+
+\item{appTitle}{Character scalar giving the title that will be used for
+the app. Defaults to 'bettr'.}
 }
 \description{
 Launch bettr app to explore and aggregate performance metrics
