@@ -24,7 +24,7 @@
                                           c("white", sample(grDevices::colors(), 1)))
                  } else {
                      structure(sample(grDevices::colors(), length(unique(x))),
-                               names = unique(x))
+                               names = as.character(unique(x)))
                  }
              }),
       lapply(df[, setdiff(ggplot2Columns, names(inputColors)), drop = FALSE],
@@ -33,7 +33,7 @@
                      stop("Can't use ggplot2 colors for continuous columns")
                  } else {
                      structure(.gg_color_hue(length(unique(x))),
-                               names = unique(x))
+                               names = as.character(unique(x)))
                  }
              })
     )
