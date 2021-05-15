@@ -147,7 +147,10 @@ bettr <- function(df, idCol = "Method",
     
     ## Assign initial weights -------------------------------------------------
     initialWeights <- .assignInitialWeights(
-        weights = initialWeights, metrics = metrics,
+        weights = initialWeights, 
+        metrics = c(metrics, unlist(lapply(colnames(metricInfo), function(cn) {
+            unique(paste0(cn, "_", metricInfo[[cn]]))
+        }))),
         initialWeightValue = initialWeightValue,
         weightResolution = weightResolution)
 
@@ -298,6 +301,9 @@ bettr <- function(df, idCol = "Method",
                 shiny::column(
                     3, 
                     shiny::uiOutput(outputId = "metricGroupingUI"),
+                    shiny::checkboxInput(inputId = "collapseGroup",
+                                         label = "Collapse by group",
+                                         value = FALSE),
                     shiny::hr(color = "white"),
                     shiny::uiOutput(outputId = "highlightMethodUI"),
                     shiny::hr(color = "white"), 
@@ -369,9 +375,19 @@ bettr <- function(df, idCol = "Method",
         longdataweights <- shiny::reactive({
             pd <- longdata()
             ## Add weight column for later score calculations
-            for (m in values$metrics) {
-                pd[[weightCol]][pd[[metricCol]] == m] <- 
-                    input[[paste0(m, "_weight")]]
+            if (input$collapseGroup && input$metricGrouping != "---") {
+                for (m in unique(pd[[groupCol]])) {
+                    if (is.null(input[[paste0(input$metricGrouping, "_", m, "_weight")]])) {
+                        return(NULL)
+                    }
+                    pd[[weightCol]][pd[[groupCol]] == m] <- 
+                        input[[paste0(input$metricGrouping, "_", m, "_weight")]]
+                }
+            } else {
+                for (m in values$metrics) {
+                    pd[[weightCol]][pd[[metricCol]] == m] <- 
+                        input[[paste0(m, "_weight")]]
+                }
             }
             pd
         })
@@ -561,7 +577,8 @@ bettr <- function(df, idCol = "Method",
                                   metricGrouping = input$metricGrouping,
                                   labelSize = input$parcoord_labelsize, 
                                   metricColors = metricColors,
-                                  idColors = idColors)
+                                  idColors = idColors,
+                                  collapseGroup = input$collapseGroup)
             }
         })
         
@@ -577,9 +594,11 @@ bettr <- function(df, idCol = "Method",
                 .makePolarPlot(df = longdataweights(), idCol = idCol, 
                                metricCol = metricCol, valueCol = valueCol,
                                weightCol = weightCol, scoreCol = scoreCol,
+                               groupCol = groupCol, 
                                labelSize = input$polar_labelsize,
                                ordering = input$polar_id_ordering,
-                               metricColors = metricColors)
+                               metricColors = metricColors,
+                               collapseGroup = input$collapseGroup)
             }
         })
         
@@ -595,12 +614,14 @@ bettr <- function(df, idCol = "Method",
                 .makeBarPolarPlot(df = longdataweights(), idCol = idCol, 
                                   metricCol = metricCol, valueCol = valueCol, 
                                   weightCol = weightCol, scoreCol = scoreCol, 
+                                  groupCol = groupCol, 
                                   methods = values$methods, 
                                   labelSize = input$barpolar_labelsize,
                                   ordering = input$barpolar_id_ordering,
                                   showComposition = input$barpolar_showcomp,
                                   scaleFactorPolars = input$barpolar_scalefactor, 
-                                  metricColors = metricColors)
+                                  metricColors = metricColors,
+                                  collapseGroup = input$collapseGroup)
             }
         })
         
@@ -621,7 +642,8 @@ bettr <- function(df, idCol = "Method",
                              idInfo = values$idInfo,
                              labelSize = input$heatmap_labelsize,
                              ordering = input$heatmap_id_ordering, 
-                             idColors = idColors, metricColors = metricColors)
+                             idColors = idColors, metricColors = metricColors,
+                             collapseGroup = input$collapseGroup)
             }
         })
         
@@ -631,17 +653,37 @@ bettr <- function(df, idCol = "Method",
             if (is.null(values$metrics)) {
                 NULL
             } else {
-                do.call(shiny::tagList,
-                        lapply(values$metrics, function(i) {
-                            shiny::sliderInput(
-                                inputId = paste0(i, "_weight"),
-                                label = i,
-                                value = initialWeights[i],
-                                min = 0,
-                                max = 1,
-                                step = weightResolution
-                            )
-                        }))
+                if (input$collapseGroup) {
+                    if (is.null(longdata()[[groupCol]])) {
+                        NULL
+                    } else {
+                        do.call(shiny::tagList,
+                                lapply(unique(longdata()[[groupCol]]), function(i) {
+                                    shiny::sliderInput(
+                                        inputId = paste0(input$metricGrouping,
+                                                         "_", i, "_weight"),
+                                        label = i,
+                                        value = initialWeights[paste0(input$metricGrouping,
+                                                                      "_", i)],
+                                        min = 0,
+                                        max = 1,
+                                        step = weightResolution
+                                    )
+                                }))
+                    }
+                } else {
+                    do.call(shiny::tagList,
+                            lapply(values$metrics, function(i) {
+                                shiny::sliderInput(
+                                    inputId = paste0(i, "_weight"),
+                                    label = i,
+                                    value = initialWeights[i],
+                                    min = 0,
+                                    max = 1,
+                                    step = weightResolution
+                                )
+                            }))
+                }
             }
         })
         

@@ -6,10 +6,22 @@
 #'   theme_minimal theme element_blank
 #' 
 .makePolarPlot <- function(df, idCol, metricCol, valueCol, weightCol, 
-                           scoreCol, labelSize, ordering = "high-to-low",
-                           metricColors) {
+                           scoreCol, groupCol, labelSize, 
+                           ordering = "high-to-low",
+                           metricColors, collapseGroup) {
     if (!(ordering %in% c("high-to-low", "low-to-high"))) {
         stop("ordering must be 'high-to-low' or 'low-to-high'")
+    }
+    
+    if (collapseGroup && !is.null(df[[groupCol]])) {
+        df <- df %>%
+            dplyr::group_by(.data[[idCol]], .data[[groupCol]]) %>%
+            dplyr::summarize("{ valueCol }" := mean(.data[[valueCol]]),
+                             "{ weightCol }" := mean(.data[[weightCol]])) %>%
+            dplyr::mutate("{ metricCol }" := .data[[groupCol]]) %>%
+            dplyr::ungroup() %>%
+            as.data.frame()
+        metricColors[[metricCol]] <- metricColors[[groupCol]]
     }
     
     ## Get ordering of methods by score ---------------------------------------

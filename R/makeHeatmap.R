@@ -11,9 +11,24 @@
 #' 
 .makeHeatmap <- function(df, idCol, metricCol, valueCol, weightCol, scoreCol, 
                          groupCol, metricInfo, idInfo, labelSize, 
-                         ordering = "high-to-low", idColors, metricColors) {
+                         ordering = "high-to-low", idColors, metricColors,
+                         collapseGroup) {
     if (!(ordering %in% c("high-to-low", "low-to-high"))) {
         stop("ordering must be 'high-to-low' or 'low-to-high'")
+    }
+    
+    if (collapseGroup && !is.null(df[[groupCol]])) {
+        df <- df %>%
+            dplyr::group_by(.data[[idCol]], .data[[groupCol]]) %>%
+            dplyr::summarize("{ valueCol }" := mean(.data[[valueCol]]),
+                             "{ weightCol }" := mean(.data[[weightCol]])) %>%
+            dplyr::mutate("{ metricCol }" := .data[[groupCol]]) %>%
+            dplyr::ungroup() %>%
+            as.data.frame()
+        metricInfo <- metricInfo %>% 
+            dplyr::select(.data[[groupCol]]) %>%
+            dplyr::distinct() %>% 
+            dplyr::mutate("{ metricCol }" := .data[[groupCol]])
     }
     
     ## Get ordering by score --------------------------------------------------
