@@ -356,16 +356,22 @@ bettr <- function(df, idCol = "Method",
                               dplyr::contains(values$metrics)) %>%
                 tidyr::gather(key = "Metric", value = "ScaledValue", 
                               -.data[[idCol]])
-            ## Add weight column for later score calculations
-            for (m in values$metrics) {
-                pd[[weightCol]][pd$Metric == m] <- 
-                    input[[paste0(m, "_weight")]]
-            }
             ## Add grouping of metrics
             if (input$metricGrouping != "---") {
                 pd[[groupCol]] <- 
                     values$metricInfo[[input$metricGrouping]][
                         match(pd$Metric, values$metricInfo[[metricCol]])]
+            }
+            pd
+        })
+        
+        ## Long-form data with weights
+        longdataweights <- shiny::reactive({
+            pd <- longdata()
+            ## Add weight column for later score calculations
+            for (m in values$metrics) {
+                pd[[weightCol]][pd[[metricCol]] == m] <- 
+                    input[[paste0(m, "_weight")]]
             }
             pd
         })
@@ -545,10 +551,10 @@ bettr <- function(df, idCol = "Method",
                 "bettrParCoordplot"))
         })
         output$bettrParCoordplot <- shiny::renderPlot({
-            if (is.null(longdata())) {
+            if (is.null(longdataweights())) {
                 NULL
             } else {
-                .makeParCoordPlot(df = longdata(), idCol = idCol, 
+                .makeParCoordPlot(df = longdataweights(), idCol = idCol, 
                                   metricCol = metricCol, valueCol = valueCol, 
                                   groupCol = groupCol, methods = values$methods,
                                   highlightMethod = input$highlightMethod, 
@@ -565,10 +571,10 @@ bettr <- function(df, idCol = "Method",
                 "bettrPolarplot"))
         })
         output$bettrPolarplot <- shiny::renderPlot({
-            if (is.null(longdata())) {
+            if (is.null(longdataweights())) {
                 NULL
             } else {
-                .makePolarPlot(df = longdata(), idCol = idCol, 
+                .makePolarPlot(df = longdataweights(), idCol = idCol, 
                                metricCol = metricCol, valueCol = valueCol,
                                weightCol = weightCol, scoreCol = scoreCol,
                                labelSize = input$polar_labelsize,
@@ -583,10 +589,10 @@ bettr <- function(df, idCol = "Method",
                 "bettrBarPolarplot"))
         })
         output$bettrBarPolarplot <- shiny::renderPlot({
-            if (is.null(longdata())) {
+            if (is.null(longdataweights())) {
                 NULL
             } else {
-                .makeBarPolarPlot(df = longdata(), idCol = idCol, 
+                .makeBarPolarPlot(df = longdataweights(), idCol = idCol, 
                                   metricCol = metricCol, valueCol = valueCol, 
                                   weightCol = weightCol, scoreCol = scoreCol, 
                                   methods = values$methods, 
@@ -604,10 +610,10 @@ bettr <- function(df, idCol = "Method",
                 "bettrHeatmap"))
         })
         output$bettrHeatmap <- shiny::renderPlot({
-            if (is.null(longdata())) {
+            if (is.null(longdataweights())) {
                 NULL
             } else {
-                .makeHeatmap(df = longdata(), idCol = idCol, 
+                .makeHeatmap(df = longdataweights(), idCol = idCol, 
                              metricCol = metricCol, valueCol = valueCol, 
                              weightCol = weightCol, scoreCol = scoreCol, 
                              groupCol = groupCol, 
