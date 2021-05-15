@@ -140,7 +140,7 @@ bettr <- function(df, idCol = "Method",
         metricColors <- .generateColors(metricInfo, metricColors, 
                                         ggplot2Columns = metricCol)
     }
-    
+
     ## Add non-specified initializations and check validity -------------------
     initialTransforms <- .completeInitialization(initialTransforms, 
                                                  metrics_num)
@@ -598,7 +598,8 @@ bettr <- function(df, idCol = "Method",
                                labelSize = input$polar_labelsize,
                                ordering = input$polar_id_ordering,
                                metricColors = metricColors,
-                               collapseGroup = input$collapseGroup)
+                               collapseGroup = input$collapseGroup,
+                               metricGrouping = input$metricGrouping)
             }
         })
         
@@ -621,7 +622,8 @@ bettr <- function(df, idCol = "Method",
                                   showComposition = input$barpolar_showcomp,
                                   scaleFactorPolars = input$barpolar_scalefactor, 
                                   metricColors = metricColors,
-                                  collapseGroup = input$collapseGroup)
+                                  collapseGroup = input$collapseGroup,
+                                  metricGrouping = input$metricGrouping)
             }
         })
         
@@ -643,7 +645,8 @@ bettr <- function(df, idCol = "Method",
                              labelSize = input$heatmap_labelsize,
                              ordering = input$heatmap_id_ordering, 
                              idColors = idColors, metricColors = metricColors,
-                             collapseGroup = input$collapseGroup)
+                             collapseGroup = input$collapseGroup,
+                             metricGrouping = input$metricGrouping)
             }
         })
         
@@ -653,7 +656,7 @@ bettr <- function(df, idCol = "Method",
             if (is.null(values$metrics)) {
                 NULL
             } else {
-                if (input$collapseGroup) {
+                if (input$collapseGroup && input$metricGrouping != "---") {
                     if (is.null(longdata()[[groupCol]])) {
                         NULL
                     } else {

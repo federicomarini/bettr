@@ -14,7 +14,7 @@
     if (collapseGroup && !is.null(df[[groupCol]])) {
         df <- df %>%
             dplyr::group_by(.data[[idCol]], .data[[groupCol]]) %>%
-            dplyr::summarize("{ valueCol }" := mean(.data[[valueCol]])) %>%
+            dplyr::summarize("{ valueCol }" := mean(.data[[valueCol]], na.rm = TRUE)) %>%
             dplyr::mutate("{ metricCol }" := .data[[groupCol]]) %>%
             dplyr::ungroup() %>%
             as.data.frame()
