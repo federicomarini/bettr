@@ -146,11 +146,13 @@ bettr <- function(df, idCol = "Method",
                                                  metrics_num)
     
     ## Assign initial weights -------------------------------------------------
+    metricsWithWeights <- c(
+        metrics, unlist(lapply(colnames(metricInfo), function(cn) {
+            unique(paste0(cn, "_", metricInfo[[cn]]))
+        })))
     initialWeights <- .assignInitialWeights(
         weights = initialWeights, 
-        metrics = c(metrics, unlist(lapply(colnames(metricInfo), function(cn) {
-            unique(paste0(cn, "_", metricInfo[[cn]]))
-        }))),
+        metrics = metricsWithWeights,
         initialWeightValue = initialWeightValue,
         weightResolution = weightResolution)
 
@@ -325,7 +327,8 @@ bettr <- function(df, idCol = "Method",
             nMetrics = length(metrics),
             metricInfo = metricInfo,
             idInfo = idInfo,
-            methods = unique(df[[idCol]])
+            methods = unique(df[[idCol]]),
+            currentWeights = initialWeights
         )
         
         ## Processed data -----------------------------------------------------
@@ -652,8 +655,18 @@ bettr <- function(df, idCol = "Method",
         
         
         ## Define weight controls ---------------------------------------------
+        ## Make sure that weights are retained even when the collapsing by
+        ## group status (and thus the displayed weight sliders) changes
+        shiny::observe({
+            lapply(metricsWithWeights, function(mww) {
+                if (!is.null(input[[paste0(mww, "_weight")]])) {
+                    values$currentWeights[mww] <- input[[paste0(mww, "_weight")]]
+                }
+            })
+        })
+        
         output$weights <- shiny::renderUI({
-            if (is.null(values$metrics)) {
+            if (is.null(values$metrics) || is.null(values$currentWeights)) {
                 NULL
             } else {
                 if (input$collapseGroup && input$metricGrouping != "---") {
@@ -666,8 +679,9 @@ bettr <- function(df, idCol = "Method",
                                         inputId = paste0(input$metricGrouping,
                                                          "_", i, "_weight"),
                                         label = i,
-                                        value = initialWeights[paste0(input$metricGrouping,
-                                                                      "_", i)],
+                                        value = values$currentWeights[
+                                            paste0(input$metricGrouping,
+                                                   "_", i)],
                                         min = 0,
                                         max = 1,
                                         step = weightResolution
@@ -680,7 +694,7 @@ bettr <- function(df, idCol = "Method",
                                 shiny::sliderInput(
                                     inputId = paste0(i, "_weight"),
                                     label = i,
-                                    value = initialWeights[i],
+                                    value = values$currentWeights[i],
                                     min = 0,
                                     max = 1,
                                     step = weightResolution
