@@ -140,14 +140,19 @@ bettr <- function(df, idCol = "Method",
         metricColors <- .generateColors(metricInfo, metricColors, 
                                         ggplot2Columns = metricCol)
     }
-    
+
     ## Add non-specified initializations and check validity -------------------
     initialTransforms <- .completeInitialization(initialTransforms, 
                                                  metrics_num)
     
     ## Assign initial weights -------------------------------------------------
+    metricsWithWeights <- c(
+        metrics, unlist(lapply(colnames(metricInfo), function(cn) {
+            unique(paste0(cn, "_", metricInfo[[cn]]))
+        })))
     initialWeights <- .assignInitialWeights(
-        weights = initialWeights, metrics = metrics,
+        weights = initialWeights, 
+        metrics = metricsWithWeights,
         initialWeightValue = initialWeightValue,
         weightResolution = weightResolution)
 
@@ -298,6 +303,9 @@ bettr <- function(df, idCol = "Method",
                 shiny::column(
                     3, 
                     shiny::uiOutput(outputId = "metricGroupingUI"),
+                    shiny::checkboxInput(inputId = "collapseGroup",
+                                         label = "Collapse by group",
+                                         value = FALSE),
                     shiny::hr(color = "white"),
                     shiny::uiOutput(outputId = "highlightMethodUI"),
                     shiny::hr(color = "white"), 
@@ -319,7 +327,8 @@ bettr <- function(df, idCol = "Method",
             nMetrics = length(metrics),
             metricInfo = metricInfo,
             idInfo = idInfo,
-            methods = unique(df[[idCol]])
+            methods = unique(df[[idCol]]),
+            currentWeights = initialWeights
         )
         
         ## Processed data -----------------------------------------------------
@@ -356,16 +365,32 @@ bettr <- function(df, idCol = "Method",
                               dplyr::contains(values$metrics)) %>%
                 tidyr::gather(key = "Metric", value = "ScaledValue", 
                               -.data[[idCol]])
-            ## Add weight column for later score calculations
-            for (m in values$metrics) {
-                pd[[weightCol]][pd$Metric == m] <- 
-                    input[[paste0(m, "_weight")]]
-            }
             ## Add grouping of metrics
             if (input$metricGrouping != "---") {
                 pd[[groupCol]] <- 
                     values$metricInfo[[input$metricGrouping]][
                         match(pd$Metric, values$metricInfo[[metricCol]])]
+            }
+            pd
+        })
+        
+        ## Long-form data with weights
+        longdataweights <- shiny::reactive({
+            pd <- longdata()
+            ## Add weight column for later score calculations
+            if (input$collapseGroup && input$metricGrouping != "---") {
+                for (m in unique(pd[[groupCol]])) {
+                    if (is.null(input[[paste0(input$metricGrouping, "_", m, "_weight")]])) {
+                        return(NULL)
+                    }
+                    pd[[weightCol]][pd[[groupCol]] == m] <- 
+                        input[[paste0(input$metricGrouping, "_", m, "_weight")]]
+                }
+            } else {
+                for (m in values$metrics) {
+                    pd[[weightCol]][pd[[metricCol]] == m] <- 
+                        input[[paste0(m, "_weight")]]
+                }
             }
             pd
         })
@@ -545,17 +570,18 @@ bettr <- function(df, idCol = "Method",
                 "bettrParCoordplot"))
         })
         output$bettrParCoordplot <- shiny::renderPlot({
-            if (is.null(longdata())) {
+            if (is.null(longdataweights())) {
                 NULL
             } else {
-                .makeParCoordPlot(df = longdata(), idCol = idCol, 
+                .makeParCoordPlot(df = longdataweights(), idCol = idCol, 
                                   metricCol = metricCol, valueCol = valueCol, 
                                   groupCol = groupCol, methods = values$methods,
                                   highlightMethod = input$highlightMethod, 
                                   metricGrouping = input$metricGrouping,
                                   labelSize = input$parcoord_labelsize, 
                                   metricColors = metricColors,
-                                  idColors = idColors)
+                                  idColors = idColors,
+                                  collapseGroup = input$collapseGroup)
             }
         })
         
@@ -565,15 +591,18 @@ bettr <- function(df, idCol = "Method",
                 "bettrPolarplot"))
         })
         output$bettrPolarplot <- shiny::renderPlot({
-            if (is.null(longdata())) {
+            if (is.null(longdataweights())) {
                 NULL
             } else {
-                .makePolarPlot(df = longdata(), idCol = idCol, 
+                .makePolarPlot(df = longdataweights(), idCol = idCol, 
                                metricCol = metricCol, valueCol = valueCol,
                                weightCol = weightCol, scoreCol = scoreCol,
+                               groupCol = groupCol, 
                                labelSize = input$polar_labelsize,
                                ordering = input$polar_id_ordering,
-                               metricColors = metricColors)
+                               metricColors = metricColors,
+                               collapseGroup = input$collapseGroup,
+                               metricGrouping = input$metricGrouping)
             }
         })
         
@@ -583,18 +612,21 @@ bettr <- function(df, idCol = "Method",
                 "bettrBarPolarplot"))
         })
         output$bettrBarPolarplot <- shiny::renderPlot({
-            if (is.null(longdata())) {
+            if (is.null(longdataweights())) {
                 NULL
             } else {
-                .makeBarPolarPlot(df = longdata(), idCol = idCol, 
+                .makeBarPolarPlot(df = longdataweights(), idCol = idCol, 
                                   metricCol = metricCol, valueCol = valueCol, 
                                   weightCol = weightCol, scoreCol = scoreCol, 
+                                  groupCol = groupCol, 
                                   methods = values$methods, 
                                   labelSize = input$barpolar_labelsize,
                                   ordering = input$barpolar_id_ordering,
                                   showComposition = input$barpolar_showcomp,
                                   scaleFactorPolars = input$barpolar_scalefactor, 
-                                  metricColors = metricColors)
+                                  metricColors = metricColors,
+                                  collapseGroup = input$collapseGroup,
+                                  metricGrouping = input$metricGrouping)
             }
         })
         
@@ -604,10 +636,10 @@ bettr <- function(df, idCol = "Method",
                 "bettrHeatmap"))
         })
         output$bettrHeatmap <- shiny::renderPlot({
-            if (is.null(longdata())) {
+            if (is.null(longdataweights())) {
                 NULL
             } else {
-                .makeHeatmap(df = longdata(), idCol = idCol, 
+                .makeHeatmap(df = longdataweights(), idCol = idCol, 
                              metricCol = metricCol, valueCol = valueCol, 
                              weightCol = weightCol, scoreCol = scoreCol, 
                              groupCol = groupCol, 
@@ -615,27 +647,60 @@ bettr <- function(df, idCol = "Method",
                              idInfo = values$idInfo,
                              labelSize = input$heatmap_labelsize,
                              ordering = input$heatmap_id_ordering, 
-                             idColors = idColors, metricColors = metricColors)
+                             idColors = idColors, metricColors = metricColors,
+                             collapseGroup = input$collapseGroup,
+                             metricGrouping = input$metricGrouping)
             }
         })
         
         
         ## Define weight controls ---------------------------------------------
+        ## Make sure that weights are retained even when the collapsing by
+        ## group status (and thus the displayed weight sliders) changes
+        shiny::observe({
+            lapply(metricsWithWeights, function(mww) {
+                if (!is.null(input[[paste0(mww, "_weight")]])) {
+                    values$currentWeights[mww] <- input[[paste0(mww, "_weight")]]
+                }
+            })
+        })
+        
         output$weights <- shiny::renderUI({
-            if (is.null(values$metrics)) {
+            if (is.null(values$metrics) || is.null(values$currentWeights)) {
                 NULL
             } else {
-                do.call(shiny::tagList,
-                        lapply(values$metrics, function(i) {
-                            shiny::sliderInput(
-                                inputId = paste0(i, "_weight"),
-                                label = i,
-                                value = initialWeights[i],
-                                min = 0,
-                                max = 1,
-                                step = weightResolution
-                            )
-                        }))
+                if (input$collapseGroup && input$metricGrouping != "---") {
+                    if (is.null(longdata()[[groupCol]])) {
+                        NULL
+                    } else {
+                        do.call(shiny::tagList,
+                                lapply(unique(longdata()[[groupCol]]), function(i) {
+                                    shiny::sliderInput(
+                                        inputId = paste0(input$metricGrouping,
+                                                         "_", i, "_weight"),
+                                        label = i,
+                                        value = values$currentWeights[
+                                            paste0(input$metricGrouping,
+                                                   "_", i)],
+                                        min = 0,
+                                        max = 1,
+                                        step = weightResolution
+                                    )
+                                }))
+                    }
+                } else {
+                    do.call(shiny::tagList,
+                            lapply(values$metrics, function(i) {
+                                shiny::sliderInput(
+                                    inputId = paste0(i, "_weight"),
+                                    label = i,
+                                    value = values$currentWeights[i],
+                                    min = 0,
+                                    max = 1,
+                                    step = weightResolution
+                                )
+                            }))
+                }
             }
         })
         
