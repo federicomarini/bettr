@@ -36,8 +36,8 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Set up R
-        uses: grimbough/actions-1/setup-r@master
-        #uses: r-lib/actions/setup-r@master
+        # uses: grimbough/actions-1/setup-r@master
+        uses: r-lib/actions/setup-r@master
         if: matrix.config.image == null
         with:
           r-version: ${{ matrix.config.r }}
