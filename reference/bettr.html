@@ -58,9 +58,6 @@
 
 
 
-<!-- dependencies from examples -->
-
-
   
 
   
@@ -83,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">bettr</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
       </span>
     </div>
 
@@ -132,7 +129,7 @@
     <p>Launch bettr app to explore and aggregate performance metrics</p>
     </div>
 
-    <pre class="usage"><span class='fu'>bettr</span><span class='op'>(</span>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>bettr</span><span class='op'>(</span>
   <span class='va'>df</span>,
   idCol <span class='op'>=</span> <span class='st'>"Method"</span>,
   metrics <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/sets.html'>setdiff</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span><span class='op'>(</span><span class='va'>df</span><span class='op'>)</span>, <span class='va'>idCol</span><span class='op'>)</span>,
@@ -145,7 +142,7 @@
   weightResolution <span class='op'>=</span> <span class='fl'>0.05</span>,
   bstheme <span class='op'>=</span> <span class='st'>"darkly"</span>,
   appTitle <span class='op'>=</span> <span class='st'>"bettr"</span>
-<span class='op'>)</span></pre>
+<span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -240,23 +237,23 @@ the app. Defaults to 'bettr'.</p></td>
     <p>Charlotte Soneson</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='va'>df</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>Method <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"M1"</span>, <span class='st'>"M2"</span>, <span class='st'>"M3"</span><span class='op'>)</span>, metric1 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>2</span>, <span class='fl'>3</span><span class='op'>)</span>,
-                 metric2 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>3</span>, <span class='fl'>1</span>, <span class='fl'>2</span><span class='op'>)</span>, metric3 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
-<span class='va'>initialTransforms</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>metric1 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>flip <span class='op'>=</span> <span class='cn'>TRUE</span>, offset <span class='op'>=</span> <span class='fl'>4</span><span class='op'>)</span><span class='op'>)</span>
-<span class='va'>metricInfo</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>Metric <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"metric1"</span>, <span class='st'>"metric2"</span>, <span class='st'>"metric3"</span><span class='op'>)</span>,
-                         Group <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"G1"</span>, <span class='st'>"G2"</span>, <span class='st'>"G2"</span><span class='op'>)</span><span class='op'>)</span>
-<span class='va'>idInfo</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>Method <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"M1"</span>, <span class='st'>"M2"</span>, <span class='st'>"M3"</span><span class='op'>)</span>, 
-                     Type <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"T1"</span>, <span class='st'>"T1"</span>, <span class='st'>"T2"</span><span class='op'>)</span><span class='op'>)</span>
-<span class='va'>metricColors</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>Group <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>G1 <span class='op'>=</span> <span class='st'>"red"</span>, G2 <span class='op'>=</span> <span class='st'>"blue"</span><span class='op'>)</span><span class='op'>)</span>
-<span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span>
-    <span class='fu'>bettr</span><span class='op'>(</span>df <span class='op'>=</span> <span class='va'>df</span>, idCol <span class='op'>=</span> <span class='st'>"Method"</span>, 
-    metrics <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"metric1"</span>, <span class='st'>"metric2"</span>, <span class='st'>"metric3"</span><span class='op'>)</span>,
-    initialTransforms <span class='op'>=</span> <span class='va'>initialTransforms</span>,
-    metricInfo <span class='op'>=</span> <span class='va'>metricInfo</span>, metricColors <span class='op'>=</span> <span class='va'>metricColors</span>,
-    idInfo <span class='op'>=</span> <span class='va'>idInfo</span><span class='op'>)</span>
-<span class='op'>}</span>
-
-</div></pre>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='va'>df</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>Method <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"M1"</span>, <span class='st'>"M2"</span>, <span class='st'>"M3"</span><span class='op'>)</span>, metric1 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>2</span>, <span class='fl'>3</span><span class='op'>)</span>,</span>
+<span class='r-in'>                 metric2 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>3</span>, <span class='fl'>1</span>, <span class='fl'>2</span><span class='op'>)</span>, metric3 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>initialTransforms</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>metric1 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>flip <span class='op'>=</span> <span class='cn'>TRUE</span>, offset <span class='op'>=</span> <span class='fl'>4</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>metricInfo</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>Metric <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"metric1"</span>, <span class='st'>"metric2"</span>, <span class='st'>"metric3"</span><span class='op'>)</span>,</span>
+<span class='r-in'>                         Group <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"G1"</span>, <span class='st'>"G2"</span>, <span class='st'>"G2"</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>idInfo</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>Method <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"M1"</span>, <span class='st'>"M2"</span>, <span class='st'>"M3"</span><span class='op'>)</span>, </span>
+<span class='r-in'>                     Type <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"T1"</span>, <span class='st'>"T1"</span>, <span class='st'>"T2"</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>metricColors</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>Group <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>G1 <span class='op'>=</span> <span class='st'>"red"</span>, G2 <span class='op'>=</span> <span class='st'>"blue"</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'>    <span class='fu'>bettr</span><span class='op'>(</span>df <span class='op'>=</span> <span class='va'>df</span>, idCol <span class='op'>=</span> <span class='st'>"Method"</span>, </span>
+<span class='r-in'>    metrics <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"metric1"</span>, <span class='st'>"metric2"</span>, <span class='st'>"metric3"</span><span class='op'>)</span>,</span>
+<span class='r-in'>    initialTransforms <span class='op'>=</span> <span class='va'>initialTransforms</span>,</span>
+<span class='r-in'>    metricInfo <span class='op'>=</span> <span class='va'>metricInfo</span>, metricColors <span class='op'>=</span> <span class='va'>metricColors</span>,</span>
+<span class='r-in'>    idInfo <span class='op'>=</span> <span class='va'>idInfo</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>}</span></span>
+<span class='r-in'></span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
