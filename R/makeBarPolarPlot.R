@@ -8,12 +8,24 @@
 #' @importFrom grid unit
 #' 
 .makeBarPolarPlot <- function(df, idCol, metricCol, valueCol, 
-                              weightCol, scoreCol, methods, labelSize,
+                              weightCol, scoreCol, groupCol, methods, labelSize,
                               ordering = "high-to-low", 
                               showComposition = FALSE, 
-                              scaleFactorPolars = 1.5, metricColors) {
+                              scaleFactorPolars = 1.5, metricColors,
+                              collapseGroup, metricGrouping) {
     if (!(ordering %in% c("high-to-low", "low-to-high"))) {
         stop("ordering must be 'high-to-low' or 'low-to-high'")
+    }
+    
+    if (collapseGroup && !is.null(df[[groupCol]])) {
+        df <- df %>%
+            dplyr::group_by(.data[[idCol]], .data[[groupCol]]) %>%
+            dplyr::summarize("{ valueCol }" := mean(.data[[valueCol]], na.rm = TRUE),
+                             "{ weightCol }" := mean(.data[[weightCol]], na.rm = TRUE)) %>%
+            dplyr::mutate("{ metricCol }" := .data[[groupCol]]) %>%
+            dplyr::ungroup() %>%
+            as.data.frame()
+        metricColors[[metricCol]] <- metricColors[[metricGrouping]]
     }
     
     ## Define polar plots -----------------------------------------------------

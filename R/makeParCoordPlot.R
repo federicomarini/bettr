@@ -9,7 +9,16 @@
 .makeParCoordPlot <- function(df, idCol, metricCol, valueCol, groupCol,
                               methods, highlightMethod, 
                               metricGrouping, labelSize, 
-                              metricColors, idColors) {
+                              metricColors, idColors, collapseGroup) {
+    
+    if (collapseGroup && !is.null(df[[groupCol]])) {
+        df <- df %>%
+            dplyr::group_by(.data[[idCol]], .data[[groupCol]]) %>%
+            dplyr::summarize("{ valueCol }" := mean(.data[[valueCol]], na.rm = TRUE)) %>%
+            dplyr::mutate("{ metricCol }" := .data[[groupCol]]) %>%
+            dplyr::ungroup() %>%
+            as.data.frame()
+    }
     
     ## Define line widths -----------------------------------------------------
     lwidths <- rep(0.75, length(methods))
