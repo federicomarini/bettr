@@ -183,7 +183,7 @@ bettr <- function(df, idCol = "Method",
                                 ),
                                 shiny::column(1),
                                 shiny::column(
-                                    6,
+                                    5,
                                     shiny::radioButtons(
                                         inputId = "heatmap_id_ordering",
                                         label = "ID ordering by score",
@@ -191,6 +191,14 @@ bettr <- function(df, idCol = "Method",
                                                     "low-to-high"),
                                         selected = "high-to-low",
                                         inline = TRUE
+                                    )
+                                ), 
+                                shiny::column(
+                                    4, 
+                                    shiny::checkboxInput(
+                                        inputId = "show_row_names",
+                                        label = "Show row names", 
+                                        value = TRUE
                                     )
                                 )
                             ),
@@ -649,7 +657,8 @@ bettr <- function(df, idCol = "Method",
                              ordering = input$heatmap_id_ordering, 
                              idColors = idColors, metricColors = metricColors,
                              collapseGroup = input$collapseGroup,
-                             metricGrouping = input$metricGrouping)
+                             metricGrouping = input$metricGrouping, 
+                             showRowNames = input$show_row_names)
             }
         })
         
