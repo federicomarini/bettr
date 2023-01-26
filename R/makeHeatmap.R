@@ -166,7 +166,7 @@
         matrix = mat, name = "Relative\nvalue",
         col = heatmapCols,
         na_col = "white",
-        rect_gp = grid::gpar(col = "white", lwd = 1),
+        # rect_gp = grid::gpar(col = "white", lwd = 1),
         cluster_rows = FALSE, 
         cluster_columns = FALSE, 
         row_names_side = "left",
