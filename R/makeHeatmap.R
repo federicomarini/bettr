@@ -12,7 +12,7 @@
 .makeHeatmap <- function(df, idCol, metricCol, valueCol, weightCol, scoreCol, 
                          groupCol, metricInfo, idInfo, labelSize, 
                          ordering = "high-to-low", idColors, metricColors,
-                         collapseGroup, metricGrouping) {
+                         collapseGroup, metricGrouping, showRowNames) {
     if (!(ordering %in% c("high-to-low", "low-to-high"))) {
         stop("ordering must be 'high-to-low' or 'low-to-high'")
     }
@@ -166,9 +166,10 @@
         matrix = mat, name = "Relative\nvalue",
         col = heatmapCols,
         na_col = "white",
-        rect_gp = grid::gpar(col = "white", lwd = 1),
+        # rect_gp = grid::gpar(col = "white", lwd = 1),
         cluster_rows = FALSE, 
         cluster_columns = FALSE, 
+        show_row_names = showRowNames,
         row_names_side = "left",
         row_names_gp = grid::gpar(fontsize = labelSize),
         column_names_gp = grid::gpar(fontsize = labelSize),
