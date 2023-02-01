@@ -110,7 +110,7 @@ bettr <- function(df, idCol = "Method",
                          bstheme = bstheme, appTitle = appTitle)
     
     ## Split metrics into numeric and categorical -----------------------------
-    metrics_classes <- vapply(df[, metrics], class, NA_character_)
+    metrics_classes <- vapply(df[, metrics, drop = FALSE], class, NA_character_)
     metrics_num <- intersect(
         metrics, names(metrics_classes[metrics_classes %in% c("numeric", 
                                                               "integer")])
