@@ -160,7 +160,7 @@ bettr <- function(df, idCol = "Method",
     p_layout <- 
         bslib::page_sidebar(
             title = appTitle,
-            theme = bslib::bs_theme(bootswatch = bstheme),
+            theme = bslib::bs_theme(bootswatch = bstheme, version = 5),
             
             sidebar = bslib::sidebar(
                 bslib::accordion(
