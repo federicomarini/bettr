@@ -8,7 +8,8 @@
 .makePolarPlot <- function(df, idCol, metricCol, valueCol, weightCol, 
                            scoreCol, groupCol, labelSize, 
                            ordering = "high-to-low",
-                           metricColors, collapseGroup, metricGrouping) {
+                           metricColors, collapseGroup, metricGrouping,
+                           showOnlyTopIds = FALSE, nbrTopIds = Inf) {
     if (!(ordering %in% c("high-to-low", "low-to-high"))) {
         stop("ordering must be 'high-to-low' or 'low-to-high'")
     }
@@ -38,7 +39,13 @@
         levs <- levs %>%
             dplyr::arrange(.data[[scoreCol]])
     }
+    ## Select only top N methods
+    if (showOnlyTopIds) {
+        levs <- levs[seq_len(min(nrow(levs), nbrTopIds)), ]
+    }
     levs <- levs[[idCol]]
+    df <- df %>%
+        dplyr::filter(.data[[idCol]] %in% levs)
     
     ## Plot -------------------------------------------------------------------
     ggplot2::ggplot(df %>% 

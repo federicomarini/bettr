@@ -12,7 +12,8 @@
                               ordering = "high-to-low", 
                               showComposition = FALSE, 
                               scaleFactorPolars = 1.5, metricColors,
-                              collapseGroup, metricGrouping) {
+                              collapseGroup, metricGrouping,
+                              showOnlyTopIds = FALSE, nbrTopIds = Inf) {
     if (!(ordering %in% c("high-to-low", "low-to-high"))) {
         stop("ordering must be 'high-to-low' or 'low-to-high'")
     }
@@ -72,6 +73,10 @@
     } else {
         scores <- scores %>%
             dplyr::arrange(.data[[scoreCol]])
+    }
+    ## Select only top N methods
+    if (showOnlyTopIds) {
+        scores <- scores[seq_len(min(nrow(scores), nbrTopIds)), ]
     }
     levs <- scores %>%
         dplyr::pull(.data[[idCol]])

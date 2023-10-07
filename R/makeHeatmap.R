@@ -12,7 +12,8 @@
 .makeHeatmap <- function(df, idCol, metricCol, valueCol, weightCol, scoreCol, 
                          groupCol, metricInfo, idInfo, labelSize, 
                          ordering = "high-to-low", idColors, metricColors,
-                         collapseGroup, metricGrouping, showRowNames) {
+                         collapseGroup, metricGrouping, showRowNames, 
+                         showOnlyTopIds = FALSE, nbrTopIds = Inf) {
     if (!(ordering %in% c("high-to-low", "low-to-high"))) {
         stop("ordering must be 'high-to-low' or 'low-to-high'")
     }
@@ -46,6 +47,13 @@
         rowAnnot <- rowAnnot %>%
             dplyr::arrange(.data[[scoreCol]])
     }
+    
+    ## Select only top N methods
+    if (showOnlyTopIds) {
+        rowAnnot <- rowAnnot[seq_len(min(nrow(rowAnnot), nbrTopIds)), ]
+    }
+    df <- df %>%
+        dplyr::filter(.data[[idCol]] %in% rowAnnot[[idCol]])
     
     ## Matrix -----------------------------------------------------------------
     tmp <- df
