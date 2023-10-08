@@ -306,6 +306,7 @@ bettr <- function(df, idCol = "Method",
         )
     
     ## Server definition ------------------------------------------------------
+    #nocov start
     server_function <- function(input, output, session) {
         
         ## Initialize data storage --------------------------------------------
@@ -852,6 +853,7 @@ bettr <- function(df, idCol = "Method",
         })
         
     }
+    #nocov end
     
     # Generate app ------------------------------------------------------------
     shiny::shinyApp(ui = p_layout, server = server_function)
