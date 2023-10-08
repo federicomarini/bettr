@@ -268,6 +268,20 @@ bettr <- function(df, idCol = "Method",
                     shiny::uiOutput("bettrBarPolarplotUI")
                 ),
                 shiny::tabPanel(
+                    "Filter methods/metrics",
+                    shiny::br(),
+                    shiny::selectInput(inputId = "keepIds", 
+                                       label = "IDs to keep",
+                                       choices = unique(df[[idCol]]),
+                                       selected = unique(df[[idCol]]),
+                                       multiple = TRUE),
+                    shiny::selectInput(inputId = "keepMetrics",
+                                       label = "Metrics to keep",
+                                       choices = metrics,
+                                       selected = metrics,
+                                       multiple = TRUE)
+                ),
+                shiny::tabPanel(
                     "Transform metrics",
                     shiny::br(),
                     ## Variable transformations -------------------------------
@@ -300,21 +314,38 @@ bettr <- function(df, idCol = "Method",
             currentWeights = initialWeights
         )
         
+        ## Filtered data ------------------------------------------------------
+        ## Only keep metrics and methods selected in the filter tab
+        filtdata <- shiny::reactive({
+            values$df %>%
+                dplyr::filter(.data[[idCol]] %in% input$keepIds) %>%
+                dplyr::select(-dplyr::any_of(setdiff(values$metrics, 
+                                                     input$keepMetrics)))
+        })
+        
+        ## Record retained metrics and methods
+        metricsInUse <- shiny::reactive({
+            intersect(values$metrics, input$keepMetrics)
+        })
+        methodsInUse <- shiny::reactive({
+            intersect(values$df[[idCol]], input$keepIds)
+        })
+        
         ## Processed data -----------------------------------------------------
         procdata <- shiny::reactive({
-            tmp <- values$df
-            for (m in values$metrics) {
-                if (m %in% metrics_num && m %in% colnames(values$df)) {
+            tmp <- filtdata()
+            for (m in intersect(colnames(filtdata()), metricsInUse())) {
+                if (m %in% metrics_num) {
                     tmp[[m]] <- .transformNumericVariable(
-                        x = values$df[[m]],
+                        x = filtdata()[[m]],
                         flip = input[[paste0(m, "_flip")]], 
                         offset = input[[paste0(m, "_offset")]], 
                         transf = .getTransf(input[[paste0(m, "_transform")]]), 
                         bincuts = sort(as.numeric(input[[paste0(m, "_bincuts")]]))
                     )
-                } else if (m %in% metrics_cat && m %in% colnames(values$df)) {
+                } else if (m %in% metrics_cat) {
                     tmp[[m]] <- .transformCategoricalVariable(
-                        x = values$df[[m]],
+                        x = filtdata()[[m]],
                         levels = input[[paste0(m, "_levels")]]
                     )
                 } else {
@@ -331,7 +362,7 @@ bettr <- function(df, idCol = "Method",
         longdata <- shiny::reactive({
             pd <- procdata() %>%
                 dplyr::select(.data[[idCol]], 
-                              dplyr::contains(values$metrics)) %>%
+                              dplyr::contains(metricsInUse())) %>%
                 tidyr::gather(key = "Metric", value = "ScaledValue", 
                               -.data[[idCol]])
             ## Add grouping of metrics
@@ -356,7 +387,7 @@ bettr <- function(df, idCol = "Method",
                         input[[paste0(input$metricGrouping, "_", m, "_weight")]]
                 }
             } else {
-                for (m in values$metrics) {
+                for (m in metricsInUse()) {
                     pd[[weightCol]][pd[[metricCol]] == m] <- 
                         input[[paste0(m, "_weight")]]
                 }
@@ -380,7 +411,7 @@ bettr <- function(df, idCol = "Method",
             shiny::selectInput(
                 inputId = "highlightMethod",
                 label = "Highlight ID",
-                choices = values$methods, 
+                choices = methodsInUse(), 
                 selected = NULL, 
                 multiple = TRUE
             )
@@ -391,7 +422,7 @@ bettr <- function(df, idCol = "Method",
             shiny::selectizeInput(
                 inputId = "metricToManipulate",
                 label = "Select metric to transform",
-                choices = c("---", values$metrics),
+                choices = c("---", metricsInUse()),
                 selected = "---"
             )
         })
@@ -418,7 +449,7 @@ bettr <- function(df, idCol = "Method",
                       ## One tab panel per metric. The actual panel content is 
                       ## created below (it's different for numeric and 
                       ## categorical variables)
-                      lapply(values$metrics, function(i) {
+                      lapply(metricsInUse(), function(i) {
                           shiny::tabPanelBody(
                               value = i, 
                               shiny::fluidRow(
@@ -513,7 +544,7 @@ bettr <- function(df, idCol = "Method",
         
         ## Create summary plots for transformed metric ------------------------
         shiny::observe({
-            lapply(values$metrics, function(m) {
+            lapply(metricsInUse(), function(m) {
                 output[[paste0(m, "_plotsummary")]] <- shiny::renderPlot({
                     shiny::validate(
                         shiny::need(procdata(), "No processed data")
@@ -527,7 +558,7 @@ bettr <- function(df, idCol = "Method",
         
         ## Reset all weights upon action button click -------------------------
         shiny::observeEvent(input$resetWeights, {
-            for (j in values$metrics) {
+            for (j in metrics) {
                 shiny::updateNumericInput(
                     session, inputId = paste0(j, "_weight"), 
                     value = initialWeightValue
@@ -546,7 +577,7 @@ bettr <- function(df, idCol = "Method",
             } else {
                 .makeParCoordPlot(df = longdataweights(), idCol = idCol, 
                                   metricCol = metricCol, valueCol = valueCol, 
-                                  groupCol = groupCol, methods = values$methods,
+                                  groupCol = groupCol, methods = methodsInUse(),
                                   highlightMethod = input$highlightMethod, 
                                   metricGrouping = input$metricGrouping,
                                   labelSize = input$labelsize, 
@@ -592,7 +623,7 @@ bettr <- function(df, idCol = "Method",
                                   metricCol = metricCol, valueCol = valueCol, 
                                   weightCol = weightCol, scoreCol = scoreCol, 
                                   groupCol = groupCol, 
-                                  methods = values$methods, 
+                                  methods = methodsInUse(), 
                                   labelSize = input$labelsize,
                                   ordering = input$id_ordering,
                                   showComposition = input$barpolar_showcomp,
@@ -668,7 +699,7 @@ bettr <- function(df, idCol = "Method",
                     }
                 } else {
                     do.call(shiny::tagList,
-                            lapply(values$metrics, function(i) {
+                            lapply(metricsInUse(), function(i) {
                                 shiny::sliderInput(
                                     inputId = paste0(i, "_weight"),
                                     label = i,

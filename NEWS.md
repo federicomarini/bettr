@@ -2,6 +2,7 @@
 
 * New layout with collapsible side panel
 * Allow showing only the top N methods
+* Add option to filter methods and metrics
 
 # bettr 0.1.2
 
