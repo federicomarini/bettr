@@ -85,10 +85,8 @@
 #'     idInfo = idInfo)
 #' }
 #' 
-bettr <- function(df, idCol = "Method", 
-                  metrics = setdiff(colnames(df), idCol),
-                  initialWeights = NULL,
-                  initialTransforms = list(),
+bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
+                  initialWeights = NULL, initialTransforms = list(),
                   metricInfo = NULL, metricColors = NULL,
                   idInfo = NULL, idColors = NULL,
                   weightResolution = 0.05, bstheme = "darkly",
@@ -172,7 +170,16 @@ bettr <- function(df, idCol = "Method",
                             inputId = "labelsize",
                             label = "Label size", 
                             value = 10, min = 2, max = 20, step = 1
-                        )
+                        ),
+                        shiny::numericInput(
+                            inputId = "hmheight",
+                            label = "Heatmap height (manual)",
+                            value = 600, min = 100, max = 1000
+                        )#,
+                        # shiny::actionButton(
+                        #     inputId = "update_size",
+                        #     label = "Get current height"
+                        # )
                     ),
                     bslib::accordion_panel(
                         "Weights",
@@ -184,7 +191,7 @@ bettr <- function(df, idCol = "Method",
             ),
             
             
-            ## Plots --------------------------------------------------
+            ## Plots ----------------------------------------------------------
             shiny::tabsetPanel(
                 type = "tabs",
                 shiny::tabPanel(
@@ -325,10 +332,10 @@ bettr <- function(df, idCol = "Method",
         
         ## Record retained metrics and methods
         metricsInUse <- shiny::reactive({
-            intersect(values$metrics, input$keepMetrics)
+            intersect(values$metrics, colnames(filtdata()))
         })
         methodsInUse <- shiny::reactive({
-            intersect(values$df[[idCol]], input$keepIds)
+            unique(filtdata()[[idCol]])
         })
         
         ## Processed data -----------------------------------------------------
@@ -456,9 +463,11 @@ bettr <- function(df, idCol = "Method",
                 dplyr::filter(.data[[idCol]] %in% scoredata()[[idCol]])
             tmp[[idCol]] <- factor(tmp[[idCol]], 
                                    levels = scoredata()[[idCol]])
+            shiny::updateNumericInput(session, "hmheight",
+                                      value = 200 + 35 * length(unique(tmp[[idCol]])))
             tmp
         })
-        
+
         ## UI element to filter methods by grouping columns -------------------
         output$idFilterByInfoUI <- shiny::renderUI({
             if (is.null(values$idInfo)) {
@@ -745,9 +754,12 @@ bettr <- function(df, idCol = "Method",
         
         ## Heatmap ------------------------------------------------------------
         output$bettrHeatmapUI <- shiny::renderUI({
-            shinyjqui::jqui_resizable(shiny::plotOutput(
-                "bettrHeatmap"))
+            shinyjqui::jqui_resizable(shiny::plotOutput("bettrHeatmap",
+                                                        height = paste0(input$hmheight, "px")))
         })
+        # observeEvent(input$update_size, {
+        #     shiny::updateNumericInput(session, "hmheight", value = input$bettrHeatmap_size[[2]])
+        # })
         output$bettrHeatmap <- shiny::renderPlot({
             if (is.null(longdataweights())) {
                 NULL
