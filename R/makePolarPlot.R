@@ -5,46 +5,17 @@
 #' @importFrom ggplot2 ggplot aes geom_col coord_polar facet_wrap 
 #'   theme_minimal theme element_blank
 #' 
-.makePolarPlot <- function(df, idCol, metricCol, valueCol, weightCol, 
+.makePolarPlot <- function(df, scores, idCol, metricCol, valueCol, weightCol, 
                            scoreCol, metricGroupCol, labelSize, 
-                           ordering = "high-to-low",
                            metricColors, metricCollapseGroup, metricGrouping,
                            showOnlyTopIds = FALSE, nbrTopIds = Inf) {
-    if (!(ordering %in% c("high-to-low", "low-to-high"))) {
-        stop("ordering must be 'high-to-low' or 'low-to-high'")
-    }
-    
+   
     if (metricCollapseGroup && !is.null(df[[metricGroupCol]])) {
         metricColors[[metricCol]] <- metricColors[[metricGrouping]]
     }
     
-    ## Get ordering of methods by score ---------------------------------------
-    levs <- df %>%
-        dplyr::group_by(.data[[idCol]]) %>%
-        dplyr::summarize(
-            "{scoreCol}" := sum(.data[[weightCol]] * .data[[valueCol]],
-                                na.rm = TRUE)
-        )
-    if (ordering == "high-to-low") {
-        levs <- levs %>%
-            dplyr::arrange(dplyr::desc(.data[[scoreCol]]))
-    } else {
-        levs <- levs %>%
-            dplyr::arrange(.data[[scoreCol]])
-    }
-    ## Select only top N methods
-    if (showOnlyTopIds) {
-        levs <- levs[seq_len(min(nrow(levs), nbrTopIds)), ]
-    }
-    levs <- levs[[idCol]]
-    df <- df %>%
-        dplyr::filter(.data[[idCol]] %in% levs)
-    
     ## Plot -------------------------------------------------------------------
-    ggplot2::ggplot(df %>% 
-                        dplyr::mutate("{idCol}" := 
-                                          factor(.data[[idCol]],
-                                                 levels = levs)),
+    ggplot2::ggplot(df,
                     ggplot2::aes(x = .data[[metricCol]], 
                                  y = .data[[valueCol]],
                                  fill = .data[[metricCol]])) + 

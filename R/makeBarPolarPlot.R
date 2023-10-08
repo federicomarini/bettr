@@ -7,17 +7,13 @@
 #' @importFrom cowplot draw_plot get_legend plot_grid
 #' @importFrom grid unit
 #' 
-.makeBarPolarPlot <- function(df, idCol, metricCol, valueCol, 
+.makeBarPolarPlot <- function(df, scores, idCol, metricCol, valueCol, 
                               weightCol, scoreCol, metricGroupCol, 
                               methods, labelSize,
-                              ordering = "high-to-low", 
                               showComposition = FALSE, 
                               scaleFactorPolars = 1.5, metricColors,
                               metricCollapseGroup, metricGrouping,
                               showOnlyTopIds = FALSE, nbrTopIds = Inf) {
-    if (!(ordering %in% c("high-to-low", "low-to-high"))) {
-        stop("ordering must be 'high-to-low' or 'low-to-high'")
-    }
     
     if (metricCollapseGroup && !is.null(df[[metricGroupCol]])) {
         metricColors[[metricCol]] <- metricColors[[metricGrouping]]
@@ -54,24 +50,6 @@
     })
     
     ## Define data for barplot ------------------------------------------------
-    scores <- df %>%
-        dplyr::group_by(.data[[idCol]]) %>%
-        dplyr::summarize(
-            "{scoreCol}" := sum(.data[[weightCol]] *
-                                    .data[[valueCol]],
-                                na.rm = TRUE)
-        ) 
-    if (ordering == "high-to-low") {
-        scores <- scores %>%
-            dplyr::arrange(dplyr::desc(.data[[scoreCol]]))
-    } else {
-        scores <- scores %>%
-            dplyr::arrange(.data[[scoreCol]])
-    }
-    ## Select only top N methods
-    if (showOnlyTopIds) {
-        scores <- scores[seq_len(min(nrow(scores), nbrTopIds)), ]
-    }
     levs <- scores %>%
         dplyr::pull(.data[[idCol]])
     rx <- length(levs)

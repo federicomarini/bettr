@@ -188,7 +188,9 @@ bettr <- function(df, idCol = "Method",
                                 inputId = "nbrTopIds",
                                 label = "Number of IDs",
                                 value = 10
-                            ))
+                            ),
+                            shiny::uiOutput(outputId = "idTopNGroupingUI")
+                        )
                     ),
                     bslib::accordion_panel(
                         "Metrics",
@@ -410,6 +412,54 @@ bettr <- function(df, idCol = "Method",
             }
         })
         
+        ## Calculate scores ---------------------------------------------------
+        scoredata <- shiny::reactive({
+            scoreDf <- collapseddata() %>%
+                dplyr::group_by(.data[[idCol]]) %>%
+                dplyr::summarize(
+                    "{scoreCol}" := sum(.data[[weightCol]] *
+                                            .data[[valueCol]],
+                                        na.rm = TRUE)
+                ) 
+            if (!is.null(values$idInfo)) {
+                scoreDf <- scoreDf %>%
+                    dplyr::left_join(idInfo, 
+                                     by = idCol)
+                if (input$idTopNGrouping != "---") {
+                    scoreDf <- scoreDf %>%
+                        dplyr::group_by(.data[[input$idTopNGrouping]])
+                }
+            }
+            if (input$id_ordering == "high-to-low") {
+                if (input$showOnlyTopIds) {
+                    scoreDf <- scoreDf %>%
+                        dplyr::slice_max(order_by = .data[[scoreCol]],
+                                         n = input$nbrTopIds)
+                }
+                scoreDf <- scoreDf %>%
+                    dplyr::ungroup() %>% 
+                    dplyr::arrange(dplyr::desc(.data[[scoreCol]]))
+            } else {
+                if (input$showOnlyTopIds) {
+                    scoreDf <- scoreDf %>%
+                        dplyr::slice_min(order_by = .data[[scoreCol]],
+                                         n = input$nbrTopIds)
+                }
+                scoreDf <- scoreDf %>%
+                    dplyr::ungroup() %>%
+                    dplyr::arrange(.data[[scoreCol]])
+            }
+            scoreDf
+        })
+        
+        ## Final filtered data ------------------------------------------------
+        plotdata <- shiny::reactive({
+            tmp <- collapseddata() %>%
+                dplyr::filter(.data[[idCol]] %in% scoredata()[[idCol]])
+            tmp[[idCol]] <- factor(tmp[[idCol]], 
+                                   levels = scoredata()[[idCol]])
+            tmp
+        })
         
         ## UI element to select grouping of metrics ---------------------------
         output$metricGroupingUI <- shiny::renderUI({
@@ -418,6 +468,17 @@ bettr <- function(df, idCol = "Method",
                 label = "Grouping of metrics",
                 choices = c("---", setdiff(colnames(values$metricInfo), 
                                            metricCol)),
+                selected = "---"
+            )
+        })
+        
+        ## UI element to select grouping of methods before selecting top N ----
+        output$idTopNGroupingUI <- shiny::renderUI({
+            shiny::selectizeInput(
+                inputId = "idTopNGrouping",
+                label = "Grouping of IDs",
+                choices = c("---", setdiff(colnames(values$idInfo), 
+                                           idCol)),
                 selected = "---"
             )
         })
@@ -591,7 +652,7 @@ bettr <- function(df, idCol = "Method",
             if (is.null(longdataweights())) {
                 NULL
             } else {
-                .makeParCoordPlot(df = collapseddata(), idCol = idCol, 
+                .makeParCoordPlot(df = plotdata(), idCol = idCol, 
                                   metricCol = metricCol, valueCol = valueCol, 
                                   metricGroupCol = metricGroupCol, methods = methodsInUse(),
                                   highlightMethod = input$highlightMethod, 
@@ -612,12 +673,11 @@ bettr <- function(df, idCol = "Method",
             if (is.null(longdataweights())) {
                 NULL
             } else {
-                .makePolarPlot(df = collapseddata(), idCol = idCol, 
+                .makePolarPlot(df = plotdata(), scores = scoredata(), idCol = idCol, 
                                metricCol = metricCol, valueCol = valueCol,
                                weightCol = weightCol, scoreCol = scoreCol,
                                metricGroupCol = metricGroupCol, 
                                labelSize = input$labelsize,
-                               ordering = input$id_ordering,
                                metricColors = metricColors,
                                metricCollapseGroup = input$metricCollapseGroup,
                                metricGrouping = input$metricGrouping,
@@ -635,13 +695,12 @@ bettr <- function(df, idCol = "Method",
             if (is.null(longdataweights())) {
                 NULL
             } else {
-                .makeBarPolarPlot(df = collapseddata(), idCol = idCol, 
+                .makeBarPolarPlot(df = plotdata(), scores = scoredata(), idCol = idCol, 
                                   metricCol = metricCol, valueCol = valueCol, 
                                   weightCol = weightCol, scoreCol = scoreCol, 
                                   metricGroupCol = metricGroupCol, 
                                   methods = methodsInUse(), 
                                   labelSize = input$labelsize,
-                                  ordering = input$id_ordering,
                                   showComposition = input$barpolar_showcomp,
                                   scaleFactorPolars = input$barpolar_scalefactor, 
                                   metricColors = metricColors,
@@ -661,14 +720,13 @@ bettr <- function(df, idCol = "Method",
             if (is.null(longdataweights())) {
                 NULL
             } else {
-                .makeHeatmap(df = collapseddata(), idCol = idCol, 
+                .makeHeatmap(df = plotdata(), scores = scoredata(), idCol = idCol, 
                              metricCol = metricCol, valueCol = valueCol, 
                              weightCol = weightCol, scoreCol = scoreCol, 
                              metricGroupCol = metricGroupCol, 
                              metricInfo = values$metricInfo,
                              idInfo = values$idInfo,
                              labelSize = input$labelsize,
-                             ordering = input$id_ordering, 
                              idColors = idColors, metricColors = metricColors,
                              metricCollapseGroup = input$metricCollapseGroup,
                              metricGrouping = input$metricGrouping, 

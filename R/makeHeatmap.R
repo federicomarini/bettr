@@ -9,15 +9,12 @@
 #' @importFrom grid gpar
 #' @importFrom circlize colorRamp2
 #' 
-.makeHeatmap <- function(df, idCol, metricCol, valueCol, weightCol, scoreCol, 
+.makeHeatmap <- function(df, scores, idCol, metricCol, valueCol, weightCol, scoreCol, 
                          metricGroupCol, metricInfo, idInfo, labelSize, 
-                         ordering = "high-to-low", idColors, metricColors,
+                         idColors, metricColors,
                          metricCollapseGroup, metricGrouping, showRowNames, 
                          showOnlyTopIds = FALSE, nbrTopIds = Inf) {
-    if (!(ordering %in% c("high-to-low", "low-to-high"))) {
-        stop("ordering must be 'high-to-low' or 'low-to-high'")
-    }
-    
+
     if (metricCollapseGroup && !is.null(df[[metricGroupCol]])) {
         metricInfo <- metricInfo %>% 
             dplyr::select(.data[[metricGrouping]]) %>%
@@ -25,34 +22,8 @@
             dplyr::mutate("{ metricCol }" := .data[[metricGrouping]])
     }
     
-    ## Get ordering by score --------------------------------------------------
-    rowAnnot <- df %>%
-        dplyr::group_by(.data[[idCol]]) %>%
-        dplyr::summarize(
-            "{scoreCol}" := sum(.data[[weightCol]] *
-                                    .data[[valueCol]],
-                                na.rm = TRUE)
-        ) 
-    if (ordering == "high-to-low") {
-        rowAnnot <- rowAnnot %>%
-            dplyr::arrange(dplyr::desc(.data[[scoreCol]]))
-    } else {
-        rowAnnot <- rowAnnot %>%
-            dplyr::arrange(.data[[scoreCol]])
-    }
-    
-    ## Select only top N methods
-    if (showOnlyTopIds) {
-        rowAnnot <- rowAnnot[seq_len(min(nrow(rowAnnot), nbrTopIds)), ]
-    }
-    df <- df %>%
-        dplyr::filter(.data[[idCol]] %in% rowAnnot[[idCol]])
-    
     ## Matrix -----------------------------------------------------------------
-    tmp <- df
-    tmp[[idCol]] <- factor(tmp[[idCol]], 
-                           levels = rowAnnot[[idCol]])
-    mat <- tmp %>%
+    mat <- df %>%
         dplyr::select(c(.data[[idCol]],
                         .data[[metricCol]],
                         .data[[valueCol]])) %>%
@@ -63,6 +34,7 @@
         as.matrix()
     
     ## Match order of row annotations
+    rowAnnot <- scores
     rowAnnot <- rowAnnot[match(rownames(mat), 
                                rowAnnot[[idCol]]), ,
                          drop = FALSE] %>% as.data.frame()
