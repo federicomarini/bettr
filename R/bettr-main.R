@@ -20,7 +20,8 @@
 #'   * **offset**: Numeric scalar; offset to add to the (flipped) 
 #'     metric values. Defaults to `0`.
 #'   * **transform**: Character scalar; one of 'None', 'z-score', 
-#'     '\[0,1\]', '\[-1,1\]' or 'Rank', indicating which transform to apply to 
+#'     '\[0,1\]', '\[-1,1\]', 'Rank', 'Rank+\[0,1\]' or 'z-score+\[0,1\]', 
+#'     indicating which transform to apply to 
 #'     the metric values (after any flipping and/or adding the offset). 
 #'     Defaults to 'None'.
 #'   * **cuts**: Numeric vector or `NULL`; the cut points that will 
