@@ -27,9 +27,9 @@
     if (!is.null(initialWeights)) {
         if (!(is.numeric(initialWeights) && 
               !is.null(names(initialWeights)) &&
-               all(metrics %in% names(initialWeights)) &&
-               !all(initialWeights == 0) && 
-               all(initialWeights >= 0) && all(initialWeights <= 1))) {
+              all(metrics %in% names(initialWeights)) &&
+              !all(initialWeights == 0) && 
+              all(initialWeights >= 0) && all(initialWeights <= 1))) {
             stop("initialWeights must be a named numeric vector with ",
                  "values between 0 and 1, and with one value for each metric")
         }

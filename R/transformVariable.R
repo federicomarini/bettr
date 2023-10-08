@@ -4,10 +4,10 @@
     } else if (v == "z-score") {
         return(function(a) scale(a, center = TRUE, scale = TRUE))
     } else if (v == "[0,1]") {
-        return(function(a) (a - min(a, na.rm = TRUE))/
+        return(function(a) (a - min(a, na.rm = TRUE)) /
                    (max(a, na.rm = TRUE) - min(a, na.rm = TRUE)))
     } else if (v == "[-1,1]") {
-        return(function(a) (a - min(a, na.rm = TRUE) + a - max(a, na.rm = TRUE))/
+        return(function(a) (a - min(a, na.rm = TRUE) + a - max(a, na.rm = TRUE)) /
                    (max(a, na.rm = TRUE) - min(a, na.rm = TRUE)))
     } else if (v == "Rank") {
         return(function(a) order(order(a)))
@@ -16,8 +16,8 @@
 
 #' @importFrom Hmisc cut2
 .transformNumericVariable <- function(x, flip = FALSE, offset = 0, 
-                                     transf = function(a) a, 
-                                     bincuts = NULL) {
+                                      transf = function(a) a, 
+                                      bincuts = NULL) {
     stopifnot(exprs = {
         is.logical(flip)
         is.numeric(offset)

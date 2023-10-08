@@ -68,7 +68,7 @@
         as.data.frame() %>%
         tibble::column_to_rownames(var = idCol) %>%
         as.matrix()
-
+    
     ## Match order of row annotations
     rowAnnot <- rowAnnot[match(rownames(mat), 
                                rowAnnot[[idCol]]), ,
@@ -82,7 +82,7 @@
         rownames(idInfo) <- idInfo[[idCol]]
         idInfo[[idCol]] <- NULL
     }
-
+    
     ## Match order of column annotations
     colAnnot <- df %>%
         dplyr::filter(!duplicated(.data[[metricCol]])) %>%
@@ -102,7 +102,7 @@
         as.data.frame()
     rownames(colAnnot) <- colAnnot[[metricCol]]
     colAnnot[[metricCol]] <- NULL
-
+    
     if (!is.null(metricInfo)) {
         metricInfo <- metricInfo[match(colnames(mat), 
                                        metricInfo[[metricCol]]), , 
@@ -110,7 +110,7 @@
         rownames(metricInfo) <- metricInfo[[metricCol]]
         metricInfo[[metricCol]] <- NULL
     }
-
+    
     ## Create annotations -----------------------------------------------------
     rowAnnotRight <- ComplexHeatmap::rowAnnotation(
         Score = ComplexHeatmap::anno_barplot(
@@ -148,7 +148,7 @@
     } else {
         colAnnotBottom <- NULL
     }
-
+    
     minmat <- min(mat, na.rm = TRUE)
     maxmat <- max(mat, na.rm = TRUE)
     if (minmat < 0) {
@@ -169,7 +169,7 @@
             c("#EEEEEE", "red")
         )
     }
-
+    
     ComplexHeatmap::Heatmap(
         matrix = mat, name = "Relative\nvalue",
         col = heatmapCols,
