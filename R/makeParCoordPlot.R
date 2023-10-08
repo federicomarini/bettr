@@ -6,16 +6,16 @@
 #' @importFrom ggplot2 ggplot aes geom_boxplot geom_line geom_point 
 #'   scale_size_manual theme_minimal theme element_text scale_fill_manual
 #'   
-.makeParCoordPlot <- function(df, idCol, metricCol, valueCol, groupCol,
+.makeParCoordPlot <- function(df, idCol, metricCol, valueCol, metricGroupCol,
                               methods, highlightMethod, 
                               metricGrouping, labelSize, 
-                              metricColors, idColors, collapseGroup) {
+                              metricColors, idColors, metricCollapseGroup) {
     
-    if (collapseGroup && !is.null(df[[groupCol]])) {
+    if (metricCollapseGroup && !is.null(df[[metricGroupCol]])) {
         df <- df %>%
-            dplyr::group_by(.data[[idCol]], .data[[groupCol]]) %>%
+            dplyr::group_by(.data[[idCol]], .data[[metricGroupCol]]) %>%
             dplyr::summarize("{ valueCol }" := mean(.data[[valueCol]], na.rm = TRUE)) %>%
-            dplyr::mutate("{ metricCol }" := .data[[groupCol]]) %>%
+            dplyr::mutate("{ metricCol }" := .data[[metricGroupCol]]) %>%
             dplyr::ungroup() %>%
             as.data.frame()
     }
@@ -36,7 +36,7 @@
     if (metricGrouping != "---") {
         ## Reorder metrics according to the chosen grouping
         tmp <- df %>% 
-            dplyr::arrange(.data[[groupCol]]) %>%
+            dplyr::arrange(.data[[metricGroupCol]]) %>%
             dplyr::mutate("{metricCol}" := factor(
                 .data[[metricCol]],
                 levels = unique(.data[[metricCol]])))
@@ -44,14 +44,14 @@
                               ggplot2::aes(x = .data[[metricCol]], 
                                            y = .data[[valueCol]])) + 
             ggplot2::geom_boxplot(outlier.size = -1,
-                                  ggplot2::aes(fill = .data[[groupCol]]),
+                                  ggplot2::aes(fill = .data[[metricGroupCol]]),
                                   alpha = 0.4)
         if (methods::is(metricColors[[metricGrouping]], "function")) {
             gp <- gp + 
                 ggplot2::scale_fill_gradientn(
                     colors = do.call(metricColors[[metricGrouping]], 
-                                     list(sort(unique(tmp[[groupCol]])))), 
-                    values = scales::rescale(sort(unique(tmp[[groupCol]])))
+                                     list(sort(unique(tmp[[metricGroupCol]])))), 
+                    values = scales::rescale(sort(unique(tmp[[metricGroupCol]])))
                 )
         } else {
             gp <- gp + 

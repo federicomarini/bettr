@@ -10,20 +10,20 @@
 #' @importFrom circlize colorRamp2
 #' 
 .makeHeatmap <- function(df, idCol, metricCol, valueCol, weightCol, scoreCol, 
-                         groupCol, metricInfo, idInfo, labelSize, 
+                         metricGroupCol, metricInfo, idInfo, labelSize, 
                          ordering = "high-to-low", idColors, metricColors,
-                         collapseGroup, metricGrouping, showRowNames, 
+                         metricCollapseGroup, metricGrouping, showRowNames, 
                          showOnlyTopIds = FALSE, nbrTopIds = Inf) {
     if (!(ordering %in% c("high-to-low", "low-to-high"))) {
         stop("ordering must be 'high-to-low' or 'low-to-high'")
     }
     
-    if (collapseGroup && !is.null(df[[groupCol]])) {
+    if (metricCollapseGroup && !is.null(df[[metricGroupCol]])) {
         df <- df %>%
-            dplyr::group_by(.data[[idCol]], .data[[groupCol]]) %>%
+            dplyr::group_by(.data[[idCol]], .data[[metricGroupCol]]) %>%
             dplyr::summarize("{ valueCol }" := mean(.data[[valueCol]], na.rm = TRUE),
                              "{ weightCol }" := mean(.data[[weightCol]], na.rm = TRUE)) %>%
-            dplyr::mutate("{ metricCol }" := .data[[groupCol]]) %>%
+            dplyr::mutate("{ metricCol }" := .data[[metricGroupCol]]) %>%
             dplyr::ungroup() %>%
             as.data.frame()
         metricInfo <- metricInfo %>% 
@@ -87,10 +87,10 @@
     colAnnot <- df %>%
         dplyr::filter(!duplicated(.data[[metricCol]])) %>%
         dplyr::select(c(metricCol, weightCol,
-                        dplyr::contains(groupCol))) 
-    if (groupCol %in% colnames(colAnnot)) {
+                        dplyr::contains(metricGroupCol))) 
+    if (metricGroupCol %in% colnames(colAnnot)) {
         colAnnot <- colAnnot %>%
-            dplyr::arrange(.data[[groupCol]])
+            dplyr::arrange(.data[[metricGroupCol]])
         mat <- mat[, match(colAnnot[[metricCol]], 
                            colnames(mat)), drop = FALSE]
     }
@@ -98,7 +98,7 @@
         colAnnot[match(colnames(mat), 
                        colAnnot[[metricCol]]), , 
                  drop = FALSE]) %>% 
-        dplyr::select(-contains(groupCol)) %>%
+        dplyr::select(-contains(metricGroupCol)) %>%
         as.data.frame()
     rownames(colAnnot) <- colAnnot[[metricCol]]
     colAnnot[[metricCol]] <- NULL

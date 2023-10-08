@@ -97,7 +97,7 @@ bettr <- function(df, idCol = "Method",
     weightCol <- "Weight"
     metricCol <- "Metric"
     valueCol <- "ScaledValue"
-    groupCol <- "Group"
+    metricGroupCol <- "metricGroup"
     initialWeightValue <- 0.2
     
     ## Check validity of input arguments --------------------------------------
@@ -193,7 +193,7 @@ bettr <- function(df, idCol = "Method",
                     bslib::accordion_panel(
                         "Metrics",
                         shiny::uiOutput(outputId = "metricGroupingUI"),
-                        shiny::checkboxInput(inputId = "collapseGroup",
+                        shiny::checkboxInput(inputId = "metricCollapseGroup",
                                              label = "Collapse by group",
                                              value = FALSE),
                     ),
@@ -367,7 +367,7 @@ bettr <- function(df, idCol = "Method",
                               -.data[[idCol]])
             ## Add grouping of metrics
             if (input$metricGrouping != "---") {
-                pd[[groupCol]] <- 
+                pd[[metricGroupCol]] <- 
                     values$metricInfo[[input$metricGrouping]][
                         match(pd$Metric, values$metricInfo[[metricCol]])]
             }
@@ -378,12 +378,12 @@ bettr <- function(df, idCol = "Method",
         longdataweights <- shiny::reactive({
             pd <- longdata()
             ## Add weight column for later score calculations
-            if (input$collapseGroup && input$metricGrouping != "---") {
-                for (m in unique(pd[[groupCol]])) {
+            if (input$metricCollapseGroup && input$metricGrouping != "---") {
+                for (m in unique(pd[[metricGroupCol]])) {
                     if (is.null(input[[paste0(input$metricGrouping, "_", m, "_weight")]])) {
                         return(NULL)
                     }
-                    pd[[weightCol]][pd[[groupCol]] == m] <- 
+                    pd[[weightCol]][pd[[metricGroupCol]] == m] <- 
                         input[[paste0(input$metricGrouping, "_", m, "_weight")]]
                 }
             } else {
@@ -577,13 +577,13 @@ bettr <- function(df, idCol = "Method",
             } else {
                 .makeParCoordPlot(df = longdataweights(), idCol = idCol, 
                                   metricCol = metricCol, valueCol = valueCol, 
-                                  groupCol = groupCol, methods = methodsInUse(),
+                                  metricGroupCol = metricGroupCol, methods = methodsInUse(),
                                   highlightMethod = input$highlightMethod, 
                                   metricGrouping = input$metricGrouping,
                                   labelSize = input$labelsize, 
                                   metricColors = metricColors,
                                   idColors = idColors,
-                                  collapseGroup = input$collapseGroup)
+                                  metricCollapseGroup = input$metricCollapseGroup)
             }
         })
         
@@ -599,11 +599,11 @@ bettr <- function(df, idCol = "Method",
                 .makePolarPlot(df = longdataweights(), idCol = idCol, 
                                metricCol = metricCol, valueCol = valueCol,
                                weightCol = weightCol, scoreCol = scoreCol,
-                               groupCol = groupCol, 
+                               metricGroupCol = metricGroupCol, 
                                labelSize = input$labelsize,
                                ordering = input$id_ordering,
                                metricColors = metricColors,
-                               collapseGroup = input$collapseGroup,
+                               metricCollapseGroup = input$metricCollapseGroup,
                                metricGrouping = input$metricGrouping,
                                showOnlyTopIds = input$showOnlyTopIds,
                                nbrTopIds = input$nbrTopIds)
@@ -622,14 +622,14 @@ bettr <- function(df, idCol = "Method",
                 .makeBarPolarPlot(df = longdataweights(), idCol = idCol, 
                                   metricCol = metricCol, valueCol = valueCol, 
                                   weightCol = weightCol, scoreCol = scoreCol, 
-                                  groupCol = groupCol, 
+                                  metricGroupCol = metricGroupCol, 
                                   methods = methodsInUse(), 
                                   labelSize = input$labelsize,
                                   ordering = input$id_ordering,
                                   showComposition = input$barpolar_showcomp,
                                   scaleFactorPolars = input$barpolar_scalefactor, 
                                   metricColors = metricColors,
-                                  collapseGroup = input$collapseGroup,
+                                  metricCollapseGroup = input$metricCollapseGroup,
                                   metricGrouping = input$metricGrouping,
                                   showOnlyTopIds = input$showOnlyTopIds,
                                   nbrTopIds = input$nbrTopIds)
@@ -648,13 +648,13 @@ bettr <- function(df, idCol = "Method",
                 .makeHeatmap(df = longdataweights(), idCol = idCol, 
                              metricCol = metricCol, valueCol = valueCol, 
                              weightCol = weightCol, scoreCol = scoreCol, 
-                             groupCol = groupCol, 
+                             metricGroupCol = metricGroupCol, 
                              metricInfo = values$metricInfo,
                              idInfo = values$idInfo,
                              labelSize = input$labelsize,
                              ordering = input$id_ordering, 
                              idColors = idColors, metricColors = metricColors,
-                             collapseGroup = input$collapseGroup,
+                             metricCollapseGroup = input$metricCollapseGroup,
                              metricGrouping = input$metricGrouping, 
                              showRowNames = input$show_row_names,
                              showOnlyTopIds = input$showOnlyTopIds,
@@ -678,12 +678,12 @@ bettr <- function(df, idCol = "Method",
             if (is.null(values$metrics) || is.null(values$currentWeights)) {
                 NULL
             } else {
-                if (input$collapseGroup && input$metricGrouping != "---") {
-                    if (is.null(longdata()[[groupCol]])) {
+                if (input$metricCollapseGroup && input$metricGrouping != "---") {
+                    if (is.null(longdata()[[metricGroupCol]])) {
                         NULL
                     } else {
                         do.call(shiny::tagList,
-                                lapply(unique(longdata()[[groupCol]]), function(i) {
+                                lapply(unique(longdata()[[metricGroupCol]]), function(i) {
                                     shiny::sliderInput(
                                         inputId = paste0(input$metricGrouping,
                                                          "_", i, "_weight"),
