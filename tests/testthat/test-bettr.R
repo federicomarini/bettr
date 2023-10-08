@@ -127,7 +127,7 @@ test_that("bettr stops with invalid inputs", {
     
     ## bstheme
     expect_error(bettr(df = df, bstheme = "missing"),
-                 regexp = "\\'arg\\' should be one of",
+                 regexp = "is not a known preset theme",
                  fixed = FALSE)
 })
 

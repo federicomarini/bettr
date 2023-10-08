@@ -45,6 +45,9 @@
         if (!all(metrics %in% metricInfo[[metricCol]])) {
             stop("metricInfo must contain information about all metrics")
         }
+        if (any(c("input", "output") %in% colnames(metricInfo))) {
+            stop("metricInfo can not have columns named 'input' or 'output'")
+        }
     }
     
     if (!is.null(idInfo)) {
@@ -56,6 +59,9 @@
         }
         if (!all(df[[idCol]] %in% idInfo[[idCol]])) {
             stop("idInfo must contain information about all entities")
+        }
+        if (any(c("input", "output") %in% colnames(idInfo))) {
+            stop("idInfo can not have columns named 'input' or 'output'")
         }
     }
     
