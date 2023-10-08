@@ -11,15 +11,6 @@
                               metricGrouping, labelSize, 
                               metricColors, idColors, metricCollapseGroup) {
     
-    if (metricCollapseGroup && !is.null(df[[metricGroupCol]])) {
-        df <- df %>%
-            dplyr::group_by(.data[[idCol]], .data[[metricGroupCol]]) %>%
-            dplyr::summarize("{ valueCol }" := mean(.data[[valueCol]], na.rm = TRUE)) %>%
-            dplyr::mutate("{ metricCol }" := .data[[metricGroupCol]]) %>%
-            dplyr::ungroup() %>%
-            as.data.frame()
-    }
-    
     ## Define line widths -----------------------------------------------------
     lwidths <- rep(0.75, length(methods))
     names(lwidths) <- methods

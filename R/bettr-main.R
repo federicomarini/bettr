@@ -395,6 +395,22 @@ bettr <- function(df, idCol = "Method",
             pd
         })
         
+        ## Collapsed data (average metrics)
+        collapseddata <- shiny::reactive({
+            if (input$metricCollapseGroup && input$metricGrouping != "---") {
+                longdataweights() %>%
+                    dplyr::group_by(.data[[idCol]], .data[[metricGroupCol]]) %>%
+                    dplyr::summarize("{ valueCol }" := mean(.data[[valueCol]], na.rm = TRUE),
+                                     "{ weightCol }" := mean(.data[[weightCol]], na.rm = TRUE)) %>%
+                    dplyr::mutate("{ metricCol }" := .data[[metricGroupCol]]) %>%
+                    dplyr::ungroup() %>%
+                    as.data.frame()
+            } else {
+                longdataweights()
+            }
+        })
+        
+        
         ## UI element to select grouping of metrics ---------------------------
         output$metricGroupingUI <- shiny::renderUI({
             shiny::selectizeInput(
@@ -575,7 +591,7 @@ bettr <- function(df, idCol = "Method",
             if (is.null(longdataweights())) {
                 NULL
             } else {
-                .makeParCoordPlot(df = longdataweights(), idCol = idCol, 
+                .makeParCoordPlot(df = collapseddata(), idCol = idCol, 
                                   metricCol = metricCol, valueCol = valueCol, 
                                   metricGroupCol = metricGroupCol, methods = methodsInUse(),
                                   highlightMethod = input$highlightMethod, 
@@ -596,7 +612,7 @@ bettr <- function(df, idCol = "Method",
             if (is.null(longdataweights())) {
                 NULL
             } else {
-                .makePolarPlot(df = longdataweights(), idCol = idCol, 
+                .makePolarPlot(df = collapseddata(), idCol = idCol, 
                                metricCol = metricCol, valueCol = valueCol,
                                weightCol = weightCol, scoreCol = scoreCol,
                                metricGroupCol = metricGroupCol, 
@@ -619,7 +635,7 @@ bettr <- function(df, idCol = "Method",
             if (is.null(longdataweights())) {
                 NULL
             } else {
-                .makeBarPolarPlot(df = longdataweights(), idCol = idCol, 
+                .makeBarPolarPlot(df = collapseddata(), idCol = idCol, 
                                   metricCol = metricCol, valueCol = valueCol, 
                                   weightCol = weightCol, scoreCol = scoreCol, 
                                   metricGroupCol = metricGroupCol, 
@@ -645,7 +661,7 @@ bettr <- function(df, idCol = "Method",
             if (is.null(longdataweights())) {
                 NULL
             } else {
-                .makeHeatmap(df = longdataweights(), idCol = idCol, 
+                .makeHeatmap(df = collapseddata(), idCol = idCol, 
                              metricCol = metricCol, valueCol = valueCol, 
                              weightCol = weightCol, scoreCol = scoreCol, 
                              metricGroupCol = metricGroupCol, 
