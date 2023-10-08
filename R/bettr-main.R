@@ -266,26 +266,24 @@ bettr <- function(df, idCol = "Method",
                         )
                     ),
                     shiny::uiOutput("bettrBarPolarplotUI")
-                )
-            ),
-            
-            ## Some white space ---------------------------------------
-            shiny::br(),
-            shiny::br(),
-            
-            ## Variable transformations -------------------------------
-            shiny::fluidRow(
-                shiny::column(
-                    3, 
-                    shiny::uiOutput(outputId = "metricToManipulateUI")
-                ), 
-                shiny::column(
-                    9, 
-                    shiny::uiOutput(outputId = 
-                                        "metricManipulationSummaryUI")
+                ),
+                shiny::tabPanel(
+                    "Transform metrics",
+                    shiny::br(),
+                    ## Variable transformations -------------------------------
+                    shiny::fluidRow(
+                        shiny::column(
+                            3, 
+                            shiny::uiOutput(outputId = "metricToManipulateUI")
+                        ), 
+                        shiny::column(
+                            9, 
+                            shiny::uiOutput(outputId = 
+                                                "metricManipulationSummaryUI")
+                        )
+                    )
                 )
             )
-            
         )
     
     ## Server definition ------------------------------------------------------
@@ -306,7 +304,7 @@ bettr <- function(df, idCol = "Method",
         procdata <- shiny::reactive({
             tmp <- values$df
             for (m in values$metrics) {
-                if (m %in% metrics_num) {
+                if (m %in% metrics_num && m %in% colnames(values$df)) {
                     tmp[[m]] <- .transformNumericVariable(
                         x = values$df[[m]],
                         flip = input[[paste0(m, "_flip")]], 
@@ -314,7 +312,7 @@ bettr <- function(df, idCol = "Method",
                         transf = .getTransf(input[[paste0(m, "_transform")]]), 
                         bincuts = sort(as.numeric(input[[paste0(m, "_bincuts")]]))
                     )
-                } else if (m %in% metrics_cat) {
+                } else if (m %in% metrics_cat && m %in% colnames(values$df)) {
                     tmp[[m]] <- .transformCategoricalVariable(
                         x = values$df[[m]],
                         levels = input[[paste0(m, "_levels")]]
@@ -397,6 +395,7 @@ bettr <- function(df, idCol = "Method",
                 selected = "---"
             )
         })
+        outputOptions(output, "metricToManipulateUI", suspendWhenHidden = FALSE)
         
         ## Display transformation options for selected metric -----------------
         shiny::observeEvent(input$metricToManipulate, {
@@ -443,6 +442,7 @@ bettr <- function(df, idCol = "Method",
                     )
                 )
             })
+            outputOptions(output, "metricManipulationSummaryUI", suspendWhenHidden = FALSE)
         })
         
         ## Create transformation interface for numeric metrics ----------------
