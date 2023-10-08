@@ -277,11 +277,14 @@ bettr <- function(df, idCol = "Method",
                                        choices = unique(df[[idCol]]),
                                        selected = unique(df[[idCol]]),
                                        multiple = TRUE),
+                    shiny::uiOutput("idFilterByInfoUI"),
+                    shiny::hr(), 
                     shiny::selectInput(inputId = "keepMetrics",
                                        label = "Metrics to keep",
                                        choices = metrics,
                                        selected = metrics,
-                                       multiple = TRUE)
+                                       multiple = TRUE),
+                    shiny::uiOutput("metricFilterByInfoUI")
                 ),
                 shiny::tabPanel(
                     "Transform metrics",
@@ -319,10 +322,37 @@ bettr <- function(df, idCol = "Method",
         ## Filtered data ------------------------------------------------------
         ## Only keep metrics and methods selected in the filter tab
         filtdata <- shiny::reactive({
-            values$df %>%
-                dplyr::filter(.data[[idCol]] %in% input$keepIds) %>%
-                dplyr::select(-dplyr::any_of(setdiff(values$metrics, 
-                                                     input$keepMetrics)))
+            if (!is.null(values$idInfo)) {
+                idFilt <- values$idInfo
+                for (nm in setdiff(colnames(values$idInfo), idCol)) {
+                    idFilt <- idFilt %>%
+                        dplyr::filter(.data[[nm]] %in% 
+                                          input[[paste0("keepIdBy_", nm)]])
+                }
+                tmp <- values$df %>%
+                    dplyr::filter(.data[[idCol]] %in% intersect(input$keepIds, 
+                                                                idFilt[[idCol]]))
+            } else {
+                tmp <- values$df %>%
+                    dplyr::filter(.data[[idCol]] %in% input$keepIds)
+            }
+            
+            if (!is.null(values$metricInfo)) {
+                metricFilt <- values$metricInfo
+                for (nm in setdiff(colnames(values$metricInfo), metricCol)) {
+                    metricFilt <- metricFilt %>%
+                        dplyr::filter(.data[[nm]] %in% 
+                                          input[[paste0("keepMetricBy_", nm)]])
+                }
+                tmp <- tmp %>%
+                    dplyr::select(-dplyr::any_of(
+                        setdiff(values$metrics, intersect(input$keepMetrics,
+                                                          metricFilt[[metricCol]]))))
+            } else {
+                tmp <- tmp %>%
+                    dplyr::select(-dplyr::any_of(setdiff(values$metrics, input$keepMetrics)))
+            }
+            tmp
         })
         
         ## Record retained metrics and methods
@@ -460,6 +490,40 @@ bettr <- function(df, idCol = "Method",
                                    levels = scoredata()[[idCol]])
             tmp
         })
+        
+        ## UI element to filter methods by grouping columns -------------------
+        output$idFilterByInfoUI <- shiny::renderUI({
+            if (is.null(values$idInfo)) {
+                NULL
+            } else {
+                lapply(setdiff(colnames(values$idInfo), idCol), 
+                       function(nm) {
+                           shiny::selectInput(inputId = paste0("keepIdBy_", nm),
+                                              label = nm, 
+                                              choices = unique(values$idInfo[[nm]]),
+                                              selected = unique(values$idInfo[[nm]]),
+                                              multiple = TRUE)
+                       }) 
+            }
+        })
+        outputOptions(output, "idFilterByInfoUI", suspendWhenHidden = FALSE)
+        
+        ## UI element to filter metrics by grouping columns -------------------
+        output$metricFilterByInfoUI <- shiny::renderUI({
+            if (is.null(values$metricInfo)) {
+                NULL
+            } else {
+                lapply(setdiff(colnames(values$metricInfo), metricCol), 
+                       function(nm) {
+                           shiny::selectInput(inputId = paste0("keepMetricBy_", nm),
+                                              label = nm, 
+                                              choices = unique(values$metricInfo[[nm]]),
+                                              selected = unique(values$metricInfo[[nm]]),
+                                              multiple = TRUE)
+                       }) 
+            }
+        })
+        outputOptions(output, "metricFilterByInfoUI", suspendWhenHidden = FALSE)
         
         ## UI element to select grouping of metrics ---------------------------
         output$metricGroupingUI <- shiny::renderUI({
