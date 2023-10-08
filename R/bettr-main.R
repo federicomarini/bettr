@@ -111,52 +111,17 @@ bettr <- function(df, idCol = "Method",
                          weightResolution = weightResolution, 
                          bstheme = bstheme, appTitle = appTitle)
     
-    ## Split metrics into numeric and categorical -----------------------------
-    metrics_classes <- vapply(df[, metrics, drop = FALSE], class, NA_character_)
-    metrics_num <- intersect(
-        metrics, names(metrics_classes[metrics_classes %in% c("numeric", 
-                                                              "integer")])
-    )
-    metrics_cat <- intersect(
-        metrics, names(metrics_classes[metrics_classes %in% 
-                                           c("factor", "character", 
-                                             "logical")])
-    )
-    
-    ## Define annotation colors -----------------------------------------------
-    if (is.null(idInfo)) {
-        idColors <- .generateColors(
-            data.frame(id = unique(df[[idCol]])) %>% stats::setNames(idCol),
-            idColors, ggplot2Columns = idCol
-        )
-    } else {
-        idColors <- .generateColors(idInfo, idColors, ggplot2Columns = idCol)
-    }
-    
-    if (is.null(metricInfo)) {
-        metricColors <- .generateColors(
-            data.frame(metric = metrics) %>% stats::setNames(metricCol),
-            metricColors, ggplot2Columns = metricCol
-        )
-    } else {
-        metricColors <- .generateColors(metricInfo, metricColors, 
-                                        ggplot2Columns = metricCol)
-    }
-    
-    ## Add non-specified initializations and check validity -------------------
-    initialTransforms <- .completeInitialization(initialTransforms, 
-                                                 metrics_num)
-    
-    ## Assign initial weights -------------------------------------------------
-    metricsWithWeights <- c(
-        metrics, unlist(lapply(colnames(metricInfo), function(cn) {
-            unique(paste0(cn, "_", metricInfo[[cn]]))
-        })))
-    initialWeights <- .assignInitialWeights(
-        weights = initialWeights, 
-        metrics = metricsWithWeights,
-        initialWeightValue = initialWeightValue,
-        weightResolution = weightResolution)
+    ## Prepare data -----------------------------------------------------------
+    prep <- .prepareData(df = df, idCol = idCol, metrics = metrics, 
+                         initialWeights = initialWeights,
+                         initialTransforms = initialTransforms, 
+                         metricInfo = metricInfo, 
+                         metricColors = metricColors, 
+                         idInfo = idInfo,
+                         idColors = idColors,
+                         weightResolution = weightResolution,
+                         metricCol = metricCol, 
+                         initialWeightValue = initialWeightValue)
     
     ## UI definition ----------------------------------------------------------
     p_layout <- 
@@ -319,7 +284,7 @@ bettr <- function(df, idCol = "Method",
             metricInfo = metricInfo,
             idInfo = idInfo,
             methods = unique(df[[idCol]]),
-            currentWeights = initialWeights
+            currentWeights = prep$initialWeights
         )
         
         ## Filtered data ------------------------------------------------------
@@ -370,7 +335,7 @@ bettr <- function(df, idCol = "Method",
         procdata <- shiny::reactive({
             tmp <- filtdata()
             for (m in intersect(colnames(filtdata()), metricsInUse())) {
-                if (m %in% metrics_num) {
+                if (m %in% prep$metrics_num) {
                     tmp[[m]] <- .transformNumericVariable(
                         x = filtdata()[[m]],
                         flip = input[[paste0(m, "_flip")]], 
@@ -378,7 +343,7 @@ bettr <- function(df, idCol = "Method",
                         transf = .getTransf(input[[paste0(m, "_transform")]]), 
                         bincuts = sort(as.numeric(input[[paste0(m, "_bincuts")]]))
                     )
-                } else if (m %in% metrics_cat) {
+                } else if (m %in% prep$metrics_cat) {
                     tmp[[m]] <- .transformCategoricalVariable(
                         x = filtdata()[[m]],
                         levels = input[[paste0(m, "_levels")]]
@@ -621,18 +586,18 @@ bettr <- function(df, idCol = "Method",
         })
         
         ## Create transformation interface for numeric metrics ----------------
-        lapply(metrics_num, function(m) {
+        lapply(prep$metrics_num, function(m) {
             output[[paste0(m, "_transformUI")]] <- shiny::renderUI({
                 shiny::tagList(
                     shiny::checkboxInput(
                         inputId = paste0(m, "_flip"),
                         label = "Flip",
-                        value = initialTransforms[[m]][["flip"]]
+                        value = prep$initialTransforms[[m]][["flip"]]
                     ),
                     shiny::numericInput(
                         inputId = paste0(m, "_offset"),
                         label = "Offset",
-                        value = initialTransforms[[m]][["offset"]]
+                        value = prep$initialTransforms[[m]][["offset"]]
                     ),
                     shiny::radioButtons(
                         inputId = paste0(m, "_transform"),
@@ -640,13 +605,13 @@ bettr <- function(df, idCol = "Method",
                         choices = c("None", "z-score",
                                     "[0,1]", "[-1,1]",
                                     "Rank", "Rank+[0,1]", "z-score+[0,1]"),
-                        selected = initialTransforms[[m]][["transform"]]
+                        selected = prep$initialTransforms[[m]][["transform"]]
                     ),
                     shiny::selectizeInput(
                         inputId = paste0(m, "_bincuts"),
                         label = "Cut points for\ncategorization",
-                        choices = initialTransforms[[m]][["cuts"]],
-                        selected = initialTransforms[[m]][["cuts"]],
+                        choices = prep$initialTransforms[[m]][["cuts"]],
+                        selected = prep$initialTransforms[[m]][["cuts"]],
                         multiple = TRUE,
                         options = list(create = TRUE)
                     )
@@ -655,7 +620,7 @@ bettr <- function(df, idCol = "Method",
         })
         
         ## Create transformation interface for categorical metrics ------------
-        lapply(metrics_cat, function(m) {
+        lapply(prep$metrics_cat, function(m) {
             output[[paste0(m, "_transformUI")]] <- shiny::renderUI({
                 shiny::tagList(
                     sortable::rank_list(
@@ -725,8 +690,8 @@ bettr <- function(df, idCol = "Method",
                                   highlightMethod = input$highlightMethod, 
                                   metricGrouping = input$metricGrouping,
                                   labelSize = input$labelsize, 
-                                  metricColors = metricColors,
-                                  idColors = idColors,
+                                  metricColors = prep$metricColors,
+                                  idColors = prep$idColors,
                                   metricCollapseGroup = input$metricCollapseGroup)
             }
         })
@@ -745,7 +710,7 @@ bettr <- function(df, idCol = "Method",
                                weightCol = weightCol, scoreCol = scoreCol,
                                metricGroupCol = metricGroupCol, 
                                labelSize = input$labelsize,
-                               metricColors = metricColors,
+                               metricColors = prep$metricColors,
                                metricCollapseGroup = input$metricCollapseGroup,
                                metricGrouping = input$metricGrouping,
                                showOnlyTopIds = input$showOnlyTopIds,
@@ -770,7 +735,7 @@ bettr <- function(df, idCol = "Method",
                                   labelSize = input$labelsize,
                                   showComposition = input$barpolar_showcomp,
                                   scaleFactorPolars = input$barpolar_scalefactor, 
-                                  metricColors = metricColors,
+                                  metricColors = prep$metricColors,
                                   metricCollapseGroup = input$metricCollapseGroup,
                                   metricGrouping = input$metricGrouping,
                                   showOnlyTopIds = input$showOnlyTopIds,
@@ -794,7 +759,8 @@ bettr <- function(df, idCol = "Method",
                              metricInfo = values$metricInfo,
                              idInfo = values$idInfo,
                              labelSize = input$labelsize,
-                             idColors = idColors, metricColors = metricColors,
+                             idColors = prep$idColors, 
+                             metricColors = prep$metricColors,
                              metricCollapseGroup = input$metricCollapseGroup,
                              metricGrouping = input$metricGrouping, 
                              showRowNames = input$show_row_names,
@@ -808,7 +774,7 @@ bettr <- function(df, idCol = "Method",
         ## Make sure that weights are retained even when the collapsing by
         ## group status (and thus the displayed weight sliders) changes
         shiny::observe({
-            lapply(metricsWithWeights, function(mww) {
+            lapply(prep$metricsWithWeights, function(mww) {
                 if (!is.null(input[[paste0(mww, "_weight")]])) {
                     values$currentWeights[mww] <- input[[paste0(mww, "_weight")]]
                 }
