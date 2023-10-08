@@ -53,15 +53,16 @@
 #' 
 #' @author Charlotte Soneson
 #' 
-#' @importFrom shiny tagList sliderInput shinyApp renderUI renderPlot 
-#'   updateNumericInput observeEvent validate need observe outputOptions tags 
-#'   HTML tagList renderUI radioButtons numericInput checkboxInput column 
-#'   plotOutput uiOutput column fluidRow tabPanelBody tabsetPanel 
-#'   updateTabsetPanel selectizeInput reactive reactiveValues uiOutput hr 
-#'   actionButton br tabPanel titlePanel navbarPage
+#' @importFrom shiny uiOutput radioButtons checkboxInput conditionalPanel 
+#'   numericInput actionButton tabsetPanel tabPanel br fluidRow column 
+#'   selectInput hr reactiveValues reactive outputOptions renderUI 
+#'   selectizeInput updateTabsetPanel observe observeEvent tabPanelBody 
+#'   plotOutput tagList tags HTML validate need renderPlot updateNumericInput 
+#'   sliderInput shinyApp
 #' @importFrom sortable rank_list
 #' @importFrom shinyjqui jqui_resizable
-#' @importFrom dplyr select %>% contains
+#' @importFrom dplyr filter select any_of group_by summarize mutate ungroup 
+#'   left_join slice_max arrange slice_min %>%
 #' @importFrom tidyr gather
 #' @importFrom bslib bs_theme sidebar accordion accordion_panel page_sidebar
 #' @importFrom rlang .data
@@ -508,7 +509,7 @@ bettr <- function(df, idCol = "Method",
                        }) 
             }
         })
-        outputOptions(output, "idFilterByInfoUI", suspendWhenHidden = FALSE)
+        shiny::outputOptions(output, "idFilterByInfoUI", suspendWhenHidden = FALSE)
         
         ## UI element to filter metrics by grouping columns -------------------
         output$metricFilterByInfoUI <- shiny::renderUI({
@@ -525,7 +526,7 @@ bettr <- function(df, idCol = "Method",
                        }) 
             }
         })
-        outputOptions(output, "metricFilterByInfoUI", suspendWhenHidden = FALSE)
+        shiny::outputOptions(output, "metricFilterByInfoUI", suspendWhenHidden = FALSE)
         
         ## UI element to select grouping of metrics ---------------------------
         output$metricGroupingUI <- shiny::renderUI({
@@ -569,7 +570,7 @@ bettr <- function(df, idCol = "Method",
                 selected = "---"
             )
         })
-        outputOptions(output, "metricToManipulateUI", suspendWhenHidden = FALSE)
+        shiny::outputOptions(output, "metricToManipulateUI", suspendWhenHidden = FALSE)
         
         ## Display transformation options for selected metric -----------------
         shiny::observeEvent(input$metricToManipulate, {
@@ -616,7 +617,7 @@ bettr <- function(df, idCol = "Method",
                     )
                 )
             })
-            outputOptions(output, "metricManipulationSummaryUI", suspendWhenHidden = FALSE)
+            shiny::outputOptions(output, "metricManipulationSummaryUI", suspendWhenHidden = FALSE)
         })
         
         ## Create transformation interface for numeric metrics ----------------
