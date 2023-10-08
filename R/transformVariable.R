@@ -11,6 +11,18 @@
                    (max(a, na.rm = TRUE) - min(a, na.rm = TRUE)))
     } else if (v == "Rank") {
         return(function(a) order(order(a)))
+    } else if (v == "Rank+[0,1]") {
+        return(function(a) {
+            s1 <- order(order(a))
+            (s1 - min(s1, na.rm = TRUE)) /
+                (max(s1, na.rm = TRUE) - min(s1, na.rm = TRUE))
+        })
+    } else if (v == "z-score+[0,1]") {
+        return(function(a) {
+            s1 <- scale(a, center = TRUE, scale = TRUE)
+            (s1 - min(s1, na.rm = TRUE)) /
+                (max(s1, na.rm = TRUE) - min(s1, na.rm = TRUE))
+        })
     }
 }
 

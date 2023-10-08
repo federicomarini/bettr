@@ -636,7 +636,7 @@ bettr <- function(df, idCol = "Method",
                         label = "Transform",
                         choices = c("None", "z-score",
                                     "[0,1]", "[-1,1]",
-                                    "Rank"),
+                                    "Rank", "Rank+[0,1]", "z-score+[0,1]"),
                         selected = initialTransforms[[m]][["transform"]]
                     ),
                     shiny::selectizeInput(
