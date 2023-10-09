@@ -307,6 +307,10 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
         ## Filtered data ------------------------------------------------------
         ## Only keep metrics and methods selected in the filter tab
         filtdata <- shiny::reactive({
+            shiny::validate(
+                shiny::need(input$keepIds, "No keepIds"),
+                shiny::need(input$keepMetrics, "No keepMetrics")
+            )
             if (!is.null(values$idInfo)) {
                 idFilt <- values$idInfo
                 for (nm in setdiff(colnames(values$idInfo), idCol)) {
@@ -350,6 +354,22 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
         
         ## Processed data -----------------------------------------------------
         procdata <- shiny::reactive({
+            shiny::validate(
+                shiny::need(filtdata(), "Please wait..."),
+                shiny::need(metricsInUse(), "Please wait..."),
+                shiny::need(prep, "Please wait...")
+            )
+            temp_need1 = lapply(intersect(prep$metrics_num, metricsInUse()), function(m) {
+                cond <- paste0("shiny::need(is.logical(input$", m, "_flip) && !is.null(input$", m, "_offset) && !is.null(input$", m, "_transform), 'Please wait...')")
+                eval(parse(text = cond))
+            })
+            do.call(shiny::validate, temp_need1)
+            temp_need2 = lapply(intersect(prep$metrics_cat, metricsInUse()), function(m) {
+                cond <- paste0("shiny::need(!is.null(input$", m, "_levels), 'Please wait...')")
+                eval(parse(text = cond))
+            })
+            do.call(shiny::validate, temp_need2)
+            
             tmp <- filtdata()
             for (m in intersect(colnames(filtdata()), metricsInUse())) {
                 if (m %in% prep$metrics_num) {
@@ -700,7 +720,7 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                 "bettrParCoordplot"))
         })
         output$bettrParCoordplot <- shiny::renderPlot({
-            if (is.null(longdataweights())) {
+            if (is.null(plotdata()) || is.null(scoredata())) {
                 NULL
             } else {
                 .makeParCoordPlot(df = plotdata(), idCol = idCol, 
@@ -721,7 +741,7 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                 "bettrPolarplot"))
         })
         output$bettrPolarplot <- shiny::renderPlot({
-            if (is.null(longdataweights())) {
+            if (is.null(plotdata()) || is.null(scoredata())) {
                 NULL
             } else {
                 .makePolarPlot(df = plotdata(), scores = scoredata(), idCol = idCol, 
@@ -743,7 +763,7 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                 "bettrBarPolarplot"))
         })
         output$bettrBarPolarplot <- shiny::renderPlot({
-            if (is.null(longdataweights())) {
+            if (is.null(plotdata()) || is.null(scoredata())) {
                 NULL
             } else {
                 .makeBarPolarPlot(df = plotdata(), scores = scoredata(), idCol = idCol, 
@@ -771,7 +791,7 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
         #     shiny::updateNumericInput(session, "hmheight", value = input$bettrHeatmap_size[[2]])
         # })
         output$bettrHeatmap <- shiny::renderPlot({
-            if (is.null(longdataweights())) {
+            if (is.null(plotdata()) || is.null(scoredata())) {
                 NULL
             } else {
                 .makeHeatmap(df = plotdata(), scores = scoredata(), idCol = idCol, 
