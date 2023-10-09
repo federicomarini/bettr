@@ -67,6 +67,7 @@
 #' @importFrom bslib bs_theme sidebar accordion accordion_panel page_sidebar
 #' @importFrom rlang .data
 #' @importFrom stats setNames
+#' @importFrom Hmisc wtd.quantile
 #' 
 #' @examples 
 #' df <- data.frame(Method = c("M1", "M2", "M3"), metric1 = c(1, 2, 3),
@@ -134,6 +135,15 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                     bslib::accordion_panel(
                         "Methods/IDs",
                         shiny::uiOutput(outputId = "highlightMethodUI"),
+                        shiny::radioButtons(
+                            inputId = "scoreMethod",
+                            label = "Score aggregation method",
+                            choices = c("weighted mean", 
+                                        "weighted median",
+                                        "weighted fraction best"),
+                            selected = "weighted mean",
+                            inline = TRUE
+                        ),
                         shiny::radioButtons(
                             inputId = "id_ordering",
                             label = "ID ordering by score",
@@ -450,12 +460,31 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
         ## Calculate scores ---------------------------------------------------
         scoredata <- shiny::reactive({
             scoreDf <- collapseddata() %>%
-                dplyr::group_by(.data[[idCol]]) %>%
-                dplyr::summarize(
-                    "{scoreCol}" := sum(.data[[weightCol]] *
-                                            .data[[valueCol]],
-                                        na.rm = TRUE)
-                ) 
+                dplyr::group_by(.data[[idCol]])
+            if (input$scoreMethod == "weighted mean") {
+                scoreDf <- scoreDf %>%
+                    dplyr::summarize(
+                        "{scoreCol}" := sum(.data[[weightCol]] *
+                                                .data[[valueCol]],
+                                            na.rm = TRUE)
+                    ) 
+            } else if (input$scoreMethod == "weighted median") {
+                scoreDf <- scoreDf %>%
+                    dplyr::summarize(
+                        "{scoreCol}" := as.numeric(Hmisc::wtd.quantile(
+                            x = .data[[valueCol]], 
+                            w = .data[[weightCol]],
+                            probs = 0.5,
+                            na.rm = TRUE))
+                    ) 
+            } else if (input$scoreMethod == "weighted fraction best") {
+                scoreDf <- scoreDf %>%
+                    dplyr::summarize(
+                        "{scoreCol}" := sum(.data[[weightCol]] *
+                                                (.data[[valueCol]] == max(.data[[valueCol]], na.rm = TRUE)),
+                                            na.rm = TRUE)
+                    ) 
+            }
             if (!is.null(values$idInfo)) {
                 scoreDf <- scoreDf %>%
                     dplyr::left_join(idInfo, 
