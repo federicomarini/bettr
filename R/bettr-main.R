@@ -355,17 +355,17 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
         ## Processed data -----------------------------------------------------
         procdata <- shiny::reactive({
             shiny::validate(
-                shiny::need(filtdata(), "Please wait..."),
-                shiny::need(metricsInUse(), "Please wait..."),
-                shiny::need(prep, "Please wait...")
+                shiny::need(filtdata(), ""),
+                shiny::need(metricsInUse(), ""),
+                shiny::need(prep, "")
             )
             temp_need1 = lapply(intersect(prep$metrics_num, metricsInUse()), function(m) {
-                cond <- paste0("shiny::need(is.logical(input$", m, "_flip) && !is.null(input$", m, "_offset) && !is.null(input$", m, "_transform), 'Please wait...')")
+                cond <- paste0("shiny::need(is.logical(input$", m, "_flip) && !is.null(input$", m, "_offset) && !is.null(input$", m, "_transform), '')")
                 eval(parse(text = cond))
             })
             do.call(shiny::validate, temp_need1)
             temp_need2 = lapply(intersect(prep$metrics_cat, metricsInUse()), function(m) {
-                cond <- paste0("shiny::need(!is.null(input$", m, "_levels), 'Please wait...')")
+                cond <- paste0("shiny::need(!is.null(input$", m, "_levels), '')")
                 eval(parse(text = cond))
             })
             do.call(shiny::validate, temp_need2)
