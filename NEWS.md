@@ -4,6 +4,7 @@
 * Allow showing only the top N methods
 * Add option to filter methods and metrics
 * Add option to change space allocated to row/column names in heatmap
+* Add more score aggregation methods (weighted median, weighted fraction that the method is the best one)
 
 # bettr 0.1.2
 
