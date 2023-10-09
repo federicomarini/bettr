@@ -175,7 +175,17 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                             inputId = "hmheight",
                             label = "Heatmap height (manual)",
                             value = 600, min = 100, max = 1000
-                        )#,
+                        ),
+                        shiny::numericInput(
+                            inputId = "hm_rownamewidth",
+                            label = "Heatmap row name max width (cm)",
+                            value = 6, min = 1, max = 15
+                        ),
+                        shiny::numericInput(
+                            inputId = "hm_colnameheight",
+                            label = "Heatmap column name max height (cm)",
+                            value = 6, min = 1, max = 15
+                        )
                         # shiny::actionButton(
                         #     inputId = "update_size",
                         #     label = "Get current height"
@@ -777,7 +787,9 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                              metricGrouping = input$metricGrouping, 
                              showRowNames = input$show_row_names,
                              showOnlyTopIds = input$showOnlyTopIds,
-                             nbrTopIds = input$nbrTopIds)
+                             nbrTopIds = input$nbrTopIds,
+                             rownamewidth_cm = input$hm_rownamewidth,
+                             colnameheight_cm = input$hm_colnameheight)
             }
         })
         

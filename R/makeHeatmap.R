@@ -5,15 +5,16 @@
 #' @importFrom tibble column_to_rownames tibble
 #' @importFrom rlang .data :=
 #' @importFrom ComplexHeatmap rowAnnotation anno_barplot columnAnnotation 
-#'   Heatmap
-#' @importFrom grid gpar
+#'   Heatmap draw
+#' @importFrom grid gpar unit
 #' @importFrom circlize colorRamp2
 #' 
 .makeHeatmap <- function(df, scores, idCol, metricCol, valueCol, weightCol, scoreCol, 
                          metricGroupCol, metricInfo, idInfo, labelSize, 
                          idColors, metricColors,
                          metricCollapseGroup, metricGrouping, showRowNames, 
-                         showOnlyTopIds = FALSE, nbrTopIds = Inf) {
+                         showOnlyTopIds = FALSE, nbrTopIds = Inf,
+                         rownamewidth_cm = 6, colnameheight_cm = 6) {
 
     if (metricCollapseGroup && !is.null(df[[metricGroupCol]])) {
         metricInfo <- metricInfo %>% 
@@ -135,7 +136,7 @@
         )
     }
     
-    ComplexHeatmap::Heatmap(
+    hm <- ComplexHeatmap::Heatmap(
         matrix = mat, name = "Relative\nvalue",
         col = heatmapCols,
         na_col = "white",
@@ -145,7 +146,9 @@
         show_row_names = showRowNames,
         row_names_side = "left",
         row_names_gp = grid::gpar(fontsize = labelSize),
+        row_names_max_width = grid::unit(rownamewidth_cm, "cm"),
         column_names_gp = grid::gpar(fontsize = labelSize),
+        column_names_max_height = grid::unit(colnameheight_cm, "cm"),
         row_title = idCol,
         column_title = metricCol,
         column_title_side = "bottom",
@@ -154,4 +157,5 @@
         right_annotation = rowAnnotRight,
         left_annotation = rowAnnotLeft
     )
+    ComplexHeatmap::draw(hm)
 }
