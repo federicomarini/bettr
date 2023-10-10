@@ -304,6 +304,15 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                                                 "metricManipulationSummaryUI")
                         )
                     )
+                ),
+                shiny::tabPanel(
+                    "Data table",
+                    shiny::br(),
+                    bslib::card(
+                        "This data table contains the transformed values of all metrics, as well as the aggregated scores."
+                    ),
+                    shiny::br(),
+                    DT::dataTableOutput(outputId = "scoreTable")
                 )
             )
         )
@@ -776,6 +785,24 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                     session, inputId = paste0(j, "_weight"), 
                     value = initialWeightValue
                 )
+            }
+        })
+        
+        ## Score table --------------------------------------------------------
+        output$scoreTable <- DT::renderDataTable({
+            tmpdf <- plotdata() %>%
+                dplyr::select(-.data[[weightCol]]) %>%
+                tidyr::pivot_wider(names_from = .data[[metricCol]], 
+                                   values_from = .data[[valueCol]]) %>%
+                dplyr::left_join(scoredata(), by = idCol) %>%
+                dplyr::mutate("{scoreCol}" := signif(.data[[scoreCol]], 
+                                                     digits = 4))
+            if (input$id_ordering == "high-to-low") {
+                tmpdf %>%
+                    dplyr::arrange(dplyr::desc(.data[[scoreCol]]))
+            } else {
+                tmpdf %>%
+                    dplyr::arrange(.data[[scoreCol]])
             }
         })
         
