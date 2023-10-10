@@ -140,7 +140,8 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                             label = "Score aggregation method",
                             choices = c("weighted mean", 
                                         "weighted median",
-                                        "weighted fraction best"),
+                                        "weighted fraction highest",
+                                        "weighted fraction lowest"),
                             selected = "weighted mean",
                             inline = TRUE
                         ),
@@ -487,12 +488,28 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                             probs = 0.5,
                             na.rm = TRUE))
                     ) 
-            } else if (input$scoreMethod == "weighted fraction best") {
+            } else if (input$scoreMethod == "weighted fraction highest") {
                 scoreDf <- collapseddata() %>%
                     dplyr::group_by(.data[[metricCol]]) %>%
                     dplyr::mutate(
                         tempScore = (.data[[valueCol]] == 
                                          max(.data[[valueCol]], na.rm = TRUE))
+                    ) %>%
+                    dplyr::ungroup() %>%
+                    dplyr::group_by(.data[[idCol]]) %>%
+                    dplyr::summarize(
+                        "{scoreCol}" := sum(
+                            .data[[weightCol]] * .data$tempScore,
+                            na.rm = TRUE) / 
+                            sum(.data[[weightCol]] * !is.na(.data[[valueCol]]), 
+                                na.rm = TRUE)
+                    ) 
+            } else if (input$scoreMethod == "weighted fraction lowest") {
+                scoreDf <- collapseddata() %>%
+                    dplyr::group_by(.data[[metricCol]]) %>%
+                    dplyr::mutate(
+                        tempScore = (.data[[valueCol]] == 
+                                         min(.data[[valueCol]], na.rm = TRUE))
                     ) %>%
                     dplyr::ungroup() %>%
                     dplyr::group_by(.data[[idCol]]) %>%
