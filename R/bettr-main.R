@@ -266,6 +266,10 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                 shiny::tabPanel(
                     "Filter methods/metrics",
                     shiny::br(),
+                    bslib::card(
+                        "You can exclude methods and/or metrics from the summaries by removing them from the selection boxes below. The selection can be done either by the name of the method/metric, or via any other provided attribute (if any). The intersection of methods satisfying the selection criteria will be retained. To add back a (set of) methods/metrics, click in the corresponding selection box to see a dropdown menu with available values."
+                    ),
+                    shiny::br(),
                     shiny::selectInput(inputId = "keepIds", 
                                        label = "IDs to keep",
                                        choices = unique(df[[idCol]]),
@@ -282,6 +286,10 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                 ),
                 shiny::tabPanel(
                     "Transform metrics",
+                    shiny::br(),
+                    bslib::card(
+                        "The interface below can be used to apply transformations to the provided metric values, to make them more comparable to each other. For example, it is important for the interpretability of the cross-metric aggregation that a high value always corresponds to either 'good' or 'bad' performance."
+                    ),
                     shiny::br(),
                     ## Variable transformations -------------------------------
                     shiny::fluidRow(
