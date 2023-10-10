@@ -467,17 +467,19 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
         
         ## Calculate scores ---------------------------------------------------
         scoredata <- shiny::reactive({
-            scoreDf <- collapseddata() %>%
-                dplyr::group_by(.data[[idCol]])
             if (input$scoreMethod == "weighted mean") {
-                scoreDf <- scoreDf %>%
+                scoreDf <- collapseddata() %>%
+                    dplyr::group_by(.data[[idCol]]) %>%
                     dplyr::summarize(
                         "{scoreCol}" := sum(.data[[weightCol]] *
                                                 .data[[valueCol]],
-                                            na.rm = TRUE)
+                                            na.rm = TRUE) / 
+                            sum(.data[[weightCol]] * !is.na(.data[[valueCol]]), 
+                                na.rm = TRUE)
                     ) 
             } else if (input$scoreMethod == "weighted median") {
-                scoreDf <- scoreDf %>%
+                scoreDf <- collapseddata() %>%
+                    dplyr::group_by(.data[[idCol]]) %>%
                     dplyr::summarize(
                         "{scoreCol}" := as.numeric(Hmisc::wtd.quantile(
                             x = .data[[valueCol]], 
@@ -486,11 +488,20 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                             na.rm = TRUE))
                     ) 
             } else if (input$scoreMethod == "weighted fraction best") {
-                scoreDf <- scoreDf %>%
+                scoreDf <- collapseddata() %>%
+                    dplyr::group_by(.data[[metricCol]]) %>%
+                    dplyr::mutate(
+                        tempScore = (.data[[valueCol]] == 
+                                         max(.data[[valueCol]], na.rm = TRUE))
+                    ) %>%
+                    dplyr::ungroup() %>%
+                    dplyr::group_by(.data[[idCol]]) %>%
                     dplyr::summarize(
-                        "{scoreCol}" := sum(.data[[weightCol]] *
-                                                (.data[[valueCol]] == max(.data[[valueCol]], na.rm = TRUE)),
-                                            na.rm = TRUE)
+                        "{scoreCol}" := sum(
+                            .data[[weightCol]] * .data$tempScore,
+                            na.rm = TRUE) / 
+                            sum(.data[[weightCol]] * !is.na(.data[[valueCol]]), 
+                                na.rm = TRUE)
                     ) 
             }
             if (!is.null(values$idInfo)) {
