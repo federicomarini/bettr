@@ -72,6 +72,11 @@ test_that("bettr stops with invalid inputs", {
     expect_error(bettr(df = df, metricInfo = metricInfo[, -1, drop = FALSE]),
                  regexp = 'metricInfo must have a column named Metric',
                  fixed = TRUE)
+    mi2 <- metricInfo
+    mi2$input <- 1
+    expect_error(bettr(df = df, metricInfo = mi2), 
+                 regexp = 'metricInfo can not have columns named', 
+                 fixed = TRUE)
     
     ## idInfo
     expect_error(bettr(df = df, idInfo = idInfo[1:2, ]),
@@ -82,6 +87,11 @@ test_that("bettr stops with invalid inputs", {
                  fixed = TRUE)
     expect_error(bettr(df = df, idInfo = idInfo[, -1, drop = FALSE]),
                  regexp = 'idInfo must have a column named Method',
+                 fixed = TRUE)
+    id2 <- idInfo
+    id2$input <- 1
+    expect_error(bettr(df = df, idInfo = id2), 
+                 regexp = 'idInfo can not have columns named', 
                  fixed = TRUE)
     
     ## initialTransforms
@@ -125,10 +135,32 @@ test_that("bettr stops with invalid inputs", {
                  regexp = 'Specified cuts must be numeric vectors',
                  fixed = TRUE)
     
+    ## weightResolution
+    expect_error(bettr(df = df, weightResolution = 2), 
+                 regexp = 'weightResolution must be a numeric scalar in', 
+                 fixed = TRUE)
+    expect_error(bettr(df = df, weightResolution = c(0.1, 0.2)), 
+                 regexp = 'weightResolution must be a numeric scalar in', 
+                 fixed = TRUE)
+    expect_error(bettr(df = df, weightResolution = -1), 
+                 regexp = 'weightResolution must be a numeric scalar in', 
+                 fixed = TRUE)
+    expect_error(bettr(df = df, weightResolution = "0.5"), 
+                 regexp = 'weightResolution must be a numeric scalar in', 
+                 fixed = TRUE)
+    
     ## bstheme
     expect_error(bettr(df = df, bstheme = "missing"),
                  regexp = "is not a known preset theme",
                  fixed = FALSE)
+    
+    ## appTitle
+    expect_error(bettr(df = df, appTitle = 2), 
+                 regexp = 'appTitle must be a character scalar', 
+                 fixed = TRUE)
+    expect_error(bettr(df = df, appTitle = c("t1", "t2")), 
+                 regexp = 'appTitle must be a character scalar', 
+                 fixed = TRUE)
 })
 
 test_that("bettr runs with valid inputs", {

@@ -10,10 +10,15 @@
         return(function(a) (a - min(a, na.rm = TRUE) + a - max(a, na.rm = TRUE)) /
                    (max(a, na.rm = TRUE) - min(a, na.rm = TRUE)))
     } else if (v == "Rank") {
-        return(function(a) order(order(a)))
+        return(function(a) {
+            s1 <- order(order(a))
+            s1[is.na(a)] <- NA
+            s1
+        })
     } else if (v == "Rank+[0,1]") {
         return(function(a) {
             s1 <- order(order(a))
+            s1[is.na(a)] <- NA
             (s1 - min(s1, na.rm = TRUE)) /
                 (max(s1, na.rm = TRUE) - min(s1, na.rm = TRUE))
         })

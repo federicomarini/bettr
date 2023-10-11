@@ -16,9 +16,6 @@
     if (!(idCol %in% colnames(df))) {
         stop("idCol must point to a column of df")
     }
-    if (!is.null(idInfo) && !(idCol %in% colnames(idInfo))) {
-        stop("idInfo must have a column named ", idCol)
-    }
     
     if (!all(metrics %in% colnames(df))) {
         stop("All elements of metrics must point to columns of df")
