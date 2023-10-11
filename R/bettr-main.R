@@ -68,6 +68,7 @@
 #' @importFrom rlang .data
 #' @importFrom stats setNames
 #' @importFrom Hmisc wtd.quantile
+#' @importFrom DT dataTableOutput renderDataTable
 #' 
 #' @examples 
 #' df <- data.frame(Method = c("M1", "M2", "M3"), metric1 = c(1, 2, 3),

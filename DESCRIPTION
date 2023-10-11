@@ -35,5 +35,6 @@ Imports:
     sortable,
     shinyjqui,
     grDevices,
-    scales
+    scales,
+    DT
 Config/testthat/edition: 3
