@@ -823,8 +823,7 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                                   metricGrouping = input$metricGrouping,
                                   labelSize = input$labelsize, 
                                   metricColors = prep$metricColors,
-                                  idColors = prep$idColors,
-                                  metricCollapseGroup = input$metricCollapseGroup)
+                                  idColors = prep$idColors)
             }
         })
         

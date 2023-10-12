@@ -9,7 +9,7 @@
 .makeParCoordPlot <- function(df, idCol, metricCol, valueCol, metricGroupCol,
                               methods, highlightMethod, 
                               metricGrouping, labelSize, 
-                              metricColors, idColors, metricCollapseGroup) {
+                              metricColors, idColors) {
     
     ## Define line widths -----------------------------------------------------
     lwidths <- rep(0.75, length(methods))

@@ -1,6 +1,7 @@
 #' @noRd
 #' 
 #' @importFrom dplyr group_by summarize arrange desc filter select contains
+#'   all_of
 #' @importFrom tidyr spread
 #' @importFrom tibble column_to_rownames tibble
 #' @importFrom rlang .data :=
@@ -16,9 +17,9 @@
                          showOnlyTopIds = FALSE, nbrTopIds = Inf,
                          rownamewidth_cm = 6, colnameheight_cm = 6) {
 
-    if (metricCollapseGroup && !is.null(df[[metricGroupCol]])) {
+    if (metricCollapseGroup && !is.null(metricInfo[[metricGrouping]])) {
         metricInfo <- metricInfo %>% 
-            dplyr::select(.data[[metricGrouping]]) %>%
+            dplyr::select(dplyr::all_of(metricGrouping)) %>%
             dplyr::distinct() %>% 
             dplyr::mutate("{ metricCol }" := .data[[metricGrouping]])
     }
