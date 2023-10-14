@@ -38,7 +38,7 @@
     pd
 }
 
-#' @importFrom dplyr group_by sumarize mutate ungroup
+#' @importFrom dplyr group_by summarize mutate ungroup
 .collapseLongData <- function(df, metricCollapseGroup, metricGrouping,
                               idCol, metricGroupCol, valueCol, weightCol, 
                               metricCol) {
