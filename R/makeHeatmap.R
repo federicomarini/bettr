@@ -26,9 +26,7 @@
     
     ## Matrix -----------------------------------------------------------------
     mat <- df %>%
-        dplyr::select(c(.data[[idCol]],
-                        .data[[metricCol]],
-                        .data[[valueCol]])) %>%
+        dplyr::select(dplyr::all_of(c(idCol, metricCol, valueCol))) %>%
         tidyr::spread(key = .data[[metricCol]],
                       value = .data[[valueCol]], fill = NA) %>%
         as.data.frame() %>%
@@ -53,8 +51,8 @@
     ## Match order of column annotations
     colAnnot <- df %>%
         dplyr::filter(!duplicated(.data[[metricCol]])) %>%
-        dplyr::select(c(metricCol, weightCol,
-                        dplyr::contains(metricGroupCol))) 
+        dplyr::select(dplyr::all_of(c(metricCol, weightCol)),
+                      dplyr::contains(metricGroupCol)) 
     if (metricGroupCol %in% colnames(colAnnot)) {
         colAnnot <- colAnnot %>%
             dplyr::arrange(.data[[metricGroupCol]])

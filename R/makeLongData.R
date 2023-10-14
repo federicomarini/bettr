@@ -3,10 +3,10 @@
 .makeLongData <- function(df, idCol, metrics, metricCol, valueCol,
                           metricGrouping, metricInfo, metricGroupCol) {
     pd <- df %>%
-        dplyr::select(.data[[idCol]], 
+        dplyr::select(dplyr::all_of(idCol), 
                       dplyr::contains(metrics)) %>%
         tidyr::pivot_longer(names_to = metricCol, values_to = valueCol,
-                            -.data[[idCol]])
+                            -dplyr::all_of(idCol))
     ## Add grouping of metrics
     if (metricGrouping != "---") {
         pd[[metricGroupCol]] <- 
