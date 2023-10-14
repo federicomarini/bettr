@@ -8,6 +8,7 @@ test_that("ParCoordPlot works", {
         Method = rep(paste0("M", seq_len(8)), 3),
         Metric = rep(paste0("S", seq_len(3)), each = 8),
         Group = rep(c("A", "A", "B"), each = 8),
+        NumCol = rep(c(1, 1, 2), each = 8),
         ScaledValue = c(7, 8, 6, 5, 4, 3, 2, 1, 8, 7, 5, 4, 6, 1, 3, 2, 8, 7, 3, 5, 2, 4, 6, 1),
         Weight = 0.2
     )
@@ -35,6 +36,18 @@ test_that("ParCoordPlot works", {
         highlightMethod = "---", idColors = list(Method = .gg_color_hue(8)),
         labelSize = 10, metricColors = list(Group = c("blue", "red")),
         metricGrouping = "Group"
+    )
+    bpp
+    expect_s3_class(bpp, "ggplot")
+    
+    plotdata$metricGroup <- plotdata$NumCol
+    bpp <- .makeParCoordPlot(
+        df = plotdata, idCol = "Method", 
+        metricCol = "Metric", valueCol = "ScaledValue", 
+        methods = unique(scoredata$Method), metricGroupCol = "metricGroup", 
+        highlightMethod = "---", idColors = list(Method = .gg_color_hue(8)),
+        labelSize = 10, metricColors = list(NumCol = circlize::colorRamp2(c(1, 2), c("white", "blue"))),
+        metricGrouping = "NumCol"
     )
     bpp
     expect_s3_class(bpp, "ggplot")
