@@ -407,6 +407,9 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
         ## Needs to use the processed data, since we must make sure that the 
         ## value that goes in the 'value' column is numeric
         longdata <- shiny::reactive({
+            shiny::validate(
+                shiny::need(procdata(), "")
+            )
             .makeLongData(df = procdata(), idCol = idCol, 
                           metrics = metricsInUse(), metricCol = metricCol,
                           valueCol = valueCol, 
@@ -417,38 +420,34 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
         
         ## Long-form data with weights
         longdataweights <- shiny::reactive({
-            pd <- longdata()
-            ## Add weight column for later score calculations
-            if (input$metricCollapseGroup && input$metricGrouping != "---") {
-                for (m in unique(pd[[metricGroupCol]])) {
-                    if (is.null(input[[paste0(input$metricGrouping, "_", m, "_weight")]])) {
-                        return(NULL)
-                    }
-                    pd[[weightCol]][pd[[metricGroupCol]] == m] <- 
-                        input[[paste0(input$metricGrouping, "_", m, "_weight")]]
-                }
-            } else {
-                for (m in metricsInUse()) {
-                    pd[[weightCol]][pd[[metricCol]] == m] <- 
-                        input[[paste0(m, "_weight")]]
-                }
-            }
-            pd
+            shiny::validate(
+                shiny::need(longdata(), "")
+            )
+            weightControls <- grep("_weight", names(input), value = TRUE)
+            names(weightControls) <- weightControls
+            .addWeightsToLongData(df = longdata(), 
+                                  metricCollapseGroup = input$metricCollapseGroup,
+                                  metricGrouping = input$metricGrouping,
+                                  metricGroupCol = metricGroupCol,
+                                  weights = lapply(weightControls, function(nm) {
+                                      input[[nm]]
+                                  }),
+                                  weightCol = weightCol, 
+                                  metrics = metricsInUse(),
+                                  metricCol = metricCol)
         })
         
         ## Collapsed data (average metrics)
         collapseddata <- shiny::reactive({
-            if (input$metricCollapseGroup && input$metricGrouping != "---") {
-                longdataweights() %>%
-                    dplyr::group_by(.data[[idCol]], .data[[metricGroupCol]]) %>%
-                    dplyr::summarize("{ valueCol }" := mean(.data[[valueCol]], na.rm = TRUE),
-                                     "{ weightCol }" := mean(.data[[weightCol]], na.rm = TRUE)) %>%
-                    dplyr::mutate("{ metricCol }" := .data[[metricGroupCol]]) %>%
-                    dplyr::ungroup() %>%
-                    as.data.frame()
-            } else {
-                longdataweights()
-            }
+            shiny::validate(
+                shiny::need(longdataweights(), "")
+            )
+            .collapseLongData(df = longdataweights(), 
+                              metricCollapseGroup = input$metricCollapseGroup,
+                              metricGrouping = input$metricGrouping,
+                              idCol = idCol, metricGroupCol = metricGroupCol,
+                              valueCol = valueCol, weightCol = weightCol, 
+                              metricCol = metricCol)
         })
         
         ## Calculate scores ---------------------------------------------------
@@ -539,6 +538,10 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
         
         ## Final filtered data ------------------------------------------------
         plotdata <- shiny::reactive({
+            shiny::validate(
+                shiny::need(collapseddata(), ""),
+                shiny::need(scoredata(), "")
+            )
             tmp <- collapseddata() %>%
                 dplyr::filter(.data[[idCol]] %in% scoredata()[[idCol]])
             tmp[[idCol]] <- factor(tmp[[idCol]], 
