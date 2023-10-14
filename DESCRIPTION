@@ -20,7 +20,7 @@ Roxygen: list(markdown = TRUE)
 Imports: 
     dplyr (>= 1.0),
     tidyr,
-    ggplot2,
+    ggplot2 (>= 3.4.1),
     shiny (>= 1.6),
     tibble,
     ComplexHeatmap,
