@@ -81,6 +81,9 @@ which weights can be specified using the sliders in the interface.}
 \item{appTitle}{Character scalar giving the title that will be used for
 the app. Defaults to 'bettr'.}
 }
+\value{
+A shiny application
+}
 \description{
 Launch bettr app to explore and aggregate performance metrics
 }

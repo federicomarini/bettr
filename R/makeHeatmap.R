@@ -6,9 +6,9 @@
 #'   Heatmap draw
 #' @importFrom grid gpar unit
 #' @importFrom circlize colorRamp2
-.makeHeatmap <- function(df, scores, idCol, metricCol, valueCol, weightCol, scoreCol, 
-                         metricGroupCol, metricInfo, idInfo, labelSize, 
-                         idColors, metricColors,
+.makeHeatmap <- function(df, scores, idCol, metricCol, valueCol, weightCol, 
+                         scoreCol, metricGroupCol, metricInfo, idInfo,
+                         labelSize, idColors, metricColors,
                          metricCollapseGroup, metricGrouping, showRowNames, 
                          showOnlyTopIds = FALSE, nbrTopIds = Inf,
                          rownamewidth_cm = 6, colnameheight_cm = 6) {
@@ -114,18 +114,18 @@
     maxmat <- max(mat, na.rm = TRUE)
     if (minmat < 0) {
         if (maxmat <= 0) {
-            heatmapCols = circlize::colorRamp2(
+            heatmapCols <- circlize::colorRamp2(
                 c(minmat, maxmat), 
                 c("blue", "#EEEEEE")
             )
         } else if (maxmat > 0) {
-            heatmapCols = circlize::colorRamp2(
+            heatmapCols <- circlize::colorRamp2(
                 c(minmat, 0, maxmat), 
                 c("blue", "#EEEEEE", "red")
             )
         }
     } else {
-        heatmapCols = circlize::colorRamp2(
+        heatmapCols <- circlize::colorRamp2(
             c(minmat, maxmat), 
             c("#EEEEEE", "red")
         )

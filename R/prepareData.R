@@ -29,7 +29,8 @@
         idColors <- .generateColors(idInfo, idColors, ggplot2Columns = idCol)
     }
     
-    if (!is.null(metricInfo) && length(setdiff(colnames(metricInfo), metricCol)) == 0) {
+    if (!is.null(metricInfo) && length(setdiff(colnames(metricInfo), 
+                                               metricCol)) == 0) {
         metricInfo <- NULL
     }
     if (is.null(metricInfo)) {

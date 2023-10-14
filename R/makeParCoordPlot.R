@@ -39,11 +39,14 @@
                 ggplot2::scale_fill_gradientn(
                     colors = do.call(metricColors[[metricGrouping]], 
                                      list(sort(unique(tmp[[metricGroupCol]])))), 
-                    values = scales::rescale(sort(unique(tmp[[metricGroupCol]])))
+                    values = scales::rescale(sort(
+                        unique(tmp[[metricGroupCol]])))
                 )
         } else {
             gp <- gp + 
-                ggplot2::scale_fill_manual(values = metricColors[[metricGrouping]])
+                ggplot2::scale_fill_manual(
+                    values = metricColors[[metricGrouping]]
+                )
         }
     } else {
         tmp <- df

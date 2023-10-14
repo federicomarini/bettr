@@ -29,12 +29,14 @@
             ggplot2::coord_polar() + 
             ggplot2::scale_fill_manual(values = metricColors[[metricCol]]) + 
             ggplot2::theme_minimal() +
-            ggplot2::theme(axis.text = ggplot2::element_blank(),
-                           legend.text = ggplot2::element_text(size = labelSize),
-                           legend.title = ggplot2::element_text(size = labelSize),
-                           plot.background = ggplot2::element_blank(),
-                           plot.margin = grid::unit(c(0, 0, 0, 0), "cm"),
-                           panel.spacing = grid::unit(0, "cm")) + 
+            ggplot2::theme(
+                axis.text = ggplot2::element_blank(),
+                legend.text = ggplot2::element_text(size = labelSize),
+                legend.title = ggplot2::element_text(size = labelSize),
+                plot.background = ggplot2::element_blank(),
+                plot.margin = grid::unit(c(0, 0, 0, 0), "cm"),
+                panel.spacing = grid::unit(0, "cm")
+            ) + 
             ggplot2::labs(x = "", y = "")
     })
     names(rplots) <- methods
