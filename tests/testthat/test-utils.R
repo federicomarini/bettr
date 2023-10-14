@@ -7,7 +7,7 @@ test_that("utils work", {
                                        metrics = c("A1", "B1"),
                                        initialWeightValue = 1,
                                        weightResolution = 0.05),
-                 c(A = 0.10, B = 0.75))
+                 c(A = 0.10, B = 0.75, A1 = 1, B1 = 1))
     
     p1 <- .makeMetricSummaryPlot(x = rnorm(10))
     p1
