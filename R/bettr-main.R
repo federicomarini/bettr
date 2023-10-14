@@ -725,12 +725,15 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
         ## Score table --------------------------------------------------------
         output$scoreTable <- DT::renderDT({
             tmpdf <- plotdata() %>%
+                dplyr::mutate("{valueCol}" := signif(.data[[valueCol]], 
+                                                     digits = 4)) %>%
                 dplyr::select(-.data[[weightCol]]) %>%
                 tidyr::pivot_wider(names_from = .data[[metricCol]], 
                                    values_from = .data[[valueCol]]) %>%
                 dplyr::left_join(scoredata(), by = idCol) %>%
                 dplyr::mutate("{scoreCol}" := signif(.data[[scoreCol]], 
-                                                     digits = 4))
+                                                     digits = 4)) %>%
+                dplyr::relocate(dplyr::all_of(idCol))
             if (input$id_ordering == "high-to-low") {
                 tmpdf %>%
                     dplyr::arrange(dplyr::desc(.data[[scoreCol]]))
@@ -738,7 +741,10 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                 tmpdf %>%
                     dplyr::arrange(.data[[scoreCol]])
             }
-        })
+        }, filter = list(position = "top", clear = FALSE), 
+        extensions = "Buttons",
+        options = list(scrollX = TRUE, pageLength = 100,
+                       dom = "Bfrtip", buttons = c("csv")))
         
         ## Parallel coordinates plot ------------------------------------------
         output$bettrParCoordplotUI <- shiny::renderUI({
