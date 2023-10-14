@@ -64,7 +64,7 @@
 #'   sliderInput shinyApp
 #' @importFrom sortable rank_list
 #' @importFrom shinyjqui jqui_resizable
-#' @importFrom dplyr filter select mutate left_join arrange %>%
+#' @importFrom dplyr filter select mutate left_join arrange %>% relocate
 #' @importFrom bslib bs_theme sidebar accordion accordion_panel page_sidebar
 #' @importFrom rlang .data
 #' @importFrom DT DTOutput renderDT
