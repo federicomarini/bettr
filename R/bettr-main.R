@@ -67,7 +67,7 @@
 #' @importFrom dplyr filter select mutate left_join arrange %>%
 #' @importFrom bslib bs_theme sidebar accordion accordion_panel page_sidebar
 #' @importFrom rlang .data
-#' @importFrom DT dataTableOutput renderDataTable
+#' @importFrom DT DTOutput renderDT
 #' 
 #' @examples 
 #' df <- data.frame(Method = c("M1", "M2", "M3"), metric1 = c(1, 2, 3),
@@ -312,7 +312,7 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                         "This data table contains the transformed values of all metrics, as well as the aggregated scores."
                     ),
                     shiny::br(),
-                    DT::dataTableOutput(outputId = "scoreTable")
+                    DT::DTOutput(outputId = "scoreTable")
                 )
             )
         )
@@ -723,7 +723,7 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
         })
         
         ## Score table --------------------------------------------------------
-        output$scoreTable <- DT::renderDataTable({
+        output$scoreTable <- DT::renderDT({
             tmpdf <- plotdata() %>%
                 dplyr::select(-.data[[weightCol]]) %>%
                 tidyr::pivot_wider(names_from = .data[[metricCol]], 
