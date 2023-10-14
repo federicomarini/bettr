@@ -407,18 +407,12 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
         ## Needs to use the processed data, since we must make sure that the 
         ## value that goes in the 'value' column is numeric
         longdata <- shiny::reactive({
-            pd <- procdata() %>%
-                dplyr::select(.data[[idCol]], 
-                              dplyr::contains(metricsInUse())) %>%
-                tidyr::gather(key = "Metric", value = "ScaledValue", 
-                              -.data[[idCol]])
-            ## Add grouping of metrics
-            if (input$metricGrouping != "---") {
-                pd[[metricGroupCol]] <- 
-                    values$metricInfo[[input$metricGrouping]][
-                        match(pd$Metric, values$metricInfo[[metricCol]])]
-            }
-            pd
+            .makeLongData(df = procdata(), idCol = idCol, 
+                          metrics = metricsInUse(), metricCol = metricCol,
+                          valueCol = valueCol, 
+                          metricGrouping = input$metricGrouping, 
+                          metricInfo = metricInfo,
+                          metricGroupCol = metricGroupCol)
         })
         
         ## Long-form data with weights
