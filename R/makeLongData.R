@@ -1,5 +1,5 @@
 #' @importFrom tidyr pivot_longer 
-#' @importFrom dplyr select contains
+#' @importFrom dplyr select contains all_of
 .makeLongData <- function(df, idCol, metrics, metricCol, valueCol,
                           metricGrouping, metricInfo, metricGroupCol) {
     pd <- df %>%
@@ -54,5 +54,3 @@
         df
     }
 }
-
-

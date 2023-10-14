@@ -1,3 +1,4 @@
+#' @importFrom stats setNames
 .prepareData <- function(df, idCol, metrics, initialWeights,
                          initialTransforms, metricInfo, metricColors, 
                          idInfo, idColors, weightResolution, metricCol, 

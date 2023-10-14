@@ -1,12 +1,9 @@
-#' @noRd
-#' 
-#' @importFrom dplyr filter group_by summarize arrange desc pull mutate
+#' @importFrom dplyr filter pull mutate
 #' @importFrom rlang .data :=
 #' @importFrom ggplot2 ggplot aes geom_col ylim coord_polar theme_minimal 
 #'   theme element_blank labs geom_bar expand_limits element_text
 #' @importFrom cowplot draw_plot get_legend plot_grid
 #' @importFrom grid unit
-#' 
 .makeBarPolarPlot <- function(df, scores, idCol, metricCol, valueCol, 
                               weightCol, scoreCol, metricGroupCol, 
                               methods, labelSize,

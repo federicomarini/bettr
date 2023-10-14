@@ -1,7 +1,4 @@
-#' @noRd
-#' 
-#' @importFrom dplyr group_by summarize arrange desc filter select contains
-#'   all_of
+#' @importFrom dplyr arrange filter select contains all_of
 #' @importFrom tidyr spread
 #' @importFrom tibble column_to_rownames tibble
 #' @importFrom rlang .data :=
@@ -9,7 +6,6 @@
 #'   Heatmap draw
 #' @importFrom grid gpar unit
 #' @importFrom circlize colorRamp2
-#' 
 .makeHeatmap <- function(df, scores, idCol, metricCol, valueCol, weightCol, scoreCol, 
                          metricGroupCol, metricInfo, idInfo, labelSize, 
                          idColors, metricColors,

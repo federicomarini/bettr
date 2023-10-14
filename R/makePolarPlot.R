@@ -1,10 +1,6 @@
-#' @noRd
-#' 
-#' @importFrom dplyr group_by summarize arrange desc pull mutate
-#' @importFrom rlang .data :=
+#' @importFrom rlang .data
 #' @importFrom ggplot2 ggplot aes geom_col coord_polar facet_wrap 
 #'   theme_minimal theme element_blank
-#' 
 .makePolarPlot <- function(df, scores, idCol, metricCol, valueCol, weightCol, 
                            scoreCol, metricGroupCol, labelSize, 
                            metricColors, metricCollapseGroup, metricGrouping,

@@ -5,7 +5,6 @@
 #' 
 #' @importFrom circlize colorRamp2
 #' @importFrom grDevices colors
-#' 
 .generateColors <- function(df, inputColors, ggplot2Columns = c()) {
     if (is.null(df)) {
         return(NULL)

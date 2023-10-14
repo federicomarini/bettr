@@ -61,13 +61,9 @@
 #'   sliderInput shinyApp
 #' @importFrom sortable rank_list
 #' @importFrom shinyjqui jqui_resizable
-#' @importFrom dplyr filter select any_of group_by summarize mutate ungroup 
-#'   left_join slice_max arrange slice_min %>%
-#' @importFrom tidyr gather
+#' @importFrom dplyr filter select mutate left_join arrange %>%
 #' @importFrom bslib bs_theme sidebar accordion accordion_panel page_sidebar
 #' @importFrom rlang .data
-#' @importFrom stats setNames
-#' @importFrom Hmisc wtd.quantile
 #' @importFrom DT dataTableOutput renderDataTable
 #' 
 #' @examples 

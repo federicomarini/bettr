@@ -1,7 +1,4 @@
-#' @noRd
-#' 
 #' @importFrom methods is
-#' 
 .checkInputArguments <- function(df, idCol, metrics,
                                  metricCol, initialWeights, initialTransforms, 
                                  metricInfo, idInfo, weightResolution, bstheme,
