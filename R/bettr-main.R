@@ -327,8 +327,8 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
             df = df,
             metrics = metrics,
             nMetrics = length(metrics),
-            metricInfo = metricInfo,
-            idInfo = idInfo,
+            metricInfo = prep$metricInfo,
+            idInfo = prep$idInfo,
             methods = unique(df[[idCol]]),
             currentWeights = prep$initialWeights
         )
@@ -340,37 +340,18 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                 shiny::need(input$keepIds, "No keepIds"),
                 shiny::need(input$keepMetrics, "No keepMetrics")
             )
-            if (!is.null(values$idInfo)) {
-                idFilt <- values$idInfo
-                for (nm in setdiff(colnames(values$idInfo), idCol)) {
-                    idFilt <- idFilt %>%
-                        dplyr::filter(.data[[nm]] %in% 
-                                          input[[paste0("keepIdBy_", nm)]])
-                }
-                tmp <- values$df %>%
-                    dplyr::filter(.data[[idCol]] %in% intersect(input$keepIds, 
-                                                                idFilt[[idCol]]))
-            } else {
-                tmp <- values$df %>%
-                    dplyr::filter(.data[[idCol]] %in% input$keepIds)
-            }
-            
-            if (!is.null(values$metricInfo)) {
-                metricFilt <- values$metricInfo
-                for (nm in setdiff(colnames(values$metricInfo), metricCol)) {
-                    metricFilt <- metricFilt %>%
-                        dplyr::filter(.data[[nm]] %in% 
-                                          input[[paste0("keepMetricBy_", nm)]])
-                }
-                tmp <- tmp %>%
-                    dplyr::select(-dplyr::any_of(
-                        setdiff(values$metrics, intersect(input$keepMetrics,
-                                                          metricFilt[[metricCol]]))))
-            } else {
-                tmp <- tmp %>%
-                    dplyr::select(-dplyr::any_of(setdiff(values$metrics, input$keepMetrics)))
-            }
-            tmp
+            idFilters <- setdiff(colnames(values$idInfo), idCol)
+            metricFilters <- setdiff(colnames(values$metricInfo), metricCol)
+            .filterData(
+                df = values$df, idInfo = values$idInfo, idCol = idCol,
+                keepIds = input$keepIds,
+                keepIdsBy = lapply(structure(idFilters, names = idFilters),
+                                   function(nm) input[[paste0("keepIdBy_", nm)]]),
+                metricInfo = values$metricInfo,
+                metricCol = metricCol, keepMetrics = input$keepMetrics,
+                keepMetricsBy = lapply(structure(metricFilters, names = metricFilters),
+                                       function(nm) input[[paste0("keepMetricBy_", nm)]]),
+                metrics = values$metrics)
         })
         
         ## Record retained metrics and methods
