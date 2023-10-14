@@ -1,3 +1,7 @@
+# bettr 0.2.1
+
+* Add table view
+
 # bettr 0.2.0
 
 * New layout with collapsible side panel
