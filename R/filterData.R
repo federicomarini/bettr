@@ -1,3 +1,4 @@
+#' @importFrom dplyr filter select any_of
 .filterData <- function(df, idInfo, idCol, keepIds, keepIdsBy, metricInfo,
                         metricCol, keepMetrics, keepMetricsBy, metrics) {
     if (!is.null(idInfo)) {
