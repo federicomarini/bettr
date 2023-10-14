@@ -187,6 +187,10 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                             label = "Heatmap height (manual)",
                             value = 600, min = 100, max = 1000
                         ),
+                        shiny::actionButton(
+                            inputId = "autoAdjustHmHeight",
+                            label = "Auto-adjust height"
+                        ),
                         shiny::numericInput(
                             inputId = "hm_rownamewidth",
                             label = "Heatmap row name max width (cm)",
@@ -491,12 +495,14 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                 dplyr::filter(.data[[idCol]] %in% scoredata()[[idCol]])
             tmp[[idCol]] <- factor(tmp[[idCol]], 
                                    levels = scoredata()[[idCol]])
-            shiny::updateNumericInput(
-                session, "hmheight",
-                value = 200 + 35 * length(unique(tmp[[idCol]]))
-            )
             tmp
         })
+        
+        observeEvent(input$autoAdjustHmHeight, 
+                     shiny::updateNumericInput(
+                         session, "hmheight",
+                         value = 200 + 35 * length(unique(plotdata()[[idCol]]))
+                     ))
 
         ## UI element to filter methods by grouping columns -------------------
         output$idFilterByInfoUI <- shiny::renderUI({
