@@ -16,6 +16,9 @@
     )
     
     ## Define annotation colors -----------------------------------------------
+    if (!is.null(idInfo) && length(setdiff(colnames(idInfo), idCol)) == 0) {
+        idInfo <- NULL
+    }
     if (is.null(idInfo)) {
         idColors <- .generateColors(
             data.frame(id = unique(df[[idCol]])) %>% stats::setNames(idCol),
@@ -25,6 +28,9 @@
         idColors <- .generateColors(idInfo, idColors, ggplot2Columns = idCol)
     }
     
+    if (!is.null(metricInfo) && length(setdiff(colnames(metricInfo), metricCol)) == 0) {
+        metricInfo <- NULL
+    }
     if (is.null(metricInfo)) {
         metricColors <- .generateColors(
             data.frame(metric = metrics) %>% stats::setNames(metricCol),
@@ -55,5 +61,6 @@
          metrics_cat = metrics_cat, idColors = idColors, 
          metricColors = metricColors, initialTransforms = initialTransforms,
          metricsWithWeights = metricsWithWeights, 
-         initialWeights = initialWeights)
+         initialWeights = initialWeights, 
+         idInfo = idInfo, metricInfo = metricInfo)
 }
