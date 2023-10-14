@@ -12,6 +12,11 @@ test_that("bettr stops with invalid inputs", {
     expect_error(bettr(df = as.matrix(df)),
                  regexp = 'df must be a data.frame',
                  fixed = TRUE)
+    df0 <- df
+    colnames(df0)[2] <- "m 1"
+    expect_error(bettr(df = df0), 
+                 regexp = 'All metrics must be valid names',
+                 fixed = TRUE)
 
     ## idCol
     expect_error(bettr(df = df, idCol = 1),

@@ -18,6 +18,11 @@
         stop("All elements of metrics must point to columns of df")
     }
     
+    if (!all(metrics == make.names(metrics))) {
+        stop("All metrics must be valid names (i.e., no spaces or special ",
+             "characters). Please modify the metric names accordingly.")
+    }
+    
     if (!is.null(initialWeights)) {
         if (!(is.numeric(initialWeights) && 
               !is.null(names(initialWeights)) &&
