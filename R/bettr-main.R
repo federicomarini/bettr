@@ -452,87 +452,21 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
         
         ## Calculate scores ---------------------------------------------------
         scoredata <- shiny::reactive({
-            if (input$scoreMethod == "weighted mean") {
-                scoreDf <- collapseddata() %>%
-                    dplyr::group_by(.data[[idCol]]) %>%
-                    dplyr::summarize(
-                        "{scoreCol}" := sum(.data[[weightCol]] *
-                                                .data[[valueCol]],
-                                            na.rm = TRUE) / 
-                            sum(.data[[weightCol]] * !is.na(.data[[valueCol]]), 
-                                na.rm = TRUE)
-                    ) 
-            } else if (input$scoreMethod == "weighted median") {
-                scoreDf <- collapseddata() %>%
-                    dplyr::group_by(.data[[idCol]]) %>%
-                    dplyr::summarize(
-                        "{scoreCol}" := as.numeric(Hmisc::wtd.quantile(
-                            x = .data[[valueCol]], 
-                            w = .data[[weightCol]],
-                            probs = 0.5,
-                            na.rm = TRUE))
-                    ) 
-            } else if (input$scoreMethod == "weighted fraction highest") {
-                scoreDf <- collapseddata() %>%
-                    dplyr::group_by(.data[[metricCol]]) %>%
-                    dplyr::mutate(
-                        tempScore = (.data[[valueCol]] == 
-                                         max(.data[[valueCol]], na.rm = TRUE))
-                    ) %>%
-                    dplyr::ungroup() %>%
-                    dplyr::group_by(.data[[idCol]]) %>%
-                    dplyr::summarize(
-                        "{scoreCol}" := sum(
-                            .data[[weightCol]] * .data$tempScore,
-                            na.rm = TRUE) / 
-                            sum(.data[[weightCol]] * !is.na(.data[[valueCol]]), 
-                                na.rm = TRUE)
-                    ) 
-            } else if (input$scoreMethod == "weighted fraction lowest") {
-                scoreDf <- collapseddata() %>%
-                    dplyr::group_by(.data[[metricCol]]) %>%
-                    dplyr::mutate(
-                        tempScore = (.data[[valueCol]] == 
-                                         min(.data[[valueCol]], na.rm = TRUE))
-                    ) %>%
-                    dplyr::ungroup() %>%
-                    dplyr::group_by(.data[[idCol]]) %>%
-                    dplyr::summarize(
-                        "{scoreCol}" := sum(
-                            .data[[weightCol]] * .data$tempScore,
-                            na.rm = TRUE) / 
-                            sum(.data[[weightCol]] * !is.na(.data[[valueCol]]), 
-                                na.rm = TRUE)
-                    ) 
-            }
-            if (!is.null(values$idInfo)) {
-                scoreDf <- scoreDf %>%
-                    dplyr::left_join(idInfo, 
-                                     by = idCol)
-                if (input$idTopNGrouping != "---") {
-                    scoreDf <- scoreDf %>%
-                        dplyr::group_by(.data[[input$idTopNGrouping]])
-                }
-            }
-            if (input$id_ordering == "high-to-low") {
-                if (input$showOnlyTopIds) {
-                    scoreDf <- scoreDf %>%
-                        dplyr::slice_max(order_by = .data[[scoreCol]],
-                                         n = input$nbrTopIds)
-                }
-                scoreDf <- scoreDf %>%
-                    dplyr::ungroup() %>% 
-                    dplyr::arrange(dplyr::desc(.data[[scoreCol]]))
-            } else {
-                if (input$showOnlyTopIds) {
-                    scoreDf <- scoreDf %>%
-                        dplyr::slice_min(order_by = .data[[scoreCol]],
-                                         n = input$nbrTopIds)
-                }
-                scoreDf <- scoreDf %>%
-                    dplyr::ungroup() %>%
-                    dplyr::arrange(.data[[scoreCol]])
-            }
+            shiny::validate(
+                shiny::need(collapseddata(), "")
+            )
+            scoreDf <- .calculateScores(df = collapseddata(), 
+                                        scoreMethod = input$scoreMethod, 
+                                        idCol = idCol, scoreCol = scoreCol, 
+                                        weightCol = weightCol, valueCol = valueCol, 
+                                        metricCol = metricCol)
+            scoreDf <- .sortAndFilterScoreData(scoreDf = scoreDf, 
+                                               idInfo = values$idInfo, 
+                                               idCol = idCol, scoreCol = scoreCol,
+                                               idTopNGrouping = input$idTopNGrouping,
+                                               idOrdering = input$id_ordering,
+                                               showOnlyTopIds = input$showOnlyTopIds, 
+                                               nbrTopIds = input$nbrTopIds)
             scoreDf
         })
         
