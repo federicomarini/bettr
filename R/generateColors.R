@@ -5,7 +5,6 @@
 #' 
 #' @importFrom circlize colorRamp2
 #' @importFrom grDevices colors
-#' 
 .generateColors <- function(df, inputColors, ggplot2Columns = c()) {
     if (is.null(df)) {
         return(NULL)
@@ -21,7 +20,8 @@
              function(x) {
                  if (is.numeric(x)) {
                      circlize::colorRamp2(range(x), 
-                                          c("white", sample(grDevices::colors(), 1)))
+                                          c("white", 
+                                            sample(grDevices::colors(), 1)))
                  } else {
                      structure(sample(grDevices::colors(), length(unique(x))),
                                names = as.character(unique(x)))
@@ -43,7 +43,7 @@
 ## https://stackoverflow.com/questions/8197559/emulate-ggplot2-default-color-palette
 #' @importFrom grDevices hcl
 .gg_color_hue <- function(n) {
-  hues = seq(15, 375, length = n + 1)
-  grDevices::hcl(h = hues, l = 65, c = 100)[seq_len(n)]
+    hues <- seq(15, 375, length = n + 1)
+    grDevices::hcl(h = hues, l = 65, c = 100)[seq_len(n)]
 }
 

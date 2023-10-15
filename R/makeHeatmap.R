@@ -1,67 +1,36 @@
-#' @noRd
-#' 
-#' @importFrom dplyr group_by summarize arrange desc filter select contains
+#' @importFrom dplyr arrange filter select contains all_of
 #' @importFrom tidyr spread
 #' @importFrom tibble column_to_rownames tibble
 #' @importFrom rlang .data :=
 #' @importFrom ComplexHeatmap rowAnnotation anno_barplot columnAnnotation 
-#'   Heatmap
-#' @importFrom grid gpar
+#'   Heatmap draw
+#' @importFrom grid gpar unit
 #' @importFrom circlize colorRamp2
-#' 
-.makeHeatmap <- function(df, idCol, metricCol, valueCol, weightCol, scoreCol, 
-                         groupCol, metricInfo, idInfo, labelSize, 
-                         ordering = "high-to-low", idColors, metricColors,
-                         collapseGroup, metricGrouping, showRowNames) {
-    if (!(ordering %in% c("high-to-low", "low-to-high"))) {
-        stop("ordering must be 'high-to-low' or 'low-to-high'")
-    }
-    
-    if (collapseGroup && !is.null(df[[groupCol]])) {
-        df <- df %>%
-            dplyr::group_by(.data[[idCol]], .data[[groupCol]]) %>%
-            dplyr::summarize("{ valueCol }" := mean(.data[[valueCol]], na.rm = TRUE),
-                             "{ weightCol }" := mean(.data[[weightCol]], na.rm = TRUE)) %>%
-            dplyr::mutate("{ metricCol }" := .data[[groupCol]]) %>%
-            dplyr::ungroup() %>%
-            as.data.frame()
+.makeHeatmap <- function(df, scores, idCol, metricCol, valueCol, weightCol, 
+                         scoreCol, metricGroupCol, metricInfo, idInfo,
+                         labelSize, idColors, metricColors,
+                         metricCollapseGroup, metricGrouping, showRowNames, 
+                         showOnlyTopIds = FALSE, nbrTopIds = Inf,
+                         rownamewidth_cm = 6, colnameheight_cm = 6) {
+
+    if (metricCollapseGroup && !is.null(metricInfo[[metricGrouping]])) {
         metricInfo <- metricInfo %>% 
-            dplyr::select(.data[[metricGrouping]]) %>%
+            dplyr::select(dplyr::all_of(metricGrouping)) %>%
             dplyr::distinct() %>% 
             dplyr::mutate("{ metricCol }" := .data[[metricGrouping]])
     }
     
-    ## Get ordering by score --------------------------------------------------
-    rowAnnot <- df %>%
-        dplyr::group_by(.data[[idCol]]) %>%
-        dplyr::summarize(
-            "{scoreCol}" := sum(.data[[weightCol]] *
-                                    .data[[valueCol]],
-                                na.rm = TRUE)
-        ) 
-    if (ordering == "high-to-low") {
-        rowAnnot <- rowAnnot %>%
-            dplyr::arrange(dplyr::desc(.data[[scoreCol]]))
-    } else {
-        rowAnnot <- rowAnnot %>%
-            dplyr::arrange(.data[[scoreCol]])
-    }
-    
     ## Matrix -----------------------------------------------------------------
-    tmp <- df
-    tmp[[idCol]] <- factor(tmp[[idCol]], 
-                           levels = rowAnnot[[idCol]])
-    mat <- tmp %>%
-        dplyr::select(c(.data[[idCol]],
-                        .data[[metricCol]],
-                        .data[[valueCol]])) %>%
+    mat <- df %>%
+        dplyr::select(dplyr::all_of(c(idCol, metricCol, valueCol))) %>%
         tidyr::spread(key = .data[[metricCol]],
                       value = .data[[valueCol]], fill = NA) %>%
         as.data.frame() %>%
         tibble::column_to_rownames(var = idCol) %>%
         as.matrix()
-
+    
     ## Match order of row annotations
+    rowAnnot <- scores
     rowAnnot <- rowAnnot[match(rownames(mat), 
                                rowAnnot[[idCol]]), ,
                          drop = FALSE] %>% as.data.frame()
@@ -74,15 +43,15 @@
         rownames(idInfo) <- idInfo[[idCol]]
         idInfo[[idCol]] <- NULL
     }
-
+    
     ## Match order of column annotations
     colAnnot <- df %>%
         dplyr::filter(!duplicated(.data[[metricCol]])) %>%
-        dplyr::select(c(metricCol, weightCol,
-                        dplyr::contains(groupCol))) 
-    if (groupCol %in% colnames(colAnnot)) {
+        dplyr::select(dplyr::all_of(c(metricCol, weightCol)),
+                      dplyr::contains(metricGroupCol)) 
+    if (metricGroupCol %in% colnames(colAnnot)) {
         colAnnot <- colAnnot %>%
-            dplyr::arrange(.data[[groupCol]])
+            dplyr::arrange(.data[[metricGroupCol]])
         mat <- mat[, match(colAnnot[[metricCol]], 
                            colnames(mat)), drop = FALSE]
     }
@@ -90,11 +59,11 @@
         colAnnot[match(colnames(mat), 
                        colAnnot[[metricCol]]), , 
                  drop = FALSE]) %>% 
-        dplyr::select(-contains(groupCol)) %>%
+        dplyr::select(-contains(metricGroupCol)) %>%
         as.data.frame()
     rownames(colAnnot) <- colAnnot[[metricCol]]
     colAnnot[[metricCol]] <- NULL
-
+    
     if (!is.null(metricInfo)) {
         metricInfo <- metricInfo[match(colnames(mat), 
                                        metricInfo[[metricCol]]), , 
@@ -102,7 +71,7 @@
         rownames(metricInfo) <- metricInfo[[metricCol]]
         metricInfo[[metricCol]] <- NULL
     }
-
+    
     ## Create annotations -----------------------------------------------------
     rowAnnotRight <- ComplexHeatmap::rowAnnotation(
         Score = ComplexHeatmap::anno_barplot(
@@ -140,29 +109,29 @@
     } else {
         colAnnotBottom <- NULL
     }
-
+    
     minmat <- min(mat, na.rm = TRUE)
     maxmat <- max(mat, na.rm = TRUE)
     if (minmat < 0) {
         if (maxmat <= 0) {
-            heatmapCols = circlize::colorRamp2(
+            heatmapCols <- circlize::colorRamp2(
                 c(minmat, maxmat), 
                 c("blue", "#EEEEEE")
             )
         } else if (maxmat > 0) {
-            heatmapCols = circlize::colorRamp2(
+            heatmapCols <- circlize::colorRamp2(
                 c(minmat, 0, maxmat), 
                 c("blue", "#EEEEEE", "red")
             )
         }
     } else {
-        heatmapCols = circlize::colorRamp2(
+        heatmapCols <- circlize::colorRamp2(
             c(minmat, maxmat), 
             c("#EEEEEE", "red")
         )
     }
-
-    ComplexHeatmap::Heatmap(
+    
+    hm <- ComplexHeatmap::Heatmap(
         matrix = mat, name = "Relative\nvalue",
         col = heatmapCols,
         na_col = "white",
@@ -172,7 +141,9 @@
         show_row_names = showRowNames,
         row_names_side = "left",
         row_names_gp = grid::gpar(fontsize = labelSize),
+        row_names_max_width = grid::unit(rownamewidth_cm, "cm"),
         column_names_gp = grid::gpar(fontsize = labelSize),
+        column_names_max_height = grid::unit(colnameheight_cm, "cm"),
         row_title = idCol,
         column_title = metricCol,
         column_title_side = "bottom",
@@ -181,4 +152,5 @@
         right_annotation = rowAnnotRight,
         left_annotation = rowAnnotLeft
     )
+    ComplexHeatmap::draw(hm)
 }

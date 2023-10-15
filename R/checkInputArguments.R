@@ -1,7 +1,4 @@
-#' @noRd
-#' 
 #' @importFrom methods is
-#' 
 .checkInputArguments <- function(df, idCol, metrics,
                                  metricCol, initialWeights, initialTransforms, 
                                  metricInfo, idInfo, weightResolution, bstheme,
@@ -16,20 +13,22 @@
     if (!(idCol %in% colnames(df))) {
         stop("idCol must point to a column of df")
     }
-    if (!is.null(idInfo) && !(idCol %in% colnames(idInfo))) {
-        stop("idInfo must have a column named ", idCol)
-    }
     
     if (!all(metrics %in% colnames(df))) {
         stop("All elements of metrics must point to columns of df")
     }
     
+    if (!all(metrics == make.names(metrics))) {
+        stop("All metrics must be valid names (i.e., no spaces or special ",
+             "characters). Please modify the metric names accordingly.")
+    }
+    
     if (!is.null(initialWeights)) {
         if (!(is.numeric(initialWeights) && 
               !is.null(names(initialWeights)) &&
-               all(metrics %in% names(initialWeights)) &&
-               !all(initialWeights == 0) && 
-               all(initialWeights >= 0) && all(initialWeights <= 1))) {
+              all(metrics %in% names(initialWeights)) &&
+              !all(initialWeights == 0) && 
+              all(initialWeights >= 0) && all(initialWeights <= 1))) {
             stop("initialWeights must be a named numeric vector with ",
                  "values between 0 and 1, and with one value for each metric")
         }
@@ -45,6 +44,9 @@
         if (!all(metrics %in% metricInfo[[metricCol]])) {
             stop("metricInfo must contain information about all metrics")
         }
+        if (any(c("input", "output") %in% colnames(metricInfo))) {
+            stop("metricInfo can not have columns named 'input' or 'output'")
+        }
     }
     
     if (!is.null(idInfo)) {
@@ -56,6 +58,9 @@
         }
         if (!all(df[[idCol]] %in% idInfo[[idCol]])) {
             stop("idInfo must contain information about all entities")
+        }
+        if (any(c("input", "output") %in% colnames(idInfo))) {
+            stop("idInfo can not have columns named 'input' or 'output'")
         }
     }
     

@@ -1,5 +1,3 @@
-#' @noRd
-#' 
 .assignInitialWeights <- function(weights, metrics, initialWeightValue,
                                   weightResolution = 0.05) {
     if (is.null(weights)) {
@@ -8,16 +6,19 @@
     } else {
         ## Round initial weights to right resolution to fit with the sliders
         weights <- round(weights * (1/weightResolution)) / (1/weightResolution)
+        missing_metrics <- setdiff(metrics, names(weights))
+        if (length(missing_metrics) > 0) {
+            weights_add <- rep(initialWeightValue, length(missing_metrics))
+            names(weights_add) <- missing_metrics
+            weights <- c(weights, weights_add)
+        }
     }
     weights
 }
 
-#' @noRd
-#' 
 #' @importFrom cowplot plot_grid
 #' @importFrom ggplot2 ggplot aes geom_bar theme_minimal geom_boxplot 
 #'   geom_jitter coord_flip
-#'   
 .makeMetricSummaryPlot <- function(x) {
     cowplot::plot_grid(
         ggplot2::ggplot(data.frame(metric = x),

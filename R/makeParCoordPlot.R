@@ -1,24 +1,12 @@
-#' @noRd
-#' 
 #' @importFrom dplyr arrange mutate
 #' @importFrom rlang .data :=
 #' @importFrom scales rescale
 #' @importFrom ggplot2 ggplot aes geom_boxplot geom_line geom_point 
-#'   scale_size_manual theme_minimal theme element_text scale_fill_manual
-#'   
-.makeParCoordPlot <- function(df, idCol, metricCol, valueCol, groupCol,
+#'   scale_linewidth_manual theme_minimal theme element_text scale_fill_manual
+.makeParCoordPlot <- function(df, idCol, metricCol, valueCol, metricGroupCol,
                               methods, highlightMethod, 
                               metricGrouping, labelSize, 
-                              metricColors, idColors, collapseGroup) {
-    
-    if (collapseGroup && !is.null(df[[groupCol]])) {
-        df <- df %>%
-            dplyr::group_by(.data[[idCol]], .data[[groupCol]]) %>%
-            dplyr::summarize("{ valueCol }" := mean(.data[[valueCol]], na.rm = TRUE)) %>%
-            dplyr::mutate("{ metricCol }" := .data[[groupCol]]) %>%
-            dplyr::ungroup() %>%
-            as.data.frame()
-    }
+                              metricColors, idColors) {
     
     ## Define line widths -----------------------------------------------------
     lwidths <- rep(0.75, length(methods))
@@ -36,7 +24,7 @@
     if (metricGrouping != "---") {
         ## Reorder metrics according to the chosen grouping
         tmp <- df %>% 
-            dplyr::arrange(.data[[groupCol]]) %>%
+            dplyr::arrange(.data[[metricGroupCol]]) %>%
             dplyr::mutate("{metricCol}" := factor(
                 .data[[metricCol]],
                 levels = unique(.data[[metricCol]])))
@@ -44,18 +32,21 @@
                               ggplot2::aes(x = .data[[metricCol]], 
                                            y = .data[[valueCol]])) + 
             ggplot2::geom_boxplot(outlier.size = -1,
-                                  ggplot2::aes(fill = .data[[groupCol]]),
+                                  ggplot2::aes(fill = .data[[metricGroupCol]]),
                                   alpha = 0.4)
         if (methods::is(metricColors[[metricGrouping]], "function")) {
             gp <- gp + 
                 ggplot2::scale_fill_gradientn(
                     colors = do.call(metricColors[[metricGrouping]], 
-                                     list(sort(unique(tmp[[groupCol]])))), 
-                    values = scales::rescale(sort(unique(tmp[[groupCol]])))
+                                     list(sort(unique(tmp[[metricGroupCol]])))), 
+                    values = scales::rescale(sort(
+                        unique(tmp[[metricGroupCol]])))
                 )
         } else {
             gp <- gp + 
-                ggplot2::scale_fill_manual(values = metricColors[[metricGrouping]])
+                ggplot2::scale_fill_manual(
+                    values = metricColors[[metricGrouping]]
+                )
         }
     } else {
         tmp <- df
@@ -69,11 +60,11 @@
     gp + 
         ggplot2::geom_line(ggplot2::aes(group = .data[[idCol]],
                                         color = .data[[idCol]],
-                                        size = .data[[idCol]],
+                                        linewidth = .data[[idCol]],
                                         alpha = .data[[idCol]])) +
         ggplot2::geom_point(ggplot2::aes(group = .data[[idCol]],
                                          color = .data[[idCol]])) +
-        ggplot2::scale_size_manual(values = lwidths) +
+        ggplot2::scale_linewidth_manual(values = lwidths) +
         ggplot2::scale_alpha_manual(values = alphas) + 
         ggplot2::scale_color_manual(values = idColors[[idCol]]) + 
         ggplot2::labs(y = "Relative value") + 

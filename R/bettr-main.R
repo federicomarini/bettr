@@ -20,7 +20,8 @@
 #'   * **offset**: Numeric scalar; offset to add to the (flipped) 
 #'     metric values. Defaults to `0`.
 #'   * **transform**: Character scalar; one of 'None', 'z-score', 
-#'     '\[0,1\]', '\[-1,1\]' or 'Rank', indicating which transform to apply to 
+#'     '\[0,1\]', '\[-1,1\]', 'Rank', 'Rank+\[0,1\]' or 'z-score+\[0,1\]', 
+#'     indicating which transform to apply to 
 #'     the metric values (after any flipping and/or adding the offset). 
 #'     Defaults to 'None'.
 #'   * **cuts**: Numeric vector or `NULL`; the cut points that will 
@@ -52,19 +53,21 @@
 #' 
 #' @author Charlotte Soneson
 #' 
-#' @importFrom shiny tagList sliderInput shinyApp renderUI renderPlot 
-#'   updateNumericInput observeEvent validate need observe outputOptions tags 
-#'   HTML tagList renderUI radioButtons numericInput checkboxInput column 
-#'   plotOutput uiOutput column fluidRow tabPanelBody tabsetPanel 
-#'   updateTabsetPanel selectizeInput reactive reactiveValues uiOutput hr 
-#'   actionButton br tabPanel titlePanel navbarPage
+#' @returns
+#' A shiny application
+#' 
+#' @importFrom shiny uiOutput radioButtons checkboxInput conditionalPanel 
+#'   numericInput actionButton tabsetPanel tabPanel br fluidRow column 
+#'   selectInput hr reactiveValues reactive outputOptions renderUI 
+#'   selectizeInput updateTabsetPanel observe observeEvent tabPanelBody 
+#'   plotOutput tagList tags HTML validate need renderPlot updateNumericInput 
+#'   sliderInput shinyApp
 #' @importFrom sortable rank_list
 #' @importFrom shinyjqui jqui_resizable
-#' @importFrom dplyr select %>% contains
-#' @importFrom tidyr gather
-#' @importFrom bslib bs_theme
+#' @importFrom dplyr filter select mutate left_join arrange %>% relocate
+#' @importFrom bslib bs_theme sidebar accordion accordion_panel page_sidebar
 #' @importFrom rlang .data
-#' @importFrom stats setNames
+#' @importFrom DT DTOutput renderDT
 #' 
 #' @examples 
 #' df <- data.frame(Method = c("M1", "M2", "M3"), metric1 = c(1, 2, 3),
@@ -83,10 +86,8 @@
 #'     idInfo = idInfo)
 #' }
 #' 
-bettr <- function(df, idCol = "Method", 
-                  metrics = setdiff(colnames(df), idCol),
-                  initialWeights = NULL,
-                  initialTransforms = list(),
+bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
+                  initialWeights = NULL, initialTransforms = list(),
                   metricInfo = NULL, metricColors = NULL,
                   idInfo = NULL, idColors = NULL,
                   weightResolution = 0.05, bstheme = "darkly",
@@ -97,7 +98,7 @@ bettr <- function(df, idCol = "Method",
     weightCol <- "Weight"
     metricCol <- "Metric"
     valueCol <- "ScaledValue"
-    groupCol <- "Group"
+    metricGroupCol <- "metricGroup"
     initialWeightValue <- 0.2
     
     ## Check validity of input arguments --------------------------------------
@@ -109,190 +110,192 @@ bettr <- function(df, idCol = "Method",
                          weightResolution = weightResolution, 
                          bstheme = bstheme, appTitle = appTitle)
     
-    ## Split metrics into numeric and categorical -----------------------------
-    metrics_classes <- vapply(df[, metrics, drop = FALSE], class, NA_character_)
-    metrics_num <- intersect(
-        metrics, names(metrics_classes[metrics_classes %in% c("numeric", 
-                                                              "integer")])
-    )
-    metrics_cat <- intersect(
-        metrics, names(metrics_classes[metrics_classes %in% 
-                                           c("factor", "character", 
-                                             "logical")])
-    )
+    ## Prepare data -----------------------------------------------------------
+    prep <- .prepareData(df = df, idCol = idCol, metrics = metrics, 
+                         initialWeights = initialWeights,
+                         initialTransforms = initialTransforms, 
+                         metricInfo = metricInfo, 
+                         metricColors = metricColors, 
+                         idInfo = idInfo,
+                         idColors = idColors,
+                         weightResolution = weightResolution,
+                         metricCol = metricCol, 
+                         initialWeightValue = initialWeightValue)
     
-    ## Define annotation colors -----------------------------------------------
-    if (is.null(idInfo)) {
-        idColors <- .generateColors(
-            data.frame(id = unique(df[[idCol]])) %>% stats::setNames(idCol),
-            idColors, ggplot2Columns = idCol
-        )
-    } else {
-        idColors <- .generateColors(idInfo, idColors, ggplot2Columns = idCol)
-    }
-    
-    if (is.null(metricInfo)) {
-        metricColors <- .generateColors(
-            data.frame(metric = metrics) %>% stats::setNames(metricCol),
-            metricColors, ggplot2Columns = metricCol
-        )
-    } else {
-        metricColors <- .generateColors(metricInfo, metricColors, 
-                                        ggplot2Columns = metricCol)
-    }
-
-    ## Add non-specified initializations and check validity -------------------
-    initialTransforms <- .completeInitialization(initialTransforms, 
-                                                 metrics_num)
-    
-    ## Assign initial weights -------------------------------------------------
-    metricsWithWeights <- c(
-        metrics, unlist(lapply(colnames(metricInfo), function(cn) {
-            unique(paste0(cn, "_", metricInfo[[cn]]))
-        })))
-    initialWeights <- .assignInitialWeights(
-        weights = initialWeights, 
-        metrics = metricsWithWeights,
-        initialWeightValue = initialWeightValue,
-        weightResolution = weightResolution)
-
     ## UI definition ----------------------------------------------------------
     p_layout <- 
-        shiny::navbarPage(
-            shiny::titlePanel(appTitle),
-            theme = bslib::bs_theme(bootswatch = bstheme),
+        bslib::page_sidebar(
+            title = appTitle,
+            theme = bslib::bs_theme(bootswatch = bstheme, version = 5),
             
-            shiny::br(),
-            
-            shiny::fluidRow(
-                ## Plots ------------------------------------------------------
-                shiny::column(
-                    9, 
-                    shiny::tabsetPanel(
-                        type = "tabs",
-                        shiny::tabPanel(
-                            "Heatmap", 
-                            shiny::fluidRow(
-                                shiny::column(
-                                    2,
-                                    shiny::numericInput(
-                                        inputId = "heatmap_labelsize",
-                                        label = "Label size", 
-                                        value = 10, min = 2, max = 20, step = 1
-                                    )
-                                ),
-                                shiny::column(1),
-                                shiny::column(
-                                    5,
-                                    shiny::radioButtons(
-                                        inputId = "heatmap_id_ordering",
-                                        label = "ID ordering by score",
-                                        choices = c("high-to-low", 
-                                                    "low-to-high"),
-                                        selected = "high-to-low",
-                                        inline = TRUE
-                                    )
-                                ), 
-                                shiny::column(
-                                    4, 
-                                    shiny::checkboxInput(
-                                        inputId = "show_row_names",
-                                        label = "Show row names", 
-                                        value = TRUE
-                                    )
-                                )
-                            ),
-                            shiny::uiOutput("bettrHeatmapUI")
+            sidebar = bslib::sidebar(
+                bslib::accordion(
+                    open = TRUE, 
+                    multiple = TRUE,
+                    bslib::accordion_panel(
+                        "Methods/IDs",
+                        shiny::uiOutput(outputId = "highlightMethodUI"),
+                        shiny::radioButtons(
+                            inputId = "scoreMethod",
+                            label = "Score aggregation method",
+                            choices = c("weighted mean", 
+                                        "weighted median",
+                                        "weighted fraction highest",
+                                        "weighted fraction lowest"),
+                            selected = "weighted mean",
+                            inline = TRUE
                         ),
-                        shiny::tabPanel(
-                            "Parallel coordinates", 
-                            shiny::fluidRow(
-                                shiny::column(
-                                    2,
-                                    shiny::numericInput(
-                                        inputId = "parcoord_labelsize",
-                                        label = "Label size", 
-                                        value = 10, min = 2, max = 20, step = 1
-                                    )
-                                )
-                            ),
-                            shiny::uiOutput("bettrParCoordplotUI")
+                        shiny::radioButtons(
+                            inputId = "id_ordering",
+                            label = "ID ordering by score",
+                            choices = c("high-to-low", 
+                                        "low-to-high"),
+                            selected = "high-to-low",
+                            inline = TRUE
                         ),
-                        shiny::tabPanel(
-                            "Polar plot", 
-                            shiny::fluidRow(
-                                shiny::column(
-                                    2,
-                                    shiny::numericInput(
-                                        inputId = "polar_labelsize",
-                                        label = "Label size", 
-                                        value = 10, min = 2, max = 20, step = 1
-                                    )
-                                ),
-                                shiny::column(1),
-                                shiny::column(
-                                    6,
-                                    shiny::radioButtons(
-                                        inputId = "polar_id_ordering",
-                                        label = "ID ordering by score",
-                                        choices = c("high-to-low", 
-                                                    "low-to-high"),
-                                        selected = "high-to-low",
-                                        inline = TRUE
-                                    )
-                                )
-                            ),
-                            shiny::uiOutput("bettrPolarplotUI")
+                        shiny::checkboxInput(
+                            inputId = "showOnlyTopIds",
+                            label = "Show only top IDs",
+                            value = FALSE
                         ),
-                        shiny::tabPanel(
-                            "Bar/polar plot",
-                            shiny::fluidRow(
-                                shiny::column(
-                                    2,
-                                    shiny::numericInput(
-                                        inputId = "barpolar_labelsize",
-                                        label = "Label size", 
-                                        value = 10, min = 2, max = 20, step = 1
-                                    )
-                                ),
-                                shiny::column(
-                                    2,
-                                    shiny::checkboxInput(
-                                        inputId = "barpolar_showcomp",
-                                        label = "Show\nscore\ncomposition",
-                                        value = FALSE
-                                    )
-                                ),
-                                shiny::column(
-                                    2,
-                                    shiny::numericInput(
-                                        inputId = "barpolar_scalefactor",
-                                        label = "Scale\npolar plots",
-                                        value = 1.5, step = 0.05,
-                                        min = 0.1, max = 3.1
-                                    )
-                                ),
-                                shiny::column(1),
-                                shiny::column(
-                                    5,
-                                    shiny::radioButtons(
-                                        inputId = "barpolar_id_ordering",
-                                        label = "ID ordering by score",
-                                        choices = c("high-to-low", 
-                                                    "low-to-high"),
-                                        selected = "high-to-low",
-                                        inline = TRUE
-                                    )
-                                )
+                        shiny::conditionalPanel(
+                            condition = "input.showOnlyTopIds == true",
+                            shiny::numericInput(
+                                inputId = "nbrTopIds",
+                                label = "Number of IDs",
+                                value = 10
                             ),
-                            shiny::uiOutput("bettrBarPolarplotUI")
+                            shiny::uiOutput(outputId = "idTopNGroupingUI")
                         )
                     ),
-                    
-                    ## Some white space ---------------------------------------
+                    bslib::accordion_panel(
+                        "Metrics",
+                        shiny::uiOutput(outputId = "metricGroupingUI"),
+                        shiny::checkboxInput(inputId = "metricCollapseGroup",
+                                             label = "Collapse by group",
+                                             value = FALSE),
+                    ),
+                    bslib::accordion_panel(
+                        "Plot settings",
+                        shiny::numericInput(
+                            inputId = "labelsize",
+                            label = "Label size", 
+                            value = 10, min = 2, max = 20, step = 1
+                        ),
+                        shiny::numericInput(
+                            inputId = "hmheight",
+                            label = "Heatmap height (manual)",
+                            value = 600, min = 100, max = 1000
+                        ),
+                        shiny::actionButton(
+                            inputId = "autoAdjustHmHeight",
+                            label = "Auto-adjust height"
+                        ),
+                        shiny::numericInput(
+                            inputId = "hm_rownamewidth",
+                            label = "Heatmap row name max width (cm)",
+                            value = 6, min = 1, max = 15
+                        ),
+                        shiny::numericInput(
+                            inputId = "hm_colnameheight",
+                            label = "Heatmap column name max height (cm)",
+                            value = 6, min = 1, max = 15
+                        )
+                        # shiny::actionButton(
+                        #     inputId = "update_size",
+                        #     label = "Get current height"
+                        # )
+                    ),
+                    bslib::accordion_panel(
+                        "Weights",
+                        shiny::uiOutput(outputId = "weights"),
+                        shiny::actionButton(inputId = "resetWeights", 
+                                            label = "Reset to uniform weights")
+                    )
+                )
+            ),
+            
+            
+            ## Plots ----------------------------------------------------------
+            shiny::tabsetPanel(
+                type = "tabs",
+                shiny::tabPanel(
+                    "Heatmap", 
                     shiny::br(),
+                    shiny::fluidRow(
+                        shiny::column(
+                            3, 
+                            shiny::checkboxInput(
+                                inputId = "show_row_names",
+                                label = "Show row names", 
+                                value = TRUE
+                            )
+                        )
+                    ),
+                    shiny::uiOutput("bettrHeatmapUI")
+                ),
+                shiny::tabPanel(
+                    "Parallel coordinates", 
                     shiny::br(),
-                    
+                    shiny::uiOutput("bettrParCoordplotUI")
+                ),
+                shiny::tabPanel(
+                    "Polar plot", 
+                    shiny::br(),
+                    shiny::uiOutput("bettrPolarplotUI")
+                ),
+                shiny::tabPanel(
+                    "Bar/polar plot",
+                    shiny::br(),
+                    shiny::fluidRow(
+                        shiny::column(
+                            2,
+                            shiny::checkboxInput(
+                                inputId = "barpolar_showcomp",
+                                label = "Show\nscore\ncomposition",
+                                value = FALSE
+                            )
+                        ),
+                        shiny::column(
+                            2,
+                            shiny::numericInput(
+                                inputId = "barpolar_scalefactor",
+                                label = "Scale\npolar plots",
+                                value = 1.5, step = 0.05,
+                                min = 0.1, max = 3.1
+                            )
+                        )
+                    ),
+                    shiny::uiOutput("bettrBarPolarplotUI")
+                ),
+                shiny::tabPanel(
+                    "Filter methods/metrics",
+                    shiny::br(),
+                    bslib::card(
+                        "You can exclude methods and/or metrics from the summaries by removing them from the selection boxes below. The selection can be done either by the name of the method/metric, or via any other provided attribute (if any). The intersection of methods satisfying the selection criteria will be retained. To add back a (set of) methods/metrics, click in the corresponding selection box to see a dropdown menu with available values."
+                    ),
+                    shiny::br(),
+                    shiny::selectInput(inputId = "keepIds", 
+                                       label = "IDs to keep",
+                                       choices = unique(df[[idCol]]),
+                                       selected = unique(df[[idCol]]),
+                                       multiple = TRUE),
+                    shiny::uiOutput("idFilterByInfoUI"),
+                    shiny::hr(), 
+                    shiny::selectInput(inputId = "keepMetrics",
+                                       label = "Metrics to keep",
+                                       choices = metrics,
+                                       selected = metrics,
+                                       multiple = TRUE),
+                    shiny::uiOutput("metricFilterByInfoUI")
+                ),
+                shiny::tabPanel(
+                    "Transform metrics",
+                    shiny::br(),
+                    bslib::card(
+                        "The interface below can be used to apply transformations to the provided metric values, to make them more comparable to each other. For example, it is important for the interpretability of the cross-metric aggregation that a high value always corresponds to either 'good' or 'bad' performance."
+                    ),
+                    shiny::br(),
                     ## Variable transformations -------------------------------
                     shiny::fluidRow(
                         shiny::column(
@@ -306,26 +309,20 @@ bettr <- function(df, idCol = "Method",
                         )
                     )
                 ),
-                
-                ## Weight controls --------------------------------------------
-                shiny::column(
-                    3, 
-                    shiny::uiOutput(outputId = "metricGroupingUI"),
-                    shiny::checkboxInput(inputId = "collapseGroup",
-                                         label = "Collapse by group",
-                                         value = FALSE),
-                    shiny::hr(color = "white"),
-                    shiny::uiOutput(outputId = "highlightMethodUI"),
-                    shiny::hr(color = "white"), 
-                    shiny::uiOutput(outputId = "weights"),
-                    shiny::hr(color = "white"), 
-                    shiny::actionButton(inputId = "resetWeights", 
-                                        label = "Reset to uniform weights")
+                shiny::tabPanel(
+                    "Data table",
+                    shiny::br(),
+                    bslib::card(
+                        "This data table contains the transformed values of all metrics, as well as the aggregated scores."
+                    ),
+                    shiny::br(),
+                    DT::DTOutput(outputId = "scoreTable")
                 )
             )
         )
     
     ## Server definition ------------------------------------------------------
+    #nocov start
     server_function <- function(input, output, session) {
         
         ## Initialize data storage --------------------------------------------
@@ -333,27 +330,78 @@ bettr <- function(df, idCol = "Method",
             df = df,
             metrics = metrics,
             nMetrics = length(metrics),
-            metricInfo = metricInfo,
-            idInfo = idInfo,
+            metricInfo = prep$metricInfo,
+            idInfo = prep$idInfo,
             methods = unique(df[[idCol]]),
-            currentWeights = initialWeights
+            currentWeights = prep$initialWeights
         )
+        
+        ## Filtered data ------------------------------------------------------
+        ## Only keep metrics and methods selected in the filter tab
+        filtdata <- shiny::reactive({
+            shiny::validate(
+                shiny::need(input$keepIds, "No keepIds"),
+                shiny::need(input$keepMetrics, "No keepMetrics")
+            )
+            idFilters <- setdiff(colnames(values$idInfo), idCol)
+            metricFilters <- setdiff(colnames(values$metricInfo), metricCol)
+            .filterData(
+                df = values$df, idInfo = values$idInfo, idCol = idCol,
+                keepIds = input$keepIds,
+                keepIdsBy = lapply(
+                    structure(idFilters, names = idFilters),
+                    function(nm) input[[paste0("keepIdBy_", nm)]]),
+                metricInfo = values$metricInfo,
+                metricCol = metricCol, keepMetrics = input$keepMetrics,
+                keepMetricsBy = lapply(
+                    structure(metricFilters, names = metricFilters),
+                    function(nm) input[[paste0("keepMetricBy_", nm)]]),
+                metrics = values$metrics)
+        })
+        
+        ## Record retained metrics and methods
+        metricsInUse <- shiny::reactive({
+            intersect(values$metrics, colnames(filtdata()))
+        })
+        methodsInUse <- shiny::reactive({
+            unique(filtdata()[[idCol]])
+        })
         
         ## Processed data -----------------------------------------------------
         procdata <- shiny::reactive({
-            tmp <- values$df
-            for (m in values$metrics) {
-                if (m %in% metrics_num) {
+            shiny::validate(
+                shiny::need(filtdata(), ""),
+                shiny::need(metricsInUse(), ""),
+                shiny::need(prep, "")
+            )
+            temp_need1 <- lapply(
+                intersect(prep$metrics_num, metricsInUse()), function(m) {
+                    cond <- paste0("shiny::need(is.logical(input$", m, "_flip) && !is.null(input$", m, "_offset) && !is.null(input$", m, "_transform), '')")
+                    eval(parse(text = cond))
+                })
+            do.call(shiny::validate, temp_need1)
+            temp_need2 <- lapply(
+                intersect(prep$metrics_cat, metricsInUse()), function(m) {
+                    cond <- paste0("shiny::need(!is.null(input$", m, 
+                                   "_levels), '')")
+                    eval(parse(text = cond))
+                })
+            do.call(shiny::validate, temp_need2)
+            
+            tmp <- filtdata()
+            for (m in intersect(colnames(filtdata()), metricsInUse())) {
+                if (m %in% prep$metrics_num) {
                     tmp[[m]] <- .transformNumericVariable(
-                        x = values$df[[m]],
+                        x = filtdata()[[m]],
                         flip = input[[paste0(m, "_flip")]], 
                         offset = input[[paste0(m, "_offset")]], 
                         transf = .getTransf(input[[paste0(m, "_transform")]]), 
-                        bincuts = sort(as.numeric(input[[paste0(m, "_bincuts")]]))
+                        bincuts = sort(as.numeric(input[[paste0(m, 
+                                                                "_bincuts")]]))
                     )
-                } else if (m %in% metrics_cat) {
+                } else if (m %in% prep$metrics_cat) {
                     tmp[[m]] <- .transformCategoricalVariable(
-                        x = values$df[[m]],
+                        x = filtdata()[[m]],
                         levels = input[[paste0(m, "_levels")]]
                     )
                 } else {
@@ -368,40 +416,133 @@ bettr <- function(df, idCol = "Method",
         ## Needs to use the processed data, since we must make sure that the 
         ## value that goes in the 'value' column is numeric
         longdata <- shiny::reactive({
-            pd <- procdata() %>%
-                dplyr::select(.data[[idCol]], 
-                              dplyr::contains(values$metrics)) %>%
-                tidyr::gather(key = "Metric", value = "ScaledValue", 
-                              -.data[[idCol]])
-            ## Add grouping of metrics
-            if (input$metricGrouping != "---") {
-                pd[[groupCol]] <- 
-                    values$metricInfo[[input$metricGrouping]][
-                        match(pd$Metric, values$metricInfo[[metricCol]])]
-            }
-            pd
+            shiny::validate(
+                shiny::need(procdata(), "")
+            )
+            .makeLongData(df = procdata(), idCol = idCol, 
+                          metrics = metricsInUse(), metricCol = metricCol,
+                          valueCol = valueCol, 
+                          metricGrouping = input$metricGrouping, 
+                          metricInfo = metricInfo,
+                          metricGroupCol = metricGroupCol)
         })
         
         ## Long-form data with weights
         longdataweights <- shiny::reactive({
-            pd <- longdata()
-            ## Add weight column for later score calculations
-            if (input$collapseGroup && input$metricGrouping != "---") {
-                for (m in unique(pd[[groupCol]])) {
-                    if (is.null(input[[paste0(input$metricGrouping, "_", m, "_weight")]])) {
-                        return(NULL)
-                    }
-                    pd[[weightCol]][pd[[groupCol]] == m] <- 
-                        input[[paste0(input$metricGrouping, "_", m, "_weight")]]
-                }
-            } else {
-                for (m in values$metrics) {
-                    pd[[weightCol]][pd[[metricCol]] == m] <- 
-                        input[[paste0(m, "_weight")]]
-                }
-            }
-            pd
+            shiny::validate(
+                shiny::need(longdata(), "")
+            )
+            weightControls <- grep("_weight", names(input), value = TRUE)
+            names(weightControls) <- weightControls
+            .addWeightsToLongData(
+                df = longdata(), 
+                metricCollapseGroup = input$metricCollapseGroup,
+                metricGrouping = input$metricGrouping,
+                metricGroupCol = metricGroupCol,
+                weights = lapply(weightControls, function(nm) {
+                    input[[nm]]
+                }),
+                weightCol = weightCol, 
+                metrics = metricsInUse(),
+                metricCol = metricCol
+            )
         })
+        
+        ## Collapsed data (average metrics)
+        collapseddata <- shiny::reactive({
+            shiny::validate(
+                shiny::need(longdataweights(), "")
+            )
+            .collapseLongData(df = longdataweights(), 
+                              metricCollapseGroup = input$metricCollapseGroup,
+                              metricGrouping = input$metricGrouping,
+                              idCol = idCol, metricGroupCol = metricGroupCol,
+                              valueCol = valueCol, weightCol = weightCol, 
+                              metricCol = metricCol)
+        })
+        
+        ## Calculate scores ---------------------------------------------------
+        scoredata <- shiny::reactive({
+            shiny::validate(
+                shiny::need(collapseddata(), "")
+            )
+            scoreDf <- .calculateScores(
+                df = collapseddata(), 
+                scoreMethod = input$scoreMethod, 
+                idCol = idCol, scoreCol = scoreCol, 
+                weightCol = weightCol, valueCol = valueCol, 
+                metricCol = metricCol
+            )
+            scoreDf <- .sortAndFilterScoreData(
+                scoreDf = scoreDf, 
+                idInfo = values$idInfo, 
+                idCol = idCol, scoreCol = scoreCol,
+                idTopNGrouping = input$idTopNGrouping,
+                idOrdering = input$id_ordering,
+                showOnlyTopIds = input$showOnlyTopIds, 
+                nbrTopIds = input$nbrTopIds
+            )
+            scoreDf
+        })
+        
+        ## Final filtered data ------------------------------------------------
+        plotdata <- shiny::reactive({
+            shiny::validate(
+                shiny::need(collapseddata(), ""),
+                shiny::need(scoredata(), "")
+            )
+            tmp <- collapseddata() %>%
+                dplyr::filter(.data[[idCol]] %in% scoredata()[[idCol]])
+            tmp[[idCol]] <- factor(tmp[[idCol]], 
+                                   levels = scoredata()[[idCol]])
+            tmp
+        })
+        
+        observeEvent(input$autoAdjustHmHeight, 
+                     shiny::updateNumericInput(
+                         session, "hmheight",
+                         value = 200 + 35 * length(unique(plotdata()[[idCol]]))
+                     ))
+
+        ## UI element to filter methods by grouping columns -------------------
+        output$idFilterByInfoUI <- shiny::renderUI({
+            if (is.null(values$idInfo)) {
+                NULL
+            } else {
+                lapply(setdiff(colnames(values$idInfo), idCol), 
+                       function(nm) {
+                           shiny::selectInput(
+                               inputId = paste0("keepIdBy_", nm),
+                               label = nm, 
+                               choices = unique(values$idInfo[[nm]]),
+                               selected = unique(values$idInfo[[nm]]),
+                               multiple = TRUE
+                           )
+                       }) 
+            }
+        })
+        shiny::outputOptions(output, "idFilterByInfoUI", 
+                             suspendWhenHidden = FALSE)
+        
+        ## UI element to filter metrics by grouping columns -------------------
+        output$metricFilterByInfoUI <- shiny::renderUI({
+            if (is.null(values$metricInfo)) {
+                NULL
+            } else {
+                lapply(setdiff(colnames(values$metricInfo), metricCol), 
+                       function(nm) {
+                           shiny::selectInput(
+                               inputId = paste0("keepMetricBy_", nm),
+                               label = nm, 
+                               choices = unique(values$metricInfo[[nm]]),
+                               selected = unique(values$metricInfo[[nm]]),
+                               multiple = TRUE
+                           )
+                       }) 
+            }
+        })
+        shiny::outputOptions(output, "metricFilterByInfoUI", 
+                             suspendWhenHidden = FALSE)
         
         ## UI element to select grouping of metrics ---------------------------
         output$metricGroupingUI <- shiny::renderUI({
@@ -414,12 +555,23 @@ bettr <- function(df, idCol = "Method",
             )
         })
         
+        ## UI element to select grouping of methods before selecting top N ----
+        output$idTopNGroupingUI <- shiny::renderUI({
+            shiny::selectizeInput(
+                inputId = "idTopNGrouping",
+                label = "Grouping of IDs",
+                choices = c("---", setdiff(colnames(values$idInfo), 
+                                           idCol)),
+                selected = "---"
+            )
+        })
+        
         ## UI element to select method to highlight ---------------------------
         output$highlightMethodUI <- shiny::renderUI({
             shiny::selectInput(
                 inputId = "highlightMethod",
                 label = "Highlight ID",
-                choices = values$methods, 
+                choices = methodsInUse(), 
                 selected = NULL, 
                 multiple = TRUE
             )
@@ -430,10 +582,12 @@ bettr <- function(df, idCol = "Method",
             shiny::selectizeInput(
                 inputId = "metricToManipulate",
                 label = "Select metric to transform",
-                choices = c("---", values$metrics),
+                choices = c("---", metricsInUse()),
                 selected = "---"
             )
         })
+        shiny::outputOptions(output, "metricToManipulateUI", 
+                             suspendWhenHidden = FALSE)
         
         ## Display transformation options for selected metric -----------------
         shiny::observeEvent(input$metricToManipulate, {
@@ -456,7 +610,7 @@ bettr <- function(df, idCol = "Method",
                       ## One tab panel per metric. The actual panel content is 
                       ## created below (it's different for numeric and 
                       ## categorical variables)
-                      lapply(values$metrics, function(i) {
+                      lapply(metricsInUse(), function(i) {
                           shiny::tabPanelBody(
                               value = i, 
                               shiny::fluidRow(
@@ -480,35 +634,37 @@ bettr <- function(df, idCol = "Method",
                     )
                 )
             })
+            shiny::outputOptions(output, "metricManipulationSummaryUI", 
+                                 suspendWhenHidden = FALSE)
         })
-
+        
         ## Create transformation interface for numeric metrics ----------------
-        lapply(metrics_num, function(m) {
+        lapply(prep$metrics_num, function(m) {
             output[[paste0(m, "_transformUI")]] <- shiny::renderUI({
                 shiny::tagList(
                     shiny::checkboxInput(
                         inputId = paste0(m, "_flip"),
                         label = "Flip",
-                        value = initialTransforms[[m]][["flip"]]
+                        value = prep$initialTransforms[[m]][["flip"]]
                     ),
                     shiny::numericInput(
                         inputId = paste0(m, "_offset"),
                         label = "Offset",
-                        value = initialTransforms[[m]][["offset"]]
+                        value = prep$initialTransforms[[m]][["offset"]]
                     ),
                     shiny::radioButtons(
                         inputId = paste0(m, "_transform"),
                         label = "Transform",
                         choices = c("None", "z-score",
                                     "[0,1]", "[-1,1]",
-                                    "Rank"),
-                        selected = initialTransforms[[m]][["transform"]]
+                                    "Rank", "Rank+[0,1]", "z-score+[0,1]"),
+                        selected = prep$initialTransforms[[m]][["transform"]]
                     ),
                     shiny::selectizeInput(
                         inputId = paste0(m, "_bincuts"),
                         label = "Cut points for\ncategorization",
-                        choices = initialTransforms[[m]][["cuts"]],
-                        selected = initialTransforms[[m]][["cuts"]],
+                        choices = prep$initialTransforms[[m]][["cuts"]],
+                        selected = prep$initialTransforms[[m]][["cuts"]],
                         multiple = TRUE,
                         options = list(create = TRUE)
                     )
@@ -517,7 +673,7 @@ bettr <- function(df, idCol = "Method",
         })
         
         ## Create transformation interface for categorical metrics ------------
-        lapply(metrics_cat, function(m) {
+        lapply(prep$metrics_cat, function(m) {
             output[[paste0(m, "_transformUI")]] <- shiny::renderUI({
                 shiny::tagList(
                     sortable::rank_list(
@@ -550,7 +706,7 @@ bettr <- function(df, idCol = "Method",
         
         ## Create summary plots for transformed metric ------------------------
         shiny::observe({
-            lapply(values$metrics, function(m) {
+            lapply(metricsInUse(), function(m) {
                 output[[paste0(m, "_plotsummary")]] <- shiny::renderPlot({
                     shiny::validate(
                         shiny::need(procdata(), "No processed data")
@@ -564,7 +720,7 @@ bettr <- function(df, idCol = "Method",
         
         ## Reset all weights upon action button click -------------------------
         shiny::observeEvent(input$resetWeights, {
-            for (j in values$metrics) {
+            for (j in metrics) {
                 shiny::updateNumericInput(
                     session, inputId = paste0(j, "_weight"), 
                     value = initialWeightValue
@@ -572,24 +728,50 @@ bettr <- function(df, idCol = "Method",
             }
         })
         
+        ## Score table --------------------------------------------------------
+        output$scoreTable <- DT::renderDT({
+            tmpdf <- plotdata() %>%
+                dplyr::mutate("{valueCol}" := signif(.data[[valueCol]], 
+                                                     digits = 4)) %>%
+                dplyr::select(-.data[[weightCol]]) %>%
+                tidyr::pivot_wider(names_from = .data[[metricCol]], 
+                                   values_from = .data[[valueCol]]) %>%
+                dplyr::left_join(scoredata(), by = idCol) %>%
+                dplyr::mutate("{scoreCol}" := signif(.data[[scoreCol]], 
+                                                     digits = 4)) %>%
+                dplyr::relocate(dplyr::all_of(idCol))
+            if (input$id_ordering == "high-to-low") {
+                tmpdf %>%
+                    dplyr::arrange(dplyr::desc(.data[[scoreCol]]))
+            } else {
+                tmpdf %>%
+                    dplyr::arrange(.data[[scoreCol]])
+            }
+        }, filter = list(position = "top", clear = FALSE), 
+        extensions = "Buttons",
+        options = list(scrollX = TRUE, pageLength = 100,
+                       dom = "Bfrtip", buttons = c("csv")))
+        
         ## Parallel coordinates plot ------------------------------------------
         output$bettrParCoordplotUI <- shiny::renderUI({
             shinyjqui::jqui_resizable(shiny::plotOutput(
                 "bettrParCoordplot"))
         })
         output$bettrParCoordplot <- shiny::renderPlot({
-            if (is.null(longdataweights())) {
+            if (is.null(plotdata()) || is.null(scoredata())) {
                 NULL
             } else {
-                .makeParCoordPlot(df = longdataweights(), idCol = idCol, 
-                                  metricCol = metricCol, valueCol = valueCol, 
-                                  groupCol = groupCol, methods = values$methods,
-                                  highlightMethod = input$highlightMethod, 
-                                  metricGrouping = input$metricGrouping,
-                                  labelSize = input$parcoord_labelsize, 
-                                  metricColors = metricColors,
-                                  idColors = idColors,
-                                  collapseGroup = input$collapseGroup)
+                .makeParCoordPlot(
+                    df = plotdata(), idCol = idCol, 
+                    metricCol = metricCol, valueCol = valueCol, 
+                    metricGroupCol = metricGroupCol,
+                    methods = methodsInUse(),
+                    highlightMethod = input$highlightMethod, 
+                    metricGrouping = input$metricGrouping,
+                    labelSize = input$labelsize, 
+                    metricColors = prep$metricColors,
+                    idColors = prep$idColors
+                )
             }
         })
         
@@ -599,18 +781,22 @@ bettr <- function(df, idCol = "Method",
                 "bettrPolarplot"))
         })
         output$bettrPolarplot <- shiny::renderPlot({
-            if (is.null(longdataweights())) {
+            if (is.null(plotdata()) || is.null(scoredata())) {
                 NULL
             } else {
-                .makePolarPlot(df = longdataweights(), idCol = idCol, 
-                               metricCol = metricCol, valueCol = valueCol,
-                               weightCol = weightCol, scoreCol = scoreCol,
-                               groupCol = groupCol, 
-                               labelSize = input$polar_labelsize,
-                               ordering = input$polar_id_ordering,
-                               metricColors = metricColors,
-                               collapseGroup = input$collapseGroup,
-                               metricGrouping = input$metricGrouping)
+                .makePolarPlot(
+                    df = plotdata(), scores = scoredata(), 
+                    idCol = idCol, 
+                    metricCol = metricCol, valueCol = valueCol,
+                    weightCol = weightCol, scoreCol = scoreCol,
+                    metricGroupCol = metricGroupCol, 
+                    labelSize = input$labelsize,
+                    metricColors = prep$metricColors,
+                    metricCollapseGroup = input$metricCollapseGroup,
+                    metricGrouping = input$metricGrouping,
+                    showOnlyTopIds = input$showOnlyTopIds,
+                    nbrTopIds = input$nbrTopIds
+                )
             }
         })
         
@@ -620,45 +806,60 @@ bettr <- function(df, idCol = "Method",
                 "bettrBarPolarplot"))
         })
         output$bettrBarPolarplot <- shiny::renderPlot({
-            if (is.null(longdataweights())) {
+            if (is.null(plotdata()) || is.null(scoredata())) {
                 NULL
             } else {
-                .makeBarPolarPlot(df = longdataweights(), idCol = idCol, 
-                                  metricCol = metricCol, valueCol = valueCol, 
-                                  weightCol = weightCol, scoreCol = scoreCol, 
-                                  groupCol = groupCol, 
-                                  methods = values$methods, 
-                                  labelSize = input$barpolar_labelsize,
-                                  ordering = input$barpolar_id_ordering,
-                                  showComposition = input$barpolar_showcomp,
-                                  scaleFactorPolars = input$barpolar_scalefactor, 
-                                  metricColors = metricColors,
-                                  collapseGroup = input$collapseGroup,
-                                  metricGrouping = input$metricGrouping)
+                .makeBarPolarPlot(
+                    df = plotdata(), scores = scoredata(),
+                    idCol = idCol, 
+                    metricCol = metricCol, valueCol = valueCol, 
+                    weightCol = weightCol, scoreCol = scoreCol, 
+                    metricGroupCol = metricGroupCol, 
+                    methods = methodsInUse(), 
+                    labelSize = input$labelsize,
+                    showComposition = input$barpolar_showcomp,
+                    scaleFactorPolars = input$barpolar_scalefactor, 
+                    metricColors = prep$metricColors,
+                    metricCollapseGroup = input$metricCollapseGroup,
+                    metricGrouping = input$metricGrouping,
+                    showOnlyTopIds = input$showOnlyTopIds,
+                    nbrTopIds = input$nbrTopIds
+                )
             }
         })
         
         ## Heatmap ------------------------------------------------------------
         output$bettrHeatmapUI <- shiny::renderUI({
-            shinyjqui::jqui_resizable(shiny::plotOutput(
-                "bettrHeatmap"))
+            shinyjqui::jqui_resizable(
+                shiny::plotOutput("bettrHeatmap",
+                                  height = paste0(input$hmheight, "px")))
         })
+        # observeEvent(input$update_size, {
+        #     shiny::updateNumericInput(session, "hmheight", 
+        #                               value = input$bettrHeatmap_size[[2]])
+        # })
         output$bettrHeatmap <- shiny::renderPlot({
-            if (is.null(longdataweights())) {
+            if (is.null(plotdata()) || is.null(scoredata())) {
                 NULL
             } else {
-                .makeHeatmap(df = longdataweights(), idCol = idCol, 
-                             metricCol = metricCol, valueCol = valueCol, 
-                             weightCol = weightCol, scoreCol = scoreCol, 
-                             groupCol = groupCol, 
-                             metricInfo = values$metricInfo,
-                             idInfo = values$idInfo,
-                             labelSize = input$heatmap_labelsize,
-                             ordering = input$heatmap_id_ordering, 
-                             idColors = idColors, metricColors = metricColors,
-                             collapseGroup = input$collapseGroup,
-                             metricGrouping = input$metricGrouping, 
-                             showRowNames = input$show_row_names)
+                .makeHeatmap(
+                    df = plotdata(), scores = scoredata(), idCol = idCol, 
+                    metricCol = metricCol, valueCol = valueCol, 
+                    weightCol = weightCol, scoreCol = scoreCol, 
+                    metricGroupCol = metricGroupCol, 
+                    metricInfo = values$metricInfo,
+                    idInfo = values$idInfo,
+                    labelSize = input$labelsize,
+                    idColors = prep$idColors, 
+                    metricColors = prep$metricColors,
+                    metricCollapseGroup = input$metricCollapseGroup,
+                    metricGrouping = input$metricGrouping, 
+                    showRowNames = input$show_row_names,
+                    showOnlyTopIds = input$showOnlyTopIds,
+                    nbrTopIds = input$nbrTopIds,
+                    rownamewidth_cm = input$hm_rownamewidth,
+                    colnameheight_cm = input$hm_colnameheight
+                )
             }
         })
         
@@ -667,9 +868,10 @@ bettr <- function(df, idCol = "Method",
         ## Make sure that weights are retained even when the collapsing by
         ## group status (and thus the displayed weight sliders) changes
         shiny::observe({
-            lapply(metricsWithWeights, function(mww) {
+            lapply(prep$metricsWithWeights, function(mww) {
                 if (!is.null(input[[paste0(mww, "_weight")]])) {
-                    values$currentWeights[mww] <- input[[paste0(mww, "_weight")]]
+                    values$currentWeights[mww] <- 
+                        input[[paste0(mww, "_weight")]]
                 }
             })
         })
@@ -678,28 +880,31 @@ bettr <- function(df, idCol = "Method",
             if (is.null(values$metrics) || is.null(values$currentWeights)) {
                 NULL
             } else {
-                if (input$collapseGroup && input$metricGrouping != "---") {
-                    if (is.null(longdata()[[groupCol]])) {
+                if (input$metricCollapseGroup && 
+                    input$metricGrouping != "---") {
+                    if (is.null(longdata()[[metricGroupCol]])) {
                         NULL
                     } else {
                         do.call(shiny::tagList,
-                                lapply(unique(longdata()[[groupCol]]), function(i) {
-                                    shiny::sliderInput(
-                                        inputId = paste0(input$metricGrouping,
-                                                         "_", i, "_weight"),
-                                        label = i,
-                                        value = values$currentWeights[
-                                            paste0(input$metricGrouping,
-                                                   "_", i)],
-                                        min = 0,
-                                        max = 1,
-                                        step = weightResolution
-                                    )
-                                }))
+                                lapply(unique(longdata()[[metricGroupCol]]), 
+                                       function(i) {
+                                           shiny::sliderInput(
+                                               inputId = paste0(input$metricGrouping,
+                                                                "_", i, 
+                                                                "_weight"),
+                                               label = i,
+                                               value = values$currentWeights[
+                                                   paste0(input$metricGrouping,
+                                                          "_", i)],
+                                               min = 0,
+                                               max = 1,
+                                               step = weightResolution
+                                           )
+                                       }))
                     }
                 } else {
                     do.call(shiny::tagList,
-                            lapply(values$metrics, function(i) {
+                            lapply(metricsInUse(), function(i) {
                                 shiny::sliderInput(
                                     inputId = paste0(i, "_weight"),
                                     label = i,
@@ -714,6 +919,7 @@ bettr <- function(df, idCol = "Method",
         })
         
     }
+    #nocov end
     
     # Generate app ------------------------------------------------------------
     shiny::shinyApp(ui = p_layout, server = server_function)

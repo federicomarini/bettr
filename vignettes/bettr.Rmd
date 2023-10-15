@@ -1,0 +1,68 @@
+---
+title: "bettr"
+author: "Charlotte Soneson & Federico Marini"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{bettr}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction
+
+`bettr` is an R package that allows the user to launch an interactive interface 
+for exploring rankings. For example, it could be used to explore the ranking of 
+methods in a benchmarking effort, where multiple criteria have been evaluated.
+The user can weight the different criteria according to their preferences, and 
+visualize the data in several different ways. 
+
+# Installation
+
+`bettr` can be installed from GitHub: 
+
+```{r, eval=FALSE}
+install.packages("remotes")
+remotes::install_github("federicomarini/bettr")
+```
+
+# Usage
+
+The input to `bettr` is a `data.frame` containing values of several metrics 
+for several methods. In addition, the user can provide additional annotations 
+and characteristics for the methods and metrics, which can be used to group and 
+filter them in the interactive application. 
+
+```{r}
+## Data for two metrics (metric1, metric2) for three methods (M1, M2, M3)
+df <- data.frame(Method = c("M1", "M2", "M3"), 
+                 metric1 = c(1, 2, 3),
+                 metric2 = c(3, 1, 2))
+
+## More information for metrics
+metricInfo <- data.frame(Metric = c("metric1", "metric2", "metric3"),
+                         Group = c("G1", "G2", "G2"))
+
+## More information for methods ('IDs')
+idInfo <- data.frame(Method = c("M1", "M2", "M3"), 
+                     Type = c("T1", "T1", "T2"))
+```
+
+```{r, eval=interactive()}
+## Launch app
+bettr(df = df, idCol = "Method", metricInfo = metricInfo, idInfo = idInfo)
+```
+
+# Session info
+
+```{r}
+sessionInfo()
+```
+

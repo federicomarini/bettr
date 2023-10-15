@@ -1,30 +1,18 @@
-#' @noRd
-#' 
-#' @importFrom dplyr filter group_by summarize arrange desc pull mutate
+#' @importFrom dplyr filter pull mutate
 #' @importFrom rlang .data :=
 #' @importFrom ggplot2 ggplot aes geom_col ylim coord_polar theme_minimal 
 #'   theme element_blank labs geom_bar expand_limits element_text
 #' @importFrom cowplot draw_plot get_legend plot_grid
 #' @importFrom grid unit
-#' 
-.makeBarPolarPlot <- function(df, idCol, metricCol, valueCol, 
-                              weightCol, scoreCol, groupCol, methods, labelSize,
-                              ordering = "high-to-low", 
+.makeBarPolarPlot <- function(df, scores, idCol, metricCol, valueCol, 
+                              weightCol, scoreCol, metricGroupCol, 
+                              methods, labelSize,
                               showComposition = FALSE, 
                               scaleFactorPolars = 1.5, metricColors,
-                              collapseGroup, metricGrouping) {
-    if (!(ordering %in% c("high-to-low", "low-to-high"))) {
-        stop("ordering must be 'high-to-low' or 'low-to-high'")
-    }
+                              metricCollapseGroup, metricGrouping,
+                              showOnlyTopIds = FALSE, nbrTopIds = Inf) {
     
-    if (collapseGroup && !is.null(df[[groupCol]])) {
-        df <- df %>%
-            dplyr::group_by(.data[[idCol]], .data[[groupCol]]) %>%
-            dplyr::summarize("{ valueCol }" := mean(.data[[valueCol]], na.rm = TRUE),
-                             "{ weightCol }" := mean(.data[[weightCol]], na.rm = TRUE)) %>%
-            dplyr::mutate("{ metricCol }" := .data[[groupCol]]) %>%
-            dplyr::ungroup() %>%
-            as.data.frame()
+    if (metricCollapseGroup && !is.null(df[[metricGroupCol]])) {
         metricColors[[metricCol]] <- metricColors[[metricGrouping]]
     }
     
@@ -41,12 +29,14 @@
             ggplot2::coord_polar() + 
             ggplot2::scale_fill_manual(values = metricColors[[metricCol]]) + 
             ggplot2::theme_minimal() +
-            ggplot2::theme(axis.text = ggplot2::element_blank(),
-                           legend.text = ggplot2::element_text(size = labelSize),
-                           legend.title = ggplot2::element_text(size = labelSize),
-                           plot.background = ggplot2::element_blank(),
-                           plot.margin = grid::unit(c(0, 0, 0, 0), "cm"),
-                           panel.spacing = grid::unit(0, "cm")) + 
+            ggplot2::theme(
+                axis.text = ggplot2::element_blank(),
+                legend.text = ggplot2::element_text(size = labelSize),
+                legend.title = ggplot2::element_text(size = labelSize),
+                plot.background = ggplot2::element_blank(),
+                plot.margin = grid::unit(c(0, 0, 0, 0), "cm"),
+                panel.spacing = grid::unit(0, "cm")
+            ) + 
             ggplot2::labs(x = "", y = "")
     })
     names(rplots) <- methods
@@ -59,20 +49,6 @@
     })
     
     ## Define data for barplot ------------------------------------------------
-    scores <- df %>%
-        dplyr::group_by(.data[[idCol]]) %>%
-        dplyr::summarize(
-            "{scoreCol}" := sum(.data[[weightCol]] *
-                                    .data[[valueCol]],
-                                na.rm = TRUE)
-        ) 
-    if (ordering == "high-to-low") {
-        scores <- scores %>%
-            dplyr::arrange(dplyr::desc(.data[[scoreCol]]))
-    } else {
-        scores <- scores %>%
-            dplyr::arrange(.data[[scoreCol]])
-    }
     levs <- scores %>%
         dplyr::pull(.data[[idCol]])
     rx <- length(levs)

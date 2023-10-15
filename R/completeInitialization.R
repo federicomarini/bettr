@@ -24,10 +24,14 @@
             ## metric already present, just add missing entries and check 
             ## present ones
             for (nm in names(defaultValues)) {
-                transformList[[m]][[nm]] <- 
-                    .checkSpecifiedValue(transformList[[m]][[nm]],
-                                         defaultValues[[nm]],
-                                         nm)
+                value <- .checkSpecifiedValue(transformList[[m]][[nm]],
+                                              defaultValues[[nm]],
+                                              nm)
+                if (!is.null(value)) {
+                    transformList[[m]][[nm]] <- value
+                } else {
+                    transformList[[m]][nm] <- list(NULL)
+                }
             }
         } else {
             ## metric not present, add default values for all entries
