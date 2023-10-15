@@ -17,27 +17,17 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">bettr</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.1</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav"><li>
+  <a href="../articles/bettr.html">Get started</a>
+</li>
+<li>
   <a href="../reference/index.html">Reference</a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/bettr-oecdBLI.html">Exploring the OECD Better Life Index results</a>
-    </li>
-    <li>
-      <a href="../articles/bettr-usermanual.html">bettr</a>
-    </li>
-  </ul></li>
 <li>
   <a href="../news/index.html">Changelog</a>
 </li>
@@ -109,7 +99,8 @@ metric values. Defaults to <code>FALSE</code>.</p></li>
 <li><p><strong>offset</strong>: Numeric scalar; offset to add to the (flipped)
 metric values. Defaults to <code>0</code>.</p></li>
 <li><p><strong>transform</strong>: Character scalar; one of 'None', 'z-score',
-'[0,1]', '[-1,1]' or 'Rank', indicating which transform to apply to
+'[0,1]', '[-1,1]', 'Rank', 'Rank+[0,1]' or 'z-score+[0,1]',
+indicating which transform to apply to
 the metric values (after any flipping and/or adding the offset).
 Defaults to 'None'.</p></li>
 <li><p><strong>cuts</strong>: Numeric vector or <code>NULL</code>; the cut points that will
@@ -158,6 +149,12 @@ which weights can be specified using the sliders in the interface.</p></dd>
 the app. Defaults to 'bettr'.</p></dd>
 
 </dl></div>
+    <div id="value">
+    <h2>Value</h2>
+    
+
+<p>A shiny application</p>
+    </div>
     <div id="author">
     <h2>Author</h2>
     <p>Charlotte Soneson</p>
