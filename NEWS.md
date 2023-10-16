@@ -1,3 +1,7 @@
+# bettr 0.2.2
+
+* Bug fix in the data table
+
 # bettr 0.2.1
 
 * Add table view
