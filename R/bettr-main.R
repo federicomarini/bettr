@@ -251,10 +251,13 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                     shiny::fluidRow(
                         shiny::column(
                             2,
-                            shiny::checkboxInput(
-                                inputId = "barpolar_showcomp",
-                                label = "Show\nscore\ncomposition",
-                                value = FALSE
+                            shiny::conditionalPanel(
+                                condition = "input.scoreMethod == 'weighted mean'",
+                                shiny::checkboxInput(
+                                    inputId = "barpolar_showcomp",
+                                    label = "Show\nscore\ncomposition",
+                                    value = FALSE
+                                )
                             )
                         ),
                         shiny::column(
@@ -810,6 +813,11 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
             if (is.null(plotdata()) || is.null(scoredata())) {
                 NULL
             } else {
+                if (input$scoreMethod == "weighted mean") {
+                    ssc <- input$barpolar_showcomp
+                } else {
+                    ssc <- FALSE
+                }
                 .makeBarPolarPlot(
                     df = plotdata(), scores = scoredata(),
                     idCol = idCol, 
@@ -818,7 +826,7 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                     metricGroupCol = metricGroupCol, 
                     methods = methodsInUse(), 
                     labelSize = input$labelsize,
-                    showComposition = input$barpolar_showcomp,
+                    showComposition = ssc,
                     scaleFactorPolars = input$barpolar_scalefactor, 
                     metricColors = prep$metricColors,
                     metricCollapseGroup = input$metricCollapseGroup,
