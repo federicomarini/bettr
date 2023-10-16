@@ -65,6 +65,7 @@
 #' @importFrom sortable rank_list
 #' @importFrom shinyjqui jqui_resizable
 #' @importFrom dplyr filter select mutate left_join arrange %>% relocate
+#'     all_of
 #' @importFrom bslib bs_theme sidebar accordion accordion_panel page_sidebar
 #' @importFrom rlang .data
 #' @importFrom DT DTOutput renderDT
@@ -250,10 +251,13 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                     shiny::fluidRow(
                         shiny::column(
                             2,
-                            shiny::checkboxInput(
-                                inputId = "barpolar_showcomp",
-                                label = "Show\nscore\ncomposition",
-                                value = FALSE
+                            shiny::conditionalPanel(
+                                condition = "input.scoreMethod == 'weighted mean'",
+                                shiny::checkboxInput(
+                                    inputId = "barpolar_showcomp",
+                                    label = "Show\nscore\ncomposition",
+                                    value = FALSE
+                                )
                             )
                         ),
                         shiny::column(
@@ -733,7 +737,7 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
             tmpdf <- plotdata() %>%
                 dplyr::mutate("{valueCol}" := signif(.data[[valueCol]], 
                                                      digits = 4)) %>%
-                dplyr::select(-.data[[weightCol]]) %>%
+                dplyr::select(dplyr::all_of(c(idCol, valueCol, metricCol))) %>%
                 tidyr::pivot_wider(names_from = .data[[metricCol]], 
                                    values_from = .data[[valueCol]]) %>%
                 dplyr::left_join(scoredata(), by = idCol) %>%
@@ -809,6 +813,11 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
             if (is.null(plotdata()) || is.null(scoredata())) {
                 NULL
             } else {
+                if (input$scoreMethod == "weighted mean") {
+                    ssc <- input$barpolar_showcomp
+                } else {
+                    ssc <- FALSE
+                }
                 .makeBarPolarPlot(
                     df = plotdata(), scores = scoredata(),
                     idCol = idCol, 
@@ -817,7 +826,7 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                     metricGroupCol = metricGroupCol, 
                     methods = methodsInUse(), 
                     labelSize = input$labelsize,
-                    showComposition = input$barpolar_showcomp,
+                    showComposition = ssc,
                     scaleFactorPolars = input$barpolar_scalefactor, 
                     metricColors = prep$metricColors,
                     metricCollapseGroup = input$metricCollapseGroup,

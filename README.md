@@ -11,3 +11,8 @@ These can then be combined into one "overall" ranking.
 However, not all aspects are equally important to everyone, and thus there is more than one "right" way of ranking methods. 
 
 `bettr` is our proposal to do this in an interactive way, using different types of visualization approaches, and enhancing the final overview of the benchmarking process.
+
+The screenshots below display two of the representations provided by `bettr`, using data from the benchmark of single-cell clustering methods performed by [Duo et al (2018)](https://f1000research.com/articles/7-1141).
+
+<img src="vignettes/screenshots/bettr-screenshot-heatmap.png" alt="Heatmap" width="800"/>
+<img src="vignettes/screenshots/bettr-screenshot-polar.png" alt="Polar plot" width="800"/>
