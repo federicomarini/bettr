@@ -58,6 +58,12 @@
     
     ## Plot -------------------------------------------------------------------
     if (showComposition) {
+        df <- df %>%
+            dplyr::group_by(.data[[idCol]]) %>%
+            dplyr::mutate("{weightCol}" := .data[[weightCol]] / 
+                              sum(.data[[weightCol]] * !is.na(.data[[valueCol]]), 
+                                  na.rm = TRUE)) %>%
+            dplyr::ungroup()
         ## Split bars by metric contribution to score
         bplot <- ggplot2::ggplot(df %>% 
                                      dplyr::mutate("{idCol}" := 
