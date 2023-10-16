@@ -14,5 +14,5 @@ However, not all aspects are equally important to everyone, and thus there is mo
 
 The screenshots below display two of the representations provided by `bettr`, using data from the benchmark of single-cell clustering methods performed by [Duo et al (2018)](https://f1000research.com/articles/7-1141).
 
-<img src="vignettes/screenshots/bettr-screenshot-heatmap.png" alt="Heatmap" width="200"/>
-<img src="vignettes/screenshots/bettr-screenshot-polar.png" alt="Polar plot" width="200"/>
+<img src="vignettes/screenshots/bettr-screenshot-heatmap.png" alt="Heatmap" width="800"/>
+<img src="vignettes/screenshots/bettr-screenshot-polar.png" alt="Polar plot" width="800"/>
