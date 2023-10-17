@@ -172,9 +172,19 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                     bslib::accordion_panel(
                         "Metrics",
                         shiny::uiOutput(outputId = "metricGroupingUI"),
-                        shiny::checkboxInput(inputId = "metricCollapseGroup",
-                                             label = "Collapse by group",
-                                             value = FALSE),
+                        shiny::conditionalPanel(
+                            condition = "input.metricGrouping != '---'",
+                            shiny::checkboxInput(inputId = "metricCollapseGroup",
+                                                 label = "Collapse by group",
+                                                 value = FALSE)
+                        ),
+                        shiny::conditionalPanel(
+                            condition = "input.metricCollapseGroup == true",
+                            shiny::radioButtons(inputId = "metricCollapseMethod",
+                                                label = "Collapse method",
+                                                choices = c("mean", "max", "min"), 
+                                                selected = "mean")
+                        )
                     ),
                     bslib::accordion_panel(
                         "Plot settings",
@@ -462,7 +472,8 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                               metricGrouping = input$metricGrouping,
                               idCol = idCol, metricGroupCol = metricGroupCol,
                               valueCol = valueCol, weightCol = weightCol, 
-                              metricCol = metricCol)
+                              metricCol = metricCol, 
+                              collapseMethod = input$metricCollapseMethod)
         })
         
         ## Calculate scores ---------------------------------------------------

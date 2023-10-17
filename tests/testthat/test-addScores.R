@@ -29,7 +29,7 @@ test_that("adding scores works", {
                              metricGrouping = "---", idCol = "Method",
                              metricGroupCol = "metricGroup", 
                              valueCol = "ScaledValue", weightCol = "Weight", 
-                             metricCol = "Metric")
+                             metricCol = "Metric", collapseMethod = "mean")
     
     ## Weighted mean
     scd <- .calculateScores(df = cld, scoreMethod = "weighted mean", 

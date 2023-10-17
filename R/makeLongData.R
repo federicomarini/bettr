@@ -41,13 +41,18 @@
 #' @importFrom dplyr group_by summarize mutate ungroup
 .collapseLongData <- function(df, metricCollapseGroup, metricGrouping,
                               idCol, metricGroupCol, valueCol, weightCol, 
-                              metricCol) {
+                              metricCol, collapseMethod) {
     if (metricCollapseGroup && metricGrouping != "---") {
         df %>%
             dplyr::group_by(.data[[idCol]], .data[[metricGroupCol]]) %>%
             dplyr::summarize(
-                "{ valueCol }" := mean(.data[[valueCol]], na.rm = TRUE),
+                "{ valueCol }" := get(collapseMethod)(.data[[valueCol]], 
+                                                      na.rm = TRUE),
                 "{ weightCol }" := mean(.data[[weightCol]], na.rm = TRUE)
+            ) %>%
+            dplyr::mutate(
+                "{ valueCol }" := replace(.data[[valueCol]], 
+                                          !is.finite(.data[[valueCol]]), NA)
             ) %>%
             dplyr::mutate("{ metricCol }" := .data[[metricGroupCol]]) %>%
             dplyr::ungroup() %>%

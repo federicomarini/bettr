@@ -1,6 +1,7 @@
 # bettr 0.2.2
 
 * Bug fix in the data table
+* Add more methods for collapsing metrics
 
 # bettr 0.2.1
 
