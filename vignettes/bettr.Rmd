@@ -60,6 +60,16 @@ idInfo <- data.frame(Method = c("M1", "M2", "M3"),
 bettr(df = df, idCol = "Method", metricInfo = metricInfo, idInfo = idInfo)
 ```
 
+# Example output
+
+The screenshots below illustrate the interface by displaying two of the 
+representations provided by `bettr`, using data from the benchmark of 
+single-cell clustering methods performed by 
+[Duo et al (2018)](https://f1000research.com/articles/7-1141).
+
+![](bettr-screenshot-heatmap.png)
+![](bettr-screenshot-polar.png)
+
 # Session info
 
 ```{r}
