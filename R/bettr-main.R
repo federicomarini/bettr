@@ -241,6 +241,15 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                                 label = "Show row names", 
                                 value = TRUE
                             )
+                        ),
+                        shiny::column(
+                            6, 
+                            shiny::radioButtons(
+                                inputId = "heatmap_plot_type",
+                                label = "Plot type",
+                                choices = c("Heatmap", "Dot plot"), 
+                                selected = "Heatmap", inline = TRUE
+                            )
                         )
                     ),
                     shiny::uiOutput("bettrHeatmapUI")
@@ -875,6 +884,7 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                     metricCollapseGroup = input$metricCollapseGroup,
                     metricGrouping = input$metricGrouping, 
                     showRowNames = input$show_row_names,
+                    plotType = input$heatmap_plot_type,
                     showOnlyTopIds = input$showOnlyTopIds,
                     nbrTopIds = input$nbrTopIds,
                     rownamewidth_cm = input$hm_rownamewidth,

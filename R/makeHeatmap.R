@@ -4,12 +4,13 @@
 #' @importFrom rlang .data :=
 #' @importFrom ComplexHeatmap rowAnnotation anno_barplot columnAnnotation 
 #'   Heatmap draw
-#' @importFrom grid gpar unit
+#' @importFrom grid gpar unit grid.rect grid.circle unit.c
 #' @importFrom circlize colorRamp2
 .makeHeatmap <- function(df, scores, idCol, metricCol, valueCol, weightCol, 
                          scoreCol, metricGroupCol, metricInfo, idInfo,
                          labelSize, idColors, metricColors,
                          metricCollapseGroup, metricGrouping, showRowNames, 
+                         plotType = "Heatmap",
                          showOnlyTopIds = FALSE, nbrTopIds = Inf,
                          rownamewidth_cm = 6, colnameheight_cm = 6) {
 
@@ -131,26 +132,62 @@
         )
     }
     
-    hm <- ComplexHeatmap::Heatmap(
-        matrix = mat, name = "Relative\nvalue",
-        col = heatmapCols,
-        na_col = "white",
-        # rect_gp = grid::gpar(col = "white", lwd = 1),
-        cluster_rows = FALSE, 
-        cluster_columns = FALSE, 
-        show_row_names = showRowNames,
-        row_names_side = "left",
-        row_names_gp = grid::gpar(fontsize = labelSize),
-        row_names_max_width = grid::unit(rownamewidth_cm, "cm"),
-        column_names_gp = grid::gpar(fontsize = labelSize),
-        column_names_max_height = grid::unit(colnameheight_cm, "cm"),
-        row_title = idCol,
-        column_title = metricCol,
-        column_title_side = "bottom",
-        top_annotation = colAnnotTop,
-        bottom_annotation = colAnnotBottom, 
-        right_annotation = rowAnnotRight,
-        left_annotation = rowAnnotLeft
-    )
+    if (plotType == "Heatmap") {
+        hm <- ComplexHeatmap::Heatmap(
+            matrix = mat, name = "Relative\nvalue",
+            col = heatmapCols,
+            na_col = "white",
+            # rect_gp = grid::gpar(col = "white", lwd = 1),
+            cluster_rows = FALSE, 
+            cluster_columns = FALSE, 
+            show_row_names = showRowNames,
+            row_names_side = "left",
+            row_names_gp = grid::gpar(fontsize = labelSize),
+            row_names_max_width = grid::unit(rownamewidth_cm, "cm"),
+            column_names_gp = grid::gpar(fontsize = labelSize),
+            column_names_max_height = grid::unit(colnameheight_cm, "cm"),
+            row_title = idCol,
+            column_title = metricCol,
+            column_title_side = "bottom",
+            top_annotation = colAnnotTop,
+            bottom_annotation = colAnnotBottom, 
+            right_annotation = rowAnnotRight,
+            left_annotation = rowAnnotLeft
+        )
+    } else if (plotType == "Dot plot") {
+        cell_fun <- function(j, i, x, y, w, h, fill) {
+            grid::grid.rect(x = x, y = y, width = w, height = h, 
+                            gp = grid::gpar(col = NA, fill = NA))
+            grid::grid.circle(
+                x = x, y = y, r = mat[i, j] / 
+                    (max(mat, na.rm = TRUE) * 2) * min(grid::unit.c(w, h)),
+                gp = grid::gpar(fill = heatmapCols(mat[i, j]), col = "black"))
+        }
+        hm <- ComplexHeatmap::Heatmap(
+            matrix = mat, name = "Relative\nvalue",
+            cell_fun = cell_fun, 
+            rect_gp = gpar(type = "rect", fill = NA, col = "lightgrey"),
+            col = heatmapCols,
+            na_col = "white",
+            # rect_gp = grid::gpar(col = "white", lwd = 1),
+            cluster_rows = FALSE, 
+            cluster_columns = FALSE, 
+            show_row_names = showRowNames,
+            row_names_side = "left",
+            row_names_gp = grid::gpar(fontsize = labelSize),
+            row_names_max_width = grid::unit(rownamewidth_cm, "cm"),
+            column_names_gp = grid::gpar(fontsize = labelSize),
+            column_names_max_height = grid::unit(colnameheight_cm, "cm"),
+            row_title = idCol,
+            column_title = metricCol,
+            column_title_side = "bottom",
+            top_annotation = colAnnotTop,
+            bottom_annotation = colAnnotBottom, 
+            right_annotation = rowAnnotRight,
+            left_annotation = rowAnnotLeft
+        )
+    } else {
+        stop("Unknown plot type ", plotType)
+    }
     ComplexHeatmap::draw(hm)
 }
