@@ -297,11 +297,13 @@ test_that("collapsing long data works", {
                                                 lets3_n_weight = 0.1, lets3_o_weight = 0.9),
                                  weightCol = "Weight", metricCol = "Metric",
                                  metrics = c("m1", "m2", "m3"))
-    cld <- .collapseLongData(df = ldw, metricCollapseGroup = TRUE, 
-                             metricGrouping = "num", idCol = "Method",
-                             metricGroupCol = "metricGroup", 
-                             valueCol = "ScaledValue", weightCol = "Weight", 
-                             metricCol = "Metric", collapseMethod = "min")
+    expect_warning(
+        cld <- .collapseLongData(df = ldw, metricCollapseGroup = TRUE, 
+                                 metricGrouping = "num", idCol = "Method",
+                                 metricGroupCol = "metricGroup", 
+                                 valueCol = "ScaledValue", weightCol = "Weight", 
+                                 metricCol = "Metric", collapseMethod = "min"),
+        "no non-missing arguments to min")
     expect_s3_class(cld, "data.frame")
     expect_equal(dim(cld), c(6, 5))
     expect_named(cld, c("Method", "metricGroup", "ScaledValue", "Weight", "Metric"))

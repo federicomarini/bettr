@@ -11,7 +11,6 @@
                          labelSize, idColors, metricColors,
                          metricCollapseGroup, metricGrouping, showRowNames, 
                          plotType = "Heatmap",
-                         showOnlyTopIds = FALSE, nbrTopIds = Inf,
                          rownamewidth_cm = 6, colnameheight_cm = 6) {
 
     if (metricCollapseGroup && !is.null(metricInfo[[metricGrouping]])) {

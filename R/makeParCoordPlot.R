@@ -4,9 +4,8 @@
 #' @importFrom ggplot2 ggplot aes geom_boxplot geom_line geom_point 
 #'   scale_linewidth_manual theme_minimal theme element_text scale_fill_manual
 .makeParCoordPlot <- function(df, idCol, metricCol, valueCol, metricGroupCol,
-                              methods, highlightMethod, 
-                              metricGrouping, labelSize, 
-                              metricColors, idColors) {
+                              methods, highlightMethod, metricGrouping, 
+                              labelSize, metricColors, idColors) {
     
     ## Define line widths -----------------------------------------------------
     lwidths <- rep(0.75, length(methods))

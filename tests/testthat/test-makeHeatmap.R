@@ -21,8 +21,7 @@ test_that("makeHeatmap works", {
         scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL, 
         idInfo = NULL, labelSize = 10, idColors = NULL, metricColors = NULL,
         metricCollapseGroup = FALSE, metricGrouping = NULL, showRowNames = TRUE, 
-        plotType = "Heatmap", showOnlyTopIds = FALSE, nbrTopIds = Inf,
-        rownamewidth_cm = 6, colnameheight_cm = 6
+        plotType = "Heatmap", rownamewidth_cm = 6, colnameheight_cm = 6
     )
     expect_s4_class(hm, "HeatmapList")
     
@@ -32,8 +31,7 @@ test_that("makeHeatmap works", {
         scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL, 
         idInfo = NULL, labelSize = 10, idColors = NULL, metricColors = NULL,
         metricCollapseGroup = FALSE, metricGrouping = NULL, showRowNames = TRUE, 
-        plotType = "unknown", showOnlyTopIds = FALSE, nbrTopIds = Inf,
-        rownamewidth_cm = 6, colnameheight_cm = 6
+        plotType = "unknown", rownamewidth_cm = 6, colnameheight_cm = 6
     ), "Unknown plot type")
     
     hm <- .makeHeatmap(
@@ -42,8 +40,7 @@ test_that("makeHeatmap works", {
         scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL, 
         idInfo = NULL, labelSize = 10, idColors = NULL, metricColors = NULL,
         metricCollapseGroup = FALSE, metricGrouping = NULL, showRowNames = TRUE, 
-        plotType = "Dot plot", showOnlyTopIds = FALSE, nbrTopIds = Inf,
-        rownamewidth_cm = 6, colnameheight_cm = 6
+        plotType = "Dot plot", rownamewidth_cm = 6, colnameheight_cm = 6
     )
     expect_s4_class(hm, "HeatmapList")
     
@@ -61,8 +58,7 @@ test_that("makeHeatmap works", {
         metricInfo = metricInfo, 
         idInfo = NULL, labelSize = 10, idColors = NULL, metricColors = NULL,
         metricCollapseGroup = TRUE, metricGrouping = "Group", showRowNames = TRUE, 
-        plotType = "Heatmap", showOnlyTopIds = FALSE, nbrTopIds = Inf,
-        rownamewidth_cm = 6, colnameheight_cm = 6
+        plotType = "Heatmap", rownamewidth_cm = 6, colnameheight_cm = 6
     )
     expect_s4_class(hm, "HeatmapList")
     
@@ -72,8 +68,7 @@ test_that("makeHeatmap works", {
         scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL, 
         idInfo = idInfo, labelSize = 10, idColors = NULL, metricColors = NULL,
         metricCollapseGroup = FALSE, metricGrouping = NULL, showRowNames = TRUE, 
-        plotType = "Heatmap", showOnlyTopIds = FALSE, nbrTopIds = Inf,
-        rownamewidth_cm = 6, colnameheight_cm = 6
+        plotType = "Heatmap", rownamewidth_cm = 6, colnameheight_cm = 6
     )
     expect_s4_class(hm, "HeatmapList")
     
@@ -85,8 +80,7 @@ test_that("makeHeatmap works", {
         scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL, 
         idInfo = idInfo, labelSize = 10, idColors = NULL, metricColors = NULL,
         metricCollapseGroup = FALSE, metricGrouping = NULL, showRowNames = TRUE, 
-        plotType = "Heatmap", showOnlyTopIds = FALSE, nbrTopIds = Inf,
-        rownamewidth_cm = 6, colnameheight_cm = 6
+        plotType = "Heatmap", rownamewidth_cm = 6, colnameheight_cm = 6
     )
     expect_s4_class(hm, "HeatmapList")
     
@@ -98,8 +92,7 @@ test_that("makeHeatmap works", {
         scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL, 
         idInfo = idInfo, labelSize = 10, idColors = NULL, metricColors = NULL,
         metricCollapseGroup = FALSE, metricGrouping = NULL, showRowNames = TRUE, 
-        plotType = "Heatmap", showOnlyTopIds = FALSE, nbrTopIds = Inf,
-        rownamewidth_cm = 6, colnameheight_cm = 6
+        plotType = "Heatmap", rownamewidth_cm = 6, colnameheight_cm = 6
     )
     expect_s4_class(hm, "HeatmapList")
 })

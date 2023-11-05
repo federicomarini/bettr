@@ -9,8 +9,7 @@
                               methods, labelSize,
                               showComposition = FALSE, 
                               scaleFactorPolars = 1.5, metricColors,
-                              metricCollapseGroup, metricGrouping,
-                              showOnlyTopIds = FALSE, nbrTopIds = Inf) {
+                              metricCollapseGroup, metricGrouping) {
     
     if (metricCollapseGroup && !is.null(df[[metricGroupCol]])) {
         metricColors[[metricCol]] <- metricColors[[metricGrouping]]

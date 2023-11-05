@@ -16,22 +16,18 @@ test_that("PolarPlot works", {
     idInfo <- scoredata[, c("Method", "Type")]
     
     bpp <- .makePolarPlot(
-        df = plotdata, scores = scoredata, idCol = "Method", 
-        metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
-        scoreCol = "Score", metricGroupCol = "---", 
+        df = plotdata, idCol = "Method", 
+        metricCol = "Metric", valueCol = "ScaledValue", metricGroupCol = "---", 
         labelSize = 10, metricColors = list(Metric = c("blue", "red", "green")),
-        metricCollapseGroup = FALSE, metricGrouping = "Group",
-        showOnlyTopIds = FALSE, nbrTopIds = Inf
+        metricCollapseGroup = FALSE, metricGrouping = "Group"
     )
     expect_s3_class(bpp, "ggplot")
     
     bpp <- .makePolarPlot(
-        df = plotdata, scores = scoredata, idCol = "Method", 
-        metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
-        scoreCol = "Score", metricGroupCol = "---", 
+        df = plotdata, idCol = "Method", 
+        metricCol = "Metric", valueCol = "ScaledValue", metricGroupCol = "---", 
         labelSize = 10, metricColors = list(Metric = c("blue", "red", "green")),
-        metricCollapseGroup = FALSE, metricGrouping = "Group",
-        showOnlyTopIds = FALSE, nbrTopIds = Inf
+        metricCollapseGroup = FALSE, metricGrouping = "Group"
     )
     expect_s3_class(bpp, "ggplot")
     
@@ -43,12 +39,11 @@ test_that("PolarPlot works", {
         dplyr::mutate(Metric = Group) |>
         dplyr::rename(metricGroup = Group)
     bpp <- .makePolarPlot(
-        df = grpdf, scores = scoredata, idCol = "Method", 
-        metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
-        scoreCol = "Score", metricGroupCol = "metricGroup", 
+        df = grpdf, idCol = "Method", 
+        metricCol = "Metric", valueCol = "ScaledValue", 
+        metricGroupCol = "metricGroup", 
         labelSize = 10, metricColors = list(Group = c("blue", "red", "green")),
-        metricCollapseGroup = TRUE, metricGrouping = "Group",
-        showOnlyTopIds = FALSE, nbrTopIds = Inf
+        metricCollapseGroup = TRUE, metricGrouping = "Group"
     )
     expect_s3_class(bpp, "ggplot")
 })

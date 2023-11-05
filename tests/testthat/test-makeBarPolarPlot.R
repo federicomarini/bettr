@@ -22,8 +22,7 @@ test_that("BarPolarPlot works", {
         methods = unique(scoredata$Method), labelSize = 10,
         showComposition = FALSE, 
         scaleFactorPolars = 1.5, metricColors = list(Metric = c("blue", "red", "green")),
-        metricCollapseGroup = FALSE, metricGrouping = "Group",
-        showOnlyTopIds = FALSE, nbrTopIds = Inf
+        metricCollapseGroup = FALSE, metricGrouping = "Group"
     )
     expect_s3_class(bpp, "ggplot")
     
@@ -34,8 +33,7 @@ test_that("BarPolarPlot works", {
         methods = unique(scoredata$Method), labelSize = 10,
         showComposition = TRUE, 
         scaleFactorPolars = 1.5, metricColors = list(Metric = c("blue", "red", "green")),
-        metricCollapseGroup = FALSE, metricGrouping = "Group",
-        showOnlyTopIds = FALSE, nbrTopIds = Inf
+        metricCollapseGroup = FALSE, metricGrouping = "Group"
     )
     expect_s3_class(bpp, "ggplot")
     
@@ -53,8 +51,7 @@ test_that("BarPolarPlot works", {
         methods = unique(scoredata$Method), labelSize = 10,
         showComposition = TRUE, 
         scaleFactorPolars = 1.5, metricColors = list(Group = c("blue", "red", "green")),
-        metricCollapseGroup = TRUE, metricGrouping = "Group",
-        showOnlyTopIds = FALSE, nbrTopIds = Inf
+        metricCollapseGroup = TRUE, metricGrouping = "Group"
     )
     expect_s3_class(bpp, "ggplot")
 })
