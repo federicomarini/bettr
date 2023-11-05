@@ -1,3 +1,7 @@
+# bettr 0.2.3
+
+* Add option to show heatmap as dot plot
+
 # bettr 0.2.2
 
 * Bug fix in the data table
