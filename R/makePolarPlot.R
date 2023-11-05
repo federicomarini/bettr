@@ -1,10 +1,9 @@
 #' @importFrom rlang .data
 #' @importFrom ggplot2 ggplot aes geom_col coord_polar facet_wrap 
 #'   theme_minimal theme element_blank
-.makePolarPlot <- function(df, scores, idCol, metricCol, valueCol, weightCol, 
-                           scoreCol, metricGroupCol, labelSize, 
-                           metricColors, metricCollapseGroup, metricGrouping,
-                           showOnlyTopIds = FALSE, nbrTopIds = Inf) {
+.makePolarPlot <- function(df, idCol, metricCol, valueCol, 
+                           metricGroupCol, labelSize, 
+                           metricColors, metricCollapseGroup, metricGrouping) {
    
     if (metricCollapseGroup && !is.null(df[[metricGroupCol]])) {
         metricColors[[metricCol]] <- metricColors[[metricGrouping]]

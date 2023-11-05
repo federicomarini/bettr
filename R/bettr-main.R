@@ -809,17 +809,14 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                 NULL
             } else {
                 .makePolarPlot(
-                    df = plotdata(), scores = scoredata(), 
+                    df = plotdata(), 
                     idCol = idCol, 
                     metricCol = metricCol, valueCol = valueCol,
-                    weightCol = weightCol, scoreCol = scoreCol,
                     metricGroupCol = metricGroupCol, 
                     labelSize = input$labelsize,
                     metricColors = prep$metricColors,
                     metricCollapseGroup = input$metricCollapseGroup,
-                    metricGrouping = input$metricGrouping,
-                    showOnlyTopIds = input$showOnlyTopIds,
-                    nbrTopIds = input$nbrTopIds
+                    metricGrouping = input$metricGrouping
                 )
             }
         })
@@ -850,9 +847,7 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                     scaleFactorPolars = input$barpolar_scalefactor, 
                     metricColors = prep$metricColors,
                     metricCollapseGroup = input$metricCollapseGroup,
-                    metricGrouping = input$metricGrouping,
-                    showOnlyTopIds = input$showOnlyTopIds,
-                    nbrTopIds = input$nbrTopIds
+                    metricGrouping = input$metricGrouping
                 )
             }
         })
@@ -885,8 +880,6 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                     metricGrouping = input$metricGrouping, 
                     showRowNames = input$show_row_names,
                     plotType = input$heatmap_plot_type,
-                    showOnlyTopIds = input$showOnlyTopIds,
-                    nbrTopIds = input$nbrTopIds,
                     rownamewidth_cm = input$hm_rownamewidth,
                     colnameheight_cm = input$hm_colnameheight
                 )
