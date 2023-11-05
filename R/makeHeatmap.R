@@ -3,7 +3,7 @@
 #' @importFrom tibble column_to_rownames tibble
 #' @importFrom rlang .data :=
 #' @importFrom ComplexHeatmap rowAnnotation anno_barplot columnAnnotation 
-#'   Heatmap draw
+#'   Heatmap draw pindex
 #' @importFrom grid gpar unit grid.rect grid.circle unit.c
 #' @importFrom circlize colorRamp2
 .makeHeatmap <- function(df, scores, idCol, metricCol, valueCol, weightCol, 
@@ -155,17 +155,18 @@
             left_annotation = rowAnnotLeft
         )
     } else if (plotType == "Dot plot") {
-        cell_fun <- function(j, i, x, y, w, h, fill) {
+        layer_fun <- function(j, i, x, y, w, h, fill) {
             grid::grid.rect(x = x, y = y, width = w, height = h, 
                             gp = grid::gpar(col = NA, fill = NA))
             grid::grid.circle(
-                x = x, y = y, r = mat[i, j] / 
-                    (max(mat, na.rm = TRUE) * 2) * min(grid::unit.c(w, h)),
-                gp = grid::gpar(fill = heatmapCols(mat[i, j]), col = "black"))
+                x = x, y = y, r = ComplexHeatmap::pindex(mat, i, j) / 
+                    (max(abs(mat), na.rm = TRUE) * 2) * min(grid::unit.c(w, h)),
+                gp = grid::gpar(fill = heatmapCols(ComplexHeatmap::pindex(mat, i, j)), 
+                                col = "black"))
         }
         hm <- ComplexHeatmap::Heatmap(
             matrix = mat, name = "Relative\nvalue",
-            cell_fun = cell_fun, 
+            layer_fun = layer_fun, 
             rect_gp = gpar(type = "rect", fill = NA, col = "lightgrey"),
             col = heatmapCols,
             na_col = "white",
