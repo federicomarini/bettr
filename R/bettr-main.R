@@ -174,16 +174,18 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                         shiny::uiOutput(outputId = "metricGroupingUI"),
                         shiny::conditionalPanel(
                             condition = "input.metricGrouping != '---'",
-                            shiny::checkboxInput(inputId = "metricCollapseGroup",
-                                                 label = "Collapse by group",
-                                                 value = FALSE)
+                            shiny::checkboxInput(
+                                inputId = "metricCollapseGroup",
+                                label = "Collapse by group",
+                                value = FALSE)
                         ),
                         shiny::conditionalPanel(
                             condition = "input.metricCollapseGroup == true",
-                            shiny::radioButtons(inputId = "metricCollapseMethod",
-                                                label = "Collapse method",
-                                                choices = c("mean", "max", "min"), 
-                                                selected = "mean")
+                            shiny::radioButtons(
+                                inputId = "metricCollapseMethod",
+                                label = "Collapse method",
+                                choices = c("mean", "max", "min"), 
+                                selected = "mean")
                         )
                     ),
                     bslib::accordion_panel(
@@ -271,7 +273,8 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                         shiny::column(
                             2,
                             shiny::conditionalPanel(
-                                condition = "input.scoreMethod == 'weighted mean'",
+                                condition = 
+                                    "input.scoreMethod == 'weighted mean'",
                                 shiny::checkboxInput(
                                     inputId = "barpolar_showcomp",
                                     label = "Show\nscore\ncomposition",
@@ -295,7 +298,16 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                     "Filter methods/metrics",
                     shiny::br(),
                     bslib::card(
-                        "You can exclude methods and/or metrics from the summaries by removing them from the selection boxes below. The selection can be done either by the name of the method/metric, or via any other provided attribute (if any). The intersection of methods satisfying the selection criteria will be retained. To add back a (set of) methods/metrics, click in the corresponding selection box to see a dropdown menu with available values."
+                        paste0("You can exclude methods and/or metrics from ", 
+                               "the summaries by removing them from the ", 
+                               "selection boxes below. The selection can be ", 
+                               "done either by the name of the method/metric", 
+                               ", or via any other provided attribute (if ", 
+                               "any). The intersection of methods satisfying ", 
+                               "the selection criteria will be retained. To ", 
+                               "add back a (set of) methods/metrics, click ", 
+                               "in the corresponding selection box to see a ", 
+                               "dropdown menu with available values.")
                     ),
                     shiny::br(),
                     shiny::selectInput(inputId = "keepIds", 
@@ -316,7 +328,14 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                     "Transform metrics",
                     shiny::br(),
                     bslib::card(
-                        "The interface below can be used to apply transformations to the provided metric values, to make them more comparable to each other. For example, it is important for the interpretability of the cross-metric aggregation that a high value always corresponds to either 'good' or 'bad' performance."
+                        paste0("The interface below can be used to apply ", 
+                               "transformations to the provided metric ", 
+                               "values, to make them more comparable to ", 
+                               "each other. For example, it is important ", 
+                               "for the interpretability of the cross-metric ", 
+                               "aggregation that a high value always ", 
+                               "corresponds to either 'good' or 'bad' ", 
+                               "performance.")
                     ),
                     shiny::br(),
                     ## Variable transformations -------------------------------
@@ -336,7 +355,9 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                     "Data table",
                     shiny::br(),
                     bslib::card(
-                        "This data table contains the transformed values of all metrics, as well as the aggregated scores."
+                        paste0("This data table contains the transformed ", 
+                               "values of all metrics, as well as the ", 
+                               "aggregated scores.")
                     ),
                     shiny::br(),
                     DT::DTOutput(outputId = "scoreTable")
@@ -399,7 +420,10 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
             )
             temp_need1 <- lapply(
                 intersect(prep$metrics_num, metricsInUse()), function(m) {
-                    cond <- paste0("shiny::need(is.logical(input$", m, "_flip) && !is.null(input$", m, "_offset) && !is.null(input$", m, "_transform), '')")
+                    cond <- paste0("shiny::need(is.logical(input$", m,
+                                   "_flip) && !is.null(input$", m,
+                                   "_offset) && !is.null(input$", m,
+                                   "_transform), '')")
                     eval(parse(text = cond))
                 })
             do.call(shiny::validate, temp_need1)
@@ -912,9 +936,10 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                                 lapply(unique(longdata()[[metricGroupCol]]), 
                                        function(i) {
                                            shiny::sliderInput(
-                                               inputId = paste0(input$metricGrouping,
-                                                                "_", i, 
-                                                                "_weight"),
+                                               inputId = paste0(
+                                                   input$metricGrouping,
+                                                   "_", i, 
+                                                   "_weight"),
                                                label = i,
                                                value = values$currentWeights[
                                                    paste0(input$metricGrouping,

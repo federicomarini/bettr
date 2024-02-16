@@ -36,8 +36,9 @@
         if (methods::is(metricColors[[metricGrouping]], "function")) {
             gp <- gp + 
                 ggplot2::scale_fill_gradientn(
-                    colors = do.call(metricColors[[metricGrouping]], 
-                                     list(sort(unique(tmp[[metricGroupCol]])))), 
+                    colors = do.call(
+                        metricColors[[metricGrouping]], 
+                        list(sort(unique(tmp[[metricGroupCol]])))), 
                     values = scales::rescale(sort(
                         unique(tmp[[metricGroupCol]])))
                 )

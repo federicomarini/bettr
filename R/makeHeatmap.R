@@ -160,8 +160,9 @@
             grid::grid.circle(
                 x = x, y = y, r = ComplexHeatmap::pindex(mat, i, j) / 
                     (max(abs(mat), na.rm = TRUE) * 2) * min(grid::unit.c(w, h)),
-                gp = grid::gpar(fill = heatmapCols(ComplexHeatmap::pindex(mat, i, j)), 
-                                col = "black"))
+                gp = grid::gpar(fill = heatmapCols(
+                    ComplexHeatmap::pindex(mat, i, j)), 
+                    col = "black"))
         }
         hm <- ComplexHeatmap::Heatmap(
             matrix = mat, name = "Relative\nvalue",
