@@ -1,6 +1,7 @@
 Package: bettr
 Title: A Better Way To Explore What Is Best
 Version: 0.2.3
+Date: 2024-02-16
 Authors@R: 
     c(person("Federico", "Marini", 
              role="aut", email="marinif@uni-mainz.de", 
@@ -44,3 +45,5 @@ Imports:
     DT
 Config/testthat/edition: 3
 biocViews: Visualization, ShinyApps
+URL: https://github.com/federicomarini/bettr
+BugReports: https://github.com/federicomarini/bettr/issues
