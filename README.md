@@ -1,7 +1,14 @@
+<img src="man/figures/bettr.png" align="right" alt="bettr" width="150"/>
+
+<br>
+
 # `bettr`: a better way to explore what is best
+
+<br>
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/federicomarini/bettr/workflows/R-CMD-check/badge.svg)](https://github.com/federicomarini/bettr/actions)
+[![Codecov.io coverage status](https://codecov.io/github/federicomarini/bettr/coverage.svg?branch=devel)](https://codecov.io/github/federicomarini/bettr)
 <!-- badges: end -->
 
 As new methods come along, it becomes essential to compare them to existing ones with an objective and fair approach.
