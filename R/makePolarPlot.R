@@ -1,9 +1,42 @@
+#' Create a polar plot
+#' 
+#' Create a polar plot. The input arguments for this functions are 
+#' typically generated using \code{\link{bettrPrepare}}, which ensures that 
+#' all required columns are available. 
+#' 
+#' @inheritParams makeHeatmap
+#' 
+#' @author Charlotte Soneson
+#' @export
+#' 
+#' @returns
+#' A \code{ggplot} object.  
+#' 
 #' @importFrom rlang .data
 #' @importFrom ggplot2 ggplot aes geom_col coord_polar facet_wrap 
 #'   theme_minimal theme element_blank
-.makePolarPlot <- function(df, idCol, metricCol, valueCol, 
-                           metricGroupCol, labelSize, 
-                           metricColors, metricCollapseGroup, metricGrouping) {
+#'   
+#' @examples
+#' ## Generate example data
+#' df <- data.frame(Method = c("M1", "M2", "M3"), 
+#'                  metric1 = c(1, 2, 3),
+#'                  metric2 = c(3, 1, 2))
+#' metricInfo <- data.frame(Metric = c("metric1", "metric2", "metric3"),
+#'                          Group = c("G1", "G2", "G2"))
+#' idInfo <- data.frame(Method = c("M1", "M2", "M3"), 
+#'                      Type = c("T1", "T1", "T2"))
+#' prepData <- bettrPrepare(df = df, idCol = "Method", 
+#'                          metricInfo = metricInfo, idInfo = idInfo)
+#' makePolarPlot(df = prepData$plotdata, idCol = "Method", 
+#'               metricGroupCol = prepData$metricGroupCol,
+#'               metricColors = prepData$metricColors, 
+#'               metricCollapseGroup = prepData$metricCollapseGroup,
+#'               metricGrouping = prepData$metricGrouping)
+#'                  
+makePolarPlot <- function(df, idCol, metricCol = "Metric", 
+                          valueCol = "ScaledValue", 
+                          metricGroupCol = "metricGroup", labelSize = 10, 
+                          metricColors, metricCollapseGroup, metricGrouping) {
    
     if (metricCollapseGroup && !is.null(df[[metricGroupCol]])) {
         metricColors[[metricCol]] <- metricColors[[metricGrouping]]

@@ -1,16 +1,60 @@
+#' Create a bar/polar plot
+#' 
+#' Create a bar/polar plot. The input arguments for this functions are 
+#' typically generated using \code{\link{bettrPrepare}}, which ensures that 
+#' all required columns are available. 
+#' 
+#' @inheritParams makeHeatmap
+#' @param showComposition Logical scalar indicating whether to show the 
+#'     composition of the score in the bar plots. This is only interpretable
+#'     if the scores are obtained via a weighted mean approach.
+#' @param scaleFactorPolars Numeric scalar giving the scale factor determining 
+#'     the size of the polar plots. 
+#' @param methods Character vector containing the methods for which to make 
+#'     polar plots. If \code{NULL} (default), all methods will be used. 
+#' 
+#' @author Charlotte Soneson
+#' @export
+#' 
+#' @returns 
+#' A \code{ggplot} object.
+#' 
 #' @importFrom dplyr filter pull mutate
 #' @importFrom rlang .data :=
 #' @importFrom ggplot2 ggplot aes geom_col ylim coord_polar theme_minimal 
 #'   theme element_blank labs geom_bar expand_limits element_text
 #' @importFrom cowplot draw_plot get_legend plot_grid
 #' @importFrom grid unit
-.makeBarPolarPlot <- function(df, scores, idCol, metricCol, valueCol, 
-                              weightCol, scoreCol, metricGroupCol, 
-                              methods, labelSize,
-                              showComposition = FALSE, 
-                              scaleFactorPolars = 1.5, metricColors,
-                              metricCollapseGroup, metricGrouping) {
+#' 
+#' @examples
+#' ## Generate example data
+#' df <- data.frame(Method = c("M1", "M2", "M3"), 
+#'                  metric1 = c(1, 2, 3),
+#'                  metric2 = c(3, 1, 2))
+#' metricInfo <- data.frame(Metric = c("metric1", "metric2", "metric3"),
+#'                          Group = c("G1", "G2", "G2"))
+#' idInfo <- data.frame(Method = c("M1", "M2", "M3"), 
+#'                      Type = c("T1", "T1", "T2"))
+#' prepData <- bettrPrepare(df = df, idCol = "Method", 
+#'                          metricInfo = metricInfo, idInfo = idInfo)
+#' makeBarPolarPlot(df = prepData$plotdata, scores = prepData$scoredata, 
+#'                  idCol = "Method", metricGroupCol = prepData$metricGroupCol,
+#'                  metricColors = prepData$metricColors, 
+#'                  metricCollapseGroup = prepData$metricCollapseGroup,
+#'                  metricGrouping = prepData$metricGrouping, 
+#'                  showComposition = TRUE)
+#'                  
+makeBarPolarPlot <- function(df, scores, idCol, metricCol = "Metric", 
+                             valueCol = "ScaledValue", weightCol = "Weight", 
+                             scoreCol = "Score", metricGroupCol = "metricGroup", 
+                             methods = NULL, labelSize = 10,
+                             showComposition = FALSE, 
+                             scaleFactorPolars = 1, metricColors,
+                             metricCollapseGroup, metricGrouping) {
     
+    if (is.null(methods)) {
+        methods <- unique(df[[idCol]])
+    }
     if (metricCollapseGroup && !is.null(df[[metricGroupCol]])) {
         metricColors[[metricCol]] <- metricColors[[metricGrouping]]
     }

@@ -15,7 +15,7 @@ test_that("BarPolarPlot works", {
                              Group = c("A", "A", "B"))
     idInfo <- scoredata[, c("Method", "Type")]
     
-    bpp <- .makeBarPolarPlot(
+    bpp <- makeBarPolarPlot(
         df = plotdata, scores = scoredata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
         scoreCol = "Score", metricGroupCol = "---", 
@@ -26,7 +26,7 @@ test_that("BarPolarPlot works", {
     )
     expect_s3_class(bpp, "ggplot")
     
-    bpp <- .makeBarPolarPlot(
+    bpp <- makeBarPolarPlot(
         df = plotdata, scores = scoredata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
         scoreCol = "Score", metricGroupCol = "---", 
@@ -44,7 +44,7 @@ test_that("BarPolarPlot works", {
                          .groups = "drop") |>
         dplyr::mutate(Metric = Group) |>
         dplyr::rename(metricGroup = Group)
-    bpp <- .makeBarPolarPlot(
+    bpp <- makeBarPolarPlot(
         df = grpdf, scores = scoredata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
         scoreCol = "Score", metricGroupCol = "metricGroup", 

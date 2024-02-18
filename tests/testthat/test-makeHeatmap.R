@@ -15,7 +15,7 @@ test_that("makeHeatmap works", {
                              Group = c("A", "A", "B"))
     idInfo <- scoredata[, c("Method", "Type")]
     
-    hm <- .makeHeatmap(
+    hm <- makeHeatmap(
         df = plotdata, scores = scoredata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
         scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL, 
@@ -25,7 +25,7 @@ test_that("makeHeatmap works", {
     )
     expect_s4_class(hm, "HeatmapList")
     
-    expect_error(.makeHeatmap(
+    expect_error(makeHeatmap(
         df = plotdata, scores = scoredata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
         scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL, 
@@ -34,7 +34,7 @@ test_that("makeHeatmap works", {
         plotType = "unknown", rownamewidth_cm = 6, colnameheight_cm = 6
     ), "Unknown plot type")
     
-    hm <- .makeHeatmap(
+    hm <- makeHeatmap(
         df = plotdata, scores = scoredata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
         scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL, 
@@ -51,7 +51,7 @@ test_that("makeHeatmap works", {
                          .groups = "drop") |>
         dplyr::mutate(Metric = Group) |>
         dplyr::rename(metricGroup = Group)
-    hm <- .makeHeatmap(
+    hm <- makeHeatmap(
         df = grpdf, scores = scoredata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
         scoreCol = "Score", metricGroupCol = "metricGroup", 
@@ -62,7 +62,7 @@ test_that("makeHeatmap works", {
     )
     expect_s4_class(hm, "HeatmapList")
     
-    hm <- .makeHeatmap(
+    hm <- makeHeatmap(
         df = plotdata, scores = scoredata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
         scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL, 
@@ -74,7 +74,7 @@ test_that("makeHeatmap works", {
     
     negdf <- plotdata
     negdf$ScaledValue[1] <- -8
-    hm <- .makeHeatmap(
+    hm <- makeHeatmap(
         df = negdf, scores = scoredata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
         scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL, 
@@ -86,7 +86,7 @@ test_that("makeHeatmap works", {
     
     negdf <- plotdata
     negdf$ScaledValue <- -negdf$ScaledValue
-    hm <- .makeHeatmap(
+    hm <- makeHeatmap(
         df = negdf, scores = scoredata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
         scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL, 

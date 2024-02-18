@@ -1,11 +1,54 @@
+#' Create a parallel coordinates plot
+#' 
+#' Create a parallel coordinates plot. The input arguments for this functions 
+#' are typically generated using \code{\link{bettrPrepare}}, which ensures that 
+#' all required columns are available. 
+#' 
+#' @inheritParams makeHeatmap
+#' @param highlightMethod Character scalar indicating a method that should be 
+#'     highlighted in the plot. 
+#' @param methods Character vector containing the methods to include. 
+#'     If \code{NULL} (default), all methods will be used. 
+#' 
+#' @author Charlotte Soneson
+#' @export 
+#' 
+#' @returns 
+#' A \code{ggplot} object. 
+#' 
 #' @importFrom dplyr arrange mutate
 #' @importFrom rlang .data :=
 #' @importFrom scales rescale
 #' @importFrom ggplot2 ggplot aes geom_boxplot geom_line geom_point 
 #'   scale_linewidth_manual theme_minimal theme element_text scale_fill_manual
-.makeParCoordPlot <- function(df, idCol, metricCol, valueCol, metricGroupCol,
-                              methods, highlightMethod, metricGrouping, 
-                              labelSize, metricColors, idColors) {
+#'   
+#' @examples
+#' ## Generate example data
+#' df <- data.frame(Method = c("M1", "M2", "M3"), 
+#'                  metric1 = c(1, 2, 3),
+#'                  metric2 = c(3, 1, 2))
+#' metricInfo <- data.frame(Metric = c("metric1", "metric2", "metric3"),
+#'                          Group = c("G1", "G2", "G2"))
+#' idInfo <- data.frame(Method = c("M1", "M2", "M3"), 
+#'                      Type = c("T1", "T1", "T2"))
+#' prepData <- bettrPrepare(df = df, idCol = "Method", 
+#'                          metricInfo = metricInfo, idInfo = idInfo)
+#' makeParCoordPlot(df = prepData$plotdata, idCol = "Method", 
+#'                  metricGroupCol = prepData$metricGroupCol,
+#'                  highlightMethod = "M1",
+#'                  metricColors = prepData$metricColors, 
+#'                  idColors = prepData$idColors,
+#'                  metricGrouping = prepData$metricGrouping)
+#'                  
+makeParCoordPlot <- function(df, idCol, metricCol = "Metric", 
+                             valueCol = "ScaledValue", 
+                             metricGroupCol = "metricGroup",
+                             methods = NULL, highlightMethod, metricGrouping, 
+                             labelSize = 10, metricColors, idColors) {
+    
+    if (is.null(methods)) {
+        methods <- unique(df[[idCol]])
+    }
     
     ## Define line widths -----------------------------------------------------
     lwidths <- rep(0.75, length(methods))

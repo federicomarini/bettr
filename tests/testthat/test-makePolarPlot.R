@@ -15,7 +15,7 @@ test_that("PolarPlot works", {
                              Group = c("A", "A", "B"))
     idInfo <- scoredata[, c("Method", "Type")]
     
-    bpp <- .makePolarPlot(
+    bpp <- makePolarPlot(
         df = plotdata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", metricGroupCol = "---", 
         labelSize = 10, metricColors = list(Metric = c("blue", "red", "green")),
@@ -23,7 +23,7 @@ test_that("PolarPlot works", {
     )
     expect_s3_class(bpp, "ggplot")
     
-    bpp <- .makePolarPlot(
+    bpp <- makePolarPlot(
         df = plotdata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", metricGroupCol = "---", 
         labelSize = 10, metricColors = list(Metric = c("blue", "red", "green")),
@@ -38,7 +38,7 @@ test_that("PolarPlot works", {
                          .groups = "drop") |>
         dplyr::mutate(Metric = Group) |>
         dplyr::rename(metricGroup = Group)
-    bpp <- .makePolarPlot(
+    bpp <- makePolarPlot(
         df = grpdf, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", 
         metricGroupCol = "metricGroup", 

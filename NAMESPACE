@@ -2,6 +2,10 @@
 
 export(bettr)
 export(bettrPrepare)
+export(makeBarPolarPlot)
+export(makeHeatmap)
+export(makeParCoordPlot)
+export(makePolarPlot)
 importFrom(ComplexHeatmap,Heatmap)
 importFrom(ComplexHeatmap,anno_barplot)
 importFrom(ComplexHeatmap,columnAnnotation)

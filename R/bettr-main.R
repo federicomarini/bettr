@@ -809,7 +809,7 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
             if (is.null(plotdata()) || is.null(scoredata())) {
                 NULL
             } else {
-                .makeParCoordPlot(
+                makeParCoordPlot(
                     df = plotdata(), idCol = idCol, 
                     metricCol = metricCol, valueCol = valueCol, 
                     metricGroupCol = metricGroupCol,
@@ -832,7 +832,7 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
             if (is.null(plotdata()) || is.null(scoredata())) {
                 NULL
             } else {
-                .makePolarPlot(
+                makePolarPlot(
                     df = plotdata(), 
                     idCol = idCol, 
                     metricCol = metricCol, valueCol = valueCol,
@@ -859,7 +859,7 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                 } else {
                     ssc <- FALSE
                 }
-                .makeBarPolarPlot(
+                makeBarPolarPlot(
                     df = plotdata(), scores = scoredata(),
                     idCol = idCol, 
                     metricCol = metricCol, valueCol = valueCol, 
@@ -890,7 +890,7 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
             if (is.null(plotdata()) || is.null(scoredata())) {
                 NULL
             } else {
-                .makeHeatmap(
+                makeHeatmap(
                     df = plotdata(), scores = scoredata(), idCol = idCol, 
                     metricCol = metricCol, valueCol = valueCol, 
                     weightCol = weightCol, scoreCol = scoreCol, 

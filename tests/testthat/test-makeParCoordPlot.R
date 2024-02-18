@@ -17,7 +17,7 @@ test_that("ParCoordPlot works", {
                              NumCol = 1:3)
     idInfo <- scoredata[, c("Method", "Type")]
     
-    bpp <- .makeParCoordPlot(
+    bpp <- makeParCoordPlot(
         df = plotdata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue",  
         methods = unique(scoredata$Method), metricGroupCol = "metricGroup", 
@@ -29,7 +29,7 @@ test_that("ParCoordPlot works", {
     expect_s3_class(bpp, "ggplot")
     
     plotdata$metricGroup <- plotdata$Group
-    bpp <- .makeParCoordPlot(
+    bpp <- makeParCoordPlot(
         df = plotdata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", 
         methods = unique(scoredata$Method), metricGroupCol = "metricGroup", 
@@ -41,7 +41,7 @@ test_that("ParCoordPlot works", {
     expect_s3_class(bpp, "ggplot")
     
     plotdata$metricGroup <- plotdata$NumCol
-    bpp <- .makeParCoordPlot(
+    bpp <- makeParCoordPlot(
         df = plotdata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", 
         methods = unique(scoredata$Method), metricGroupCol = "metricGroup", 
@@ -52,7 +52,7 @@ test_that("ParCoordPlot works", {
     bpp
     expect_s3_class(bpp, "ggplot")
     
-    bpp <- .makeParCoordPlot(
+    bpp <- makeParCoordPlot(
         df = plotdata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue",  
         methods = unique(scoredata$Method), metricGroupCol = "metricGroup", 

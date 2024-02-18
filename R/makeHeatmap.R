@@ -1,3 +1,65 @@
+#' Create a summary heatmap
+#' 
+#' Create a summary heatmap. The input arguments for this functions are 
+#' typically generated using \code{\link{bettrPrepare}}, which ensures that 
+#' all required columns are available. 
+#' 
+#' @param df A \code{data.frame} with columns representing methods, metrics, 
+#'     scores, and weights. Typically obtained as \code{prepData$plotdata}, 
+#'     where \code{prepData} is the output from \code{bettrPrepare}. 
+#' @param scores A \code{data.frame} with columns representing methods, 
+#'     aggregated scores, and any other method annotations. Typically 
+#'     obtained as \code{prepData$scoredata}, where \code{prepData} is the 
+#'     output from \code{bettrPrepare}.
+#' @param idCol Character scalar indicating which column of \code{df} and 
+#'     \code{scores} contains the method IDs. 
+#' @param metricCol Character scalar indicating which column of \code{df} 
+#'     contains the metric IDs. Typically, \code{"Metric"}.
+#' @param valueCol Character scalar indicating which column of \code{df} 
+#'     contains the metric values. Typically, \code{"ScaledValue"}.
+#' @param weightCol Character scalar indicating which column of \code{df} 
+#'     contains the weight values. Typically, \code{"Weight"}.
+#' @param scoreCol Character scalar indicating which column of \code{scores} 
+#'     contains the aggregated score values. Typically, \code{"Score"}.
+#' @param metricGroupCol Character scalar indicating which column of 
+#'     \code{df} contains the information about the metric group. 
+#'     Typically, \code{"metricGroup"}.
+#' @param metricInfo `data.frame` with annotations for metrics. Typically 
+#'     obtained as \code{prepData$metricInfo}, where \code{prepData} is the 
+#'     output from \code{bettrPrepare}.
+#' @param idInfo `data.frame` with annotations for entities. Typically 
+#'     obtained as \code{prepData$idInfo}, where \code{prepData} is the 
+#'     output from \code{bettrPrepare}.
+#' @param labelSize Numeric scalar providing the size of the labels in the plot.
+#' @param idColors Named list with colors used for methods and any other 
+#'     method annotations. Typically obtained as \code{prepData$idColors}, 
+#'     where \code{prepData} is the output from \code{bettrPrepare}. 
+#' @param metricColors Named list with colors used for the metrics and 
+#'     any other metric annotations. Typically obtained as 
+#'     \code{prepData$metricColors}, where \code{prepData} is the output from 
+#'     \code{bettrPrepare}. 
+#' @param metricCollapseGroup Logical scalar indicating whether metrics 
+#'     should be collapsed by the group variable provided by 
+#'     \code{metricGrouping}. Typically obtained as 
+#'     \code{prepData$metricCollapseGroup}, where \code{prepData} is the 
+#'     output from \code{bettrPrepare}.
+#' @param metricGrouping Character scalar indicating the column of 
+#'     \code{metricInfo} that was used to group metrics. Typically obtained as 
+#'     \code{prepData$metricGrouping}, where \code{prepData} is the output
+#'     from \code{bettrPrepare}.
+#' @param showRowNames Logical scalar indicating whether to show row (method)
+#'     names in the heatmap. 
+#' @param plotType Either \code{"Heatmap"} or \code{"Dot plot"} indicating the 
+#'     type of plot to construct.
+#' @param rownamewidth_cm,colnameheight_cm Numeric scalars defining the width 
+#'     of row names and height of column names, in cm. 
+#' 
+#' @author Charlotte Soneson
+#' @export
+#' 
+#' @returns
+#' A \code{\link[ComplexHeatmap]{Heatmap}} object.
+#' 
 #' @importFrom dplyr arrange filter select contains all_of
 #' @importFrom tidyr spread
 #' @importFrom tibble column_to_rownames tibble
@@ -6,12 +68,44 @@
 #'   Heatmap draw pindex
 #' @importFrom grid gpar unit grid.rect grid.circle unit.c
 #' @importFrom circlize colorRamp2
-.makeHeatmap <- function(df, scores, idCol, metricCol, valueCol, weightCol, 
-                         scoreCol, metricGroupCol, metricInfo, idInfo,
-                         labelSize, idColors, metricColors,
-                         metricCollapseGroup, metricGrouping, showRowNames, 
-                         plotType = "Heatmap",
-                         rownamewidth_cm = 6, colnameheight_cm = 6) {
+#' 
+#' @examples
+#' ## Generate example data
+#' df <- data.frame(Method = c("M1", "M2", "M3"), 
+#'                  metric1 = c(1, 2, 3),
+#'                  metric2 = c(3, 1, 2))
+#' metricInfo <- data.frame(Metric = c("metric1", "metric2", "metric3"),
+#'                          Group = c("G1", "G2", "G2"))
+#' idInfo <- data.frame(Method = c("M1", "M2", "M3"), 
+#'                      Type = c("T1", "T1", "T2"))
+#' prepData <- bettrPrepare(df = df, idCol = "Method", 
+#'                          metricInfo = metricInfo, idInfo = idInfo)
+#' makeHeatmap(df = prepData$plotdata, scores = prepData$scoredata, 
+#'             idCol = "Method", metricGroupCol = prepData$metricGroupCol,
+#'             metricInfo = prepData$metricInfo, idInfo = prepData$idInfo,
+#'             metricColors = prepData$metricColors, 
+#'             idColors = prepData$idColors, 
+#'             metricCollapseGroup = prepData$metricCollapseGroup,
+#'             metricGrouping = prepData$metricGrouping, 
+#'             plotType = "Heatmap")
+#'
+#' makeHeatmap(df = prepData$plotdata, scores = prepData$scoredata, 
+#'             idCol = "Method", metricGroupCol = prepData$metricGroupCol,
+#'             metricInfo = prepData$metricInfo, idInfo = prepData$idInfo,
+#'             metricColors = prepData$metricColors, 
+#'             idColors = prepData$idColors, 
+#'             metricCollapseGroup = prepData$metricCollapseGroup,
+#'             metricGrouping = prepData$metricGrouping, 
+#'             plotType = "Dot plot")
+#'                  
+makeHeatmap <- function(df, scores, idCol, metricCol = "Metric", 
+                        valueCol = "ScaledValue", weightCol = "Weight", 
+                        scoreCol = "Score", metricGroupCol = "metricGroup", 
+                        metricInfo, idInfo,
+                        labelSize = 10, idColors, metricColors,
+                        metricCollapseGroup, metricGrouping, 
+                        showRowNames = TRUE, plotType = "Heatmap",
+                        rownamewidth_cm = 6, colnameheight_cm = 6) {
 
     if (metricCollapseGroup && !is.null(metricInfo[[metricGrouping]])) {
         metricInfo <- metricInfo |> 
