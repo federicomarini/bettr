@@ -16,6 +16,7 @@ test_that("BarPolarPlot works", {
     idInfo <- scoredata[, c("Method", "Type")]
     
     bpp <- makeBarPolarPlot(
+        bettrList = NULL,
         plotdata = plotdata, scoredata = scoredata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
         scoreCol = "Score", metricGroupCol = "---", 
@@ -27,6 +28,32 @@ test_that("BarPolarPlot works", {
     expect_s3_class(bpp, "ggplot")
     
     bpp <- makeBarPolarPlot(
+        bettrList = NULL,
+        plotdata = plotdata, scoredata = scoredata, idCol = "Method", 
+        metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
+        scoreCol = "Score", metricGroupCol = "---", 
+        metricColors = list(Metric = c("blue", "red", "green")),
+        metricCollapseGroup = FALSE, metricGrouping = "Group",
+        methods = NULL, labelSize = 10,
+        showComposition = FALSE, scaleFactorPolars = 1.5
+    )
+    expect_s3_class(bpp, "ggplot")
+    
+    ## With bettrList instead
+    bpp2 <- makeBarPolarPlot(
+        bettrList = list(plotdata = plotdata, scoredata = scoredata, 
+                         idCol = "Method", metricCol = "Metric", 
+                         valueCol = "ScaledValue", weightCol = "Weight", 
+                         scoreCol = "Score", metricGroupCol = "---", 
+                         metricColors = list(Metric = c("blue", "red", "green")),
+                         metricCollapseGroup = FALSE, metricGrouping = "Group",
+                         methods = unique(scoredata$Method)), 
+        labelSize = 10, showComposition = FALSE, scaleFactorPolars = 1.5
+    )
+    expect_s3_class(bpp2, "ggplot")
+    
+    bpp <- makeBarPolarPlot(
+        bettrList = NULL,
         plotdata = plotdata, scoredata = scoredata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
         scoreCol = "Score", metricGroupCol = "---", 
@@ -45,6 +72,7 @@ test_that("BarPolarPlot works", {
         dplyr::mutate(Metric = Group) |>
         dplyr::rename(metricGroup = Group)
     bpp <- makeBarPolarPlot(
+        bettrList = NULL, 
         plotdata = grpdf, scoredata = scoredata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
         scoreCol = "Score", metricGroupCol = "metricGroup", 

@@ -30,6 +30,33 @@ test_that("ParCoordPlot works", {
     bpp
     expect_s3_class(bpp, "ggplot")
     
+    bpp <- makeParCoordPlot(
+        bettrList = NULL,
+        plotdata = plotdata, idCol = "Method", 
+        metricCol = "Metric", valueCol = "ScaledValue",  
+        metricGroupCol = "metricGroup", 
+        metricColors = list(Metric = c("blue", "red", "green")),
+        idColors = list(Method = .gg_color_hue(8)),
+        methods = NULL,
+        metricGrouping = "---", highlightMethod = "---", labelSize = 10
+    )
+    bpp
+    expect_s3_class(bpp, "ggplot")
+    
+    ## With bettrList instead
+    bpp2 <- makeParCoordPlot(
+        bettrList = list(
+            plotdata = plotdata, idCol = "Method", 
+            metricCol = "Metric", valueCol = "ScaledValue",  
+            metricGroupCol = "metricGroup", 
+            metricColors = list(Metric = c("blue", "red", "green")),
+            idColors = list(Method = .gg_color_hue(8)),
+            methods = unique(scoredata$Method),
+            metricGrouping = "---"), highlightMethod = "---", labelSize = 10
+    )
+    bpp2
+    expect_s3_class(bpp2, "ggplot")
+    
     plotdata$metricGroup <- plotdata$Group
     bpp <- makeParCoordPlot(
         bettrList = NULL,

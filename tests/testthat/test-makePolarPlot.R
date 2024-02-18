@@ -24,6 +24,18 @@ test_that("PolarPlot works", {
     )
     expect_s3_class(bpp, "ggplot")
     
+    ## With bettrList instead
+    bpp2 <- makePolarPlot(
+        bettrList = list(
+            plotdata = plotdata, idCol = "Method", 
+            metricCol = "Metric", valueCol = "ScaledValue", 
+            metricGroupCol = "---", 
+            metricColors = list(Metric = c("blue", "red", "green")),
+            metricCollapseGroup = FALSE, metricGrouping = "Group"),
+        labelSize = 10
+    )
+    expect_s3_class(bpp2, "ggplot")
+    
     bpp <- makePolarPlot(
         bettrList = NULL,
         plotdata = plotdata, idCol = "Method", 

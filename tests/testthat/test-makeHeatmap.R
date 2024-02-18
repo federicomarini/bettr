@@ -27,6 +27,20 @@ test_that("makeHeatmap works", {
     )
     expect_s4_class(hm, "HeatmapList")
     
+    ## With bettrList instead
+    hm2 <- makeHeatmap(
+        bettrList = list(plotdata = plotdata, scoredata = scoredata, 
+                         idCol = "Method", metricCol = "Metric", 
+                         valueCol = "ScaledValue", weightCol = "Weight", 
+                         scoreCol = "Score", metricGroupCol = "---", 
+                         metricInfo = NULL, 
+                         metricColors = NULL, idInfo = NULL, idColors = NULL, 
+                         metricCollapseGroup = FALSE, metricGrouping = NULL), 
+        labelSize = 10, showRowNames = TRUE, 
+        plotType = "Heatmap", rownamewidth_cm = 6, colnameheight_cm = 6
+    )
+    expect_s4_class(hm2, "HeatmapList")
+    
     expect_error(makeHeatmap(
         bettrList = NULL,
         plotdata = plotdata, scoredata = scoredata, idCol = "Method", 
