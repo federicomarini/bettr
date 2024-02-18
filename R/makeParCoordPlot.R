@@ -33,21 +33,21 @@
 #'                      Type = c("T1", "T1", "T2"))
 #' prepData <- bettrPrepare(df = df, idCol = "Method", 
 #'                          metricInfo = metricInfo, idInfo = idInfo)
-#' makeParCoordPlot(df = prepData$plotdata, idCol = "Method", 
+#' makeParCoordPlot(plotdata = prepData$plotdata, idCol = "Method", 
 #'                  metricGroupCol = prepData$metricGroupCol,
 #'                  highlightMethod = "M1",
 #'                  metricColors = prepData$metricColors, 
 #'                  idColors = prepData$idColors,
 #'                  metricGrouping = prepData$metricGrouping)
 #'                  
-makeParCoordPlot <- function(df, idCol, metricCol = "Metric", 
+makeParCoordPlot <- function(plotdata, idCol, metricCol = "Metric", 
                              valueCol = "ScaledValue", 
                              metricGroupCol = "metricGroup",
                              methods = NULL, highlightMethod, metricGrouping, 
                              labelSize = 10, metricColors, idColors) {
     
     if (is.null(methods)) {
-        methods <- unique(df[[idCol]])
+        methods <- unique(plotdata[[idCol]])
     }
     
     ## Define line widths -----------------------------------------------------
@@ -65,7 +65,7 @@ makeParCoordPlot <- function(df, idCol, metricCol = "Metric",
     ## Construct plot ---------------------------------------------------------
     if (metricGrouping != "---") {
         ## Reorder metrics according to the chosen grouping
-        tmp <- df |> 
+        tmp <- plotdata |> 
             dplyr::arrange(.data[[metricGroupCol]]) |>
             dplyr::mutate("{metricCol}" := factor(
                 .data[[metricCol]],
@@ -92,7 +92,7 @@ makeParCoordPlot <- function(df, idCol, metricCol = "Metric",
                 )
         }
     } else {
-        tmp <- df
+        tmp <- plotdata
         gp <- ggplot2::ggplot(tmp,
                               ggplot2::aes(x = .data[[metricCol]], 
                                            y = .data[[valueCol]])) + 

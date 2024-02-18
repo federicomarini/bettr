@@ -18,7 +18,7 @@ test_that("ParCoordPlot works", {
     idInfo <- scoredata[, c("Method", "Type")]
     
     bpp <- makeParCoordPlot(
-        df = plotdata, idCol = "Method", 
+        plotdata = plotdata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue",  
         methods = unique(scoredata$Method), metricGroupCol = "metricGroup", 
         highlightMethod = "---", idColors = list(Method = .gg_color_hue(8)),
@@ -30,7 +30,7 @@ test_that("ParCoordPlot works", {
     
     plotdata$metricGroup <- plotdata$Group
     bpp <- makeParCoordPlot(
-        df = plotdata, idCol = "Method", 
+        plotdata = plotdata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", 
         methods = unique(scoredata$Method), metricGroupCol = "metricGroup", 
         highlightMethod = "---", idColors = list(Method = .gg_color_hue(8)),
@@ -42,7 +42,7 @@ test_that("ParCoordPlot works", {
     
     plotdata$metricGroup <- plotdata$NumCol
     bpp <- makeParCoordPlot(
-        df = plotdata, idCol = "Method", 
+        plotdata = plotdata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", 
         methods = unique(scoredata$Method), metricGroupCol = "metricGroup", 
         highlightMethod = "---", idColors = list(Method = .gg_color_hue(8)),
@@ -53,7 +53,7 @@ test_that("ParCoordPlot works", {
     expect_s3_class(bpp, "ggplot")
     
     bpp <- makeParCoordPlot(
-        df = plotdata, idCol = "Method", 
+        plotdata = plotdata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue",  
         methods = unique(scoredata$Method), metricGroupCol = "metricGroup", 
         highlightMethod = "M1", idColors = list(Method = .gg_color_hue(8)),

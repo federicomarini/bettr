@@ -4,25 +4,26 @@
 #' typically generated using \code{\link{bettrPrepare}}, which ensures that 
 #' all required columns are available. 
 #' 
-#' @param df A \code{data.frame} with columns representing methods, metrics, 
-#'     scores, and weights. Typically obtained as \code{prepData$plotdata}, 
-#'     where \code{prepData} is the output from \code{bettrPrepare}. 
+#' @param plotdata A \code{data.frame} with columns representing methods, 
+#'     metrics, scores, and weights. Typically obtained as 
+#'     \code{prepData$plotdata}, where \code{prepData} is the output from 
+#'     \code{bettrPrepare}. 
 #' @param scores A \code{data.frame} with columns representing methods, 
 #'     aggregated scores, and any other method annotations. Typically 
 #'     obtained as \code{prepData$scoredata}, where \code{prepData} is the 
 #'     output from \code{bettrPrepare}.
-#' @param idCol Character scalar indicating which column of \code{df} and 
+#' @param idCol Character scalar indicating which column of \code{plotdata} and 
 #'     \code{scores} contains the method IDs. 
-#' @param metricCol Character scalar indicating which column of \code{df} 
+#' @param metricCol Character scalar indicating which column of \code{plotdata} 
 #'     contains the metric IDs. Typically, \code{"Metric"}.
-#' @param valueCol Character scalar indicating which column of \code{df} 
+#' @param valueCol Character scalar indicating which column of \code{plotdata} 
 #'     contains the metric values. Typically, \code{"ScaledValue"}.
-#' @param weightCol Character scalar indicating which column of \code{df} 
+#' @param weightCol Character scalar indicating which column of \code{plotdata} 
 #'     contains the weight values. Typically, \code{"Weight"}.
 #' @param scoreCol Character scalar indicating which column of \code{scores} 
 #'     contains the aggregated score values. Typically, \code{"Score"}.
 #' @param metricGroupCol Character scalar indicating which column of 
-#'     \code{df} contains the information about the metric group. 
+#'     \code{plotdata} contains the information about the metric group. 
 #'     Typically, \code{"metricGroup"}.
 #' @param metricInfo `data.frame` with annotations for metrics. Typically 
 #'     obtained as \code{prepData$metricInfo}, where \code{prepData} is the 
@@ -80,7 +81,7 @@
 #'                      Type = c("T1", "T1", "T2"))
 #' prepData <- bettrPrepare(df = df, idCol = "Method", 
 #'                          metricInfo = metricInfo, idInfo = idInfo)
-#' makeHeatmap(df = prepData$plotdata, scores = prepData$scoredata, 
+#' makeHeatmap(plotdata = prepData$plotdata, scores = prepData$scoredata, 
 #'             idCol = "Method", metricGroupCol = prepData$metricGroupCol,
 #'             metricInfo = prepData$metricInfo, idInfo = prepData$idInfo,
 #'             metricColors = prepData$metricColors, 
@@ -89,7 +90,7 @@
 #'             metricGrouping = prepData$metricGrouping, 
 #'             plotType = "Heatmap")
 #'
-#' makeHeatmap(df = prepData$plotdata, scores = prepData$scoredata, 
+#' makeHeatmap(plotdata = prepData$plotdata, scores = prepData$scoredata, 
 #'             idCol = "Method", metricGroupCol = prepData$metricGroupCol,
 #'             metricInfo = prepData$metricInfo, idInfo = prepData$idInfo,
 #'             metricColors = prepData$metricColors, 
@@ -98,7 +99,7 @@
 #'             metricGrouping = prepData$metricGrouping, 
 #'             plotType = "Dot plot")
 #'                  
-makeHeatmap <- function(df, scores, idCol, metricCol = "Metric", 
+makeHeatmap <- function(plotdata, scores, idCol, metricCol = "Metric", 
                         valueCol = "ScaledValue", weightCol = "Weight", 
                         scoreCol = "Score", metricGroupCol = "metricGroup", 
                         metricInfo, idInfo,
@@ -115,7 +116,7 @@ makeHeatmap <- function(df, scores, idCol, metricCol = "Metric",
     }
     
     ## Matrix -----------------------------------------------------------------
-    mat <- df |>
+    mat <- plotdata |>
         dplyr::select(dplyr::all_of(c(idCol, metricCol, valueCol))) |>
         tidyr::spread(key = .data[[metricCol]],
                       value = .data[[valueCol]], fill = NA) |>
@@ -139,7 +140,7 @@ makeHeatmap <- function(df, scores, idCol, metricCol = "Metric",
     }
     
     ## Match order of column annotations
-    colAnnot <- df |>
+    colAnnot <- plotdata |>
         dplyr::filter(!duplicated(.data[[metricCol]])) |>
         dplyr::select(dplyr::all_of(c(metricCol, weightCol)),
                       dplyr::contains(metricGroupCol)) 

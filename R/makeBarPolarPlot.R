@@ -37,14 +37,14 @@
 #'                      Type = c("T1", "T1", "T2"))
 #' prepData <- bettrPrepare(df = df, idCol = "Method", 
 #'                          metricInfo = metricInfo, idInfo = idInfo)
-#' makeBarPolarPlot(df = prepData$plotdata, scores = prepData$scoredata, 
+#' makeBarPolarPlot(plotdata = prepData$plotdata, scores = prepData$scoredata, 
 #'                  idCol = "Method", metricGroupCol = prepData$metricGroupCol,
 #'                  metricColors = prepData$metricColors, 
 #'                  metricCollapseGroup = prepData$metricCollapseGroup,
 #'                  metricGrouping = prepData$metricGrouping, 
 #'                  showComposition = TRUE)
 #'                  
-makeBarPolarPlot <- function(df, scores, idCol, metricCol = "Metric", 
+makeBarPolarPlot <- function(plotdata, scores, idCol, metricCol = "Metric", 
                              valueCol = "ScaledValue", weightCol = "Weight", 
                              scoreCol = "Score", 
                              metricGroupCol = "metricGroup", 
@@ -54,22 +54,22 @@ makeBarPolarPlot <- function(df, scores, idCol, metricCol = "Metric",
                              metricCollapseGroup, metricGrouping) {
     
     if (is.null(methods)) {
-        methods <- unique(df[[idCol]])
+        methods <- unique(plotdata[[idCol]])
     }
-    if (metricCollapseGroup && !is.null(df[[metricGroupCol]])) {
+    if (metricCollapseGroup && !is.null(plotdata[[metricGroupCol]])) {
         metricColors[[metricCol]] <- metricColors[[metricGrouping]]
     }
     
     ## Define polar plots -----------------------------------------------------
     rplots <- lapply(methods, function(m) {
-        ggplot2::ggplot(df |> 
+        ggplot2::ggplot(plotdata |> 
                             dplyr::filter(.data[[idCol]] == m),
                         ggplot2::aes(x = .data[[metricCol]], 
                                      y = .data[[valueCol]],
                                      fill = .data[[metricCol]])) + 
             ggplot2::geom_col(width = 1, color = "white") +
-            ggplot2::ylim(min(0, min(df[[valueCol]], na.rm = TRUE)),
-                          max(df[[valueCol]], na.rm = TRUE)) + 
+            ggplot2::ylim(min(0, min(plotdata[[valueCol]], na.rm = TRUE)),
+                          max(plotdata[[valueCol]], na.rm = TRUE)) + 
             ggplot2::coord_polar() + 
             ggplot2::scale_fill_manual(values = metricColors[[metricCol]]) + 
             ggplot2::theme_minimal() +
@@ -102,7 +102,7 @@ makeBarPolarPlot <- function(df, scores, idCol, metricCol = "Metric",
     
     ## Plot -------------------------------------------------------------------
     if (showComposition) {
-        df <- df |>
+        plotdata <- plotdata |>
             dplyr::group_by(.data[[idCol]]) |>
             dplyr::mutate("{weightCol}" := .data[[weightCol]] / 
                               sum(.data[[weightCol]] * 
@@ -110,7 +110,7 @@ makeBarPolarPlot <- function(df, scores, idCol, metricCol = "Metric",
                                   na.rm = TRUE)) |>
             dplyr::ungroup()
         ## Split bars by metric contribution to score
-        bplot <- ggplot2::ggplot(df |> 
+        bplot <- ggplot2::ggplot(plotdata |> 
                                      dplyr::mutate("{idCol}" := 
                                                        factor(.data[[idCol]],
                                                               levels = levs)),

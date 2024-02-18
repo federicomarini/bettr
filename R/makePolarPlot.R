@@ -27,23 +27,23 @@
 #'                      Type = c("T1", "T1", "T2"))
 #' prepData <- bettrPrepare(df = df, idCol = "Method", 
 #'                          metricInfo = metricInfo, idInfo = idInfo)
-#' makePolarPlot(df = prepData$plotdata, idCol = "Method", 
+#' makePolarPlot(plotdata = prepData$plotdata, idCol = "Method", 
 #'               metricGroupCol = prepData$metricGroupCol,
 #'               metricColors = prepData$metricColors, 
 #'               metricCollapseGroup = prepData$metricCollapseGroup,
 #'               metricGrouping = prepData$metricGrouping)
 #'                  
-makePolarPlot <- function(df, idCol, metricCol = "Metric", 
+makePolarPlot <- function(plotdata, idCol, metricCol = "Metric", 
                           valueCol = "ScaledValue", 
                           metricGroupCol = "metricGroup", labelSize = 10, 
                           metricColors, metricCollapseGroup, metricGrouping) {
    
-    if (metricCollapseGroup && !is.null(df[[metricGroupCol]])) {
+    if (metricCollapseGroup && !is.null(plotdata[[metricGroupCol]])) {
         metricColors[[metricCol]] <- metricColors[[metricGrouping]]
     }
     
     ## Plot -------------------------------------------------------------------
-    ggplot2::ggplot(df,
+    ggplot2::ggplot(plotdata,
                     ggplot2::aes(x = .data[[metricCol]], 
                                  y = .data[[valueCol]],
                                  fill = .data[[metricCol]])) + 

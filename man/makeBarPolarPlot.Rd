@@ -5,7 +5,7 @@
 \title{Create a bar/polar plot}
 \usage{
 makeBarPolarPlot(
-  df,
+  plotdata,
   scores,
   idCol,
   metricCol = "Metric",
@@ -23,32 +23,33 @@ makeBarPolarPlot(
 )
 }
 \arguments{
-\item{df}{A \code{data.frame} with columns representing methods, metrics,
-scores, and weights. Typically obtained as \code{prepData$plotdata},
-where \code{prepData} is the output from \code{bettrPrepare}.}
+\item{plotdata}{A \code{data.frame} with columns representing methods,
+metrics, scores, and weights. Typically obtained as
+\code{prepData$plotdata}, where \code{prepData} is the output from
+\code{bettrPrepare}.}
 
 \item{scores}{A \code{data.frame} with columns representing methods,
 aggregated scores, and any other method annotations. Typically
 obtained as \code{prepData$scoredata}, where \code{prepData} is the
 output from \code{bettrPrepare}.}
 
-\item{idCol}{Character scalar indicating which column of \code{df} and
+\item{idCol}{Character scalar indicating which column of \code{plotdata} and
 \code{scores} contains the method IDs.}
 
-\item{metricCol}{Character scalar indicating which column of \code{df}
+\item{metricCol}{Character scalar indicating which column of \code{plotdata}
 contains the metric IDs. Typically, \code{"Metric"}.}
 
-\item{valueCol}{Character scalar indicating which column of \code{df}
+\item{valueCol}{Character scalar indicating which column of \code{plotdata}
 contains the metric values. Typically, \code{"ScaledValue"}.}
 
-\item{weightCol}{Character scalar indicating which column of \code{df}
+\item{weightCol}{Character scalar indicating which column of \code{plotdata}
 contains the weight values. Typically, \code{"Weight"}.}
 
 \item{scoreCol}{Character scalar indicating which column of \code{scores}
 contains the aggregated score values. Typically, \code{"Score"}.}
 
 \item{metricGroupCol}{Character scalar indicating which column of
-\code{df} contains the information about the metric group.
+\code{plotdata} contains the information about the metric group.
 Typically, \code{"metricGroup"}.}
 
 \item{methods}{Character vector containing the methods for which to make
@@ -98,7 +99,7 @@ idInfo <- data.frame(Method = c("M1", "M2", "M3"),
                      Type = c("T1", "T1", "T2"))
 prepData <- bettrPrepare(df = df, idCol = "Method", 
                          metricInfo = metricInfo, idInfo = idInfo)
-makeBarPolarPlot(df = prepData$plotdata, scores = prepData$scoredata, 
+makeBarPolarPlot(plotdata = prepData$plotdata, scores = prepData$scoredata, 
                  idCol = "Method", metricGroupCol = prepData$metricGroupCol,
                  metricColors = prepData$metricColors, 
                  metricCollapseGroup = prepData$metricCollapseGroup,
