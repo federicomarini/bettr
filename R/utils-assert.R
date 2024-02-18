@@ -77,8 +77,10 @@
 
     ## Check arguments
     stopifnot(is.null(type) || (length(type) == 1L && is.character(type)))
-    stopifnot(is.null(rngIncl) || (length(rngIncl) == 2L && is.numeric(rngIncl)))
-    stopifnot(is.null(rngExcl) || (length(rngExcl) == 2L && is.numeric(rngExcl)))
+    stopifnot(is.null(rngIncl) || (length(rngIncl) == 2L && 
+                                       is.numeric(rngIncl)))
+    stopifnot(is.null(rngExcl) || (length(rngExcl) == 2L && 
+                                       is.numeric(rngExcl)))
     stopifnot(is.null(len) || (length(len) == 1L && is.numeric(len)))
     stopifnot(is.null(rngLen) || (length(rngLen) == 2L && is.numeric(rngLen)))
     stopifnot(is.logical(allowNULL) && length(allowNULL) == 1L)
@@ -113,7 +115,8 @@
     
     if (!is.null(rngIncl)) {
         if (!is.null(validValues)) {
-            if (any((x < rngIncl[1] | x > rngIncl[2]) & !(x %in% validValues))) {
+            if (any((x < rngIncl[1] | x > rngIncl[2]) & 
+                    !(x %in% validValues))) {
                 stop("'", xname, "' must be within [", rngIncl[1], ",", 
                      rngIncl[2], "] (inclusive), or one of: ", vvPrint,
                      call. = FALSE)
@@ -126,7 +129,8 @@
         }
     } else if (!is.null(rngExcl)) {
         if (!is.null(validValues)) {
-            if (any((x <= rngExcl[1] | x >= rngExcl[2]) & !(x %in% validValues))) {
+            if (any((x <= rngExcl[1] | x >= rngExcl[2]) & 
+                    !(x %in% validValues))) {
                 stop("'", xname, "' must be within (", rngExcl[1], ",", 
                      rngExcl[2], ") (exclusive), or one of: ", vvPrint,
                      call. = FALSE)
@@ -191,16 +195,18 @@
         callerfunc <- sub("\\(.+$", "", caller)
         haveBioc <- requireNamespace("BiocManager", quietly = TRUE)
         msg <- paste0("The package", ifelse(sum(!avail) > 1, "s '", " '"),
-                      paste(sub("^[^/]+/", "", pkgs[!avail]), collapse = "', '"),
+                      paste(sub("^[^/]+/", "", pkgs[!avail]), 
+                            collapse = "', '"),
                       "' ",
                       ifelse(sum(!avail) > 1, "are", "is"), " required for ",
                       callerfunc, "(), but not installed.\n")
         if (suggestInstallation) {
-            msg <- paste0(msg,
-                          "Install ", ifelse(sum(!avail) > 1, "them", "it"), " using:\n",
-                          ifelse(haveBioc, "", "install.packages(\"BiocManager\")\n"),
-                          "BiocManager::install(c(\"",
-                          paste(pkgs[!avail], collapse = "\", \""), "\"))")
+            msg <- paste0(
+                msg,
+                "Install ", ifelse(sum(!avail) > 1, "them", "it"), " using:\n",
+                ifelse(haveBioc, "", "install.packages(\"BiocManager\")\n"),
+                "BiocManager::install(c(\"",
+                paste(pkgs[!avail], collapse = "\", \""), "\"))")
         }
         stop(msg, call. = FALSE)
     }
