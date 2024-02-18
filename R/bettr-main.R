@@ -10,7 +10,7 @@
 #'   included here will be displayed.
 #' @param initialWeights Named numeric vector providing initial weights for 
 #'   each metric to use for aggregating them into a final score. Must contain 
-#'   one entry per metric included in `metrics_num` or `metrics_cat`.
+#'   one entry per metric included in `metrics`.
 #' @param initialTransforms Named list with initial values of transformation 
 #'   parameters for each metric. Each list entry should correspond to one 
 #'   metric, and take the form of a list with up to four elements, named:

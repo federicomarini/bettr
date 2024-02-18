@@ -39,7 +39,7 @@ included here will be displayed.}
 
 \item{initialWeights}{Named numeric vector providing initial weights for
 each metric to use for aggregating them into a final score. Must contain
-one entry per metric included in \code{metrics_num} or \code{metrics_cat}.}
+one entry per metric included in \code{metrics}.}
 
 \item{initialTransforms}{Named list with initial values of transformation
 parameters for each metric. Each list entry should correspond to one
