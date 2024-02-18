@@ -53,6 +53,10 @@
 #'                      Type = c("T1", "T1", "T2"))
 #' prepData <- bettrPrepare(df = df, idCol = "Method", 
 #'                          metricInfo = metricInfo, idInfo = idInfo)
+#' prepData <- bettrPrepare(df = df, idCol = "Method", 
+#'                          metricInfo = metricInfo, idInfo = idInfo, 
+#'                          metricGrouping = "Group", 
+#'                          metricCollapseGroup = TRUE)
 #' 
 bettrPrepare <- function(df, idCol = "Method", 
                          metrics = setdiff(colnames(df), idCol), 
