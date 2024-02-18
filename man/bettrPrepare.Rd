@@ -114,6 +114,11 @@ values should be collapsed within each group defined by
 the way in which metric values are collapsed within a group. Should be
 one of \code{"mean"}, \code{"max"} or \code{"min"}.}
 }
+\value{
+A list of objects, which can be directly used as inputs for the bettr
+plotting functions. See the man page for the respective plotting function
+for more details.
+}
 \description{
 Prepare input data for plotting with bettr. This function replicates the
 steps that are performed in the shiny app.

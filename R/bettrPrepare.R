@@ -32,6 +32,11 @@
 #'     the way in which metric values are collapsed within a group. Should be 
 #'     one of \code{"mean"}, \code{"max"} or \code{"min"}.
 #' 
+#' @returns 
+#' A list of objects, which can be directly used as inputs for the bettr 
+#' plotting functions. See the man page for the respective plotting function 
+#' for more details. 
+#' 
 #' @author Charlotte Soneson
 #' @export
 #' 
