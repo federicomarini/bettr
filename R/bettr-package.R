@@ -4,6 +4,6 @@
 #' 
 #' @author Charlotte Soneson \email{charlottesoneson@@gmail.com}
 #' @author Federico Marini \email{marinif@@uni-mainz.de}
-#' @name bettr-pkg
-#' @docType package
-NULL
+#' @aliases bettr-package NULL
+#' @keywords internal 
+"_PACKAGE"
