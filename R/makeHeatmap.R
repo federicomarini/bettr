@@ -59,7 +59,7 @@
 #' @export
 #' 
 #' @returns
-#' A \code{\link[ComplexHeatmap]{Heatmap}} object.
+#' A \code{\link[ComplexHeatmap]{HeatmapList}} object.
 #' 
 #' @importFrom dplyr arrange filter select contains all_of
 #' @importFrom tidyr spread

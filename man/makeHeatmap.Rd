@@ -96,7 +96,7 @@ type of plot to construct.}
 of row names and height of column names, in cm.}
 }
 \value{
-A \code{\link[ComplexHeatmap]{Heatmap}} object.
+A \code{\link[ComplexHeatmap]{HeatmapList}} object.
 }
 \description{
 Create a summary heatmap. The input arguments for this functions are
