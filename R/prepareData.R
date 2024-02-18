@@ -2,7 +2,7 @@
 .prepareData <- function(df, idCol, metrics, initialWeights,
                          initialTransforms, metricInfo, metricColors, 
                          idInfo, idColors, weightResolution, metricCol, 
-                         initialWeightValue) {
+                         defaultWeightValue) {
     
     ## Split metrics into numeric and categorical -----------------------------
     metrics_classes <- vapply(df[, metrics, drop = FALSE], class, NA_character_)
@@ -55,7 +55,7 @@
     initialWeights <- .assignInitialWeights(
         weights = initialWeights, 
         metrics = metricsWithWeights,
-        initialWeightValue = initialWeightValue,
+        defaultWeightValue = defaultWeightValue,
         weightResolution = weightResolution)
     
     ## Return -----------------------------------------------------------------

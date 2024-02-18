@@ -107,7 +107,7 @@ bettrPrepare <- function(df, idCol = "Method",
     metricCol <- "Metric"
     valueCol <- "ScaledValue"
     metricGroupCol <- "metricGroup"
-    initialWeightValue <- 0.2
+    defaultWeightValue <- 0.2
     
     if (is.null(idTopNGrouping)) {
         idTopNGrouping <- "---"
@@ -131,7 +131,7 @@ bettrPrepare <- function(df, idCol = "Method",
         idColors = idColors,
         weightResolution = 0.05,
         metricCol = metricCol, 
-        initialWeightValue = initialWeightValue
+        defaultWeightValue = defaultWeightValue
     )
     
     values <- list(

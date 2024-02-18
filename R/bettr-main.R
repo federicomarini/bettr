@@ -100,7 +100,7 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
     metricCol <- "Metric"
     valueCol <- "ScaledValue"
     metricGroupCol <- "metricGroup"
-    initialWeightValue <- 0.2
+    defaultWeightValue <- 0.2
     
     ## Check validity of input arguments --------------------------------------
     .checkInputArguments(df = df, idCol = idCol, metrics = metrics,
@@ -121,7 +121,7 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                          idColors = idColors,
                          weightResolution = weightResolution,
                          metricCol = metricCol, 
-                         initialWeightValue = initialWeightValue)
+                         defaultWeightValue = defaultWeightValue)
     
     ## UI definition ----------------------------------------------------------
     p_layout <- 
@@ -771,7 +771,7 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
             for (j in metrics) {
                 shiny::updateNumericInput(
                     session, inputId = paste0(j, "_weight"), 
-                    value = initialWeightValue
+                    value = defaultWeightValue
                 )
             }
         })
