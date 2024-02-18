@@ -2,7 +2,7 @@ test_that("bettr stops with invalid inputs", {
     set.seed(123)
     df <- data.frame(Method = rep(c("A", "B", "C"), each = 3),
                      Metric = rep(c("m1", "m2", "m3"), 3),
-                     Value = runif(n = 9, min = 0, max = 3)) %>%
+                     Value = runif(n = 9, min = 0, max = 3)) |>
         tidyr::spread(key = Metric, value = Value)
     metrics <- setdiff(colnames(df), "Method")
     metricInfo <- data.frame(Metric = c("m1", "m2", "m3"), num = 1:3)
@@ -172,7 +172,7 @@ test_that("bettr runs with valid inputs", {
     set.seed(123)
     df <- data.frame(Method = rep(c("A", "B", "C"), each = 3),
                      Metric = rep(c("m1", "m2", "m3"), 3),
-                     Value = runif(n = 9, min = 0, max = 3)) %>%
+                     Value = runif(n = 9, min = 0, max = 3)) |>
         tidyr::spread(key = Metric, value = Value)
     df$m3 <- paste0(df$m3, "x")
     metrics <- setdiff(colnames(df), "Method")

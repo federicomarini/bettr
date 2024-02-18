@@ -22,8 +22,8 @@
     ## Construct plot ---------------------------------------------------------
     if (metricGrouping != "---") {
         ## Reorder metrics according to the chosen grouping
-        tmp <- df %>% 
-            dplyr::arrange(.data[[metricGroupCol]]) %>%
+        tmp <- df |> 
+            dplyr::arrange(.data[[metricGroupCol]]) |>
             dplyr::mutate("{metricCol}" := factor(
                 .data[[metricCol]],
                 levels = unique(.data[[metricCol]])))

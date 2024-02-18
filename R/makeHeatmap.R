@@ -14,43 +14,43 @@
                          rownamewidth_cm = 6, colnameheight_cm = 6) {
 
     if (metricCollapseGroup && !is.null(metricInfo[[metricGrouping]])) {
-        metricInfo <- metricInfo %>% 
-            dplyr::select(dplyr::all_of(metricGrouping)) %>%
-            dplyr::distinct() %>% 
+        metricInfo <- metricInfo |> 
+            dplyr::select(dplyr::all_of(metricGrouping)) |>
+            dplyr::distinct() |> 
             dplyr::mutate("{ metricCol }" := .data[[metricGrouping]])
     }
     
     ## Matrix -----------------------------------------------------------------
-    mat <- df %>%
-        dplyr::select(dplyr::all_of(c(idCol, metricCol, valueCol))) %>%
+    mat <- df |>
+        dplyr::select(dplyr::all_of(c(idCol, metricCol, valueCol))) |>
         tidyr::spread(key = .data[[metricCol]],
-                      value = .data[[valueCol]], fill = NA) %>%
-        as.data.frame() %>%
-        tibble::column_to_rownames(var = idCol) %>%
+                      value = .data[[valueCol]], fill = NA) |>
+        as.data.frame() |>
+        tibble::column_to_rownames(var = idCol) |>
         as.matrix()
     
     ## Match order of row annotations
     rowAnnot <- scores
     rowAnnot <- rowAnnot[match(rownames(mat), 
                                rowAnnot[[idCol]]), ,
-                         drop = FALSE] %>% as.data.frame()
+                         drop = FALSE] |> as.data.frame()
     rownames(rowAnnot) <- rowAnnot[[idCol]]
     rowAnnot[[idCol]] <- NULL
     if (!is.null(idInfo)) {
         idInfo <- idInfo[match(rownames(mat), 
                                idInfo[[idCol]]), , 
-                         drop = FALSE] %>% as.data.frame()
+                         drop = FALSE] |> as.data.frame()
         rownames(idInfo) <- idInfo[[idCol]]
         idInfo[[idCol]] <- NULL
     }
     
     ## Match order of column annotations
-    colAnnot <- df %>%
-        dplyr::filter(!duplicated(.data[[metricCol]])) %>%
+    colAnnot <- df |>
+        dplyr::filter(!duplicated(.data[[metricCol]])) |>
         dplyr::select(dplyr::all_of(c(metricCol, weightCol)),
                       dplyr::contains(metricGroupCol)) 
     if (metricGroupCol %in% colnames(colAnnot)) {
-        colAnnot <- colAnnot %>%
+        colAnnot <- colAnnot |>
             dplyr::arrange(.data[[metricGroupCol]])
         mat <- mat[, match(colAnnot[[metricCol]], 
                            colnames(mat)), drop = FALSE]
@@ -58,8 +58,8 @@
     colAnnot <- tibble::tibble(
         colAnnot[match(colnames(mat), 
                        colAnnot[[metricCol]]), , 
-                 drop = FALSE]) %>% 
-        dplyr::select(-contains(metricGroupCol)) %>%
+                 drop = FALSE]) |> 
+        dplyr::select(-contains(metricGroupCol)) |>
         as.data.frame()
     rownames(colAnnot) <- colAnnot[[metricCol]]
     colAnnot[[metricCol]] <- NULL
@@ -67,7 +67,7 @@
     if (!is.null(metricInfo)) {
         metricInfo <- metricInfo[match(colnames(mat), 
                                        metricInfo[[metricCol]]), , 
-                                 drop = FALSE] %>% as.data.frame()
+                                 drop = FALSE] |> as.data.frame()
         rownames(metricInfo) <- metricInfo[[metricCol]]
         metricInfo[[metricCol]] <- NULL
     }

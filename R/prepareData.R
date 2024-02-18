@@ -22,7 +22,7 @@
     }
     if (is.null(idInfo)) {
         idColors <- .generateColors(
-            data.frame(id = unique(df[[idCol]])) %>% stats::setNames(idCol),
+            data.frame(id = unique(df[[idCol]])) |> stats::setNames(idCol),
             idColors, ggplot2Columns = idCol
         )
     } else {
@@ -35,7 +35,7 @@
     }
     if (is.null(metricInfo)) {
         metricColors <- .generateColors(
-            data.frame(metric = metrics) %>% stats::setNames(metricCol),
+            data.frame(metric = metrics) |> stats::setNames(metricCol),
             metricColors, ggplot2Columns = metricCol
         )
     } else {

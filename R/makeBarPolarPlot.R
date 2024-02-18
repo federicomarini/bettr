@@ -17,7 +17,7 @@
     
     ## Define polar plots -----------------------------------------------------
     rplots <- lapply(methods, function(m) {
-        ggplot2::ggplot(df %>% 
+        ggplot2::ggplot(df |> 
                             dplyr::filter(.data[[idCol]] == m),
                         ggplot2::aes(x = .data[[metricCol]], 
                                      y = .data[[valueCol]],
@@ -48,7 +48,7 @@
     })
     
     ## Define data for barplot ------------------------------------------------
-    levs <- scores %>%
+    levs <- scores |>
         dplyr::pull(.data[[idCol]])
     rx <- length(levs)
     ry <- max(0, max(scores[[scoreCol]])) - min(0, min(scores[[scoreCol]]))
@@ -57,15 +57,15 @@
     
     ## Plot -------------------------------------------------------------------
     if (showComposition) {
-        df <- df %>%
-            dplyr::group_by(.data[[idCol]]) %>%
+        df <- df |>
+            dplyr::group_by(.data[[idCol]]) |>
             dplyr::mutate("{weightCol}" := .data[[weightCol]] / 
                               sum(.data[[weightCol]] * 
                                       !is.na(.data[[valueCol]]), 
-                                  na.rm = TRUE)) %>%
+                                  na.rm = TRUE)) |>
             dplyr::ungroup()
         ## Split bars by metric contribution to score
-        bplot <- ggplot2::ggplot(df %>% 
+        bplot <- ggplot2::ggplot(df |> 
                                      dplyr::mutate("{idCol}" := 
                                                        factor(.data[[idCol]],
                                                               levels = levs)),
@@ -77,7 +77,7 @@
             ggplot2::scale_fill_manual(values = metricColors[[metricCol]])
     } else {
         ## Show only final score in bars
-        bplot <- ggplot2::ggplot(scores %>% 
+        bplot <- ggplot2::ggplot(scores |> 
                                      dplyr::mutate("{idCol}" := 
                                                        factor(.data[[idCol]],
                                                               levels = levs)),

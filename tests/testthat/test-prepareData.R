@@ -1,7 +1,7 @@
 test_that("prepareData works", {
     df <- data.frame(Method = rep(c("A", "B", "C"), each = 3),
                      Metric = rep(c("m1", "m2", "m3"), 3),
-                     Value = runif(n = 9, min = 0, max = 3)) %>%
+                     Value = runif(n = 9, min = 0, max = 3)) |>
         tidyr::spread(key = Metric, value = Value)
     df$m3 <- paste0("V", df$m3)
     metrics <- setdiff(colnames(df), "Method")

@@ -64,7 +64,7 @@
 #'   sliderInput shinyApp
 #' @importFrom sortable rank_list
 #' @importFrom shinyjqui jqui_resizable
-#' @importFrom dplyr filter select mutate left_join arrange %>% relocate
+#' @importFrom dplyr filter select mutate left_join arrange relocate
 #'     all_of
 #' @importFrom bslib bs_theme sidebar accordion accordion_panel page_sidebar
 #' @importFrom rlang .data
@@ -539,7 +539,7 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                 shiny::need(collapseddata(), ""),
                 shiny::need(scoredata(), "")
             )
-            tmp <- collapseddata() %>%
+            tmp <- collapseddata() |>
                 dplyr::filter(.data[[idCol]] %in% scoredata()[[idCol]])
             tmp[[idCol]] <- factor(tmp[[idCol]], 
                                    levels = scoredata()[[idCol]])
@@ -778,21 +778,21 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
         
         ## Score table --------------------------------------------------------
         output$scoreTable <- DT::renderDT({
-            tmpdf <- plotdata() %>%
+            tmpdf <- plotdata() |>
                 dplyr::mutate("{valueCol}" := signif(.data[[valueCol]], 
-                                                     digits = 4)) %>%
-                dplyr::select(dplyr::all_of(c(idCol, valueCol, metricCol))) %>%
+                                                     digits = 4)) |>
+                dplyr::select(dplyr::all_of(c(idCol, valueCol, metricCol))) |>
                 tidyr::pivot_wider(names_from = .data[[metricCol]], 
-                                   values_from = .data[[valueCol]]) %>%
-                dplyr::left_join(scoredata(), by = idCol) %>%
+                                   values_from = .data[[valueCol]]) |>
+                dplyr::left_join(scoredata(), by = idCol) |>
                 dplyr::mutate("{scoreCol}" := signif(.data[[scoreCol]], 
-                                                     digits = 4)) %>%
+                                                     digits = 4)) |>
                 dplyr::relocate(dplyr::all_of(idCol))
             if (input$id_ordering == "high-to-low") {
-                tmpdf %>%
+                tmpdf |>
                     dplyr::arrange(dplyr::desc(.data[[scoreCol]]))
             } else {
-                tmpdf %>%
+                tmpdf |>
                     dplyr::arrange(.data[[scoreCol]])
             }
         }, filter = list(position = "top", clear = FALSE), 

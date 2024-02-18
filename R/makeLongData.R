@@ -2,9 +2,9 @@
 #' @importFrom dplyr select contains all_of
 .makeLongData <- function(df, idCol, metrics, metricCol, valueCol,
                           metricGrouping, metricInfo, metricGroupCol) {
-    pd <- df %>%
+    pd <- df |>
         dplyr::select(dplyr::all_of(idCol), 
-                      dplyr::contains(metrics)) %>%
+                      dplyr::contains(metrics)) |>
         tidyr::pivot_longer(names_to = metricCol, values_to = valueCol,
                             -dplyr::all_of(idCol))
     ## Add grouping of metrics
@@ -43,19 +43,19 @@
                               idCol, metricGroupCol, valueCol, weightCol, 
                               metricCol, collapseMethod) {
     if (metricCollapseGroup && metricGrouping != "---") {
-        df %>%
-            dplyr::group_by(.data[[idCol]], .data[[metricGroupCol]]) %>%
+        df |>
+            dplyr::group_by(.data[[idCol]], .data[[metricGroupCol]]) |>
             dplyr::summarize(
                 "{ valueCol }" := get(collapseMethod)(.data[[valueCol]], 
                                                       na.rm = TRUE),
                 "{ weightCol }" := mean(.data[[weightCol]], na.rm = TRUE)
-            ) %>%
+            ) |>
             dplyr::mutate(
                 "{ valueCol }" := replace(.data[[valueCol]], 
                                           !is.finite(.data[[valueCol]]), NA)
-            ) %>%
-            dplyr::mutate("{ metricCol }" := .data[[metricGroupCol]]) %>%
-            dplyr::ungroup() %>%
+            ) |>
+            dplyr::mutate("{ metricCol }" := .data[[metricGroupCol]]) |>
+            dplyr::ungroup() |>
             as.data.frame()
     } else {
         df

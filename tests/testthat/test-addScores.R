@@ -2,7 +2,7 @@ test_that("adding scores works", {
     set.seed(123)
     df <- data.frame(Method = rep(c("A", "B", "C"), each = 3),
                      Metric = rep(c("m1", "m2", "m3"), 3),
-                     Value = c(NA, runif(n = 8, min = 0, max = 3))) %>%
+                     Value = c(NA, runif(n = 8, min = 0, max = 3))) |>
         tidyr::pivot_wider(names_from = Metric, values_from = Value)
     metrics <- setdiff(colnames(df), "Method")
     metricInfo <- data.frame(Metric = c("m1", "m2", "m3"), num = c(1, 1, 2),

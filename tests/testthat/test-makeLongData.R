@@ -1,7 +1,7 @@
 test_that("long data generation works", {
     df <- data.frame(Method = rep(c("A", "B", "C"), each = 3),
                      Metric = rep(c("m1", "m2", "m3"), 3),
-                     Value = runif(n = 9, min = 0, max = 3)) %>%
+                     Value = runif(n = 9, min = 0, max = 3)) |>
         tidyr::pivot_wider(names_from = Metric, values_from = Value)
     metrics <- setdiff(colnames(df), "Method")
     metricInfo <- data.frame(Metric = c("m1", "m2", "m3"), num = c(1, 1, 2),
@@ -57,7 +57,7 @@ test_that("long data generation works", {
 test_that("adding weights to long data works", {
     df <- data.frame(Method = rep(c("A", "B", "C"), each = 3),
                      Metric = rep(c("m1", "m2", "m3"), 3),
-                     Value = runif(n = 9, min = 0, max = 3)) %>%
+                     Value = runif(n = 9, min = 0, max = 3)) |>
         tidyr::pivot_wider(names_from = Metric, values_from = Value)
     metrics <- setdiff(colnames(df), "Method")
     metricInfo <- data.frame(Metric = c("m1", "m2", "m3"), num = c(1, 1, 2),
@@ -131,7 +131,7 @@ test_that("adding weights to long data works", {
 test_that("collapsing long data works", {
     df <- data.frame(Method = rep(c("A", "B", "C"), each = 3),
                      Metric = rep(c("m1", "m2", "m3"), 3),
-                     Value = runif(n = 9, min = 0, max = 3)) %>%
+                     Value = runif(n = 9, min = 0, max = 3)) |>
         tidyr::pivot_wider(names_from = Metric, values_from = Value)
     metrics <- setdiff(colnames(df), "Method")
     metricInfo <- data.frame(Metric = c("m1", "m2", "m3"), num = c(1, 1, 2),
