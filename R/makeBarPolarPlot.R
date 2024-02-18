@@ -46,7 +46,8 @@
 #'                  
 makeBarPolarPlot <- function(df, scores, idCol, metricCol = "Metric", 
                              valueCol = "ScaledValue", weightCol = "Weight", 
-                             scoreCol = "Score", metricGroupCol = "metricGroup", 
+                             scoreCol = "Score", 
+                             metricGroupCol = "metricGroup", 
                              methods = NULL, labelSize = 10,
                              showComposition = FALSE, 
                              scaleFactorPolars = 1, metricColors,
