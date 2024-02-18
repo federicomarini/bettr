@@ -25,7 +25,7 @@ metrics, scores, and weights. Typically obtained as
 \code{bettrPrepare}.}
 
 \item{idCol}{Character scalar indicating which column of \code{plotdata} and
-\code{scores} contains the method IDs.}
+\code{scoredata} contains the method IDs.}
 
 \item{metricCol}{Character scalar indicating which column of \code{plotdata}
 contains the metric IDs. Typically, \code{"Metric"}.}

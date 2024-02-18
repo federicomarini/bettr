@@ -891,8 +891,8 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                 NULL
             } else {
                 makeHeatmap(
-                    plotdata = plotdata(), scores = scoredata(), idCol = idCol, 
-                    metricCol = metricCol, valueCol = valueCol, 
+                    plotdata = plotdata(), scoredata = scoredata(), 
+                    idCol = idCol, metricCol = metricCol, valueCol = valueCol, 
                     weightCol = weightCol, scoreCol = scoreCol, 
                     metricGroupCol = metricGroupCol, 
                     metricInfo = values$metricInfo,

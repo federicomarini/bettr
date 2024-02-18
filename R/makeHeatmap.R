@@ -8,19 +8,19 @@
 #'     metrics, scores, and weights. Typically obtained as 
 #'     \code{prepData$plotdata}, where \code{prepData} is the output from 
 #'     \code{bettrPrepare}. 
-#' @param scores A \code{data.frame} with columns representing methods, 
+#' @param scoredata A \code{data.frame} with columns representing methods, 
 #'     aggregated scores, and any other method annotations. Typically 
 #'     obtained as \code{prepData$scoredata}, where \code{prepData} is the 
 #'     output from \code{bettrPrepare}.
 #' @param idCol Character scalar indicating which column of \code{plotdata} and 
-#'     \code{scores} contains the method IDs. 
+#'     \code{scoredata} contains the method IDs. 
 #' @param metricCol Character scalar indicating which column of \code{plotdata} 
 #'     contains the metric IDs. Typically, \code{"Metric"}.
 #' @param valueCol Character scalar indicating which column of \code{plotdata} 
 #'     contains the metric values. Typically, \code{"ScaledValue"}.
 #' @param weightCol Character scalar indicating which column of \code{plotdata} 
 #'     contains the weight values. Typically, \code{"Weight"}.
-#' @param scoreCol Character scalar indicating which column of \code{scores} 
+#' @param scoreCol Character scalar indicating which column of \code{scoredata} 
 #'     contains the aggregated score values. Typically, \code{"Score"}.
 #' @param metricGroupCol Character scalar indicating which column of 
 #'     \code{plotdata} contains the information about the metric group. 
@@ -81,7 +81,7 @@
 #'                      Type = c("T1", "T1", "T2"))
 #' prepData <- bettrPrepare(df = df, idCol = "Method", 
 #'                          metricInfo = metricInfo, idInfo = idInfo)
-#' makeHeatmap(plotdata = prepData$plotdata, scores = prepData$scoredata, 
+#' makeHeatmap(plotdata = prepData$plotdata, scoredata = prepData$scoredata, 
 #'             idCol = "Method", metricGroupCol = prepData$metricGroupCol,
 #'             metricInfo = prepData$metricInfo, idInfo = prepData$idInfo,
 #'             metricColors = prepData$metricColors, 
@@ -90,7 +90,7 @@
 #'             metricGrouping = prepData$metricGrouping, 
 #'             plotType = "Heatmap")
 #'
-#' makeHeatmap(plotdata = prepData$plotdata, scores = prepData$scoredata, 
+#' makeHeatmap(plotdata = prepData$plotdata, scoredata = prepData$scoredata, 
 #'             idCol = "Method", metricGroupCol = prepData$metricGroupCol,
 #'             metricInfo = prepData$metricInfo, idInfo = prepData$idInfo,
 #'             metricColors = prepData$metricColors, 
@@ -99,7 +99,7 @@
 #'             metricGrouping = prepData$metricGrouping, 
 #'             plotType = "Dot plot")
 #'                  
-makeHeatmap <- function(plotdata, scores, idCol, metricCol = "Metric", 
+makeHeatmap <- function(plotdata, scoredata, idCol, metricCol = "Metric", 
                         valueCol = "ScaledValue", weightCol = "Weight", 
                         scoreCol = "Score", metricGroupCol = "metricGroup", 
                         metricInfo, idInfo,
@@ -125,7 +125,7 @@ makeHeatmap <- function(plotdata, scores, idCol, metricCol = "Metric",
         as.matrix()
     
     ## Match order of row annotations
-    rowAnnot <- scores
+    rowAnnot <- scoredata
     rowAnnot <- rowAnnot[match(rownames(mat), 
                                rowAnnot[[idCol]]), ,
                          drop = FALSE] |> as.data.frame()

@@ -37,14 +37,14 @@
 #'                      Type = c("T1", "T1", "T2"))
 #' prepData <- bettrPrepare(df = df, idCol = "Method", 
 #'                          metricInfo = metricInfo, idInfo = idInfo)
-#' makeBarPolarPlot(plotdata = prepData$plotdata, scores = prepData$scoredata, 
+#' makeBarPolarPlot(plotdata = prepData$plotdata, scoredata = prepData$scoredata, 
 #'                  idCol = "Method", metricGroupCol = prepData$metricGroupCol,
 #'                  metricColors = prepData$metricColors, 
 #'                  metricCollapseGroup = prepData$metricCollapseGroup,
 #'                  metricGrouping = prepData$metricGrouping, 
 #'                  showComposition = TRUE)
 #'                  
-makeBarPolarPlot <- function(plotdata, scores, idCol, metricCol = "Metric", 
+makeBarPolarPlot <- function(plotdata, scoredata, idCol, metricCol = "Metric", 
                              valueCol = "ScaledValue", weightCol = "Weight", 
                              scoreCol = "Score", 
                              metricGroupCol = "metricGroup", 
@@ -93,10 +93,10 @@ makeBarPolarPlot <- function(plotdata, scores, idCol, metricCol = "Metric",
     })
     
     ## Define data for barplot ------------------------------------------------
-    levs <- scores |>
+    levs <- scoredata |>
         dplyr::pull(.data[[idCol]])
     rx <- length(levs)
-    ry <- max(0, max(scores[[scoreCol]])) - min(0, min(scores[[scoreCol]]))
+    ry <- max(0, max(scoredata[[scoreCol]])) - min(0, min(scoredata[[scoreCol]]))
     sx <- 2.5
     sy <- ry/rx * sx
     
@@ -122,7 +122,7 @@ makeBarPolarPlot <- function(plotdata, scores, idCol, metricCol = "Metric",
             ggplot2::scale_fill_manual(values = metricColors[[metricCol]])
     } else {
         ## Show only final score in bars
-        bplot <- ggplot2::ggplot(scores |> 
+        bplot <- ggplot2::ggplot(scoredata |> 
                                      dplyr::mutate("{idCol}" := 
                                                        factor(.data[[idCol]],
                                                               levels = levs)),
@@ -137,7 +137,7 @@ makeBarPolarPlot <- function(plotdata, scores, idCol, metricCol = "Metric",
                 angle = 90, hjust = 1, vjust = 0.5, size = labelSize),
             axis.text.y = ggplot2::element_text(size = labelSize),
             axis.title = ggplot2::element_text(size = labelSize)) +
-        ggplot2::expand_limits(y = max(scores[[scoreCol]]) + sy) + 
+        ggplot2::expand_limits(y = max(scoredata[[scoreCol]]) + sy) + 
         ggplot2::theme(legend.position = "none")
     
     ## Add polar plots
@@ -146,7 +146,7 @@ makeBarPolarPlot <- function(plotdata, scores, idCol, metricCol = "Metric",
         bplot <- bplot +
             cowplot::draw_plot(
                 rplots[[l]], x = (i - sx/2 - 0.1), 
-                y = scores[[scoreCol]][scores[[idCol]] == l],
+                y = scoredata[[scoreCol]][scoredata[[idCol]] == l],
                 width = sx, height = sy, scale = scaleFactorPolars, 
                 hjust = 0, vjust = 0,
                 halign = 0.5, valign = 0.5)

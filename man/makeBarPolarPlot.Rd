@@ -6,7 +6,7 @@
 \usage{
 makeBarPolarPlot(
   plotdata,
-  scores,
+  scoredata,
   idCol,
   metricCol = "Metric",
   valueCol = "ScaledValue",
@@ -28,13 +28,13 @@ metrics, scores, and weights. Typically obtained as
 \code{prepData$plotdata}, where \code{prepData} is the output from
 \code{bettrPrepare}.}
 
-\item{scores}{A \code{data.frame} with columns representing methods,
+\item{scoredata}{A \code{data.frame} with columns representing methods,
 aggregated scores, and any other method annotations. Typically
 obtained as \code{prepData$scoredata}, where \code{prepData} is the
 output from \code{bettrPrepare}.}
 
 \item{idCol}{Character scalar indicating which column of \code{plotdata} and
-\code{scores} contains the method IDs.}
+\code{scoredata} contains the method IDs.}
 
 \item{metricCol}{Character scalar indicating which column of \code{plotdata}
 contains the metric IDs. Typically, \code{"Metric"}.}
@@ -45,7 +45,7 @@ contains the metric values. Typically, \code{"ScaledValue"}.}
 \item{weightCol}{Character scalar indicating which column of \code{plotdata}
 contains the weight values. Typically, \code{"Weight"}.}
 
-\item{scoreCol}{Character scalar indicating which column of \code{scores}
+\item{scoreCol}{Character scalar indicating which column of \code{scoredata}
 contains the aggregated score values. Typically, \code{"Score"}.}
 
 \item{metricGroupCol}{Character scalar indicating which column of
@@ -99,7 +99,7 @@ idInfo <- data.frame(Method = c("M1", "M2", "M3"),
                      Type = c("T1", "T1", "T2"))
 prepData <- bettrPrepare(df = df, idCol = "Method", 
                          metricInfo = metricInfo, idInfo = idInfo)
-makeBarPolarPlot(plotdata = prepData$plotdata, scores = prepData$scoredata, 
+makeBarPolarPlot(plotdata = prepData$plotdata, scoredata = prepData$scoredata, 
                  idCol = "Method", metricGroupCol = prepData$metricGroupCol,
                  metricColors = prepData$metricColors, 
                  metricCollapseGroup = prepData$metricCollapseGroup,
