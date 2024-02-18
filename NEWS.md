@@ -1,3 +1,7 @@
+# bettr 0.3.0
+
+* Add bettrPrepare function to prepare data for plotting independently of the shiny app
+
 # bettr 0.2.3
 
 * Add option to show heatmap as dot plot
