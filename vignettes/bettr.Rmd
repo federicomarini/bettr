@@ -143,7 +143,6 @@ prepData <- bettrPrepare(
     initialTransforms = duo2018$initialTransforms, 
     metricColors = duo2018$metricColors, idColors = duo2018$idColors, 
     initialWeights = c(Class_ARI = 0.55),
-    defaultWeightValue = 0.2, 
     scoreMethod = "weighted mean", metricGrouping = "Class", 
     metricCollapseGroup = TRUE)
 makeHeatmap(bettrList = prepData)
