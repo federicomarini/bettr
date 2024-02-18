@@ -88,7 +88,8 @@ bettrPrepare <- function(df, idCol = "Method",
     .assertScalar(x = showOnlyTopIds, type = "logical")
     .assertScalar(x = nbrTopIds, type = "numeric")
     .assertScalar(x = idTopNGrouping, type = "character", allowNULL = TRUE)
-    .assertVector(x = keepIds, type = "character", validValues = df[[idCol]])
+    .assertVector(x = keepIds, type = "character", allowNULL = TRUE, 
+                  validValues = df[[idCol]])
     .assertScalar(x = metricGrouping, type = "character", allowNULL = TRUE)
     .assertScalar(x = metricCollapseGroup, type = "logical")
     .assertScalar(x = metricCollapseMethod, type = "character", 
