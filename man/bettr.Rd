@@ -38,23 +38,23 @@ one entry per metric included in \code{metrics}.}
 \item{initialTransforms}{Named list with initial values of transformation
 parameters for each metric. Each list entry should correspond to one
 metric, and take the form of a list with up to four elements, named:
-\itemize{
-\item \strong{flip}: Logical scalar; whether or not to flip the sign of the
-metric values. Defaults to \code{FALSE}.
-\item \strong{offset}: Numeric scalar; offset to add to the (flipped)
-metric values. Defaults to \code{0}.
-\item \strong{transform}: Character scalar; one of 'None', 'z-score',
-'[0,1]', '[-1,1]', 'Rank', 'Rank+[0,1]' or 'z-score+[0,1]',
-indicating which transform to apply to
-the metric values (after any flipping and/or adding the offset).
-Defaults to 'None'.
-\item \strong{cuts}: Numeric vector or \code{NULL}; the cut points that will
-be used to bin the metric values (after the other transformations).
-Defaults to \code{NULL}.
-}
 
-Only values deviating from the defaults need to be explicitly specified,
-the others will be initialized to their default values.}
+\if{html}{\out{<div class="sourceCode">}}\preformatted{* **flip**: Logical scalar; whether or not to flip the sign of the 
+    metric values. Defaults to `FALSE`.
+* **offset**: Numeric scalar; offset to add to the (flipped) 
+    metric values. Defaults to `0`.
+* **transform**: Character scalar; one of 'None', 'z-score', 
+    '\[0,1\]', '\[-1,1\]', 'Rank', 'Rank+\[0,1\]' or 'z-score+\[0,1\]', 
+    indicating which transform to apply to 
+    the metric values (after any flipping and/or adding the offset). 
+    Defaults to 'None'.
+* **cuts**: Numeric vector or `NULL`; the cut points that will 
+    be used to bin the metric values (after the other transformations). 
+    Defaults to `NULL`. 
+
+Only values deviating from the defaults need to be explicitly specified, 
+the others will be initialized to their default values.
+}\if{html}{\out{</div>}}}
 
 \item{metricInfo}{\code{data.frame} with annotations for metrics. Must have
 a column named 'Metric' identifying the respective metrics.}

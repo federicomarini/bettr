@@ -20,7 +20,7 @@
 #' @importFrom rlang .data :=
 #' @importFrom scales rescale
 #' @importFrom ggplot2 ggplot aes geom_boxplot geom_line geom_point 
-#'   scale_linewidth_manual theme_minimal theme element_text scale_fill_manual
+#'     scale_linewidth_manual theme_minimal theme element_text scale_fill_manual
 #'   
 #' @examples
 #' ## Generate example data

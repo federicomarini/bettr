@@ -18,7 +18,7 @@
 
 #' @importFrom cowplot plot_grid
 #' @importFrom ggplot2 ggplot aes geom_bar theme_minimal geom_boxplot 
-#'   geom_jitter coord_flip
+#'     geom_jitter coord_flip
 .makeMetricSummaryPlot <- function(x) {
     cowplot::plot_grid(
         ggplot2::ggplot(data.frame(metric = x),

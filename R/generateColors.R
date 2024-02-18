@@ -1,7 +1,7 @@
 #' @noRd
 #' 
 #' @param ggplot2Columns Names of columns for which we should use the standard 
-#'   ggplot2 colors if nothing else is specified
+#'     ggplot2 colors if nothing else is specified
 #' 
 #' @importFrom circlize colorRamp2
 #' @importFrom grDevices colors

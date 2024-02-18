@@ -14,7 +14,7 @@
 #' 
 #' @importFrom rlang .data
 #' @importFrom ggplot2 ggplot aes geom_col coord_polar facet_wrap 
-#'   theme_minimal theme element_blank
+#'     theme_minimal theme element_blank
 #'   
 #' @examples
 #' ## Generate example data

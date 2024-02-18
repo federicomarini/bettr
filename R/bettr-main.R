@@ -1,53 +1,53 @@
 #' Launch bettr app to explore and aggregate performance metrics
 #' 
 #' @param df A `data.frame` in wide format. Should contain one column 
-#'   with the IDs of the entities to be compared, and one column for each 
-#'   metric to use for the comparison.
+#'     with the IDs of the entities to be compared, and one column for each 
+#'     metric to use for the comparison.
 #' @param idCol Character scalar, indicating the name of the column of `df` 
-#'   that contains IDs of the entities to be compared (e.g., methods).
+#'     that contains IDs of the entities to be compared (e.g., methods).
 #' @param metrics Character vector, indicating which of the 
-#'   columns of `df` that correspond to metrics of interest. Only metrics
-#'   included here will be displayed.
+#'     columns of `df` that correspond to metrics of interest. Only metrics
+#'     included here will be displayed.
 #' @param initialWeights Named numeric vector providing initial weights for 
-#'   each metric to use for aggregating them into a final score. Must contain 
-#'   one entry per metric included in `metrics`.
+#'     each metric to use for aggregating them into a final score. Must contain 
+#'     one entry per metric included in `metrics`.
 #' @param initialTransforms Named list with initial values of transformation 
-#'   parameters for each metric. Each list entry should correspond to one 
-#'   metric, and take the form of a list with up to four elements, named:
+#'     parameters for each metric. Each list entry should correspond to one 
+#'     metric, and take the form of a list with up to four elements, named:
 #'   
-#'   * **flip**: Logical scalar; whether or not to flip the sign of the 
-#'     metric values. Defaults to `FALSE`.
-#'   * **offset**: Numeric scalar; offset to add to the (flipped) 
-#'     metric values. Defaults to `0`.
-#'   * **transform**: Character scalar; one of 'None', 'z-score', 
-#'     '\[0,1\]', '\[-1,1\]', 'Rank', 'Rank+\[0,1\]' or 'z-score+\[0,1\]', 
-#'     indicating which transform to apply to 
-#'     the metric values (after any flipping and/or adding the offset). 
-#'     Defaults to 'None'.
-#'   * **cuts**: Numeric vector or `NULL`; the cut points that will 
-#'     be used to bin the metric values (after the other transformations). 
-#'     Defaults to `NULL`. 
+#'     * **flip**: Logical scalar; whether or not to flip the sign of the 
+#'         metric values. Defaults to `FALSE`.
+#'     * **offset**: Numeric scalar; offset to add to the (flipped) 
+#'         metric values. Defaults to `0`.
+#'     * **transform**: Character scalar; one of 'None', 'z-score', 
+#'         '\[0,1\]', '\[-1,1\]', 'Rank', 'Rank+\[0,1\]' or 'z-score+\[0,1\]', 
+#'         indicating which transform to apply to 
+#'         the metric values (after any flipping and/or adding the offset). 
+#'         Defaults to 'None'.
+#'     * **cuts**: Numeric vector or `NULL`; the cut points that will 
+#'         be used to bin the metric values (after the other transformations). 
+#'         Defaults to `NULL`. 
 #'
-#'   Only values deviating from the defaults need to be explicitly specified, 
-#'   the others will be initialized to their default values.
+#'     Only values deviating from the defaults need to be explicitly specified, 
+#'     the others will be initialized to their default values.
 #' @param metricInfo `data.frame` with annotations for metrics. Must have 
-#'   a column named 'Metric' identifying the respective metrics.
+#'     a column named 'Metric' identifying the respective metrics.
 #' @param metricColors Named list with colors used for columns of 
-#'   `metricInfo`. Should follow the format required for ComplexHeatmap 
-#'   heatmap annotations. The list can include an entry named 'Metric', which 
-#'   contains a named vector with colors to use for metrics. 
+#'     `metricInfo`. Should follow the format required for ComplexHeatmap 
+#'     heatmap annotations. The list can include an entry named 'Metric', which 
+#'     contains a named vector with colors to use for metrics. 
 #' @param idInfo `data.frame` with annotations for entities. Must have a 
-#'   column named according to `idCol` identifying the respective entities. 
+#'     column named according to `idCol` identifying the respective entities. 
 #' @param idColors Named list with colors used for columns of `idInfo`. 
-#'   Should follow the format required for ComplexHeatmap heatmap annotations. 
-#'   The list can include an entry named according to `idCol`, which 
-#'   contains a named vector with colors to use for entities. 
+#'     Should follow the format required for ComplexHeatmap heatmap annotations. 
+#'     The list can include an entry named according to `idCol`, which 
+#'     contains a named vector with colors to use for entities. 
 #' @param weightResolution Numeric scalar in (0,1), giving the resolution at 
-#'   which weights can be specified using the sliders in the interface.
+#'     which weights can be specified using the sliders in the interface.
 #' @param bstheme Character scalar giving the bootswatch theme for the app 
-#'   (see https://bootswatch.com/). Default 'darkly'.
+#'     (see https://bootswatch.com/). Default 'darkly'.
 #' @param appTitle Character scalar giving the title that will be used for 
-#'   the app. Defaults to 'bettr'.
+#'     the app. Defaults to 'bettr'.
 #'  
 #' @export
 #' 
@@ -57,11 +57,11 @@
 #' A shiny application
 #' 
 #' @importFrom shiny uiOutput radioButtons checkboxInput conditionalPanel 
-#'   numericInput actionButton tabsetPanel tabPanel br fluidRow column 
-#'   selectInput hr reactiveValues reactive outputOptions renderUI 
-#'   selectizeInput updateTabsetPanel observe observeEvent tabPanelBody 
-#'   plotOutput tagList tags HTML validate need renderPlot updateNumericInput 
-#'   sliderInput shinyApp
+#'     numericInput actionButton tabsetPanel tabPanel br fluidRow column 
+#'     selectInput hr reactiveValues reactive outputOptions renderUI 
+#'     selectizeInput updateTabsetPanel observe observeEvent tabPanelBody 
+#'     plotOutput tagList tags HTML validate need renderPlot updateNumericInput 
+#'     sliderInput shinyApp
 #' @importFrom sortable rank_list
 #' @importFrom shinyjqui jqui_resizable
 #' @importFrom dplyr filter select mutate left_join arrange relocate

@@ -75,7 +75,7 @@
 #' @importFrom tibble column_to_rownames tibble
 #' @importFrom rlang .data :=
 #' @importFrom ComplexHeatmap rowAnnotation anno_barplot columnAnnotation 
-#'   Heatmap draw pindex
+#'     Heatmap draw pindex
 #' @importFrom grid gpar unit grid.rect grid.circle unit.c
 #' @importFrom circlize colorRamp2
 #' 
