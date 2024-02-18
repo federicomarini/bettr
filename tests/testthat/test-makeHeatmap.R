@@ -16,30 +16,36 @@ test_that("makeHeatmap works", {
     idInfo <- scoredata[, c("Method", "Type")]
     
     hm <- makeHeatmap(
+        bettrList = NULL,
         plotdata = plotdata, scoredata = scoredata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
         scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL, 
-        idInfo = NULL, labelSize = 10, idColors = NULL, metricColors = NULL,
-        metricCollapseGroup = FALSE, metricGrouping = NULL, showRowNames = TRUE, 
+        metricColors = NULL, idInfo = NULL, idColors = NULL, 
+        metricCollapseGroup = FALSE, metricGrouping = NULL, 
+        labelSize = 10, showRowNames = TRUE, 
         plotType = "Heatmap", rownamewidth_cm = 6, colnameheight_cm = 6
     )
     expect_s4_class(hm, "HeatmapList")
     
     expect_error(makeHeatmap(
+        bettrList = NULL,
         plotdata = plotdata, scoredata = scoredata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
         scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL, 
-        idInfo = NULL, labelSize = 10, idColors = NULL, metricColors = NULL,
-        metricCollapseGroup = FALSE, metricGrouping = NULL, showRowNames = TRUE, 
+        metricColors = NULL, idInfo = NULL, idColors = NULL, 
+        metricCollapseGroup = FALSE, metricGrouping = NULL, 
+        labelSize = 10, showRowNames = TRUE, 
         plotType = "unknown", rownamewidth_cm = 6, colnameheight_cm = 6
     ), "Unknown plot type")
     
     hm <- makeHeatmap(
+        bettrList = NULL,
         plotdata = plotdata, scoredata = scoredata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
         scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL, 
-        idInfo = NULL, labelSize = 10, idColors = NULL, metricColors = NULL,
-        metricCollapseGroup = FALSE, metricGrouping = NULL, showRowNames = TRUE, 
+        metricColors = NULL, idInfo = NULL, idColors = NULL, 
+        metricCollapseGroup = FALSE, metricGrouping = NULL, 
+        labelSize = 10, showRowNames = TRUE, 
         plotType = "Dot plot", rownamewidth_cm = 6, colnameheight_cm = 6
     )
     expect_s4_class(hm, "HeatmapList")
@@ -52,22 +58,26 @@ test_that("makeHeatmap works", {
         dplyr::mutate(Metric = Group) |>
         dplyr::rename(metricGroup = Group)
     hm <- makeHeatmap(
+        bettrList = NULL,
         plotdata = grpdf, scoredata = scoredata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
         scoreCol = "Score", metricGroupCol = "metricGroup", 
-        metricInfo = metricInfo, 
-        idInfo = NULL, labelSize = 10, idColors = NULL, metricColors = NULL,
-        metricCollapseGroup = TRUE, metricGrouping = "Group", showRowNames = TRUE, 
+        metricInfo = metricInfo, metricColors = NULL,
+        idInfo = NULL, idColors = NULL, 
+        metricCollapseGroup = TRUE, metricGrouping = "Group", 
+        labelSize = 10, showRowNames = TRUE, 
         plotType = "Heatmap", rownamewidth_cm = 6, colnameheight_cm = 6
     )
     expect_s4_class(hm, "HeatmapList")
     
     hm <- makeHeatmap(
+        bettrList = NULL,
         plotdata = plotdata, scoredata = scoredata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
         scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL, 
-        idInfo = idInfo, labelSize = 10, idColors = NULL, metricColors = NULL,
-        metricCollapseGroup = FALSE, metricGrouping = NULL, showRowNames = TRUE, 
+        metricColors = NULL, idInfo = idInfo, idColors = NULL, 
+        metricCollapseGroup = FALSE, metricGrouping = NULL, 
+        labelSize = 10, showRowNames = TRUE, 
         plotType = "Heatmap", rownamewidth_cm = 6, colnameheight_cm = 6
     )
     expect_s4_class(hm, "HeatmapList")
@@ -75,11 +85,13 @@ test_that("makeHeatmap works", {
     negdf <- plotdata
     negdf$ScaledValue[1] <- -8
     hm <- makeHeatmap(
+        bettrList = NULL,
         plotdata = negdf, scoredata = scoredata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
         scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL, 
-        idInfo = idInfo, labelSize = 10, idColors = NULL, metricColors = NULL,
-        metricCollapseGroup = FALSE, metricGrouping = NULL, showRowNames = TRUE, 
+        metricColors = NULL, idInfo = idInfo, idColors = NULL, 
+        metricCollapseGroup = FALSE, metricGrouping = NULL, 
+        labelSize = 10, showRowNames = TRUE, 
         plotType = "Heatmap", rownamewidth_cm = 6, colnameheight_cm = 6
     )
     expect_s4_class(hm, "HeatmapList")
@@ -87,11 +99,13 @@ test_that("makeHeatmap works", {
     negdf <- plotdata
     negdf$ScaledValue <- -negdf$ScaledValue
     hm <- makeHeatmap(
+        bettrList = NULL,
         plotdata = negdf, scoredata = scoredata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
         scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL, 
-        idInfo = idInfo, labelSize = 10, idColors = NULL, metricColors = NULL,
-        metricCollapseGroup = FALSE, metricGrouping = NULL, showRowNames = TRUE, 
+        metricColors = NULL, idInfo = idInfo, idColors = NULL, 
+        metricCollapseGroup = FALSE, metricGrouping = NULL, 
+        labelSize = 10, showRowNames = TRUE, 
         plotType = "Heatmap", rownamewidth_cm = 6, colnameheight_cm = 6
     )
     expect_s4_class(hm, "HeatmapList")

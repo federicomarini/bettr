@@ -5,6 +5,7 @@
 \title{Create a bar/polar plot}
 \usage{
 makeBarPolarPlot(
+  bettrList = NULL,
   plotdata,
   scoredata,
   idCol,
@@ -13,16 +14,26 @@ makeBarPolarPlot(
   weightCol = "Weight",
   scoreCol = "Score",
   metricGroupCol = "metricGroup",
+  metricColors,
+  metricCollapseGroup = FALSE,
+  metricGrouping = "---",
   methods = NULL,
   labelSize = 10,
   showComposition = FALSE,
-  scaleFactorPolars = 1,
-  metricColors,
-  metricCollapseGroup,
-  metricGrouping
+  scaleFactorPolars = 1
 )
 }
 \arguments{
+\item{bettrList}{A \code{list}, the output object from \code{prepData}.
+If \code{bettrList} is provided, arguments \code{plotdata},
+\code{scoredata}, \code{idCol}, \code{metricCol}, \code{valueCol},
+\code{weightCol}, \code{scoreCol}, \code{metricGroupCol},
+\code{metricInfo}, \code{metricColors}, \code{idInfo}, \code{idColors},
+\code{metricCollapseGroup}, \code{metricGrouping} and \code{methods}
+will be ignored and the corresponding values will be extracted from
+\code{bettrList}. This is the recommended way of calling the plotting
+functions, as it ensures compatibility of all components.}
+
 \item{plotdata}{A \code{data.frame} with columns representing methods,
 metrics, scores, and weights. Typically obtained as
 \code{prepData$plotdata}, where \code{prepData} is the output from
@@ -52,18 +63,6 @@ contains the aggregated score values. Typically, \code{"Score"}.}
 \code{plotdata} contains the information about the metric group.
 Typically, \code{"metricGroup"}.}
 
-\item{methods}{Character vector containing the methods for which to make
-polar plots. If \code{NULL} (default), all methods will be used.}
-
-\item{labelSize}{Numeric scalar providing the size of the labels in the plot.}
-
-\item{showComposition}{Logical scalar indicating whether to show the
-composition of the score in the bar plots. This is only interpretable
-if the scores are obtained via a weighted mean approach.}
-
-\item{scaleFactorPolars}{Numeric scalar giving the scale factor determining
-the size of the polar plots.}
-
 \item{metricColors}{Named list with colors used for the metrics and
 any other metric annotations. Typically obtained as
 \code{prepData$metricColors}, where \code{prepData} is the output from
@@ -79,6 +78,18 @@ output from \code{bettrPrepare}.}
 \code{metricInfo} that was used to group metrics. Typically obtained as
 \code{prepData$metricGrouping}, where \code{prepData} is the output
 from \code{bettrPrepare}.}
+
+\item{methods}{Character vector containing the methods for which to make
+polar plots. If \code{NULL} (default), all methods will be used.}
+
+\item{labelSize}{Numeric scalar providing the size of the labels in the plot.}
+
+\item{showComposition}{Logical scalar indicating whether to show the
+composition of the score in the bar plots. This is only interpretable
+if the scores are obtained via a weighted mean approach.}
+
+\item{scaleFactorPolars}{Numeric scalar giving the scale factor determining
+the size of the polar plots.}
 }
 \value{
 A \code{ggplot} object.
@@ -99,12 +110,7 @@ idInfo <- data.frame(Method = c("M1", "M2", "M3"),
                      Type = c("T1", "T1", "T2"))
 prepData <- bettrPrepare(df = df, idCol = "Method", 
                          metricInfo = metricInfo, idInfo = idInfo)
-makeBarPolarPlot(plotdata = prepData$plotdata, scoredata = prepData$scoredata, 
-                 idCol = "Method", metricGroupCol = prepData$metricGroupCol,
-                 metricColors = prepData$metricColors, 
-                 metricCollapseGroup = prepData$metricCollapseGroup,
-                 metricGrouping = prepData$metricGrouping, 
-                 showComposition = TRUE)
+makeBarPolarPlot(bettrList = prepData, showComposition = TRUE)
                  
 }
 \author{

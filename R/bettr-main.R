@@ -810,15 +810,16 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                 NULL
             } else {
                 makeParCoordPlot(
+                    bettrList = NULL,
                     plotdata = plotdata(), idCol = idCol, 
                     metricCol = metricCol, valueCol = valueCol, 
                     metricGroupCol = metricGroupCol,
-                    methods = methodsInUse(),
-                    highlightMethod = input$highlightMethod, 
-                    metricGrouping = input$metricGrouping,
-                    labelSize = input$labelsize, 
                     metricColors = prep$metricColors,
-                    idColors = prep$idColors
+                    idColors = prep$idColors,
+                    methods = methodsInUse(),
+                    metricGrouping = input$metricGrouping,
+                    highlightMethod = input$highlightMethod, 
+                    labelSize = input$labelsize
                 )
             }
         })
@@ -833,14 +834,15 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                 NULL
             } else {
                 makePolarPlot(
+                    bettrList = NULL,
                     plotdata = plotdata(), 
                     idCol = idCol, 
                     metricCol = metricCol, valueCol = valueCol,
                     metricGroupCol = metricGroupCol, 
-                    labelSize = input$labelsize,
                     metricColors = prep$metricColors,
                     metricCollapseGroup = input$metricCollapseGroup,
-                    metricGrouping = input$metricGrouping
+                    metricGrouping = input$metricGrouping,
+                    labelSize = input$labelsize
                 )
             }
         })
@@ -860,18 +862,19 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                     ssc <- FALSE
                 }
                 makeBarPolarPlot(
-                    plotdata = plotdata(), scores = scoredata(),
+                    bettrList = NULL, 
+                    plotdata = plotdata(), scoredata = scoredata(),
                     idCol = idCol, 
                     metricCol = metricCol, valueCol = valueCol, 
                     weightCol = weightCol, scoreCol = scoreCol, 
                     metricGroupCol = metricGroupCol, 
+                    metricColors = prep$metricColors,
+                    metricCollapseGroup = input$metricCollapseGroup,
+                    metricGrouping = input$metricGrouping,
                     methods = methodsInUse(), 
                     labelSize = input$labelsize,
                     showComposition = ssc,
-                    scaleFactorPolars = input$barpolar_scalefactor, 
-                    metricColors = prep$metricColors,
-                    metricCollapseGroup = input$metricCollapseGroup,
-                    metricGrouping = input$metricGrouping
+                    scaleFactorPolars = input$barpolar_scalefactor
                 )
             }
         })
@@ -891,17 +894,18 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                 NULL
             } else {
                 makeHeatmap(
+                    bettrList = NULL, 
                     plotdata = plotdata(), scoredata = scoredata(), 
                     idCol = idCol, metricCol = metricCol, valueCol = valueCol, 
                     weightCol = weightCol, scoreCol = scoreCol, 
                     metricGroupCol = metricGroupCol, 
                     metricInfo = values$metricInfo,
-                    idInfo = values$idInfo,
-                    labelSize = input$labelsize,
-                    idColors = prep$idColors, 
                     metricColors = prep$metricColors,
+                    idInfo = values$idInfo,
+                    idColors = prep$idColors, 
                     metricCollapseGroup = input$metricCollapseGroup,
                     metricGrouping = input$metricGrouping, 
+                    labelSize = input$labelsize,
                     showRowNames = input$show_row_names,
                     plotType = input$heatmap_plot_type,
                     rownamewidth_cm = input$hm_rownamewidth,

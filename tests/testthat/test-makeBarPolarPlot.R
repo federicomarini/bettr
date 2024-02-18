@@ -19,10 +19,10 @@ test_that("BarPolarPlot works", {
         plotdata = plotdata, scoredata = scoredata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
         scoreCol = "Score", metricGroupCol = "---", 
+        metricColors = list(Metric = c("blue", "red", "green")),
+        metricCollapseGroup = FALSE, metricGrouping = "Group",
         methods = unique(scoredata$Method), labelSize = 10,
-        showComposition = FALSE, 
-        scaleFactorPolars = 1.5, metricColors = list(Metric = c("blue", "red", "green")),
-        metricCollapseGroup = FALSE, metricGrouping = "Group"
+        showComposition = FALSE, scaleFactorPolars = 1.5
     )
     expect_s3_class(bpp, "ggplot")
     
@@ -30,10 +30,10 @@ test_that("BarPolarPlot works", {
         plotdata = plotdata, scoredata = scoredata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
         scoreCol = "Score", metricGroupCol = "---", 
+        metricColors = list(Metric = c("blue", "red", "green")),
+        metricCollapseGroup = FALSE, metricGrouping = "Group",
         methods = unique(scoredata$Method), labelSize = 10,
-        showComposition = TRUE, 
-        scaleFactorPolars = 1.5, metricColors = list(Metric = c("blue", "red", "green")),
-        metricCollapseGroup = FALSE, metricGrouping = "Group"
+        showComposition = TRUE, scaleFactorPolars = 1.5
     )
     expect_s3_class(bpp, "ggplot")
     
@@ -48,10 +48,10 @@ test_that("BarPolarPlot works", {
         plotdata = grpdf, scoredata = scoredata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
         scoreCol = "Score", metricGroupCol = "metricGroup", 
+        metricColors = list(Group = c("blue", "red", "green")),
+        metricCollapseGroup = TRUE, metricGrouping = "Group",
         methods = unique(scoredata$Method), labelSize = 10,
-        showComposition = TRUE, 
-        scaleFactorPolars = 1.5, metricColors = list(Group = c("blue", "red", "green")),
-        metricCollapseGroup = TRUE, metricGrouping = "Group"
+        showComposition = TRUE, scaleFactorPolars = 1.5
     )
     expect_s3_class(bpp, "ggplot")
 })

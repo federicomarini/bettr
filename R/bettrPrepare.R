@@ -244,5 +244,6 @@ bettrPrepare <- function(df, idCol = "Method",
          metricColors = prep$metricColors, metricGrouping = metricGrouping,
          metricCollapseGroup = metricCollapseGroup, idInfo = values$idInfo, 
          metricInfo = values$metricInfo, metricGroupCol = metricGroupCol, 
-         methods = methodsInUse)
+         methods = methodsInUse, idCol = idCol, metricCol = metricCol, 
+         valueCol = valueCol, weightCol = weightCol, scoreCol = scoreCol)
 }

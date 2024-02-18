@@ -5,20 +5,31 @@
 \title{Create a parallel coordinates plot}
 \usage{
 makeParCoordPlot(
+  bettrList = NULL,
   plotdata,
   idCol,
   metricCol = "Metric",
   valueCol = "ScaledValue",
   metricGroupCol = "metricGroup",
-  methods = NULL,
-  highlightMethod,
-  metricGrouping,
-  labelSize = 10,
   metricColors,
-  idColors
+  idColors,
+  methods = NULL,
+  metricGrouping = "---",
+  highlightMethod = NULL,
+  labelSize = 10
 )
 }
 \arguments{
+\item{bettrList}{A \code{list}, the output object from \code{prepData}.
+If \code{bettrList} is provided, arguments \code{plotdata},
+\code{scoredata}, \code{idCol}, \code{metricCol}, \code{valueCol},
+\code{weightCol}, \code{scoreCol}, \code{metricGroupCol},
+\code{metricInfo}, \code{metricColors}, \code{idInfo}, \code{idColors},
+\code{metricCollapseGroup}, \code{metricGrouping} and \code{methods}
+will be ignored and the corresponding values will be extracted from
+\code{bettrList}. This is the recommended way of calling the plotting
+functions, as it ensures compatibility of all components.}
+
 \item{plotdata}{A \code{data.frame} with columns representing methods,
 metrics, scores, and weights. Typically obtained as
 \code{prepData$plotdata}, where \code{prepData} is the output from
@@ -37,19 +48,6 @@ contains the metric values. Typically, \code{"ScaledValue"}.}
 \code{plotdata} contains the information about the metric group.
 Typically, \code{"metricGroup"}.}
 
-\item{methods}{Character vector containing the methods to include.
-If \code{NULL} (default), all methods will be used.}
-
-\item{highlightMethod}{Character scalar indicating a method that should be
-highlighted in the plot.}
-
-\item{metricGrouping}{Character scalar indicating the column of
-\code{metricInfo} that was used to group metrics. Typically obtained as
-\code{prepData$metricGrouping}, where \code{prepData} is the output
-from \code{bettrPrepare}.}
-
-\item{labelSize}{Numeric scalar providing the size of the labels in the plot.}
-
 \item{metricColors}{Named list with colors used for the metrics and
 any other metric annotations. Typically obtained as
 \code{prepData$metricColors}, where \code{prepData} is the output from
@@ -58,6 +56,19 @@ any other metric annotations. Typically obtained as
 \item{idColors}{Named list with colors used for methods and any other
 method annotations. Typically obtained as \code{prepData$idColors},
 where \code{prepData} is the output from \code{bettrPrepare}.}
+
+\item{methods}{Character vector containing the methods to include.
+If \code{NULL} (default), all methods will be used.}
+
+\item{metricGrouping}{Character scalar indicating the column of
+\code{metricInfo} that was used to group metrics. Typically obtained as
+\code{prepData$metricGrouping}, where \code{prepData} is the output
+from \code{bettrPrepare}.}
+
+\item{highlightMethod}{Character scalar indicating a method that should be
+highlighted in the plot.}
+
+\item{labelSize}{Numeric scalar providing the size of the labels in the plot.}
 }
 \value{
 A \code{ggplot} object.
@@ -78,12 +89,7 @@ idInfo <- data.frame(Method = c("M1", "M2", "M3"),
                      Type = c("T1", "T1", "T2"))
 prepData <- bettrPrepare(df = df, idCol = "Method", 
                          metricInfo = metricInfo, idInfo = idInfo)
-makeParCoordPlot(plotdata = prepData$plotdata, idCol = "Method", 
-                 metricGroupCol = prepData$metricGroupCol,
-                 highlightMethod = "M1",
-                 metricColors = prepData$metricColors, 
-                 idColors = prepData$idColors,
-                 metricGrouping = prepData$metricGrouping)
+makeParCoordPlot(bettrList = prepData, highlightMethod = "M2")
                  
 }
 \author{

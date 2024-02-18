@@ -5,18 +5,29 @@
 \title{Create a polar plot}
 \usage{
 makePolarPlot(
+  bettrList = NULL,
   plotdata,
   idCol,
   metricCol = "Metric",
   valueCol = "ScaledValue",
   metricGroupCol = "metricGroup",
-  labelSize = 10,
   metricColors,
-  metricCollapseGroup,
-  metricGrouping
+  metricCollapseGroup = FALSE,
+  metricGrouping = "---",
+  labelSize = 10
 )
 }
 \arguments{
+\item{bettrList}{A \code{list}, the output object from \code{prepData}.
+If \code{bettrList} is provided, arguments \code{plotdata},
+\code{scoredata}, \code{idCol}, \code{metricCol}, \code{valueCol},
+\code{weightCol}, \code{scoreCol}, \code{metricGroupCol},
+\code{metricInfo}, \code{metricColors}, \code{idInfo}, \code{idColors},
+\code{metricCollapseGroup}, \code{metricGrouping} and \code{methods}
+will be ignored and the corresponding values will be extracted from
+\code{bettrList}. This is the recommended way of calling the plotting
+functions, as it ensures compatibility of all components.}
+
 \item{plotdata}{A \code{data.frame} with columns representing methods,
 metrics, scores, and weights. Typically obtained as
 \code{prepData$plotdata}, where \code{prepData} is the output from
@@ -35,8 +46,6 @@ contains the metric values. Typically, \code{"ScaledValue"}.}
 \code{plotdata} contains the information about the metric group.
 Typically, \code{"metricGroup"}.}
 
-\item{labelSize}{Numeric scalar providing the size of the labels in the plot.}
-
 \item{metricColors}{Named list with colors used for the metrics and
 any other metric annotations. Typically obtained as
 \code{prepData$metricColors}, where \code{prepData} is the output from
@@ -52,6 +61,8 @@ output from \code{bettrPrepare}.}
 \code{metricInfo} that was used to group metrics. Typically obtained as
 \code{prepData$metricGrouping}, where \code{prepData} is the output
 from \code{bettrPrepare}.}
+
+\item{labelSize}{Numeric scalar providing the size of the labels in the plot.}
 }
 \value{
 A \code{ggplot} object.
@@ -72,11 +83,7 @@ idInfo <- data.frame(Method = c("M1", "M2", "M3"),
                      Type = c("T1", "T1", "T2"))
 prepData <- bettrPrepare(df = df, idCol = "Method", 
                          metricInfo = metricInfo, idInfo = idInfo)
-makePolarPlot(plotdata = prepData$plotdata, idCol = "Method", 
-              metricGroupCol = prepData$metricGroupCol,
-              metricColors = prepData$metricColors, 
-              metricCollapseGroup = prepData$metricCollapseGroup,
-              metricGrouping = prepData$metricGrouping)
+makePolarPlot(bettrList = prepData)
                  
 }
 \author{

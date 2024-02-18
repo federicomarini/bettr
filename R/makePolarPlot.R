@@ -27,17 +27,31 @@
 #'                      Type = c("T1", "T1", "T2"))
 #' prepData <- bettrPrepare(df = df, idCol = "Method", 
 #'                          metricInfo = metricInfo, idInfo = idInfo)
-#' makePolarPlot(plotdata = prepData$plotdata, idCol = "Method", 
-#'               metricGroupCol = prepData$metricGroupCol,
-#'               metricColors = prepData$metricColors, 
-#'               metricCollapseGroup = prepData$metricCollapseGroup,
-#'               metricGrouping = prepData$metricGrouping)
+#' makePolarPlot(bettrList = prepData)
 #'                  
-makePolarPlot <- function(plotdata, idCol, metricCol = "Metric", 
+makePolarPlot <- function(bettrList = NULL,
+                          plotdata, idCol, metricCol = "Metric", 
                           valueCol = "ScaledValue", 
-                          metricGroupCol = "metricGroup", labelSize = 10, 
-                          metricColors, metricCollapseGroup, metricGrouping) {
+                          metricGroupCol = "metricGroup", 
+                          metricColors, metricCollapseGroup = FALSE, 
+                          metricGrouping = "---", labelSize = 10) {
    
+    ## If bettrList is provided, extract arguments from there
+    if (!is.null(bettrList)) {
+        stopifnot(all(c("plotdata", "idCol", "metricCol", "valueCol", 
+                        "metricGroupCol", "metricColors", 
+                        "metricCollapseGroup", "metricGrouping") %in% 
+                          names(bettrList)))
+        plotdata <- bettrList$plotdata
+        idCol <- bettrList$idCol
+        metricCol <- bettrList$metricCol
+        valueCol <- bettrList$valueCol
+        metricGroupCol <- bettrList$metricGroupCol
+        metricColors <- bettrList$metricColors
+        metricCollapseGroup <- bettrList$metricCollapseGroup
+        metricGrouping <- bettrList$metricGrouping
+    }
+    
     if (metricCollapseGroup && !is.null(plotdata[[metricGroupCol]])) {
         metricColors[[metricCol]] <- metricColors[[metricGrouping]]
     }

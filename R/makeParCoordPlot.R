@@ -33,18 +33,31 @@
 #'                      Type = c("T1", "T1", "T2"))
 #' prepData <- bettrPrepare(df = df, idCol = "Method", 
 #'                          metricInfo = metricInfo, idInfo = idInfo)
-#' makeParCoordPlot(plotdata = prepData$plotdata, idCol = "Method", 
-#'                  metricGroupCol = prepData$metricGroupCol,
-#'                  highlightMethod = "M1",
-#'                  metricColors = prepData$metricColors, 
-#'                  idColors = prepData$idColors,
-#'                  metricGrouping = prepData$metricGrouping)
+#' makeParCoordPlot(bettrList = prepData, highlightMethod = "M2")
 #'                  
-makeParCoordPlot <- function(plotdata, idCol, metricCol = "Metric", 
+makeParCoordPlot <- function(bettrList = NULL,
+                             plotdata, idCol, metricCol = "Metric", 
                              valueCol = "ScaledValue", 
                              metricGroupCol = "metricGroup",
-                             methods = NULL, highlightMethod, metricGrouping, 
-                             labelSize = 10, metricColors, idColors) {
+                             metricColors, idColors,
+                             methods = NULL, metricGrouping = "---", 
+                             highlightMethod = NULL, labelSize = 10) {
+    
+    ## If bettrList is provided, extract arguments from there
+    if (!is.null(bettrList)) {
+        stopifnot(all(c("plotdata", "idCol", "metricCol", "valueCol", 
+                        "metricGroupCol", "metricColors", "idColors", 
+                        "metricGrouping", "methods") %in% names(bettrList)))
+        plotdata <- bettrList$plotdata
+        idCol <- bettrList$idCol
+        metricCol <- bettrList$metricCol
+        valueCol <- bettrList$valueCol
+        metricGroupCol <- bettrList$metricGroupCol
+        metricColors <- bettrList$metricColors
+        idColors <- bettrList$idColors
+        methods <- bettrList$methods
+        metricGrouping <- bettrList$metricGrouping
+    }
     
     if (is.null(methods)) {
         methods <- unique(plotdata[[idCol]])

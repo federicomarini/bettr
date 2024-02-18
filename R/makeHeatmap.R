@@ -4,6 +4,15 @@
 #' typically generated using \code{\link{bettrPrepare}}, which ensures that 
 #' all required columns are available. 
 #' 
+#' @param bettrList A \code{list}, the output object from \code{prepData}. 
+#'     If \code{bettrList} is provided, arguments \code{plotdata}, 
+#'     \code{scoredata}, \code{idCol}, \code{metricCol}, \code{valueCol},
+#'     \code{weightCol}, \code{scoreCol}, \code{metricGroupCol}, 
+#'     \code{metricInfo}, \code{metricColors}, \code{idInfo}, \code{idColors},
+#'     \code{metricCollapseGroup}, \code{metricGrouping} and \code{methods} 
+#'     will be ignored and the corresponding values will be extracted from 
+#'     \code{bettrList}. This is the recommended way of calling the plotting
+#'     functions, as it ensures compatibility of all components. 
 #' @param plotdata A \code{data.frame} with columns representing methods, 
 #'     metrics, scores, and weights. Typically obtained as 
 #'     \code{prepData$plotdata}, where \code{prepData} is the output from 
@@ -81,32 +90,42 @@
 #'                      Type = c("T1", "T1", "T2"))
 #' prepData <- bettrPrepare(df = df, idCol = "Method", 
 #'                          metricInfo = metricInfo, idInfo = idInfo)
-#' makeHeatmap(plotdata = prepData$plotdata, scoredata = prepData$scoredata, 
-#'             idCol = "Method", metricGroupCol = prepData$metricGroupCol,
-#'             metricInfo = prepData$metricInfo, idInfo = prepData$idInfo,
-#'             metricColors = prepData$metricColors, 
-#'             idColors = prepData$idColors, 
-#'             metricCollapseGroup = prepData$metricCollapseGroup,
-#'             metricGrouping = prepData$metricGrouping, 
-#'             plotType = "Heatmap")
-#'
-#' makeHeatmap(plotdata = prepData$plotdata, scoredata = prepData$scoredata, 
-#'             idCol = "Method", metricGroupCol = prepData$metricGroupCol,
-#'             metricInfo = prepData$metricInfo, idInfo = prepData$idInfo,
-#'             metricColors = prepData$metricColors, 
-#'             idColors = prepData$idColors, 
-#'             metricCollapseGroup = prepData$metricCollapseGroup,
-#'             metricGrouping = prepData$metricGrouping, 
-#'             plotType = "Dot plot")
+#' makeHeatmap(bettrList = prepData, plotType = "Heatmap")
+#' makeHeatmap(bettrList = prepData, plotType = "Dot plot")
 #'                  
-makeHeatmap <- function(plotdata, scoredata, idCol, metricCol = "Metric", 
+makeHeatmap <- function(bettrList = NULL, 
+                        plotdata, scoredata, idCol, metricCol = "Metric", 
                         valueCol = "ScaledValue", weightCol = "Weight", 
                         scoreCol = "Score", metricGroupCol = "metricGroup", 
-                        metricInfo, idInfo,
-                        labelSize = 10, idColors, metricColors,
-                        metricCollapseGroup, metricGrouping, 
-                        showRowNames = TRUE, plotType = "Heatmap",
+                        metricInfo, metricColors,
+                        idInfo, idColors, 
+                        metricCollapseGroup = FALSE, metricGrouping = "---", 
+                        labelSize = 10, showRowNames = TRUE, 
+                        plotType = "Heatmap",
                         rownamewidth_cm = 6, colnameheight_cm = 6) {
+    
+    ## If bettrList is provided, extract arguments from there
+    if (!is.null(bettrList)) {
+        stopifnot(all(c("plotdata", "scoredata", "idCol", "metricCol", 
+                        "valueCol", "weightCol", "scoreCol", "metricGroupCol", 
+                        "metricInfo", "metricColors", "idInfo", "idColors",
+                        "metricCollapseGroup", "metricGrouping") %in% 
+                          names(bettrList)))
+        plotdata <- bettrList$plotdata
+        scoredata <- bettrList$scoredata
+        idCol <- bettrList$idCol
+        metricCol <- bettrList$metricCol
+        valueCol <- bettrList$valueCol
+        weightCol <- bettrList$weightCol
+        scoreCol <- bettrList$scoreCol
+        metricGroupCol <- bettrList$metricGroupCol
+        metricInfo <- bettrList$metricInfo
+        metricColors <- bettrList$metricColors
+        idInfo <- bettrList$idInfo
+        idColors <- bettrList$idColors
+        metricCollapseGroup <- bettrList$metricCollapseGroup
+        metricGrouping <- bettrList$metricGrouping
+    }
 
     if (metricCollapseGroup && !is.null(metricInfo[[metricGrouping]])) {
         metricInfo <- metricInfo |> 

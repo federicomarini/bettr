@@ -18,47 +18,55 @@ test_that("ParCoordPlot works", {
     idInfo <- scoredata[, c("Method", "Type")]
     
     bpp <- makeParCoordPlot(
+        bettrList = NULL,
         plotdata = plotdata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue",  
-        methods = unique(scoredata$Method), metricGroupCol = "metricGroup", 
-        highlightMethod = "---", idColors = list(Method = .gg_color_hue(8)),
-        labelSize = 10, metricColors = list(Metric = c("blue", "red", "green")),
-        metricGrouping = "---"
+        metricGroupCol = "metricGroup", 
+        metricColors = list(Metric = c("blue", "red", "green")),
+        idColors = list(Method = .gg_color_hue(8)),
+        methods = unique(scoredata$Method),
+        metricGrouping = "---", highlightMethod = "---", labelSize = 10
     )
     bpp
     expect_s3_class(bpp, "ggplot")
     
     plotdata$metricGroup <- plotdata$Group
     bpp <- makeParCoordPlot(
+        bettrList = NULL,
         plotdata = plotdata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", 
-        methods = unique(scoredata$Method), metricGroupCol = "metricGroup", 
-        highlightMethod = "---", idColors = list(Method = .gg_color_hue(8)),
-        labelSize = 10, metricColors = list(Group = c("blue", "red")),
-        metricGrouping = "Group"
+        metricGroupCol = "metricGroup", 
+        metricColors = list(Group = c("blue", "red")),
+        idColors = list(Method = .gg_color_hue(8)),
+        methods = unique(scoredata$Method), 
+        metricGrouping = "Group", highlightMethod = "---", labelSize = 10
     )
     bpp
     expect_s3_class(bpp, "ggplot")
     
     plotdata$metricGroup <- plotdata$NumCol
     bpp <- makeParCoordPlot(
+        bettrList = NULL,
         plotdata = plotdata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", 
-        methods = unique(scoredata$Method), metricGroupCol = "metricGroup", 
-        highlightMethod = "---", idColors = list(Method = .gg_color_hue(8)),
-        labelSize = 10, metricColors = list(NumCol = circlize::colorRamp2(c(1, 2), c("white", "blue"))),
-        metricGrouping = "NumCol"
+        metricGroupCol = "metricGroup", 
+        metricColors = list(NumCol = circlize::colorRamp2(c(1, 2), c("white", "blue"))),
+        idColors = list(Method = .gg_color_hue(8)),
+        methods = unique(scoredata$Method), 
+        metricGrouping = "NumCol", highlightMethod = "---", labelSize = 10
     )
     bpp
     expect_s3_class(bpp, "ggplot")
     
     bpp <- makeParCoordPlot(
+        bettrList = NULL,
         plotdata = plotdata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue",  
-        methods = unique(scoredata$Method), metricGroupCol = "metricGroup", 
-        highlightMethod = "M1", idColors = list(Method = .gg_color_hue(8)),
-        labelSize = 10, metricColors = list(Metric = c("blue", "red", "green")),
-        metricGrouping = "---"
+        metricGroupCol = "metricGroup", 
+        metricColors = list(Metric = c("blue", "red", "green")),
+        idColors = list(Method = .gg_color_hue(8)),
+        methods = unique(scoredata$Method), 
+        metricGrouping = "---", highlightMethod = "M1", labelSize = 10
     )
     bpp
     expect_s3_class(bpp, "ggplot")

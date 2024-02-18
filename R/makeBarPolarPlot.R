@@ -37,21 +37,37 @@
 #'                      Type = c("T1", "T1", "T2"))
 #' prepData <- bettrPrepare(df = df, idCol = "Method", 
 #'                          metricInfo = metricInfo, idInfo = idInfo)
-#' makeBarPolarPlot(plotdata = prepData$plotdata, scoredata = prepData$scoredata, 
-#'                  idCol = "Method", metricGroupCol = prepData$metricGroupCol,
-#'                  metricColors = prepData$metricColors, 
-#'                  metricCollapseGroup = prepData$metricCollapseGroup,
-#'                  metricGrouping = prepData$metricGrouping, 
-#'                  showComposition = TRUE)
+#' makeBarPolarPlot(bettrList = prepData, showComposition = TRUE)
 #'                  
-makeBarPolarPlot <- function(plotdata, scoredata, idCol, metricCol = "Metric", 
+makeBarPolarPlot <- function(bettrList = NULL, 
+                             plotdata, scoredata, idCol, metricCol = "Metric", 
                              valueCol = "ScaledValue", weightCol = "Weight", 
                              scoreCol = "Score", 
-                             metricGroupCol = "metricGroup", 
+                             metricGroupCol = "metricGroup", metricColors, 
+                             metricCollapseGroup = FALSE, 
+                             metricGrouping = "---",
                              methods = NULL, labelSize = 10,
-                             showComposition = FALSE, 
-                             scaleFactorPolars = 1, metricColors,
-                             metricCollapseGroup, metricGrouping) {
+                             showComposition = FALSE, scaleFactorPolars = 1) {
+    
+    ## If bettrList is provided, extract arguments from there
+    if (!is.null(bettrList)) {
+        stopifnot(all(c("plotdata", "scoredata", "idCol", "metricCol", 
+                        "valueCol", "weightCol", "scoreCol", "metricGroupCol", 
+                        "metricColors", "metricCollapseGroup", 
+                        "metricGrouping", "methods") %in% names(bettrList)))
+        plotdata <- bettrList$plotdata
+        scoredata <- bettrList$scoredata
+        idCol <- bettrList$idCol
+        metricCol <- bettrList$metricCol
+        valueCol <- bettrList$valueCol
+        weightCol <- bettrList$weightCol
+        scoreCol <- bettrList$scoreCol
+        metricGroupCol <- bettrList$metricGroupCol
+        metricColors <- bettrList$metricColors
+        metricCollapseGroup <- bettrList$metricCollapseGroup
+        metricGrouping <- bettrList$metricGrouping
+        methods <- bettrList$methods
+    }
     
     if (is.null(methods)) {
         methods <- unique(plotdata[[idCol]])
@@ -96,7 +112,8 @@ makeBarPolarPlot <- function(plotdata, scoredata, idCol, metricCol = "Metric",
     levs <- scoredata |>
         dplyr::pull(.data[[idCol]])
     rx <- length(levs)
-    ry <- max(0, max(scoredata[[scoreCol]])) - min(0, min(scoredata[[scoreCol]]))
+    ry <- max(0, max(scoredata[[scoreCol]])) - 
+        min(0, min(scoredata[[scoreCol]]))
     sx <- 2.5
     sy <- ry/rx * sx
     

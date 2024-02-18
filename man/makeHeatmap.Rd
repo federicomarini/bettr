@@ -5,6 +5,7 @@
 \title{Create a summary heatmap}
 \usage{
 makeHeatmap(
+  bettrList = NULL,
   plotdata,
   scoredata,
   idCol,
@@ -14,12 +15,12 @@ makeHeatmap(
   scoreCol = "Score",
   metricGroupCol = "metricGroup",
   metricInfo,
-  idInfo,
-  labelSize = 10,
-  idColors,
   metricColors,
-  metricCollapseGroup,
-  metricGrouping,
+  idInfo,
+  idColors,
+  metricCollapseGroup = FALSE,
+  metricGrouping = "---",
+  labelSize = 10,
   showRowNames = TRUE,
   plotType = "Heatmap",
   rownamewidth_cm = 6,
@@ -27,6 +28,16 @@ makeHeatmap(
 )
 }
 \arguments{
+\item{bettrList}{A \code{list}, the output object from \code{prepData}.
+If \code{bettrList} is provided, arguments \code{plotdata},
+\code{scoredata}, \code{idCol}, \code{metricCol}, \code{valueCol},
+\code{weightCol}, \code{scoreCol}, \code{metricGroupCol},
+\code{metricInfo}, \code{metricColors}, \code{idInfo}, \code{idColors},
+\code{metricCollapseGroup}, \code{metricGrouping} and \code{methods}
+will be ignored and the corresponding values will be extracted from
+\code{bettrList}. This is the recommended way of calling the plotting
+functions, as it ensures compatibility of all components.}
+
 \item{plotdata}{A \code{data.frame} with columns representing methods,
 metrics, scores, and weights. Typically obtained as
 \code{prepData$plotdata}, where \code{prepData} is the output from
@@ -60,20 +71,18 @@ Typically, \code{"metricGroup"}.}
 obtained as \code{prepData$metricInfo}, where \code{prepData} is the
 output from \code{bettrPrepare}.}
 
-\item{idInfo}{\code{data.frame} with annotations for entities. Typically
-obtained as \code{prepData$idInfo}, where \code{prepData} is the
-output from \code{bettrPrepare}.}
-
-\item{labelSize}{Numeric scalar providing the size of the labels in the plot.}
-
-\item{idColors}{Named list with colors used for methods and any other
-method annotations. Typically obtained as \code{prepData$idColors},
-where \code{prepData} is the output from \code{bettrPrepare}.}
-
 \item{metricColors}{Named list with colors used for the metrics and
 any other metric annotations. Typically obtained as
 \code{prepData$metricColors}, where \code{prepData} is the output from
 \code{bettrPrepare}.}
+
+\item{idInfo}{\code{data.frame} with annotations for entities. Typically
+obtained as \code{prepData$idInfo}, where \code{prepData} is the
+output from \code{bettrPrepare}.}
+
+\item{idColors}{Named list with colors used for methods and any other
+method annotations. Typically obtained as \code{prepData$idColors},
+where \code{prepData} is the output from \code{bettrPrepare}.}
 
 \item{metricCollapseGroup}{Logical scalar indicating whether metrics
 should be collapsed by the group variable provided by
@@ -85,6 +94,8 @@ output from \code{bettrPrepare}.}
 \code{metricInfo} that was used to group metrics. Typically obtained as
 \code{prepData$metricGrouping}, where \code{prepData} is the output
 from \code{bettrPrepare}.}
+
+\item{labelSize}{Numeric scalar providing the size of the labels in the plot.}
 
 \item{showRowNames}{Logical scalar indicating whether to show row (method)
 names in the heatmap.}
@@ -114,23 +125,8 @@ idInfo <- data.frame(Method = c("M1", "M2", "M3"),
                      Type = c("T1", "T1", "T2"))
 prepData <- bettrPrepare(df = df, idCol = "Method", 
                          metricInfo = metricInfo, idInfo = idInfo)
-makeHeatmap(plotdata = prepData$plotdata, scoredata = prepData$scoredata, 
-            idCol = "Method", metricGroupCol = prepData$metricGroupCol,
-            metricInfo = prepData$metricInfo, idInfo = prepData$idInfo,
-            metricColors = prepData$metricColors, 
-            idColors = prepData$idColors, 
-            metricCollapseGroup = prepData$metricCollapseGroup,
-            metricGrouping = prepData$metricGrouping, 
-            plotType = "Heatmap")
-
-makeHeatmap(plotdata = prepData$plotdata, scoredata = prepData$scoredata, 
-            idCol = "Method", metricGroupCol = prepData$metricGroupCol,
-            metricInfo = prepData$metricInfo, idInfo = prepData$idInfo,
-            metricColors = prepData$metricColors, 
-            idColors = prepData$idColors, 
-            metricCollapseGroup = prepData$metricCollapseGroup,
-            metricGrouping = prepData$metricGrouping, 
-            plotType = "Dot plot")
+makeHeatmap(bettrList = prepData, plotType = "Heatmap")
+makeHeatmap(bettrList = prepData, plotType = "Dot plot")
                  
 }
 \author{
