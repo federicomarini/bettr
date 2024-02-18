@@ -78,11 +78,26 @@
 <p><br></p>
 <!-- badges: start -->
 
-<p>As new methods come along, it becomes essential to compare them to existing ones with an objective and fair approach.</p>
-<p>Apart from the benchmarking strategy itself, which can differ in function of the different procedures involved, we typically calculate many different performance measures, which we use to reflect different aspects. These can then be combined into one “overall” ranking. However, not all aspects are equally important to everyone, and thus there is more than one “right” way of ranking methods.</p>
-<p><code>bettr</code> is our proposal to do this in an interactive way, using different types of visualization approaches, and enhancing the final overview of the benchmarking process.</p>
+<p>As new (computational) methods come along, it becomes essential to compare their performance to existing ones via objective and fair benchmarking.</p>
+<p>In a benchmarking study, typically many different performance metrics are calculated and used to reflect different aspects of performance. These performance metrics can then be combined into one “overall” ranking. However, not all aspects are equally important to everyone, and thus there is more than one “right” way of aggregating metrics in order to rank methods.</p>
+<p><code>bettr</code> is our proposal to perform this aggregation in an interactive way, allowing the user to focus on the aspects that are most important to them, and use different types of visualization approaches, enhancing the final overview of the benchmarking process.</p>
 <p>The screenshots below display two of the representations provided by <code>bettr</code>, using data from the benchmark of single-cell clustering methods performed by <a href="https://f1000research.com/articles/7-1141" class="external-link">Duo et al (2018)</a>.</p>
 <p><img src="articles/bettr-screenshot-heatmap.png" alt="Heatmap" width="800"><img src="articles/bettr-screenshot-polar.png" alt="Polar plot" width="800"></p>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<p>The development version of <code>bettr</code> can be installed from GitHub:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://remotes.r-lib.org" class="external-link">"remotes"</a></span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"federicomarini/bettr"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
+</h2>
+<p>For more details on how to use <code>bettr</code>, we refer to the <a href="https://federicomarini.github.io/bettr/articles/bettr.html" class="external-link">vignette</a>. If you have questions or run into problems, feel free to open an <a href="https://github.com/federicomarini/bettr/issues" class="external-link">issue</a>.</p>
+</div>
 </div>
 
   </div>
