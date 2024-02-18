@@ -15,16 +15,17 @@ test_that("adding scores works", {
                         metricCol = "Metric", valueCol = "ScaledValue",
                         metricGrouping = "---", metricInfo = metricInfo, 
                         metricGroupCol = "metricGroup")
-    ldw <- .addWeightsToLongData(df = ld, metricCollapseGroup = FALSE, 
-                                 metricGrouping = "---",
-                                 metricGroupCol = "metricGroup", 
-                                 weights = list(m1_weight = 0.2, m2_weight = 0.3, m3_weight = 0.1,
-                                                Metric_m1_weight = 0.1, Metric_m2_weight = 0.5,
-                                                Metric_m3_weight = 0.7, num_1_weight = 0.7, 
-                                                num_2_weight = 0.1, lets3_m_weight = 0.4, 
-                                                lets3_n_weight = 0.1, lets3_o_weight = 0.9),
-                                 weightCol = "Weight", metricCol = "Metric",
-                                 metrics = c("m1", "m2", "m3"))
+    ldw <- .addWeightsToLongData(
+        df = ld, metricCollapseGroup = FALSE, 
+        metricGrouping = "---",
+        metricGroupCol = "metricGroup", 
+        weights = list(m1_weight = 0.2, m2_weight = 0.3, m3_weight = 0.1,
+                       Metric_m1_weight = 0.1, Metric_m2_weight = 0.5,
+                       Metric_m3_weight = 0.7, num_1_weight = 0.7, 
+                       num_2_weight = 0.1, lets3_m_weight = 0.4, 
+                       lets3_n_weight = 0.1, lets3_o_weight = 0.9),
+        weightCol = "Weight", metricCol = "Metric",
+        metrics = c("m1", "m2", "m3"))
     cld <- .collapseLongData(df = ldw, metricCollapseGroup = FALSE, 
                              metricGrouping = "---", idCol = "Method",
                              metricGroupCol = "metricGroup", 
