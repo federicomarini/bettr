@@ -174,7 +174,7 @@ bettrGetReady <- function(df, idCol = "Method",
                 bincuts = sort(as.numeric(prep$initialTransforms[[m]]$cuts))
             )
         } else if (m %in% prep$metrics_cat) {
-            tmp[[m]] <- .transformCategoricalVariable(
+            procdata[[m]] <- .transformCategoricalVariable(
                 x = filtdata[[m]],
                 levels = prep$initialTransforms[[m]]$levels
             )
