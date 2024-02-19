@@ -1,8 +1,8 @@
 #' Create a parallel coordinates plot
 #' 
 #' Create a parallel coordinates plot. The input arguments for this functions 
-#' are typically generated using \code{\link{bettrGetReady}}, which ensures that 
-#' all required columns are available. 
+#' are typically generated using \code{\link{bettrGetReady}}, which ensures  
+#' that all required columns are available. 
 #' 
 #' @inheritParams makeHeatmap
 #' @param highlightMethod Character scalar indicating a method that should be 
@@ -20,7 +20,8 @@
 #' @importFrom rlang .data :=
 #' @importFrom scales rescale
 #' @importFrom ggplot2 ggplot aes geom_boxplot geom_line geom_point 
-#'     scale_linewidth_manual theme_minimal theme element_text scale_fill_manual
+#'     scale_linewidth_manual theme_minimal theme element_text 
+#'     scale_fill_manual
 #'   
 #' @examples
 #' ## Generate example data

@@ -39,9 +39,9 @@
 #' @param idInfo `data.frame` with annotations for entities. Must have a 
 #'     column named according to `idCol` identifying the respective entities. 
 #' @param idColors Named list with colors used for columns of `idInfo`. 
-#'     Should follow the format required for ComplexHeatmap heatmap annotations. 
-#'     The list can include an entry named according to `idCol`, which 
-#'     contains a named vector with colors to use for entities. 
+#'     Should follow the format required for ComplexHeatmap heatmap 
+#'     annotations. The list can include an entry named according to `idCol`, 
+#'     which contains a named vector with colors to use for entities. 
 #' @param weightResolution Numeric scalar in (0,1), giving the resolution at 
 #'     which weights can be specified using the sliders in the interface.
 #' @param bstheme Character scalar giving the bootswatch theme for the app 

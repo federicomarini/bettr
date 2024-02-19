@@ -74,9 +74,9 @@ contains a named vector with colors to use for metrics.}
 column named according to \code{idCol} identifying the respective entities.}
 
 \item{idColors}{Named list with colors used for columns of \code{idInfo}.
-Should follow the format required for ComplexHeatmap heatmap annotations.
-The list can include an entry named according to \code{idCol}, which
-contains a named vector with colors to use for entities.}
+Should follow the format required for ComplexHeatmap heatmap
+annotations. The list can include an entry named according to \code{idCol},
+which contains a named vector with colors to use for entities.}
 
 \item{scoreMethod}{Character scalar specifying the scoring method, that is,
 how to aggregate scores across metrics. Should be one of

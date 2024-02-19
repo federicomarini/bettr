@@ -75,8 +75,8 @@ A \code{ggplot} object.
 }
 \description{
 Create a parallel coordinates plot. The input arguments for this functions
-are typically generated using \code{\link{bettrGetReady}}, which ensures that
-all required columns are available.
+are typically generated using \code{\link{bettrGetReady}}, which ensures
+that all required columns are available.
 }
 \examples{
 ## Generate example data
