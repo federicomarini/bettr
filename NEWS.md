@@ -1,6 +1,10 @@
+# bettr 0.99.0
+
+* Ready for submission to Bioconductor
+
 # bettr 0.3.0
 
-* Add bettrGetReady function to prepare data for plotting independently of the shiny app
+* Add `bettrGetReady()` function to prepare data for plotting independently of the shiny app
 * Export plot functions
 
 # bettr 0.2.3
