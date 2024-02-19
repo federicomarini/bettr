@@ -148,7 +148,7 @@ assignment.
 
 # Programmatic interface
 
-The interactive application showcased above, is the main entrypoint to using
+The interactive application showcased above, is the main entry point to using
 `bettr`. However, we also provide a wrapper function to prepare the input data 
 for plotting (replicating the steps that are performed in the app), as well as 
 access to the plotting functions themselves. The following code replicates the 
