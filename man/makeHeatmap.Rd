@@ -41,12 +41,12 @@ functions, as it ensures compatibility of all components.}
 \item{plotdata}{A \code{data.frame} with columns representing methods,
 metrics, scores, and weights. Typically obtained as
 \code{prepData$plotdata}, where \code{prepData} is the output from
-\code{bettrPrepare}.}
+\code{bettrGetReady}.}
 
 \item{scoredata}{A \code{data.frame} with columns representing methods,
 aggregated scores, and any other method annotations. Typically
 obtained as \code{prepData$scoredata}, where \code{prepData} is the
-output from \code{bettrPrepare}.}
+output from \code{bettrGetReady}.}
 
 \item{idCol}{Character scalar indicating which column of \code{plotdata} and
 \code{scoredata} contains the method IDs.}
@@ -69,31 +69,31 @@ Typically, \code{"metricGroup"}.}
 
 \item{metricInfo}{\code{data.frame} with annotations for metrics. Typically
 obtained as \code{prepData$metricInfo}, where \code{prepData} is the
-output from \code{bettrPrepare}.}
+output from \code{bettrGetReady}.}
 
 \item{metricColors}{Named list with colors used for the metrics and
 any other metric annotations. Typically obtained as
 \code{prepData$metricColors}, where \code{prepData} is the output from
-\code{bettrPrepare}.}
+\code{bettrGetReady}.}
 
 \item{idInfo}{\code{data.frame} with annotations for entities. Typically
 obtained as \code{prepData$idInfo}, where \code{prepData} is the
-output from \code{bettrPrepare}.}
+output from \code{bettrGetReady}.}
 
 \item{idColors}{Named list with colors used for methods and any other
 method annotations. Typically obtained as \code{prepData$idColors},
-where \code{prepData} is the output from \code{bettrPrepare}.}
+where \code{prepData} is the output from \code{bettrGetReady}.}
 
 \item{metricCollapseGroup}{Logical scalar indicating whether metrics
 should be collapsed by the group variable provided by
 \code{metricGrouping}. Typically obtained as
 \code{prepData$metricCollapseGroup}, where \code{prepData} is the
-output from \code{bettrPrepare}.}
+output from \code{bettrGetReady}.}
 
 \item{metricGrouping}{Character scalar indicating the column of
 \code{metricInfo} that was used to group metrics. Typically obtained as
 \code{prepData$metricGrouping}, where \code{prepData} is the output
-from \code{bettrPrepare}.}
+from \code{bettrGetReady}.}
 
 \item{labelSize}{Numeric scalar providing the size of the labels in the plot.}
 
@@ -111,7 +111,7 @@ A \code{\link[ComplexHeatmap]{HeatmapList}} object.
 }
 \description{
 Create a summary heatmap. The input arguments for this functions are
-typically generated using \code{\link{bettrPrepare}}, which ensures that
+typically generated using \code{\link{bettrGetReady}}, which ensures that
 all required columns are available.
 }
 \examples{
@@ -123,8 +123,8 @@ metricInfo <- data.frame(Metric = c("metric1", "metric2", "metric3"),
                          Group = c("G1", "G2", "G2"))
 idInfo <- data.frame(Method = c("M1", "M2", "M3"), 
                      Type = c("T1", "T1", "T2"))
-prepData <- bettrPrepare(df = df, idCol = "Method", 
-                         metricInfo = metricInfo, idInfo = idInfo)
+prepData <- bettrGetReady(df = df, idCol = "Method", 
+                          metricInfo = metricInfo, idInfo = idInfo)
 makeHeatmap(bettrList = prepData, plotType = "Heatmap")
 makeHeatmap(bettrList = prepData, plotType = "Dot plot")
                  

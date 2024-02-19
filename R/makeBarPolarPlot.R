@@ -1,7 +1,7 @@
 #' Create a bar/polar plot
 #' 
 #' Create a bar/polar plot. The input arguments for this functions are 
-#' typically generated using \code{\link{bettrPrepare}}, which ensures that 
+#' typically generated using \code{\link{bettrGetReady}}, which ensures that 
 #' all required columns are available. 
 #' 
 #' @inheritParams makeHeatmap
@@ -35,8 +35,8 @@
 #'                          Group = c("G1", "G2", "G2"))
 #' idInfo <- data.frame(Method = c("M1", "M2", "M3"), 
 #'                      Type = c("T1", "T1", "T2"))
-#' prepData <- bettrPrepare(df = df, idCol = "Method", 
-#'                          metricInfo = metricInfo, idInfo = idInfo)
+#' prepData <- bettrGetReady(df = df, idCol = "Method", 
+#'                           metricInfo = metricInfo, idInfo = idInfo)
 #' makeBarPolarPlot(bettrList = prepData, showComposition = TRUE)
 #'                  
 makeBarPolarPlot <- function(bettrList = NULL, 

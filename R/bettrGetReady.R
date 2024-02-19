@@ -51,26 +51,26 @@
 #'                          Group = c("G1", "G2", "G2"))
 #' idInfo <- data.frame(Method = c("M1", "M2", "M3"), 
 #'                      Type = c("T1", "T1", "T2"))
-#' prepData <- bettrPrepare(df = df, idCol = "Method", 
-#'                          metricInfo = metricInfo, idInfo = idInfo)
-#' prepData <- bettrPrepare(df = df, idCol = "Method", 
-#'                          metricInfo = metricInfo, idInfo = idInfo, 
-#'                          metricGrouping = "Group", 
-#'                          metricCollapseGroup = TRUE)
+#' prepData <- bettrGetReady(df = df, idCol = "Method", 
+#'                           metricInfo = metricInfo, idInfo = idInfo)
+#' prepData <- bettrGetReady(df = df, idCol = "Method", 
+#'                           metricInfo = metricInfo, idInfo = idInfo, 
+#'                           metricGrouping = "Group", 
+#'                           metricCollapseGroup = TRUE)
 #' 
-bettrPrepare <- function(df, idCol = "Method", 
-                         metrics = setdiff(colnames(df), idCol), 
-                         initialWeights = NULL, 
-                         initialTransforms = list(),
-                         metricInfo = NULL, metricColors = NULL,
-                         idInfo = NULL, idColors = NULL, 
-                         scoreMethod = "weighted mean", 
-                         idOrdering = "high-to-low", 
-                         showOnlyTopIds = FALSE, nbrTopIds = 10, 
-                         idTopNGrouping = NULL, 
-                         keepIds = NULL, 
-                         metricGrouping = NULL, metricCollapseGroup = FALSE, 
-                         metricCollapseMethod = "mean") {
+bettrGetReady <- function(df, idCol = "Method", 
+                          metrics = setdiff(colnames(df), idCol), 
+                          initialWeights = NULL, 
+                          initialTransforms = list(),
+                          metricInfo = NULL, metricColors = NULL,
+                          idInfo = NULL, idColors = NULL, 
+                          scoreMethod = "weighted mean", 
+                          idOrdering = "high-to-low", 
+                          showOnlyTopIds = FALSE, nbrTopIds = 10, 
+                          idTopNGrouping = NULL, 
+                          keepIds = NULL, 
+                          metricGrouping = NULL, metricCollapseGroup = FALSE, 
+                          metricCollapseMethod = "mean") {
 
     ## Check arguments
     ## -------------------------------------------------------------------------

@@ -138,7 +138,7 @@ results for the example above.
 #| fig.width: 7
 #| fig.height: 7
 
-prepData <- bettrPrepare(
+prepData <- bettrGetReady(
     df = duo2018$df, idCol = "method", metricInfo = duo2018$metricInfo,
     initialTransforms = duo2018$initialTransforms, 
     metricColors = duo2018$metricColors, idColors = duo2018$idColors, 

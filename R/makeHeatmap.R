@@ -1,7 +1,7 @@
 #' Create a summary heatmap
 #' 
 #' Create a summary heatmap. The input arguments for this functions are 
-#' typically generated using \code{\link{bettrPrepare}}, which ensures that 
+#' typically generated using \code{\link{bettrGetReady}}, which ensures that 
 #' all required columns are available. 
 #' 
 #' @param bettrList A \code{list}, the output object from \code{prepData}. 
@@ -16,11 +16,11 @@
 #' @param plotdata A \code{data.frame} with columns representing methods, 
 #'     metrics, scores, and weights. Typically obtained as 
 #'     \code{prepData$plotdata}, where \code{prepData} is the output from 
-#'     \code{bettrPrepare}. 
+#'     \code{bettrGetReady}. 
 #' @param scoredata A \code{data.frame} with columns representing methods, 
 #'     aggregated scores, and any other method annotations. Typically 
 #'     obtained as \code{prepData$scoredata}, where \code{prepData} is the 
-#'     output from \code{bettrPrepare}.
+#'     output from \code{bettrGetReady}.
 #' @param idCol Character scalar indicating which column of \code{plotdata} and 
 #'     \code{scoredata} contains the method IDs. 
 #' @param metricCol Character scalar indicating which column of \code{plotdata} 
@@ -36,27 +36,27 @@
 #'     Typically, \code{"metricGroup"}.
 #' @param metricInfo `data.frame` with annotations for metrics. Typically 
 #'     obtained as \code{prepData$metricInfo}, where \code{prepData} is the 
-#'     output from \code{bettrPrepare}.
+#'     output from \code{bettrGetReady}.
 #' @param idInfo `data.frame` with annotations for entities. Typically 
 #'     obtained as \code{prepData$idInfo}, where \code{prepData} is the 
-#'     output from \code{bettrPrepare}.
+#'     output from \code{bettrGetReady}.
 #' @param labelSize Numeric scalar providing the size of the labels in the plot.
 #' @param idColors Named list with colors used for methods and any other 
 #'     method annotations. Typically obtained as \code{prepData$idColors}, 
-#'     where \code{prepData} is the output from \code{bettrPrepare}. 
+#'     where \code{prepData} is the output from \code{bettrGetReady}. 
 #' @param metricColors Named list with colors used for the metrics and 
 #'     any other metric annotations. Typically obtained as 
 #'     \code{prepData$metricColors}, where \code{prepData} is the output from 
-#'     \code{bettrPrepare}. 
+#'     \code{bettrGetReady}. 
 #' @param metricCollapseGroup Logical scalar indicating whether metrics 
 #'     should be collapsed by the group variable provided by 
 #'     \code{metricGrouping}. Typically obtained as 
 #'     \code{prepData$metricCollapseGroup}, where \code{prepData} is the 
-#'     output from \code{bettrPrepare}.
+#'     output from \code{bettrGetReady}.
 #' @param metricGrouping Character scalar indicating the column of 
 #'     \code{metricInfo} that was used to group metrics. Typically obtained as 
 #'     \code{prepData$metricGrouping}, where \code{prepData} is the output
-#'     from \code{bettrPrepare}.
+#'     from \code{bettrGetReady}.
 #' @param showRowNames Logical scalar indicating whether to show row (method)
 #'     names in the heatmap. 
 #' @param plotType Either \code{"Heatmap"} or \code{"Dot plot"} indicating the 
@@ -88,8 +88,8 @@
 #'                          Group = c("G1", "G2", "G2"))
 #' idInfo <- data.frame(Method = c("M1", "M2", "M3"), 
 #'                      Type = c("T1", "T1", "T2"))
-#' prepData <- bettrPrepare(df = df, idCol = "Method", 
-#'                          metricInfo = metricInfo, idInfo = idInfo)
+#' prepData <- bettrGetReady(df = df, idCol = "Method", 
+#'                           metricInfo = metricInfo, idInfo = idInfo)
 #' makeHeatmap(bettrList = prepData, plotType = "Heatmap")
 #' makeHeatmap(bettrList = prepData, plotType = "Dot plot")
 #'                  
