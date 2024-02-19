@@ -40,7 +40,7 @@ remotes::install_github("federicomarini/bettr")
 # Usage
 
 ```{r}
-library(bettr)
+library("bettr")
 ```
 
 The input to `bettr` is a `data.frame` containing values of several metrics 
@@ -88,7 +88,20 @@ Here, the summary `data.frame` (`df`) contains values for 48 performance
 measures (4 different metrics, each for 12 data sets) for 14 clustering 
 methods. We also provide a `metricInfo` `data.frame`, assigning each metric 
 to a class, and two lists of colors that we would like to use for the 
-different metrics and data sets. Finally, we need to transform the metrics in 
+different metrics and data sets. 
+
+```{r}
+# the whole performance table
+duo2018$df
+# the first metric, evaluated on all datasets
+head(duo2018$metricInfo, 12)
+
+# the color definitions (can mix character and hex values)
+duo2018$idColors
+duo2018$metricColors
+```
+
+Finally, we need to transform the metrics in 
 order to make them comparable (first, so that a high value is 'good', and 
 second, so that the numeric ranges of the metrics are comparable). In this 
 case, we have chosen to first flip the values (multiply by -1) of all 
@@ -97,6 +110,13 @@ the number of clusters and Shannon entropies from the ground truth
 (`nclust.vs.true` and `s.norm.vs.true`). Next, each of these metrics is scaled 
 linearly to the interval `[0, 1]`. These transformations are stored in 
 `duo2018$initialTransforms`. 
+
+```{r}
+names(duo2018$initialTransforms)
+
+# an example of the transformation - elapsed time for the Koh dataset
+duo2018$initialTransforms$elapsed_Koh
+```
 
 Now, we can launch the app for this data set:
 
@@ -145,12 +165,17 @@ prepData <- bettrGetReady(
     initialWeights = c(Class_ARI = 0.55),
     scoreMethod = "weighted mean", metricGrouping = "Class", 
     metricCollapseGroup = TRUE)
+
+# this object is fairly verbose and detailed, but has the whole set of info needed
+prepData
+
+# call the plotting routines specifying one single parameter
 makeHeatmap(bettrList = prepData)
 makePolarPlot(bettrList = prepData)
 ```
 
 
-# Session info
+# Session info {-}
 
 ```{r}
 sessionInfo()
