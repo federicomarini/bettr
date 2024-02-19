@@ -115,7 +115,7 @@ interface.
 <img src="bettr-screenshot-heatmap.png" width="100%">
 
 We can choose to collapse the metric values to have a single 
-value for each metric class, to reduce the reduncancy. We can now also 
+value for each metric class, to reduce the redundancy. We can now also 
 freely decide how to weight the respective metrics by means of the sliders in 
 the left side bar. The bars on top of the heatmap show the current weight 
 assignment. 
