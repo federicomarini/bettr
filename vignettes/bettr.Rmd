@@ -91,12 +91,12 @@ to a class, and two lists of colors that we would like to use for the
 different metrics and data sets. 
 
 ```{r}
-# the whole performance table
+## Display the whole performance table
 duo2018$df
-# the first metric, evaluated on all datasets
+## Showing the first metric, evaluated on all datasets
 head(duo2018$metricInfo, 12)
 
-# the color definitions (can mix character and hex values)
+## These are the color definitions (can mix character and hex values)
 duo2018$idColors
 duo2018$metricColors
 ```
@@ -114,7 +114,7 @@ linearly to the interval `[0, 1]`. These transformations are stored in
 ```{r}
 names(duo2018$initialTransforms)
 
-# an example of the transformation - elapsed time for the Koh dataset
+## An example of the transformation - elapsed time for the Koh dataset
 duo2018$initialTransforms$elapsed_Koh
 ```
 
@@ -166,7 +166,7 @@ prepData <- bettrGetReady(
     scoreMethod = "weighted mean", metricGrouping = "Class", 
     metricCollapseGroup = TRUE)
 
-# this object is fairly verbose and detailed, but has the whole set of info needed
+## This object is fairly verbose and detailed, but has the whole set of info needed
 prepData
 
 # call the plotting routines specifying one single parameter
