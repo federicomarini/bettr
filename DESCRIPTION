@@ -45,6 +45,6 @@ Imports:
     scales,
     DT
 Config/testthat/edition: 3
-biocViews: Visualization, ShinyApps
+biocViews: Visualization, ShinyApps, GUI
 URL: https://github.com/federicomarini/bettr
 BugReports: https://github.com/federicomarini/bettr/issues
