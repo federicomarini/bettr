@@ -187,6 +187,21 @@ test_that("bettr runs with valid inputs", {
     app <- bettr(df, idCol = "Method", metrics = c("m1", "m3"))
     expect_s3_class(app, "shiny.appobj")
     
+    ## With SE as input
+    se <- assembleSE(df = df, idCol = "Method", 
+                     metrics = setdiff(colnames(df), "Method"), 
+                     initialWeights = NULL, initialTransforms = list(), 
+                     metricInfo = metricInfo, idInfo = idInfo)
+    app <- bettr(bettrSE = se)
+    expect_s3_class(app, "shiny.appobj")
+    
+    se <- assembleSE(df = df, idCol = "Method", 
+                     metrics = setdiff(colnames(df), "Method"), 
+                     initialWeights = NULL, initialTransforms = list(), 
+                     metricInfo = NULL, idInfo = NULL)
+    app <- bettr(bettrSE = se)
+    expect_s3_class(app, "shiny.appobj")
+    
     ## Specify initial weights
     app <- bettr(df, idCol = "Method", 
                  initialWeights = c(m1 = 0.1, m2 = 0.5, m3 = 0.7))

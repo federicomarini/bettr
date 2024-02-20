@@ -70,8 +70,28 @@ bettrGetReady <- function(df, idCol = "Method",
                           idTopNGrouping = NULL, 
                           keepIds = NULL, 
                           metricGrouping = NULL, metricCollapseGroup = FALSE, 
-                          metricCollapseMethod = "mean") {
+                          metricCollapseMethod = "mean", bettrSE = NULL) {
 
+    ## Get arguments from bettrSE if provided ---------------------------------
+    if (!is.null(bettrSE)) {
+        df <- as.data.frame(SummarizedExperiment::assay(bettrSE, "values"))
+        df[[idCol]] <- rownames(df)
+        metrics <- S4Vectors::metadata(bettrSE)$bettrInfo$metrics
+        initialWeights <- S4Vectors::metadata(bettrSE)$bettrInfo$initialWeights
+        initialTransforms <- 
+            S4Vectors::metadata(bettrSE)$bettrInfo$initialTransforms
+        metricColors <- S4Vectors::metadata(bettrSE)$bettrInfo$metricColors
+        idColors <- S4Vectors::metadata(bettrSE)$bettrInfo$idColors
+        metricInfo <- as.data.frame(SummarizedExperiment::colData(bettrSE))
+        if (ncol(metricInfo) == 0) {
+            metricInfo <- NULL
+        }
+        idInfo <- as.data.frame(SummarizedExperiment::rowData(bettrSE))
+        if (ncol(idInfo) == 0) {
+            idInfo <- NULL
+        }
+    }
+    
     ## Check arguments
     ## -------------------------------------------------------------------------
     .assertVector(x = df, type = "data.frame")

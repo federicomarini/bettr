@@ -10,7 +10,7 @@ test_that("bettrGetReady works", {
     
     ## Check that the function returns an error with incorrect input
     ## -------------------------------------------------------------------------
-    .args <- list(df = df, idCol = "Method", 
+    .args <- list(bettrSE = NULL, df = df, idCol = "Method", 
                   metrics = c("metric1", "metric2"), 
                   initialWeights = NULL, 
                   initialTransforms = list(),
@@ -163,7 +163,64 @@ test_that("bettrGetReady works", {
     ## Check that the function behaves as expected with valid input
     ## -------------------------------------------------------------------------
     ## Mostly defaults
-    out <- bettrGetReady(df = df, idCol = "Method", 
+    out <- bettrGetReady(bettrSE = NULL, df = df, idCol = "Method", 
+                         metrics = c("metric1", "metric2", "metric3"), 
+                         initialWeights = NULL, 
+                         initialTransforms = list(),
+                         metricInfo = NULL, metricColors = NULL,
+                         idInfo = NULL, idColors = NULL, 
+                         scoreMethod = "weighted mean", 
+                         idOrdering = "high-to-low", 
+                         showOnlyTopIds = FALSE, nbrTopIds = 10, 
+                         idTopNGrouping = NULL, 
+                         keepIds = NULL, 
+                         metricGrouping = NULL, metricCollapseGroup = FALSE, 
+                         metricCollapseMethod = "mean")
+    expect_type(out, "list")
+    expect_named(out, c("plotdata", "scoredata", "idColors", "metricColors", 
+                        "metricGrouping", "metricCollapseGroup", "idInfo", 
+                        "metricInfo", "metricGroupCol", "methods", "idCol", 
+                        "metricCol", "valueCol", "weightCol", "scoreCol"))
+    expect_s3_class(out$plotdata, "data.frame")
+    expect_equal(dim(out$plotdata), c(9, 4))
+    expect_named(out$plotdata, c("Method", "Metric", "ScaledValue", "Weight"))
+    expect_equal(out$plotdata$Weight, rep(0.2, 9))
+    ## Factor levels of Method indicate performance ranking
+    expect_equal(out$plotdata$Method, factor(rep(c("M1", "M2", "M3"), 
+                                                 each = 3), 
+                                             levels = c("M3", "M1", "M2")))
+    expect_equal(out$plotdata$Metric, rep(c("metric1", "metric2", "metric3"), 3))
+    expect_equal(out$plotdata$ScaledValue, c(1, 3, 2, 2, 1, 1, 3, 2, NA))
+    expect_s3_class(out$scoredata, "data.frame")
+    expect_equal(dim(out$scoredata), c(3, 2))
+    expect_named(out$scoredata, c("Method", "Score"))
+    expect_equal(out$scoredata$Method, c("M3", "M1", "M2"))
+    expect_equal(out$scoredata$Score, c(2.5, 2, 4/3))
+    expect_type(out$idColors, "list")
+    expect_named(out$idColors, "Method")
+    expect_length(out$idColors$Method, 3)
+    expect_type(out$metricColors, "list")
+    expect_named(out$metricColors, "Metric")
+    expect_length(out$metricColors$Metric, 3)
+    expect_equal(out$metricGrouping, "---")
+    expect_false(out$metricCollapseGroup)
+    expect_null(out$idInfo)
+    expect_null(out$metricInfo)
+    expect_equal(out$metricGroupCol, "metricGroup")
+    expect_equal(out$methods, c("M1", "M2", "M3"))
+    expect_equal(out$idCol, "Method")
+    expect_equal(out$metricCol, "Metric")
+    expect_equal(out$valueCol, "ScaledValue")
+    expect_equal(out$weightCol, "Weight")
+    expect_equal(out$scoreCol, "Score")
+    
+    ## Mostly defaults - with bettrSE
+    se <- assembleSE(df = df, idCol = "Method", 
+                     metrics = c("metric1", "metric2", "metric3"), 
+                     initialWeights = NULL, 
+                     initialTransforms = list(), metricInfo = NULL, 
+                     metricColors = NULL, idInfo = NULL, idColors = NULL)
+    out <- bettrGetReady(bettrSE = se, df = df, idCol = "Method", 
                          metrics = c("metric1", "metric2", "metric3"), 
                          initialWeights = NULL, 
                          initialTransforms = list(),
@@ -217,7 +274,7 @@ test_that("bettrGetReady works", {
     ## Recode one variable as categorical
     df0 <- df
     df0$metric2 <- c("A3", "C1", "F2")
-    out <- bettrGetReady(df = df0, idCol = "Method", 
+    out <- bettrGetReady(bettrSE = NULL, df = df0, idCol = "Method", 
                          metrics = c("metric1", "metric2", "metric3"), 
                          initialWeights = NULL, 
                          initialTransforms = list(metric2 = list(levels = c("C1", "F2", "A3"))),
@@ -269,7 +326,7 @@ test_that("bettrGetReady works", {
     expect_equal(out$scoreCol, "Score")
     
     ## Different weighting -> different levels in out$plotdata$Method
-    out <- bettrGetReady(df = df, idCol = "Method", 
+    out <- bettrGetReady(bettrSE = NULL, df = df, idCol = "Method", 
                          metrics = c("metric1", "metric2", "metric3"), 
                          initialWeights = c(metric1 = 0, metric2 = 1, metric3 = 0), 
                          initialTransforms = list(),
@@ -321,7 +378,7 @@ test_that("bettrGetReady works", {
     expect_equal(out$scoreCol, "Score")
     
     ## Transform metrics
-    out <- bettrGetReady(df = df, idCol = "Method", 
+    out <- bettrGetReady(bettrSE = NULL, df = df, idCol = "Method", 
                          metrics = c("metric1", "metric2", "metric3"), 
                          initialWeights = c(metric1 = 1, metric2 = 1, metric3 = 0), 
                          initialTransforms = list(metric2 = list(flip = TRUE), 
@@ -376,7 +433,7 @@ test_that("bettrGetReady works", {
     expect_equal(out$scoreCol, "Score")
     
     ## Group metrics, only top 2 methods
-    out <- bettrGetReady(df = df, idCol = "Method", 
+    out <- bettrGetReady(bettrSE = NULL, df = df, idCol = "Method", 
                          metrics = c("metric1", "metric2", "metric3"), 
                          initialWeights = c(metric1 = 0, metric2 = 1, metric3 = 0, 
                                             Group_G1 = 1, Group_G2 = 3), 
@@ -429,8 +486,68 @@ test_that("bettrGetReady works", {
     expect_equal(out$weightCol, "Weight")
     expect_equal(out$scoreCol, "Score")
     
+    ## Group metrics, only top 2 methods - with bettrSE
+    se <- assembleSE(df = df, idCol = "Method", 
+                     metrics = c("metric1", "metric2", "metric3"), 
+                     initialWeights = c(metric1 = 0, metric2 = 1, metric3 = 0, 
+                                        Group_G1 = 1, Group_G2 = 3), 
+                     initialTransforms = list(), metricInfo = metricInfo, 
+                     metricColors = NULL, idInfo = idInfo, idColors = NULL)
+    out <- bettrGetReady(bettrSE = se, df = df, idCol = "Method", 
+                         metrics = c("metric1", "metric2", "metric3"), 
+                         initialWeights = c(metric1 = 0, metric2 = 1, metric3 = 0, 
+                                            Group_G1 = 1, Group_G2 = 3), 
+                         initialTransforms = list(),
+                         metricInfo = metricInfo, metricColors = NULL,
+                         idInfo = idInfo, idColors = NULL, 
+                         scoreMethod = "weighted mean", 
+                         idOrdering = "high-to-low", 
+                         showOnlyTopIds = TRUE, nbrTopIds = 2, 
+                         idTopNGrouping = NULL, 
+                         keepIds = NULL, 
+                         metricGrouping = "Group", metricCollapseGroup = TRUE, 
+                         metricCollapseMethod = "mean")
+    expect_type(out, "list")
+    expect_named(out, c("plotdata", "scoredata", "idColors", "metricColors", 
+                        "metricGrouping", "metricCollapseGroup", "idInfo", 
+                        "metricInfo", "metricGroupCol", "methods", "idCol", 
+                        "metricCol", "valueCol", "weightCol", "scoreCol"))
+    expect_s3_class(out$plotdata, "data.frame")
+    expect_equal(dim(out$plotdata), c(4, 5))
+    expect_named(out$plotdata, c("Method", "metricGroup", "ScaledValue",
+                                 "Weight", "Metric"))
+    expect_equal(out$plotdata$Weight, rep(c(1, 3), 2))
+    ## Factor levels of Method indicate performance ranking
+    expect_equal(out$plotdata$Method, factor(rep(c("M1", "M3"), 
+                                                 each = 2), 
+                                             levels = c("M3", "M1")))
+    expect_equal(out$plotdata$Metric, rep(c("G1", "G2"), 2))
+    expect_equal(out$plotdata$ScaledValue, c(1, 2.5, 3, 2))
+    expect_s3_class(out$scoredata, "data.frame")
+    expect_equal(dim(out$scoredata), c(2, 3))
+    expect_named(out$scoredata, c("Method", "Score", "Type"))
+    expect_equal(out$scoredata$Method, c("M3", "M1"))
+    expect_equal(out$scoredata$Score, c(2.25, 2.125))
+    expect_type(out$idColors, "list")
+    expect_named(out$idColors, c("Type", "Method"))
+    expect_length(out$idColors$Method, 3)
+    expect_type(out$metricColors, "list")
+    expect_named(out$metricColors, c("Group", "Metric"))
+    expect_length(out$metricColors$Metric, 3)
+    expect_equal(out$metricGrouping, "Group")
+    expect_true(out$metricCollapseGroup)
+    expect_equal(out$idInfo, idInfo, ignore_attr = TRUE)
+    expect_equal(out$metricInfo, metricInfo, ignore_attr = TRUE)
+    expect_equal(out$metricGroupCol, "metricGroup")
+    expect_equal(out$methods, c("M1", "M2", "M3"))
+    expect_equal(out$idCol, "Method")
+    expect_equal(out$metricCol, "Metric")
+    expect_equal(out$valueCol, "ScaledValue")
+    expect_equal(out$weightCol, "Weight")
+    expect_equal(out$scoreCol, "Score")
+    
     ## Group metrics, top 2 methods within each type
-    out <- bettrGetReady(df = df, idCol = "Method", 
+    out <- bettrGetReady(bettrSE = NULL, df = df, idCol = "Method", 
                          metrics = c("metric1", "metric2", "metric3"), 
                          initialWeights = c(metric1 = 0, metric2 = 1, metric3 = 0, 
                                             Group_G1 = 1, Group_G2 = 3), 
