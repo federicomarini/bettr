@@ -1,6 +1,7 @@
 # bettr 0.99.0
 
 * Ready for submission to Bioconductor
+* Add `assembleSE()` function to create a summary SE
 
 # bettr 0.3.0
 

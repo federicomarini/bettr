@@ -43,7 +43,9 @@ Imports:
     shinyjqui,
     grDevices,
     scales,
-    DT
+    DT,
+    SummarizedExperiment,
+    S4Vectors
 Config/testthat/edition: 3
 biocViews: Visualization, ShinyApps, GUI
 URL: https://github.com/federicomarini/bettr
