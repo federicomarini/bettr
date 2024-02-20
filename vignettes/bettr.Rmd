@@ -93,6 +93,7 @@ different metrics and data sets.
 ```{r}
 ## Display the whole performance table
 duo2018$df
+
 ## Showing the first metric, evaluated on all datasets
 head(duo2018$metricInfo, 12)
 
@@ -114,7 +115,7 @@ linearly to the interval `[0, 1]`. These transformations are stored in
 ```{r}
 names(duo2018$initialTransforms)
 
-## An example of the transformation - elapsed time for the Koh dataset
+## An example of a transformation - elapsed time for the Koh dataset
 duo2018$initialTransforms$elapsed_Koh
 ```
 
@@ -166,28 +167,31 @@ prepData <- bettrGetReady(
     scoreMethod = "weighted mean", metricGrouping = "Class", 
     metricCollapseGroup = TRUE)
 
-## This object is fairly verbose and detailed, but has the whole set of info needed
+## This object is fairly verbose and detailed, 
+## but has the whole set of info needed
 prepData
 
-# call the plotting routines specifying one single parameter
+## Call the plotting routines specifying one single parameter
 makeHeatmap(bettrList = prepData)
 makePolarPlot(bettrList = prepData)
 ```
 
 # Additional examples
 
-`bettr` can also be adapted to represent more types of such collections of metrics, 
-other than the results of a benchmarking study in computational biology.  
-An example which is also included in the `inst/scripts` folder of this package 
-presents the OECD Better Life Index (https://stats.oecd.org/index.aspx?DataSetCode=BLI),
-spanning over 11 topics, each represented by one to three indicators. These indicators 
-are good measures of the concepts of well-being, and well suited to display some
+`bettr` can also be adapted to represent more types of such collections of 
+metrics, other than the results of a benchmarking study in computational 
+biology. An examplem which is also included in the `inst/scripts` folder of 
+this package, presents the OECD Better Life Index 
+(https://stats.oecd.org/index.aspx?DataSetCode=BLI), spanning over 11 topics, 
+each represented by one to three indicators. These indicators are good measures 
+of the concepts of well-being, and well suited to display some
 comparison across countries.
 
 <!-- screenshot of that? -->
 
-Additional examples can be added to the codebase upon interest, and we encourage users
-to contribute to that via a Pull Request to https://github.com/federicomarini/bettr.
+Additional examples can be added to the codebase upon interest, and we 
+encourage users to contribute to that via a Pull Request to 
+https://github.com/federicomarini/bettr.
 
 
 # Session info {-}
