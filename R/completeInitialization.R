@@ -1,12 +1,12 @@
 #' @noRd
 #' 
 #' @param transformList A list with one element per metric. Each list element 
-#'   is another list, with up to four elements, named 'offset', 'flip', 
-#'   'transform' and 'cuts'. If any of the elements is missing, it will be 
-#'   set to a default value. 
+#'     is another list, with up to four elements, named 'offset', 'flip', 
+#'     'transform' and 'cuts'. If any of the elements is missing, it will be 
+#'     set to a default value. 
 #' @param metrics The full list of metrics. For entries that don't have a list 
-#'   element in `transformList`, one will be generated, with default 
-#'   values. 
+#'     element in `transformList`, one will be generated, with default 
+#'     values. 
 #'   
 .completeInitialization <- function(transformList, metrics) {
     if (!methods::is(transformList, "list")) {

@@ -1,7 +1,7 @@
 test_that("prepareData works", {
     df <- data.frame(Method = rep(c("A", "B", "C"), each = 3),
                      Metric = rep(c("m1", "m2", "m3"), 3),
-                     Value = runif(n = 9, min = 0, max = 3)) %>%
+                     Value = runif(n = 9, min = 0, max = 3)) |>
         tidyr::spread(key = Metric, value = Value)
     df$m3 <- paste0("V", df$m3)
     metrics <- setdiff(colnames(df), "Method")
@@ -15,7 +15,7 @@ test_that("prepareData works", {
                        metricColors = list(), 
                        idInfo = idInfo, idColors = list(), 
                        weightResolution = 0.05, metricCol = "Metric", 
-                       initialWeightValue = 0.2)
+                       defaultWeightValue = 0.2)
     expect_type(pd, "list")
     expect_length(pd, 9L)
     expect_named(pd, c("metrics_num", "metrics_cat", "idColors", 
@@ -61,7 +61,7 @@ test_that("prepareData works", {
                        idInfo = idInfo, 
                        idColors = list(Method = c(A = "blue", B = "green", C = "yellow")), 
                        weightResolution = 0.05, metricCol = "Metric", 
-                       initialWeightValue = 0.2)
+                       defaultWeightValue = 0.2)
     expect_type(pd, "list")
     expect_length(pd, 9L)
     expect_named(pd, c("metrics_num", "metrics_cat", "idColors", 
@@ -103,7 +103,7 @@ test_that("prepareData works", {
                        idInfo = idInfo[, 1, drop = FALSE], 
                        idColors = list(Method = c(A = "blue", B = "green", C = "yellow")), 
                        weightResolution = 0.05, metricCol = "Metric", 
-                       initialWeightValue = 0.2)
+                       defaultWeightValue = 0.2)
     expect_type(pd, "list")
     expect_length(pd, 9L)
     expect_named(pd, c("metrics_num", "metrics_cat", "idColors", 

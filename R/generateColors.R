@@ -1,7 +1,7 @@
 #' @noRd
 #' 
 #' @param ggplot2Columns Names of columns for which we should use the standard 
-#'   ggplot2 colors if nothing else is specified
+#'     ggplot2 colors if nothing else is specified
 #' 
 #' @importFrom circlize colorRamp2
 #' @importFrom grDevices colors
@@ -40,7 +40,7 @@
 }
 
 ## Emulate ggplot2 colors
-## https://stackoverflow.com/questions/8197559/emulate-ggplot2-default-color-palette
+## stackoverflow.com/questions/8197559/emulate-ggplot2-default-color-palette
 #' @importFrom grDevices hcl
 .gg_color_hue <- function(n) {
     hues <- seq(15, 375, length = n + 1)

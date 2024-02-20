@@ -15,19 +15,33 @@ test_that("PolarPlot works", {
                              Group = c("A", "A", "B"))
     idInfo <- scoredata[, c("Method", "Type")]
     
-    bpp <- .makePolarPlot(
-        df = plotdata, idCol = "Method", 
+    bpp <- makePolarPlot(
+        bettrList = NULL,
+        plotdata = plotdata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", metricGroupCol = "---", 
-        labelSize = 10, metricColors = list(Metric = c("blue", "red", "green")),
-        metricCollapseGroup = FALSE, metricGrouping = "Group"
+        metricColors = list(Metric = c("blue", "red", "green")),
+        metricCollapseGroup = FALSE, metricGrouping = "Group", labelSize = 10
     )
     expect_s3_class(bpp, "ggplot")
     
-    bpp <- .makePolarPlot(
-        df = plotdata, idCol = "Method", 
+    ## With bettrList instead
+    bpp2 <- makePolarPlot(
+        bettrList = list(
+            plotdata = plotdata, idCol = "Method", 
+            metricCol = "Metric", valueCol = "ScaledValue", 
+            metricGroupCol = "---", 
+            metricColors = list(Metric = c("blue", "red", "green")),
+            metricCollapseGroup = FALSE, metricGrouping = "Group"),
+        labelSize = 10
+    )
+    expect_s3_class(bpp2, "ggplot")
+    
+    bpp <- makePolarPlot(
+        bettrList = NULL,
+        plotdata = plotdata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", metricGroupCol = "---", 
-        labelSize = 10, metricColors = list(Metric = c("blue", "red", "green")),
-        metricCollapseGroup = FALSE, metricGrouping = "Group"
+        metricColors = list(Metric = c("blue", "red", "green")),
+        metricCollapseGroup = FALSE, metricGrouping = "Group", labelSize = 10
     )
     expect_s3_class(bpp, "ggplot")
     
@@ -38,12 +52,13 @@ test_that("PolarPlot works", {
                          .groups = "drop") |>
         dplyr::mutate(Metric = Group) |>
         dplyr::rename(metricGroup = Group)
-    bpp <- .makePolarPlot(
-        df = grpdf, idCol = "Method", 
+    bpp <- makePolarPlot(
+        bettrList = NULL,
+        plotdata = grpdf, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", 
         metricGroupCol = "metricGroup", 
-        labelSize = 10, metricColors = list(Group = c("blue", "red", "green")),
-        metricCollapseGroup = TRUE, metricGrouping = "Group"
+        metricColors = list(Group = c("blue", "red", "green")),
+        metricCollapseGroup = TRUE, metricGrouping = "Group", labelSize = 10
     )
     expect_s3_class(bpp, "ggplot")
 })

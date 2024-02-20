@@ -2,7 +2,8 @@
 title: "bettr"
 author: "Charlotte Soneson & Federico Marini"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: 
+    BiocStyle::html_document
 vignette: >
   %\VignetteIndexEntry{bettr}
   %\VignetteEngine{knitr::rmarkdown}
@@ -11,29 +12,36 @@ vignette: >
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
+    collapse = TRUE,
+    comment = "#>"
 )
 ```
 
 # Introduction
 
 `bettr` is an R package that allows the user to launch an interactive interface 
-for exploring rankings. For example, it could be used to explore the ranking of 
-methods in a benchmarking effort, where multiple criteria have been evaluated.
-The user can weight the different criteria according to their preferences, and 
-visualize the data in several different ways. 
+for exploring collections of rankings of the same set of entities, based on 
+multiple different aspects. For example, it could be used to explore the 
+ranking of methods in a benchmarking effort, where multiple criteria have
+been evaluated. The user can weight the different criteria according to their 
+preferences, and visualize the data in several different ways. 
 
 # Installation
 
 `bettr` can be installed from GitHub: 
 
 ```{r, eval=FALSE}
-install.packages("remotes")
+if (!require("remotes", quietly = TRUE))
+    install.packages("remotes")
+
 remotes::install_github("federicomarini/bettr")
 ```
 
 # Usage
+
+```{r}
+library("bettr")
+```
 
 The input to `bettr` is a `data.frame` containing values of several metrics 
 for several methods. In addition, the user can provide additional annotations 
@@ -55,22 +63,138 @@ idInfo <- data.frame(Method = c("M1", "M2", "M3"),
                      Type = c("T1", "T1", "T2"))
 ```
 
-```{r, eval=interactive()}
-## Launch app
+The app can be launched by means of the `bettr()` function.
+
+```{r}
+#| eval: false
+
 bettr(df = df, idCol = "Method", metricInfo = metricInfo, idInfo = idInfo)
 ```
 
-# Example output
+# Example - single-cell RNA-seq clustering benchmark
 
-The screenshots below illustrate the interface by displaying two of the 
-representations provided by `bettr`, using data from the benchmark of 
+Next, we show a more elaborate example, visualizing data from the benchmark of
 single-cell clustering methods performed by 
-[Duo et al (2018)](https://f1000research.com/articles/7-1141).
+[Duo et al (2018)](https://f1000research.com/articles/7-1141). The benchmark 
+results are provided as an example data set in `bettr`:
 
-![](bettr-screenshot-heatmap.png)
-![](bettr-screenshot-polar.png)
+```{r}
+duo2018 <- readRDS(system.file("extdata", "duo2018.rds", 
+                               package = "bettr"))
+names(duo2018)
+```
 
-# Session info
+Here, the summary `data.frame` (`df`) contains values for 48 performance 
+measures (4 different metrics, each for 12 data sets) for 14 clustering 
+methods. We also provide a `metricInfo` `data.frame`, assigning each metric 
+to a class, and two lists of colors that we would like to use for the 
+different metrics and data sets. 
+
+```{r}
+## Display the whole performance table
+duo2018$df
+
+## Showing the first metric, evaluated on all datasets
+head(duo2018$metricInfo, 12)
+
+## These are the color definitions (can mix character and hex values)
+duo2018$idColors
+duo2018$metricColors
+```
+
+Finally, we need to transform the metrics in 
+order to make them comparable (first, so that a high value is 'good', and 
+second, so that the numeric ranges of the metrics are comparable). In this 
+case, we have chosen to first flip the values (multiply by -1) of all 
+metrics representing elapsed time (`elapsed`) and the absolute deviation of 
+the number of clusters and Shannon entropies from the ground truth 
+(`nclust.vs.true` and `s.norm.vs.true`). Next, each of these metrics is scaled 
+linearly to the interval `[0, 1]`. These transformations are stored in 
+`duo2018$initialTransforms`. 
+
+```{r}
+names(duo2018$initialTransforms)
+
+## An example of a transformation - elapsed time for the Koh dataset
+duo2018$initialTransforms$elapsed_Koh
+```
+
+Now, we can launch the app for this data set:
+
+```{r}
+#| eval: false
+
+bettr(df = duo2018$df, idCol = "method", 
+      initialTransforms = duo2018$initialTransforms, 
+      metricInfo = duo2018$metricInfo, metricColors = duo2018$metricColors,
+      idColors = duo2018$idColors, bstheme = "sandstone")
+```
+
+The screenshot below illustrates the default view of the interactive 
+interface. 
+
+<img src="bettr-screenshot-heatmap.png" width="100%">
+
+We can choose to collapse the metric values to have a single 
+value for each metric class, to reduce the redundancy. We can now also 
+freely decide how to weight the respective metrics by means of the sliders in 
+the left side bar. The bars on top of the heatmap show the current weight 
+assignment. 
+
+<img src="bettr-screenshot-heatmap-collapsed.png" width="100%">
+
+`bettr` also provides alternative visualizations, e.g. a polar plot:
+
+<img src="bettr-screenshot-polar.png" width="100%">
+
+# Programmatic interface
+
+The interactive application showcased above, is the main entry point to using
+`bettr`. However, we also provide a wrapper function to prepare the input data 
+for plotting (replicating the steps that are performed in the app), as well as 
+access to the plotting functions themselves. The following code replicates the 
+results for the example above.
+
+```{r}
+#| fig.width: 7
+#| fig.height: 7
+
+prepData <- bettrGetReady(
+    df = duo2018$df, idCol = "method", metricInfo = duo2018$metricInfo,
+    initialTransforms = duo2018$initialTransforms, 
+    metricColors = duo2018$metricColors, idColors = duo2018$idColors, 
+    initialWeights = c(Class_ARI = 0.55),
+    scoreMethod = "weighted mean", metricGrouping = "Class", 
+    metricCollapseGroup = TRUE)
+
+## This object is fairly verbose and detailed, 
+## but has the whole set of info needed
+prepData
+
+## Call the plotting routines specifying one single parameter
+makeHeatmap(bettrList = prepData)
+makePolarPlot(bettrList = prepData)
+```
+
+# Additional examples
+
+`bettr` can also be adapted to represent more types of such collections of 
+metrics, other than the results of a benchmarking study in computational 
+biology. An examplem which is also included in the `inst/scripts` folder of 
+this package, presents the OECD Better Life Index 
+(https://stats.oecd.org/index.aspx?DataSetCode=BLI), spanning over 11 topics, 
+each represented by one to three indicators. These indicators are good measures 
+of the concepts of well-being, and well suited to display some
+comparison across countries.
+
+<!-- screenshot of that? -->
+
+Additional examples can be added to the codebase upon interest, and we 
+encourage users to contribute to that via a Pull Request to 
+https://github.com/federicomarini/bettr.
+
+
+# Session info {-}
 
 ```{r}
 sessionInfo()

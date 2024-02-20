@@ -15,25 +15,52 @@ test_that("BarPolarPlot works", {
                              Group = c("A", "A", "B"))
     idInfo <- scoredata[, c("Method", "Type")]
     
-    bpp <- .makeBarPolarPlot(
-        df = plotdata, scores = scoredata, idCol = "Method", 
+    bpp <- makeBarPolarPlot(
+        bettrList = NULL,
+        plotdata = plotdata, scoredata = scoredata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
         scoreCol = "Score", metricGroupCol = "---", 
+        metricColors = list(Metric = c("blue", "red", "green")),
+        metricCollapseGroup = FALSE, metricGrouping = "Group",
         methods = unique(scoredata$Method), labelSize = 10,
-        showComposition = FALSE, 
-        scaleFactorPolars = 1.5, metricColors = list(Metric = c("blue", "red", "green")),
-        metricCollapseGroup = FALSE, metricGrouping = "Group"
+        showComposition = FALSE, scaleFactorPolars = 1.5
     )
     expect_s3_class(bpp, "ggplot")
     
-    bpp <- .makeBarPolarPlot(
-        df = plotdata, scores = scoredata, idCol = "Method", 
+    bpp <- makeBarPolarPlot(
+        bettrList = NULL,
+        plotdata = plotdata, scoredata = scoredata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
         scoreCol = "Score", metricGroupCol = "---", 
+        metricColors = list(Metric = c("blue", "red", "green")),
+        metricCollapseGroup = FALSE, metricGrouping = "Group",
+        methods = NULL, labelSize = 10,
+        showComposition = FALSE, scaleFactorPolars = 1.5
+    )
+    expect_s3_class(bpp, "ggplot")
+    
+    ## With bettrList instead
+    bpp2 <- makeBarPolarPlot(
+        bettrList = list(plotdata = plotdata, scoredata = scoredata, 
+                         idCol = "Method", metricCol = "Metric", 
+                         valueCol = "ScaledValue", weightCol = "Weight", 
+                         scoreCol = "Score", metricGroupCol = "---", 
+                         metricColors = list(Metric = c("blue", "red", "green")),
+                         metricCollapseGroup = FALSE, metricGrouping = "Group",
+                         methods = unique(scoredata$Method)), 
+        labelSize = 10, showComposition = FALSE, scaleFactorPolars = 1.5
+    )
+    expect_s3_class(bpp2, "ggplot")
+    
+    bpp <- makeBarPolarPlot(
+        bettrList = NULL,
+        plotdata = plotdata, scoredata = scoredata, idCol = "Method", 
+        metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
+        scoreCol = "Score", metricGroupCol = "---", 
+        metricColors = list(Metric = c("blue", "red", "green")),
+        metricCollapseGroup = FALSE, metricGrouping = "Group",
         methods = unique(scoredata$Method), labelSize = 10,
-        showComposition = TRUE, 
-        scaleFactorPolars = 1.5, metricColors = list(Metric = c("blue", "red", "green")),
-        metricCollapseGroup = FALSE, metricGrouping = "Group"
+        showComposition = TRUE, scaleFactorPolars = 1.5
     )
     expect_s3_class(bpp, "ggplot")
     
@@ -44,14 +71,15 @@ test_that("BarPolarPlot works", {
                          .groups = "drop") |>
         dplyr::mutate(Metric = Group) |>
         dplyr::rename(metricGroup = Group)
-    bpp <- .makeBarPolarPlot(
-        df = grpdf, scores = scoredata, idCol = "Method", 
+    bpp <- makeBarPolarPlot(
+        bettrList = NULL, 
+        plotdata = grpdf, scoredata = scoredata, idCol = "Method", 
         metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
         scoreCol = "Score", metricGroupCol = "metricGroup", 
+        metricColors = list(Group = c("blue", "red", "green")),
+        metricCollapseGroup = TRUE, metricGrouping = "Group",
         methods = unique(scoredata$Method), labelSize = 10,
-        showComposition = TRUE, 
-        scaleFactorPolars = 1.5, metricColors = list(Group = c("blue", "red", "green")),
-        metricCollapseGroup = TRUE, metricGrouping = "Group"
+        showComposition = TRUE, scaleFactorPolars = 1.5
     )
     expect_s3_class(bpp, "ggplot")
 })

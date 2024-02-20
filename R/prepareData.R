@@ -2,7 +2,7 @@
 .prepareData <- function(df, idCol, metrics, initialWeights,
                          initialTransforms, metricInfo, metricColors, 
                          idInfo, idColors, weightResolution, metricCol, 
-                         initialWeightValue) {
+                         defaultWeightValue) {
     
     ## Split metrics into numeric and categorical -----------------------------
     metrics_classes <- vapply(df[, metrics, drop = FALSE], class, NA_character_)
@@ -22,7 +22,7 @@
     }
     if (is.null(idInfo)) {
         idColors <- .generateColors(
-            data.frame(id = unique(df[[idCol]])) %>% stats::setNames(idCol),
+            data.frame(id = unique(df[[idCol]])) |> stats::setNames(idCol),
             idColors, ggplot2Columns = idCol
         )
     } else {
@@ -35,7 +35,7 @@
     }
     if (is.null(metricInfo)) {
         metricColors <- .generateColors(
-            data.frame(metric = metrics) %>% stats::setNames(metricCol),
+            data.frame(metric = metrics) |> stats::setNames(metricCol),
             metricColors, ggplot2Columns = metricCol
         )
     } else {
@@ -55,7 +55,7 @@
     initialWeights <- .assignInitialWeights(
         weights = initialWeights, 
         metrics = metricsWithWeights,
-        initialWeightValue = initialWeightValue,
+        defaultWeightValue = defaultWeightValue,
         weightResolution = weightResolution)
     
     ## Return -----------------------------------------------------------------

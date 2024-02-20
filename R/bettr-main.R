@@ -1,53 +1,53 @@
 #' Launch bettr app to explore and aggregate performance metrics
 #' 
 #' @param df A `data.frame` in wide format. Should contain one column 
-#'   with the IDs of the entities to be compared, and one column for each 
-#'   metric to use for the comparison.
+#'     with the IDs of the entities to be compared, and one column for each 
+#'     metric to use for the comparison.
 #' @param idCol Character scalar, indicating the name of the column of `df` 
-#'   that contains IDs of the entities to be compared (e.g., methods).
+#'     that contains IDs of the entities to be compared (e.g., methods).
 #' @param metrics Character vector, indicating which of the 
-#'   columns of `df` that correspond to metrics of interest. Only metrics
-#'   included here will be displayed.
+#'     columns of `df` that correspond to metrics of interest. Only metrics
+#'     included here will be displayed.
 #' @param initialWeights Named numeric vector providing initial weights for 
-#'   each metric to use for aggregating them into a final score. Must contain 
-#'   one entry per metric included in `metrics_num` or `metrics_cat`.
+#'     each metric to use for aggregating them into a final score. Must contain 
+#'     one entry per metric included in `metrics`.
 #' @param initialTransforms Named list with initial values of transformation 
-#'   parameters for each metric. Each list entry should correspond to one 
-#'   metric, and take the form of a list with up to four elements, named:
+#'     parameters for each metric. Each list entry should correspond to one 
+#'     metric, and take the form of a list with up to four elements, named:
 #'   
-#'   * **flip**: Logical scalar; whether or not to flip the sign of the 
-#'     metric values. Defaults to `FALSE`.
-#'   * **offset**: Numeric scalar; offset to add to the (flipped) 
-#'     metric values. Defaults to `0`.
-#'   * **transform**: Character scalar; one of 'None', 'z-score', 
-#'     '\[0,1\]', '\[-1,1\]', 'Rank', 'Rank+\[0,1\]' or 'z-score+\[0,1\]', 
-#'     indicating which transform to apply to 
-#'     the metric values (after any flipping and/or adding the offset). 
-#'     Defaults to 'None'.
-#'   * **cuts**: Numeric vector or `NULL`; the cut points that will 
-#'     be used to bin the metric values (after the other transformations). 
-#'     Defaults to `NULL`. 
+#'     * **flip**: Logical scalar; whether or not to flip the sign of the 
+#'         metric values. Defaults to `FALSE`.
+#'     * **offset**: Numeric scalar; offset to add to the (flipped) 
+#'         metric values. Defaults to `0`.
+#'     * **transform**: Character scalar; one of 'None', 'z-score', 
+#'         '\[0,1\]', '\[-1,1\]', 'Rank', 'Rank+\[0,1\]' or 'z-score+\[0,1\]', 
+#'         indicating which transform to apply to 
+#'         the metric values (after any flipping and/or adding the offset). 
+#'         Defaults to 'None'.
+#'     * **cuts**: Numeric vector or `NULL`; the cut points that will 
+#'         be used to bin the metric values (after the other transformations). 
+#'         Defaults to `NULL`. 
 #'
-#'   Only values deviating from the defaults need to be explicitly specified, 
-#'   the others will be initialized to their default values.
+#'     Only values deviating from the defaults need to be explicitly specified, 
+#'     the others will be initialized to their default values.
 #' @param metricInfo `data.frame` with annotations for metrics. Must have 
-#'   a column named 'Metric' identifying the respective metrics.
+#'     a column named 'Metric' identifying the respective metrics.
 #' @param metricColors Named list with colors used for columns of 
-#'   `metricInfo`. Should follow the format required for ComplexHeatmap 
-#'   heatmap annotations. The list can include an entry named 'Metric', which 
-#'   contains a named vector with colors to use for metrics. 
+#'     `metricInfo`. Should follow the format required for ComplexHeatmap 
+#'     heatmap annotations. The list can include an entry named 'Metric', which 
+#'     contains a named vector with colors to use for metrics. 
 #' @param idInfo `data.frame` with annotations for entities. Must have a 
-#'   column named according to `idCol` identifying the respective entities. 
+#'     column named according to `idCol` identifying the respective entities. 
 #' @param idColors Named list with colors used for columns of `idInfo`. 
-#'   Should follow the format required for ComplexHeatmap heatmap annotations. 
-#'   The list can include an entry named according to `idCol`, which 
-#'   contains a named vector with colors to use for entities. 
+#'     Should follow the format required for ComplexHeatmap heatmap 
+#'     annotations. The list can include an entry named according to `idCol`, 
+#'     which contains a named vector with colors to use for entities. 
 #' @param weightResolution Numeric scalar in (0,1), giving the resolution at 
-#'   which weights can be specified using the sliders in the interface.
+#'     which weights can be specified using the sliders in the interface.
 #' @param bstheme Character scalar giving the bootswatch theme for the app 
-#'   (see https://bootswatch.com/). Default 'darkly'.
+#'     (see https://bootswatch.com/). Default 'darkly'.
 #' @param appTitle Character scalar giving the title that will be used for 
-#'   the app. Defaults to 'bettr'.
+#'     the app. Defaults to 'bettr'.
 #'  
 #' @export
 #' 
@@ -57,14 +57,14 @@
 #' A shiny application
 #' 
 #' @importFrom shiny uiOutput radioButtons checkboxInput conditionalPanel 
-#'   numericInput actionButton tabsetPanel tabPanel br fluidRow column 
-#'   selectInput hr reactiveValues reactive outputOptions renderUI 
-#'   selectizeInput updateTabsetPanel observe observeEvent tabPanelBody 
-#'   plotOutput tagList tags HTML validate need renderPlot updateNumericInput 
-#'   sliderInput shinyApp
+#'     numericInput actionButton tabsetPanel tabPanel br fluidRow column 
+#'     selectInput hr reactiveValues reactive outputOptions renderUI 
+#'     selectizeInput updateTabsetPanel observe observeEvent tabPanelBody 
+#'     plotOutput tagList tags HTML validate need renderPlot updateNumericInput 
+#'     sliderInput shinyApp
 #' @importFrom sortable rank_list
 #' @importFrom shinyjqui jqui_resizable
-#' @importFrom dplyr filter select mutate left_join arrange %>% relocate
+#' @importFrom dplyr filter select mutate left_join arrange relocate
 #'     all_of
 #' @importFrom bslib bs_theme sidebar accordion accordion_panel page_sidebar
 #' @importFrom rlang .data
@@ -100,7 +100,7 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
     metricCol <- "Metric"
     valueCol <- "ScaledValue"
     metricGroupCol <- "metricGroup"
-    initialWeightValue <- 0.2
+    defaultWeightValue <- 0.2
     
     ## Check validity of input arguments --------------------------------------
     .checkInputArguments(df = df, idCol = idCol, metrics = metrics,
@@ -121,7 +121,7 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                          idColors = idColors,
                          weightResolution = weightResolution,
                          metricCol = metricCol, 
-                         initialWeightValue = initialWeightValue)
+                         defaultWeightValue = defaultWeightValue)
     
     ## UI definition ----------------------------------------------------------
     p_layout <- 
@@ -539,7 +539,7 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                 shiny::need(collapseddata(), ""),
                 shiny::need(scoredata(), "")
             )
-            tmp <- collapseddata() %>%
+            tmp <- collapseddata() |>
                 dplyr::filter(.data[[idCol]] %in% scoredata()[[idCol]])
             tmp[[idCol]] <- factor(tmp[[idCol]], 
                                    levels = scoredata()[[idCol]])
@@ -771,28 +771,28 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
             for (j in metrics) {
                 shiny::updateNumericInput(
                     session, inputId = paste0(j, "_weight"), 
-                    value = initialWeightValue
+                    value = defaultWeightValue
                 )
             }
         })
         
         ## Score table --------------------------------------------------------
         output$scoreTable <- DT::renderDT({
-            tmpdf <- plotdata() %>%
+            tmpdf <- plotdata() |>
                 dplyr::mutate("{valueCol}" := signif(.data[[valueCol]], 
-                                                     digits = 4)) %>%
-                dplyr::select(dplyr::all_of(c(idCol, valueCol, metricCol))) %>%
+                                                     digits = 4)) |>
+                dplyr::select(dplyr::all_of(c(idCol, valueCol, metricCol))) |>
                 tidyr::pivot_wider(names_from = .data[[metricCol]], 
-                                   values_from = .data[[valueCol]]) %>%
-                dplyr::left_join(scoredata(), by = idCol) %>%
+                                   values_from = .data[[valueCol]]) |>
+                dplyr::left_join(scoredata(), by = idCol) |>
                 dplyr::mutate("{scoreCol}" := signif(.data[[scoreCol]], 
-                                                     digits = 4)) %>%
+                                                     digits = 4)) |>
                 dplyr::relocate(dplyr::all_of(idCol))
             if (input$id_ordering == "high-to-low") {
-                tmpdf %>%
+                tmpdf |>
                     dplyr::arrange(dplyr::desc(.data[[scoreCol]]))
             } else {
-                tmpdf %>%
+                tmpdf |>
                     dplyr::arrange(.data[[scoreCol]])
             }
         }, filter = list(position = "top", clear = FALSE), 
@@ -809,16 +809,17 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
             if (is.null(plotdata()) || is.null(scoredata())) {
                 NULL
             } else {
-                .makeParCoordPlot(
-                    df = plotdata(), idCol = idCol, 
+                makeParCoordPlot(
+                    bettrList = NULL,
+                    plotdata = plotdata(), idCol = idCol, 
                     metricCol = metricCol, valueCol = valueCol, 
                     metricGroupCol = metricGroupCol,
-                    methods = methodsInUse(),
-                    highlightMethod = input$highlightMethod, 
-                    metricGrouping = input$metricGrouping,
-                    labelSize = input$labelsize, 
                     metricColors = prep$metricColors,
-                    idColors = prep$idColors
+                    idColors = prep$idColors,
+                    methods = methodsInUse(),
+                    metricGrouping = input$metricGrouping,
+                    highlightMethod = input$highlightMethod, 
+                    labelSize = input$labelsize
                 )
             }
         })
@@ -832,15 +833,16 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
             if (is.null(plotdata()) || is.null(scoredata())) {
                 NULL
             } else {
-                .makePolarPlot(
-                    df = plotdata(), 
+                makePolarPlot(
+                    bettrList = NULL,
+                    plotdata = plotdata(), 
                     idCol = idCol, 
                     metricCol = metricCol, valueCol = valueCol,
                     metricGroupCol = metricGroupCol, 
-                    labelSize = input$labelsize,
                     metricColors = prep$metricColors,
                     metricCollapseGroup = input$metricCollapseGroup,
-                    metricGrouping = input$metricGrouping
+                    metricGrouping = input$metricGrouping,
+                    labelSize = input$labelsize
                 )
             }
         })
@@ -859,19 +861,20 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
                 } else {
                     ssc <- FALSE
                 }
-                .makeBarPolarPlot(
-                    df = plotdata(), scores = scoredata(),
+                makeBarPolarPlot(
+                    bettrList = NULL, 
+                    plotdata = plotdata(), scoredata = scoredata(),
                     idCol = idCol, 
                     metricCol = metricCol, valueCol = valueCol, 
                     weightCol = weightCol, scoreCol = scoreCol, 
                     metricGroupCol = metricGroupCol, 
+                    metricColors = prep$metricColors,
+                    metricCollapseGroup = input$metricCollapseGroup,
+                    metricGrouping = input$metricGrouping,
                     methods = methodsInUse(), 
                     labelSize = input$labelsize,
                     showComposition = ssc,
-                    scaleFactorPolars = input$barpolar_scalefactor, 
-                    metricColors = prep$metricColors,
-                    metricCollapseGroup = input$metricCollapseGroup,
-                    metricGrouping = input$metricGrouping
+                    scaleFactorPolars = input$barpolar_scalefactor
                 )
             }
         })
@@ -890,18 +893,19 @@ bettr <- function(df, idCol = "Method", metrics = setdiff(colnames(df), idCol),
             if (is.null(plotdata()) || is.null(scoredata())) {
                 NULL
             } else {
-                .makeHeatmap(
-                    df = plotdata(), scores = scoredata(), idCol = idCol, 
-                    metricCol = metricCol, valueCol = valueCol, 
+                makeHeatmap(
+                    bettrList = NULL, 
+                    plotdata = plotdata(), scoredata = scoredata(), 
+                    idCol = idCol, metricCol = metricCol, valueCol = valueCol, 
                     weightCol = weightCol, scoreCol = scoreCol, 
                     metricGroupCol = metricGroupCol, 
                     metricInfo = values$metricInfo,
-                    idInfo = values$idInfo,
-                    labelSize = input$labelsize,
-                    idColors = prep$idColors, 
                     metricColors = prep$metricColors,
+                    idInfo = values$idInfo,
+                    idColors = prep$idColors, 
                     metricCollapseGroup = input$metricCollapseGroup,
                     metricGrouping = input$metricGrouping, 
+                    labelSize = input$labelsize,
                     showRowNames = input$show_row_names,
                     plotType = input$heatmap_plot_type,
                     rownamewidth_cm = input$hm_rownamewidth,

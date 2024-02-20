@@ -1,13 +1,13 @@
 Package: bettr
 Title: A Better Way To Explore What Is Best
-Version: 0.2.3
+Version: 0.99.0
 Date: 2024-02-16
 Authors@R: 
     c(person("Federico", "Marini", 
-             role="aut", email="marinif@uni-mainz.de", 
+             role = "aut", email = "marinif@uni-mainz.de", 
              comment = c(ORCID = '0000-0003-3252-7758')),
       person("Charlotte", "Soneson", 
-             role=c("aut", "cre"), email="charlottesoneson@gmail.com", 
+             role = c("aut", "cre"), email ="charlottesoneson@gmail.com", 
              comment = c(ORCID = '0000-0003-3833-2169')))
 Description: bettr provides a set of interactive visualization methods to 
     explore the results of a benchmarking study, where typically more than a 
@@ -19,9 +19,10 @@ Encoding: UTF-8
 Suggests: 
     knitr,
     rmarkdown,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    BiocStyle
 VignetteBuilder: knitr
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Roxygen: list(markdown = TRUE)
 Imports: 
     dplyr (>= 1.0),
@@ -44,6 +45,6 @@ Imports:
     scales,
     DT
 Config/testthat/edition: 3
-biocViews: Visualization, ShinyApps
+biocViews: Visualization, ShinyApps, GUI
 URL: https://github.com/federicomarini/bettr
 BugReports: https://github.com/federicomarini/bettr/issues
