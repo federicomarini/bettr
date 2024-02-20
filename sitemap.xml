@@ -25,12 +25,27 @@
     <loc>/news/index.html</loc>
   </url>
   <url>
-    <loc>/reference/bettr-pkg.html</loc>
+    <loc>/reference/bettr-package.html</loc>
   </url>
   <url>
     <loc>/reference/bettr.html</loc>
   </url>
   <url>
+    <loc>/reference/bettrGetReady.html</loc>
+  </url>
+  <url>
     <loc>/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/makeBarPolarPlot.html</loc>
+  </url>
+  <url>
+    <loc>/reference/makeHeatmap.html</loc>
+  </url>
+  <url>
+    <loc>/reference/makeParCoordPlot.html</loc>
+  </url>
+  <url>
+    <loc>/reference/makePolarPlot.html</loc>
   </url>
 </urlset>
