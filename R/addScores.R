@@ -1,5 +1,10 @@
 #' @importFrom dplyr group_by summarize mutate ungroup
 #' @importFrom Hmisc wtd.quantile
+#' @param df A `data.frame` with columns `idCol`, `weightCol` and `valueCol`.
+#'     The `metricCol` column is required if `scoreMethod` is 
+#'     "weighted fraction highest" or "weighted fraction lowest".
+#' @keywords internal
+#' @noRd
 .calculateScores <- function(df, scoreMethod, idCol, scoreCol, weightCol, 
                              valueCol, metricCol) {
     if (scoreMethod == "weighted mean") {
@@ -60,6 +65,8 @@
 
 #' @importFrom dplyr left_join group_by slice_max ungroup arrange desc 
 #'     slice_min
+#' @keywords internal
+#' @noRd
 .sortAndFilterScoreData <- function(scoreDf, idInfo, idCol, scoreCol,
                                     idTopNGrouping, idOrdering, showOnlyTopIds, 
                                     nbrTopIds) {
