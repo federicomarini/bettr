@@ -1,3 +1,4 @@
+#' @keywords internal
 #' @noRd
 #' 
 #' @param ggplot2Columns Names of columns for which we should use the standard 
@@ -5,6 +6,7 @@
 #' 
 #' @importFrom circlize colorRamp2
 #' @importFrom grDevices colors
+#' 
 .generateColors <- function(df, inputColors, ggplot2Columns = c()) {
     if (is.null(df)) {
         return(NULL)
@@ -41,6 +43,8 @@
 
 ## Emulate ggplot2 colors
 ## stackoverflow.com/questions/8197559/emulate-ggplot2-default-color-palette
+#' @keywords internal
+#' @noRd
 #' @importFrom grDevices hcl
 .gg_color_hue <- function(n) {
     hues <- seq(15, 375, length = n + 1)

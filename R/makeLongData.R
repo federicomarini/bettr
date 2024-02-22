@@ -1,3 +1,5 @@
+#' @keywords internal
+#' @noRd
 #' @importFrom tidyr pivot_longer 
 #' @importFrom dplyr select contains all_of
 .makeLongData <- function(df, idCol, metrics, metricCol, valueCol,
@@ -16,6 +18,8 @@
     pd
 }
 
+#' @keywords internal
+#' @noRd
 .addWeightsToLongData <- function(df, metricCollapseGroup, metricGrouping,
                                   metricGroupCol, weights, weightCol,
                                   metrics, metricCol) {
@@ -38,6 +42,8 @@
     pd
 }
 
+#' @keywords internal
+#' @noRd
 #' @importFrom dplyr group_by summarize mutate ungroup
 .collapseLongData <- function(df, metricCollapseGroup, metricGrouping,
                               idCol, metricGroupCol, valueCol, weightCol, 

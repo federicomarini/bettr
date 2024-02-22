@@ -1,3 +1,5 @@
+#' @keywords internal
+#' @noRd
 .assignInitialWeights <- function(weights, metrics, defaultWeightValue,
                                   weightResolution = 0.05) {
     if (is.null(weights)) {
@@ -16,6 +18,8 @@
     weights
 }
 
+#' @keywords internal
+#' @noRd
 #' @importFrom cowplot plot_grid
 #' @importFrom ggplot2 ggplot aes geom_bar theme_minimal geom_boxplot 
 #'     geom_jitter coord_flip

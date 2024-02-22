@@ -1,3 +1,5 @@
+#' @keywords internal
+#' @noRd
 #' @importFrom stats setNames
 .prepareData <- function(df, idCol, metrics, initialWeights,
                          initialTransforms, metricInfo, metricColors, 

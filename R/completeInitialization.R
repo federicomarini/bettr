@@ -1,3 +1,4 @@
+#' @keywords internal
 #' @noRd
 #' 
 #' @param transformList A list with one element per metric. Each list element 
@@ -7,7 +8,9 @@
 #' @param metrics The full list of metrics. For entries that don't have a list 
 #'     element in `transformList`, one will be generated, with default 
 #'     values. 
-#'   
+#' 
+#' @importFrom methods is
+#' 
 .completeInitialization <- function(transformList, metrics) {
     if (!methods::is(transformList, "list")) {
         stop("transformList must be a list")
@@ -42,6 +45,9 @@
     transformList
 }
 
+#' @keywords internal
+#' @noRd
+#' 
 .checkSpecifiedValue <- function(value, defaultValue, entry) {
     allowedTransforms <- c("None", "z-score", "[0,1]", "[-1,1]", "Rank")
     

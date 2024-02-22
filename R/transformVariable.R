@@ -1,3 +1,5 @@
+#' @keywords internal
+#' @noRd
 .getTransf <- function(v) {
     if (v == "None") {
         return(function(a) a)
@@ -32,6 +34,8 @@
     }
 }
 
+#' @keywords internal
+#' @noRd
 #' @importFrom Hmisc cut2
 .transformNumericVariable <- function(x, flip = FALSE, offset = 0, 
                                       transf = function(a) a, 
@@ -64,6 +68,8 @@
     x
 }
 
+#' @keywords internal
+#' @noRd
 .transformCategoricalVariable <- function(x, levels = NULL) {
     ## If no levels are specified, use the default ones. 
     ## If some levels are specified but they don't cover all the values in x, 
