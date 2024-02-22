@@ -1,3 +1,60 @@
+#' @keywords internal
+#' @noRd
+#' 
+.checkArgs_assembleSE <- function(
+        df, idCol, metrics, initialWeights, initialTransforms, metricInfo, 
+        metricColors, idInfo, idColors) {
+    ## df is a data.frame with one column containing method IDs, and the others
+    ## representing metric values
+    .assertVector(x = df, type = "data.frame")
+    .assertScalar(x = idCol, type = "character", validValues = colnames(df))
+    .assertVector(x = metrics, type = "character", 
+                  validValues = setdiff(colnames(df), idCol))
+    if (!all(metrics == make.names(metrics))) {
+        stop("All metrics must be valid names (i.e., no spaces or special ",
+             "characters). Please modify the metric names accordingly.")
+    }
+    .assertVector(x = initialWeights, type = "numeric", rngIncl = c(0, 1), 
+                  allowNULL = TRUE)
+    .assertVector(x = initialTransforms, type = "list", allowNULL = TRUE)
+    .assertVector(x = metricInfo, type = "data.frame", allowNULL = TRUE)
+    .assertVector(x = metricColors, type = "list", allowNULL = TRUE)
+    .assertVector(x = idInfo, type = "data.frame", allowNULL = TRUE)
+    .assertVector(x = idColors, type = "list", allowNULL = TRUE)
+    
+    if (!is.null(initialWeights)) {
+        .assertVector(x = names(initialWeights), type = "character")
+    }
+    
+    if (length(initialTransforms) != 0) {
+        .assertVector(x = names(initialTransforms), type = "character")
+    }
+    
+    if (!is.null(metricInfo)) {
+        if (!("Metric" %in% colnames(metricInfo))) {
+            stop("metricInfo must have a column named 'Metric'")
+        }
+        if (any(c("input", "output") %in% colnames(metricInfo))) {
+            stop("metricInfo can not have columns named 'input' or 'output'")
+        }
+        if (!all(metrics %in% metricInfo$Metric)) {
+            warning("metricInfo does not provide annotations for all metrics")
+        }
+    }
+    
+    if (!is.null(idInfo)) {
+        if (!(idCol %in% colnames(idInfo))) {
+            stop("idInfo must have a column named '", idCol, "'")
+        }
+        if (any(c("input", "output") %in% colnames(idInfo))) {
+            stop("idInfo can not have columns named 'input' or 'output'")
+        }
+        if (!all(df[[idCol]] %in% idInfo[[idCol]])) {
+            warning("idInfo does not provide annotations for all methods")
+        }
+    }
+}
+
 #' Assemble all bettr input into a SummarizedExperiment object
 #' 
 #' Assemble all bettr input into a \code{SummarizedExperiment} object. This 
@@ -36,24 +93,20 @@ assembleSE <- function(df, idCol = "Method",
     
     ## Check arguments
     ## -------------------------------------------------------------------------
-    .assertVector(x = df, type = "data.frame")
-    .assertScalar(x = idCol, type = "character", validValues = colnames(df))
-    .assertVector(x = metrics, type = "character", validValues = colnames(df))
-    .assertVector(x = initialWeights, type = "numeric", allowNULL = TRUE)
-    .assertVector(x = initialTransforms, type = "list")
-    .assertVector(x = metricInfo, type = "data.frame", allowNULL = TRUE)
-    .assertVector(x = metricColors, type = "list", allowNULL = TRUE)
-    .assertVector(x = idInfo, type = "data.frame", allowNULL = TRUE)
-    .assertVector(x = idColors, type = "list", allowNULL = TRUE)
+    .checkArgs_assembleSE(df = df, idCol = idCol, metrics = metrics,
+                          initialWeights = initialWeights,
+                          initialTransforms = initialTransforms,
+                          metricInfo = metricInfo, metricColors = metricColors,
+                          idInfo = idInfo, idColors = idColors)
 
-    ## Put together
+    ## Assemble SE
     ## -------------------------------------------------------------------------
     a <- df |> as.data.frame() |>
         tibble::column_to_rownames(idCol)
     
     se <- SummarizedExperiment::SummarizedExperiment(
         assays = list(values = a),
-        metadata = list(bettrInfo = list(metrics = metrics, 
+        metadata = list(bettrInfo = list(idCol = idCol, metrics = metrics, 
                                          initialWeights = initialWeights, 
                                          initialTransforms = initialTransforms,
                                          metricColors = metricColors,
