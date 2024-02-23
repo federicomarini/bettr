@@ -436,7 +436,7 @@ test_that("bettrGetReady works", {
     out <- bettrGetReady(bettrSE = NULL, df = df, idCol = "Method", 
                          metrics = c("metric1", "metric2", "metric3"), 
                          initialWeights = c(metric1 = 0, metric2 = 1, metric3 = 0, 
-                                            Group_G1 = 1, Group_G2 = 3), 
+                                            Group_G1 = 1/5, Group_G2 = 3/5), 
                          initialTransforms = list(),
                          metricInfo = metricInfo, metricColors = NULL,
                          idInfo = idInfo, idColors = NULL, 
@@ -456,7 +456,7 @@ test_that("bettrGetReady works", {
     expect_equal(dim(out$plotdata), c(4, 5))
     expect_named(out$plotdata, c("Method", "metricGroup", "ScaledValue",
                                  "Weight", "Metric"))
-    expect_equal(out$plotdata$Weight, rep(c(1, 3), 2))
+    expect_equal(out$plotdata$Weight, rep(c(1, 3)/5, 2))
     ## Factor levels of Method indicate performance ranking
     expect_equal(out$plotdata$Method, factor(rep(c("M1", "M3"), 
                                                  each = 2), 
@@ -490,7 +490,7 @@ test_that("bettrGetReady works", {
     se <- assembleSE(df = df, idCol = "Method", 
                      metrics = c("metric1", "metric2", "metric3"), 
                      initialWeights = c(metric1 = 0, metric2 = 1, metric3 = 0, 
-                                        Group_G1 = 1, Group_G2 = 3), 
+                                        Group_G1 = 1/5, Group_G2 = 3/5), 
                      initialTransforms = list(), metricInfo = metricInfo, 
                      metricColors = NULL, idInfo = idInfo, idColors = NULL)
     out <- bettrGetReady(bettrSE = se, df = df, idCol = "Method", 
@@ -516,7 +516,7 @@ test_that("bettrGetReady works", {
     expect_equal(dim(out$plotdata), c(4, 5))
     expect_named(out$plotdata, c("Method", "metricGroup", "ScaledValue",
                                  "Weight", "Metric"))
-    expect_equal(out$plotdata$Weight, rep(c(1, 3), 2))
+    expect_equal(out$plotdata$Weight, rep(c(1, 3)/5, 2))
     ## Factor levels of Method indicate performance ranking
     expect_equal(out$plotdata$Method, factor(rep(c("M1", "M3"), 
                                                  each = 2), 
@@ -550,7 +550,7 @@ test_that("bettrGetReady works", {
     out <- bettrGetReady(bettrSE = NULL, df = df, idCol = "Method", 
                          metrics = c("metric1", "metric2", "metric3"), 
                          initialWeights = c(metric1 = 0, metric2 = 1, metric3 = 0, 
-                                            Group_G1 = 1, Group_G2 = 3), 
+                                            Group_G1 = 1/5, Group_G2 = 3/5), 
                          initialTransforms = list(),
                          metricInfo = metricInfo, metricColors = NULL,
                          idInfo = idInfo, idColors = NULL, 
@@ -570,7 +570,7 @@ test_that("bettrGetReady works", {
     expect_equal(dim(out$plotdata), c(6, 5))
     expect_named(out$plotdata, c("Method", "metricGroup", "ScaledValue",
                                  "Weight", "Metric"))
-    expect_equal(out$plotdata$Weight, rep(c(1, 3), 3))
+    expect_equal(out$plotdata$Weight, rep(c(1, 3)/5, 3))
     ## Factor levels of Method indicate performance ranking
     expect_equal(out$plotdata$Method, factor(rep(c("M1", "M2", "M3"), 
                                                  each = 2), 
