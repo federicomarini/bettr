@@ -9,13 +9,9 @@
 #'     element in `transformList`, one will be generated, with default 
 #'     values. 
 #' 
-#' @importFrom methods is
-#' 
 .completeInitialization <- function(transformList, metrics) {
-    if (!methods::is(transformList, "list")) {
-        stop("transformList must be a list")
-    }
-    
+    .assertVector(x = transformList, type = "list")
+
     ## Define default values
     defaultValues <- list(offset = 0,
                           flip = FALSE,
