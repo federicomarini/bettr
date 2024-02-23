@@ -43,6 +43,7 @@ remotes::install_github("federicomarini/bettr")
 suppressPackageStartupMessages({
     library("bettr")
     library("SummarizedExperiment")
+    library("tibble")
 })
 ```
 
