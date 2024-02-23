@@ -1,3 +1,21 @@
+#' @keywords internal
+#' @noRd
+.checkArgs_makeParCoordPlot <- function(
+        plotdata, idCol, metricCol, valueCol, metricGroupCol, metricColors, 
+        idColors, methods, metricGrouping, labelSize, highlightMethod) {
+    .assertVector(x = plotdata, type = "data.frame")
+    .assertScalar(x = idCol, type = "character")
+    .assertScalar(x = metricCol, type = "character")
+    .assertScalar(x = valueCol, type = "character")
+    .assertScalar(x = metricGroupCol, type = "character")
+    .assertVector(x = metricColors, type = "list", allowNULL = TRUE)
+    .assertVector(x = idColors, type = "list", allowNULL = TRUE)
+    .assertVector(x = methods, type = "character")
+    .assertScalar(x = metricGrouping, type = "character", allowNULL = TRUE)
+    .assertScalar(x = labelSize, type = "numeric")
+    .assertScalar(x = highlightMethod, type = "character", allowNULL = TRUE)
+}
+
 #' Create a parallel coordinates plot
 #' 
 #' Create a parallel coordinates plot. The input arguments for this functions 
@@ -46,6 +64,7 @@ makeParCoordPlot <- function(bettrList = NULL,
     
     ## If bettrList is provided, extract arguments from there
     if (!is.null(bettrList)) {
+        .assertVector(x = bettrList, type = "list")
         stopifnot(all(c("plotdata", "idCol", "metricCol", "valueCol", 
                         "metricGroupCol", "metricColors", "idColors", 
                         "metricGrouping", "methods") %in% names(bettrList)))
@@ -64,6 +83,13 @@ makeParCoordPlot <- function(bettrList = NULL,
         methods <- unique(plotdata[[idCol]])
     }
     
+    .checkArgs_makeParCoordPlot(
+        plotdata = plotdata, idCol = idCol, metricCol = metricCol, 
+        valueCol = valueCol, metricGroupCol = metricGroupCol, 
+        metricColors = metricColors, idColors = idColors, methods = methods, 
+        metricGrouping = metricGrouping, labelSize = labelSize, 
+        highlightMethod = highlightMethod)
+        
     ## Define line widths -----------------------------------------------------
     lwidths <- rep(0.75, length(methods))
     names(lwidths) <- methods
