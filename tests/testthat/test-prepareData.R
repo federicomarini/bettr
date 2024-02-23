@@ -1,4 +1,7 @@
 test_that("prepareData works", {
+    expect_error(.completeInitialization(transformList = 1, metrics = "m1"),
+                 "'transformList' must be of class 'list'")
+    
     df <- data.frame(Method = rep(c("A", "B", "C"), each = 3),
                      Metric = rep(c("m1", "m2", "m3"), 3),
                      Value = runif(n = 9, min = 0, max = 3)) |>
