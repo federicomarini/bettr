@@ -1,3 +1,26 @@
+#' @keywords internal
+#' @noRd
+.checkArgs_makeBarPolarPlot <- function(
+        plotdata, scoredata, idCol, metricCol, valueCol, weightCol, scoreCol, 
+        metricGroupCol, metricColors, metricCollapseGroup, metricGrouping,
+        methods, labelSize, showComposition, scaleFactorPolars) {
+    .assertVector(x = plotdata, type = "data.frame")
+    .assertVector(x = scoredata, type = "data.frame")
+    .assertScalar(x = idCol, type = "character")
+    .assertScalar(x = metricCol, type = "character")
+    .assertScalar(x = valueCol, type = "character")
+    .assertScalar(x = weightCol, type = "character")
+    .assertScalar(x = scoreCol, type = "character")
+    .assertScalar(x = metricGroupCol, type = "character")
+    .assertVector(x = metricColors, type = "list", allowNULL = TRUE)
+    .assertScalar(x = metricGrouping, type = "character", allowNULL = TRUE)
+    .assertScalar(x = metricCollapseGroup, type = "logical")
+    .assertVector(x = methods, type = "character")
+    .assertScalar(x = labelSize, type = "numeric")
+    .assertScalar(x = showComposition, type = "logical")
+    .assertScalar(x = scaleFactorPolars, type = "numeric")
+}
+
 #' Create a bar/polar plot
 #' 
 #' Create a bar/polar plot. The input arguments for this functions are 
@@ -51,6 +74,7 @@ makeBarPolarPlot <- function(bettrList = NULL,
     
     ## If bettrList is provided, extract arguments from there
     if (!is.null(bettrList)) {
+        .assertVector(x = bettrList, type = "list")
         stopifnot(all(c("plotdata", "scoredata", "idCol", "metricCol", 
                         "valueCol", "weightCol", "scoreCol", "metricGroupCol", 
                         "metricColors", "metricCollapseGroup", 
@@ -76,6 +100,16 @@ makeBarPolarPlot <- function(bettrList = NULL,
         metricColors[[metricCol]] <- metricColors[[metricGrouping]]
     }
     
+    .checkArgs_makeBarPolarPlot(
+        plotdata = plotdata, scoredata = scoredata, idCol = idCol, 
+        metricCol = metricCol, valueCol = valueCol, weightCol = weightCol, 
+        scoreCol = scoreCol, metricGroupCol = metricGroupCol, 
+        metricColors = metricColors, 
+        metricCollapseGroup = metricCollapseGroup, 
+        metricGrouping = metricGrouping, methods = methods, 
+        labelSize = labelSize, showComposition = showComposition, 
+        scaleFactorPolars = scaleFactorPolars)
+        
     ## Define polar plots -----------------------------------------------------
     rplots <- lapply(methods, function(m) {
         ggplot2::ggplot(plotdata |> 
