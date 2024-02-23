@@ -1,3 +1,32 @@
+#' @keywords internal
+#' @noRd
+.checkArgs_makeHeatmap <- function(
+        plotdata, scoredata, idCol, metricCol, valueCol, weightCol, scoreCol, 
+        metricGroupCol, metricInfo, metricColors, idInfo, idColors, 
+        metricCollapseGroup, metricGrouping, labelSize, showRowNames, 
+        plotType, rownamewidth_cm, colnameheight_cm) {
+    .assertVector(x = plotdata, type = "data.frame")
+    .assertVector(x = scoredata, type = "data.frame")
+    .assertScalar(x = idCol, type = "character")
+    .assertScalar(x = metricCol, type = "character")
+    .assertScalar(x = valueCol, type = "character")
+    .assertScalar(x = weightCol, type = "character")
+    .assertScalar(x = scoreCol, type = "character")
+    .assertScalar(x = metricGroupCol, type = "character")
+    .assertVector(x = metricInfo, type = "data.frame", allowNULL = TRUE)
+    .assertVector(x = metricColors, type = "list", allowNULL = TRUE)
+    .assertVector(x = idInfo, type = "data.frame", allowNULL = TRUE)
+    .assertVector(x = idColors, type = "list", allowNULL = TRUE)
+    .assertScalar(x = metricGrouping, type = "character", allowNULL = TRUE)
+    .assertScalar(x = metricCollapseGroup, type = "logical")
+    .assertScalar(x = labelSize, type = "numeric")
+    .assertScalar(x = showRowNames, type = "logical")
+    .assertScalar(x = plotType, type = "character", 
+                  validValues = c("Heatmap", "Dot plot"))
+    .assertScalar(x = rownamewidth_cm, type = "numeric", rngIncl = c(0, Inf))
+    .assertScalar(x = colnameheight_cm, type = "numeric", rngIncl = c(0, Inf))
+}
+
 #' Create a summary heatmap
 #' 
 #' Create a summary heatmap. The input arguments for this functions are 
@@ -106,6 +135,7 @@ makeHeatmap <- function(bettrList = NULL,
     
     ## If bettrList is provided, extract arguments from there
     if (!is.null(bettrList)) {
+        .assertVector(x = bettrList, type = "list")
         stopifnot(all(c("plotdata", "scoredata", "idCol", "metricCol", 
                         "valueCol", "weightCol", "scoreCol", "metricGroupCol", 
                         "metricInfo", "metricColors", "idInfo", "idColors",
@@ -133,6 +163,17 @@ makeHeatmap <- function(bettrList = NULL,
             dplyr::distinct() |> 
             dplyr::mutate("{ metricCol }" := .data[[metricGrouping]])
     }
+    
+    .checkArgs_makeHeatmap(
+        plotdata = plotdata, scoredata = scoredata, idCol = idCol, 
+        metricCol = metricCol, valueCol = valueCol, weightCol = weightCol, 
+        scoreCol = scoreCol, metricGroupCol = metricGroupCol, 
+        metricInfo = metricInfo, metricColors = metricColors, 
+        idInfo = idInfo, idColors = idColors, 
+        metricCollapseGroup = metricCollapseGroup, 
+        metricGrouping = metricGrouping, labelSize = labelSize, 
+        showRowNames = showRowNames, plotType = plotType, 
+        rownamewidth_cm = rownamewidth_cm, colnameheight_cm = colnameheight_cm)
     
     ## Matrix -----------------------------------------------------------------
     mat <- plotdata |>
@@ -301,8 +342,6 @@ makeHeatmap <- function(bettrList = NULL,
             right_annotation = rowAnnotRight,
             left_annotation = rowAnnotLeft
         )
-    } else {
-        stop("Unknown plot type ", plotType)
     }
     ComplexHeatmap::draw(hm)
 }
