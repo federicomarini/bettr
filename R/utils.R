@@ -1,3 +1,17 @@
+#' Assign initial weights
+#' 
+#' @param weights Vector with initial weight values.
+#' @param metric Vector with metric names.
+#' @param defaultWeightValue Numeric scalar providing the default weight 
+#'     value that will be used if no other value is provided.
+#' @param weightResolution The resolution with which the weights can be 
+#'     specified 
+#' 
+#' @returns A vector with initial weight values.
+#' 
+#' @keywords internal
+#' @noRd
+#' 
 .assignInitialWeights <- function(weights, metrics, defaultWeightValue,
                                   weightResolution = 0.05) {
     if (is.null(weights)) {
@@ -16,9 +30,19 @@
     weights
 }
 
+#' Construct a summary plot for a metric
+#' 
+#' @param x Numeric vector of metric values.
+#' 
+#' @returns A `ggplot` object. 
+#' 
+#' @keywords internal
+#' @noRd
+#' 
 #' @importFrom cowplot plot_grid
 #' @importFrom ggplot2 ggplot aes geom_bar theme_minimal geom_boxplot 
 #'     geom_jitter coord_flip
+#'     
 .makeMetricSummaryPlot <- function(x) {
     cowplot::plot_grid(
         ggplot2::ggplot(data.frame(metric = x),

@@ -19,12 +19,23 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-`bettr` is an R package that allows the user to launch an interactive interface 
-for exploring collections of rankings of the same set of entities, based on 
-multiple different aspects. For example, it could be used to explore the 
-ranking of methods in a benchmarking effort, where multiple criteria have
-been evaluated. The user can weight the different criteria according to their 
-preferences, and visualize the data in several different ways. 
+Method benchmarking is a core part of computational biology research, with an 
+intrinsic power to establish best practices in method selection and 
+application, as well as help identifying gaps and possibilities for 
+improvement. A typical benchmark evaluates a set of methods using multiple 
+different metrics, intended to capture different aspects of their performance. 
+The best method to choose in any given situation can then be found, e.g., 
+by averaging the different performance metrics, putting more emphasis on those 
+that are more important to the specific situation. 
+
+Inspired by the 
+[OECD 'Better Life Index'](https://www.oecdbetterlifeindex.org/#/11111111111),
+the `bettr` package was developed to provide support for this last step. It 
+allows users to easily create performance summaries emphasizing the aspects 
+that are most important to them. `bettr` can be used interactively, via a 
+R/shiny application, or programmatically by calling the underlying functions. 
+In this vignette, we illustrate both alternatives, using example data 
+provided with the package. 
 
 # Installation
 
@@ -40,13 +51,17 @@ remotes::install_github("federicomarini/bettr")
 # Usage
 
 ```{r}
-library("bettr")
+suppressPackageStartupMessages({
+    library("bettr")
+    library("SummarizedExperiment")
+    library("tibble")
+})
 ```
 
-The input to `bettr` is a `data.frame` containing values of several metrics 
-for several methods. In addition, the user can provide additional annotations 
-and characteristics for the methods and metrics, which can be used to group and 
-filter them in the interactive application. 
+The main input to `bettr` is a `data.frame` containing values of several 
+metrics for several methods. In addition, the user can provide additional 
+annotations and characteristics for the methods and metrics, which can be 
+used to group and filter them in the interactive application. 
 
 ```{r}
 ## Data for two metrics (metric1, metric2) for three methods (M1, M2, M3)
@@ -63,11 +78,27 @@ idInfo <- data.frame(Method = c("M1", "M2", "M3"),
                      Type = c("T1", "T1", "T2"))
 ```
 
-The app can be launched by means of the `bettr()` function.
+To simplify handling and sharing, the data can be combined into a 
+`SummarizedExperiment` (with methods as rows and metrics as columns) as 
+follows: 
+
+```{r}
+se <- assembleSE(df = df, idCol = "Method", metricInfo = metricInfo, 
+                 idInfo = idInfo)
+se
+```
+
+The interactive application to explore the rankings can then be launched by 
+means of the `bettr()` function. The input can be either the assembled 
+`SummarizedExperiment` object or the individual components. 
 
 ```{r}
 #| eval: false
 
+## Alternative 1
+bettr(bettrSE = se)
+
+## Alternative 2
 bettr(df = df, idCol = "Method", metricInfo = metricInfo, idInfo = idInfo)
 ```
 
@@ -79,12 +110,13 @@ single-cell clustering methods performed by
 results are provided as an example data set in `bettr`:
 
 ```{r}
-duo2018 <- readRDS(system.file("extdata", "duo2018.rds", 
+duo2018 <- readRDS(system.file("extdata", "duo2018se.rds", 
                                package = "bettr"))
-names(duo2018)
+duo2018
 ```
 
-Here, the summary `data.frame` (`df`) contains values for 48 performance 
+Here, the summary `data.frame` (provided in the `assay` of the 
+`SummarizedExperiment` object) contains values for 48 performance 
 measures (4 different metrics, each for 12 data sets) for 14 clustering 
 methods. We also provide a `metricInfo` `data.frame`, assigning each metric 
 to a class, and two lists of colors that we would like to use for the 
@@ -92,14 +124,14 @@ different metrics and data sets.
 
 ```{r}
 ## Display the whole performance table
-duo2018$df
+tibble(assay(duo2018, "values"))
 
 ## Showing the first metric, evaluated on all datasets
-head(duo2018$metricInfo, 12)
+head(colData(duo2018), 12)
 
 ## These are the color definitions (can mix character and hex values)
-duo2018$idColors
-duo2018$metricColors
+metadata(duo2018)$bettrInfo$idColors
+metadata(duo2018)$bettrInfo$metricColors
 ```
 
 Finally, we need to transform the metrics in 
@@ -113,10 +145,10 @@ linearly to the interval `[0, 1]`. These transformations are stored in
 `duo2018$initialTransforms`. 
 
 ```{r}
-names(duo2018$initialTransforms)
+names(metadata(duo2018)$bettrInfo$initialTransforms)
 
 ## An example of a transformation - elapsed time for the Koh dataset
-duo2018$initialTransforms$elapsed_Koh
+metadata(duo2018)$bettrInfo$initialTransforms$elapsed_Koh
 ```
 
 Now, we can launch the app for this data set:
@@ -124,10 +156,7 @@ Now, we can launch the app for this data set:
 ```{r}
 #| eval: false
 
-bettr(df = duo2018$df, idCol = "method", 
-      initialTransforms = duo2018$initialTransforms, 
-      metricInfo = duo2018$metricInfo, metricColors = duo2018$metricColors,
-      idColors = duo2018$idColors, bstheme = "sandstone")
+bettr(bettrSE = duo2018, bstheme = "sandstone")
 ```
 
 The screenshot below illustrates the default view of the interactive 
@@ -159,11 +188,11 @@ results for the example above.
 #| fig.width: 7
 #| fig.height: 7
 
+## Assign a higher weight to one of the collapsed metric classes
+metadata(duo2018)$bettrInfo$initialWeights["Class_ARI"] <- 0.55
+
 prepData <- bettrGetReady(
-    df = duo2018$df, idCol = "method", metricInfo = duo2018$metricInfo,
-    initialTransforms = duo2018$initialTransforms, 
-    metricColors = duo2018$metricColors, idColors = duo2018$idColors, 
-    initialWeights = c(Class_ARI = 0.55),
+    bettrSE = duo2018, idCol = "method", 
     scoreMethod = "weighted mean", metricGrouping = "Class", 
     metricCollapseGroup = TRUE)
 

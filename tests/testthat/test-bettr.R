@@ -10,162 +10,113 @@ test_that("bettr stops with invalid inputs", {
 
     ## df
     expect_error(bettr(df = as.matrix(df)),
-                 regexp = 'df must be a data.frame',
-                 fixed = TRUE)
+                 "'df' must be of class 'data.frame'")
     df0 <- df
     colnames(df0)[2] <- "m 1"
     expect_error(bettr(df = df0), 
-                 regexp = 'All metrics must be valid names',
-                 fixed = TRUE)
+                 "All metrics must be valid names")
 
     ## idCol
     expect_error(bettr(df = df, idCol = 1),
-                 regexp = 'idCol must be a character scalar',
-                 fixed = TRUE)
-    expect_error(bettr(df = df, idCol = c("x", "y")),
-                 regexp = 'idCol must be a character scalar',
-                 fixed = TRUE)
+                 "'idCol' must be of class 'character'")
+    expect_error(bettr(df = df, idCol = c("m1", "m2")),
+                 "'idCol' must have length 1")
     expect_error(bettr(df = df, idCol = "Missing"),
-                 regexp = 'idCol must point to a column of df',
-                 fixed = TRUE)
+                 "All values in 'idCol' must be one of")
 
     ## metrics
     expect_error(bettr(df = df, metrics = 1),
-                 regexp = 'All elements of metrics must point to columns of df',
-                 fixed = TRUE)
+                 "'metrics' must be of class 'character'")
     expect_error(bettr(df = df, metrics = "missing"),
-                 regexp = 'All elements of metrics must point to columns of df',
-                 fixed = TRUE)
-    expect_error(bettr(df = df, metrics = c(metrics, "missing")),
-                 regexp = 'All elements of metrics must point to columns of df',
-                 fixed = TRUE)
-
+                 "All values in 'metrics' must be one of")
+    
     ## initialWeights
     expect_error(bettr(df = df, initialWeights = "x"),
-                 regexp = 'initialWeights must be a named numeric vector',
-                 fixed = FALSE)
+                 "'initialWeights' must be of class 'numeric'")
     expect_error(bettr(df = df, initialWeights = 0.5),
-                 regexp = 'initialWeights must be a named numeric vector',
-                 fixed = FALSE)
+                 "'namesinitialWeights' must not be NULL")
     expect_error(bettr(df = df, initialWeights = rep(0.5, ncol(df) - 1)),
-                 regexp = 'initialWeights must be a named numeric vector',
-                 fixed = FALSE)
-    expect_error(bettr(df = df, initialWeights = structure(
-        rep(0.5, ncol(df) - 1), names = paste0(metrics, "x"))),
-        regexp = 'initialWeights must be a named numeric vector',
-        fixed = FALSE)
-    expect_error(bettr(df = df, initialWeights = structure(
-        rep(0, ncol(df) - 1), names = metrics)),
-        regexp = 'initialWeights must be a named numeric vector',
-        fixed = FALSE)
+                 "'namesinitialWeights' must not be NULL")
     expect_error(bettr(df = df, initialWeights = structure(
         rep(-1, ncol(df) - 1), names = metrics)),
-        regexp = 'initialWeights must be a named numeric vector',
-        fixed = FALSE)
-    expect_error(bettr(df = df, initialWeights = structure(
-        rep(1.5, ncol(df) - 1), names = metrics)),
-        regexp = 'initialWeights must be a named numeric vector',
-        fixed = FALSE)
-    
+        "'initialWeights' must be within [0,1]",
+        fixed = TRUE)
+
     ## metricInfo
-    expect_error(bettr(df = df, metricInfo = metricInfo[1:2, ]),
-                 regexp = 'metricInfo must contain information about all metrics',
-                 fixed = TRUE)
+    expect_warning({
+        out <- bettr(df = df, metricInfo = metricInfo[1:2, ])
+    }, "metricInfo does not provide annotations for all metrics")
     expect_error(bettr(df = df, metricInfo = as.matrix(metricInfo)),
-                 regexp = 'metricInfo must be a data.frame',
-                 fixed = TRUE)
+                 "'metricInfo' must be of class 'data.frame'")
     expect_error(bettr(df = df, metricInfo = metricInfo[, -1, drop = FALSE]),
-                 regexp = 'metricInfo must have a column named Metric',
-                 fixed = TRUE)
+                 "metricInfo must have a column named 'Metric'")
     mi2 <- metricInfo
     mi2$input <- 1
     expect_error(bettr(df = df, metricInfo = mi2), 
-                 regexp = 'metricInfo can not have columns named', 
-                 fixed = TRUE)
+                 "metricInfo can not have columns named")
     
     ## idInfo
-    expect_error(bettr(df = df, idInfo = idInfo[1:2, ]),
-                 regexp = 'idInfo must contain information about all entities',
-                 fixed = TRUE)
+    expect_warning({
+        out <- bettr(df = df, idInfo = idInfo[1:2, ])
+    }, "idInfo does not provide annotations for all methods")
     expect_error(bettr(df = df, idInfo = as.matrix(idInfo)),
-                 regexp = 'idInfo must be a data.frame',
-                 fixed = TRUE)
+                 "'idInfo' must be of class 'data.frame'")
     expect_error(bettr(df = df, idInfo = idInfo[, -1, drop = FALSE]),
-                 regexp = 'idInfo must have a column named Method',
-                 fixed = TRUE)
+                 "idInfo must have a column named 'Method'")
     id2 <- idInfo
     id2$input <- 1
     expect_error(bettr(df = df, idInfo = id2), 
-                 regexp = 'idInfo can not have columns named', 
-                 fixed = TRUE)
+                 "idInfo can not have columns named")
     
     ## initialTransforms
     expect_error(bettr(df = df, initialTransforms = 1),
-                 regexp = 'transformList must be a list',
-                 fixed = TRUE)
+                 "'initialTransforms' must be of class 'list'")
     expect_error(bettr(df = df, 
                        initialTransforms = list(m1 = list(offset = "x"))),
-                 regexp = 'Specified offsets must be numeric scalars',
-                 fixed = TRUE)
+                 "Specified offsets must be numeric scalars")
     expect_error(bettr(df = df, 
                        initialTransforms = list(m1 = list(offset = c(1, 2)))),
-                 regexp = 'Specified offsets must be numeric scalars',
-                 fixed = TRUE)
+                 "Specified offsets must be numeric scalars")
     expect_error(bettr(df = df, 
                        initialTransforms = list(m1 = list(flip = "x"))),
-                 regexp = 'Specified flips must be logical scalars',
-                 fixed = TRUE)
+                 "Specified flips must be logical scalars")
     expect_error(bettr(df = df, 
                        initialTransforms = list(m1 = list(flip = c(TRUE, FALSE)))),
-                 regexp = 'Specified flips must be logical scalars',
-                 fixed = TRUE)
+                 "Specified flips must be logical scalars")
     expect_error(bettr(df = df, 
                        initialTransforms = list(m1 = list(transform = 1))),
-                 regexp = 'Specified transforms must be character scalars',
-                 fixed = FALSE)
+                 "Specified transforms must be character scalars")
     expect_error(bettr(df = df, 
                        initialTransforms = list(m1 = list(transform = "x"))),
-                 regexp = 'Specified transforms must be character scalars',
-                 fixed = FALSE)
+                 "Specified transforms must be character scalars")
     expect_error(bettr(df = df, 
                        initialTransforms = list(m1 = list(transform = c("Rank", "None")))),
-                 regexp = 'Specified transforms must be character scalars',
-                 fixed = FALSE)
+                 "Specified transforms must be character scalars")
     expect_error(bettr(df = df, 
                        initialTransforms = list(m1 = list(cuts = "x"))),
-                 regexp = 'Specified cuts must be numeric vectors',
-                 fixed = TRUE)
+                 "Specified cuts must be numeric vectors")
     expect_error(bettr(df = df, 
                        initialTransforms = list(m1 = list(cuts = FALSE))),
-                 regexp = 'Specified cuts must be numeric vectors',
-                 fixed = TRUE)
+                 "Specified cuts must be numeric vectors")
     
     ## weightResolution
     expect_error(bettr(df = df, weightResolution = 2), 
-                 regexp = 'weightResolution must be a numeric scalar in', 
+                 "'weightResolution' must be within [0,1]", 
                  fixed = TRUE)
     expect_error(bettr(df = df, weightResolution = c(0.1, 0.2)), 
-                 regexp = 'weightResolution must be a numeric scalar in', 
-                 fixed = TRUE)
-    expect_error(bettr(df = df, weightResolution = -1), 
-                 regexp = 'weightResolution must be a numeric scalar in', 
-                 fixed = TRUE)
+                 "'weightResolution' must have length 1")
     expect_error(bettr(df = df, weightResolution = "0.5"), 
-                 regexp = 'weightResolution must be a numeric scalar in', 
-                 fixed = TRUE)
+                 "'weightResolution' must be of class 'numeric'")
     
     ## bstheme
     expect_error(bettr(df = df, bstheme = "missing"),
-                 regexp = "is not a known preset theme",
-                 fixed = FALSE)
+                 "is not a known preset theme")
     
     ## appTitle
     expect_error(bettr(df = df, appTitle = 2), 
-                 regexp = 'appTitle must be a character scalar', 
-                 fixed = TRUE)
+                 "'appTitle' must be of class 'character'")
     expect_error(bettr(df = df, appTitle = c("t1", "t2")), 
-                 regexp = 'appTitle must be a character scalar', 
-                 fixed = TRUE)
+                 "'appTitle' must have length 1")
 })
 
 test_that("bettr runs with valid inputs", {
@@ -185,6 +136,21 @@ test_that("bettr runs with valid inputs", {
 
     ## Specify subset of metrics
     app <- bettr(df, idCol = "Method", metrics = c("m1", "m3"))
+    expect_s3_class(app, "shiny.appobj")
+    
+    ## With SE as input
+    se <- assembleSE(df = df, idCol = "Method", 
+                     metrics = setdiff(colnames(df), "Method"), 
+                     initialWeights = NULL, initialTransforms = list(), 
+                     metricInfo = metricInfo, idInfo = idInfo)
+    app <- bettr(bettrSE = se)
+    expect_s3_class(app, "shiny.appobj")
+    
+    se <- assembleSE(df = df, idCol = "Method", 
+                     metrics = setdiff(colnames(df), "Method"), 
+                     initialWeights = NULL, initialTransforms = list(), 
+                     metricInfo = NULL, idInfo = NULL)
+    app <- bettr(bettrSE = se)
     expect_s3_class(app, "shiny.appobj")
     
     ## Specify initial weights

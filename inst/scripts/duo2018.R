@@ -100,3 +100,10 @@ saveRDS(list(df = res_summary_wide, metricInfo = metricInfo,
              idColors = list(method = method_colors), 
              metricColors = metric_colors), 
         file = "inst/extdata/duo2018.rds")
+
+se <- assembleSE(df = res_summary_wide, idCol = "method", 
+                 initialWeights = NULL, 
+                 initialTransforms = initialTransforms, 
+                 idColors = list(method = method_colors), 
+                 metricColors = metric_colors, metricInfo = metricInfo)
+saveRDS(se, file = "inst/extdata/duo2018se.rds")

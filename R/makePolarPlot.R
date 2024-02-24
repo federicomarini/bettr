@@ -1,3 +1,19 @@
+#' @keywords internal
+#' @noRd
+.checkArgs_makePolarPlot <- function(
+        plotdata, idCol, metricCol, valueCol, metricGroupCol, metricColors,
+        metricCollapseGroup, metricGrouping, labelSize) {
+    .assertVector(x = plotdata, type = "data.frame")
+    .assertScalar(x = idCol, type = "character")
+    .assertScalar(x = metricCol, type = "character")
+    .assertScalar(x = valueCol, type = "character")
+    .assertScalar(x = metricGroupCol, type = "character")
+    .assertVector(x = metricColors, type = "list", allowNULL = TRUE)
+    .assertScalar(x = metricGrouping, type = "character", allowNULL = TRUE)
+    .assertScalar(x = metricCollapseGroup, type = "logical")
+    .assertScalar(x = labelSize, type = "numeric")
+}
+
 #' Create a polar plot
 #' 
 #' Create a polar plot. The input arguments for this functions are 
@@ -38,6 +54,7 @@ makePolarPlot <- function(bettrList = NULL,
    
     ## If bettrList is provided, extract arguments from there
     if (!is.null(bettrList)) {
+        .assertVector(x = bettrList, type = "list")
         stopifnot(all(c("plotdata", "idCol", "metricCol", "valueCol", 
                         "metricGroupCol", "metricColors", 
                         "metricCollapseGroup", "metricGrouping") %in% 
@@ -56,6 +73,13 @@ makePolarPlot <- function(bettrList = NULL,
         metricColors[[metricCol]] <- metricColors[[metricGrouping]]
     }
     
+    .checkArgs_makePolarPlot(
+        plotdata = plotdata, idCol = idCol, metricCol = metricCol, 
+        valueCol = valueCol, metricGroupCol = metricGroupCol, 
+        metricColors = metricColors,
+        metricCollapseGroup = metricCollapseGroup, 
+        metricGrouping = metricGrouping, labelSize = labelSize)
+        
     ## Plot -------------------------------------------------------------------
     ggplot2::ggplot(plotdata,
                     ggplot2::aes(x = .data[[metricCol]], 

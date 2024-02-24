@@ -1,3 +1,14 @@
+#' Get a transformation function
+#' 
+#' @param v Character scalar indicating the transformation function. One of 
+#'     "None", "z-score", "[0,1]", "[-1,1]", "Rank", "Rank+[0,1]" or 
+#'     "z-score+[0,1]".
+#' 
+#' @returns A function performing the indicated transformation.
+#' 
+#' @keywords internal
+#' @noRd
+#' 
 .getTransf <- function(v) {
     if (v == "None") {
         return(function(a) a)
@@ -29,10 +40,28 @@
             (s1 - min(s1, na.rm = TRUE)) /
                 (max(s1, na.rm = TRUE) - min(s1, na.rm = TRUE))
         })
+    } else {
+        stop("Unknown transformation")
     }
 }
 
+#' Transform a numeric variable
+#' 
+#' @param x A numeric vector.
+#' @param flip Logical scalar indicating whether the values should be flipped 
+#'     or not.
+#' @param offset Numeric scalar providing the offset to add to the values.
+#' @param transf Function to apply to the values.
+#' @param bincuts Vector of values providing cut points for categorizing the 
+#'     values.
+#' 
+#' @returns A vector of transformed values.
+#' 
+#' @keywords internal
+#' @noRd
+#' 
 #' @importFrom Hmisc cut2
+#' 
 .transformNumericVariable <- function(x, flip = FALSE, offset = 0, 
                                       transf = function(a) a, 
                                       bincuts = NULL) {
@@ -64,6 +93,16 @@
     x
 }
 
+#' Transform a categorical variable into a numeric one
+#' 
+#' @param x A character vector.
+#' @param levels A vector of levels.
+#' 
+#' @param A numeric vector.
+#' 
+#' @keywords internal
+#' @noRd
+#' 
 .transformCategoricalVariable <- function(x, levels = NULL) {
     ## If no levels are specified, use the default ones. 
     ## If some levels are specified but they don't cover all the values in x, 

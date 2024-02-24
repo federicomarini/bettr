@@ -1,3 +1,37 @@
+#' @keywords internal
+#' @noRd
+.checkArgs_bettrGetReady <- function(
+        df, idCol, metrics, initialWeights, initialTransforms, metricInfo, 
+        metricColors, idInfo, idColors, scoreMethod, idOrdering, 
+        showOnlyTopIds, nbrTopIds, idTopNGrouping, keepIds, metricGrouping,
+        metricCollapseGroup, metricCollapseMethod) {
+    .assertVector(x = df, type = "data.frame")
+    .assertScalar(x = idCol, type = "character", validValues = colnames(df))
+    .assertVector(x = metrics, type = "character", validValues = colnames(df))
+    .assertVector(x = initialWeights, type = "numeric", rngIncl = c(0, 1), 
+                  allowNULL = TRUE)
+    .assertVector(x = initialTransforms, type = "list", allowNULL = TRUE)
+    .assertVector(x = metricInfo, type = "data.frame", allowNULL = TRUE)
+    .assertVector(x = metricColors, type = "list", allowNULL = TRUE)
+    .assertVector(x = idInfo, type = "data.frame", allowNULL = TRUE)
+    .assertVector(x = idColors, type = "list", allowNULL = TRUE)
+    .assertScalar(x = scoreMethod, type = "character", 
+                  validValues = c("weighted mean", "weighted median",
+                                  "weighted fraction highest",
+                                  "weighted fraction lowest"))
+    .assertScalar(x = idOrdering, type = "character", 
+                  validValues = c("high-to-low", "low-to-high"))
+    .assertScalar(x = showOnlyTopIds, type = "logical")
+    .assertScalar(x = nbrTopIds, type = "numeric")
+    .assertScalar(x = idTopNGrouping, type = "character", allowNULL = TRUE)
+    .assertVector(x = keepIds, type = "character", allowNULL = TRUE, 
+                  validValues = df[[idCol]])
+    .assertScalar(x = metricGrouping, type = "character", allowNULL = TRUE)
+    .assertScalar(x = metricCollapseGroup, type = "logical")
+    .assertScalar(x = metricCollapseMethod, type = "character", 
+                  validValues = c("mean", "max", "min"))
+}
+
 #' Prepare data for plotting with bettr
 #' 
 #' Prepare input data for plotting with bettr. This function replicates the 
@@ -70,35 +104,45 @@ bettrGetReady <- function(df, idCol = "Method",
                           idTopNGrouping = NULL, 
                           keepIds = NULL, 
                           metricGrouping = NULL, metricCollapseGroup = FALSE, 
-                          metricCollapseMethod = "mean") {
+                          metricCollapseMethod = "mean", bettrSE = NULL) {
 
+    ## Get arguments from bettrSE if provided ---------------------------------
+    if (!is.null(bettrSE)) {
+        .assertVector(x = bettrSE, type = "SummarizedExperiment")
+        df <- as.data.frame(SummarizedExperiment::assay(bettrSE, "values"))
+        df[[idCol]] <- rownames(df)
+        metrics <- S4Vectors::metadata(bettrSE)$bettrInfo$metrics
+        initialWeights <- S4Vectors::metadata(bettrSE)$bettrInfo$initialWeights
+        initialTransforms <- 
+            S4Vectors::metadata(bettrSE)$bettrInfo$initialTransforms
+        metricColors <- S4Vectors::metadata(bettrSE)$bettrInfo$metricColors
+        idColors <- S4Vectors::metadata(bettrSE)$bettrInfo$idColors
+        metricInfo <- as.data.frame(SummarizedExperiment::colData(bettrSE))
+        if (ncol(metricInfo) == 0) {
+            metricInfo <- NULL
+        }
+        idInfo <- as.data.frame(SummarizedExperiment::rowData(bettrSE))
+        if (ncol(idInfo) == 0) {
+            idInfo <- NULL
+        }
+    }
+    
     ## Check arguments
     ## -------------------------------------------------------------------------
-    .assertVector(x = df, type = "data.frame")
-    .assertScalar(x = idCol, type = "character", validValues = colnames(df))
-    .assertVector(x = metrics, type = "character", validValues = colnames(df))
-    .assertVector(x = initialWeights, type = "numeric", allowNULL = TRUE)
-    .assertVector(x = initialTransforms, type = "list")
-    .assertVector(x = metricInfo, type = "data.frame", allowNULL = TRUE)
-    .assertVector(x = metricColors, type = "list", allowNULL = TRUE)
-    .assertVector(x = idInfo, type = "data.frame", allowNULL = TRUE)
-    .assertVector(x = idColors, type = "list", allowNULL = TRUE)
-    .assertScalar(x = scoreMethod, type = "character", 
-                  validValues = c("weighted mean", "weighted median",
-                                  "weighted fraction highest",
-                                  "weighted fraction lowest"))
-    .assertScalar(x = idOrdering, type = "character", 
-                  validValues = c("high-to-low", "low-to-high"))
-    .assertScalar(x = showOnlyTopIds, type = "logical")
-    .assertScalar(x = nbrTopIds, type = "numeric")
-    .assertScalar(x = idTopNGrouping, type = "character", allowNULL = TRUE)
-    .assertVector(x = keepIds, type = "character", allowNULL = TRUE, 
-                  validValues = df[[idCol]])
-    .assertScalar(x = metricGrouping, type = "character", allowNULL = TRUE)
-    .assertScalar(x = metricCollapseGroup, type = "logical")
-    .assertScalar(x = metricCollapseMethod, type = "character", 
-                  validValues = c("mean", "max", "min"))
-    
+    .checkArgs_bettrGetReady(
+        df = df, idCol = idCol, metrics = metrics,
+        initialWeights = initialWeights, 
+        initialTransforms = initialTransforms, 
+        metricInfo = metricInfo, metricColors = metricColors, 
+        idInfo = idInfo, idColors = idColors, 
+        scoreMethod = scoreMethod, idOrdering = idOrdering,
+        showOnlyTopIds = showOnlyTopIds, nbrTopIds = nbrTopIds,
+        idTopNGrouping = idTopNGrouping, keepIds = keepIds,
+        metricGrouping = metricGrouping, 
+        metricCollapseGroup = metricCollapseGroup,
+        metricCollapseMethod = metricCollapseMethod
+    )
+
     
     ## Define variables
     ## -------------------------------------------------------------------------

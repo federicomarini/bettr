@@ -50,7 +50,7 @@ test_that("makeHeatmap works", {
         metricCollapseGroup = FALSE, metricGrouping = NULL, 
         labelSize = 10, showRowNames = TRUE, 
         plotType = "unknown", rownamewidth_cm = 6, colnameheight_cm = 6
-    ), "Unknown plot type")
+    ), "All values in 'plotType' must be one of")
     
     hm <- makeHeatmap(
         bettrList = NULL,

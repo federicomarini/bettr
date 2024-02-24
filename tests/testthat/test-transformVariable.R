@@ -1,5 +1,8 @@
 test_that("transformVariable works", {
     
+    expect_error(.getTransf("wrong"), 
+                 "Unknown transformation")
+    
     ## Categorical variables --------------------------------------------------
     expect_equal(.transformCategoricalVariable(x = c("A", "B", "C"),
                                                levels = c("B", "C", "A")), 
