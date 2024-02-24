@@ -19,12 +19,23 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-`bettr` is an R package that allows the user to launch an interactive interface 
-for exploring collections of rankings of the same set of entities, based on 
-multiple different aspects. For example, it could be used to explore the 
-ranking of methods in a benchmarking effort, where multiple criteria have
-been evaluated. The user can weight the different criteria according to their 
-preferences, and visualize the data in several different ways. 
+Method benchmarking is a core part of computational biology research, with an 
+intrinsic power to establish best practices in method selection and 
+application, as well as help identifying gaps and possibilities for 
+improvement. A typical benchmark evaluates a set of methods using multiple 
+different metrics, intended to capture different aspects of their performance. 
+The best method to choose in any given situation can then be found, e.g., 
+by averaging the different performance metrics, putting more emphasis on those 
+that are more important to the specific situation. 
+
+Inspired by the 
+[OECD 'Better Life Index'](https://www.oecdbetterlifeindex.org/#/11111111111),
+the `bettr` package was developed to provide support for this last step. It 
+allows users to easily create performance summaries emphasizing the aspects 
+that are most important to them. `bettr` can be used interactively, via a 
+R/shiny application, or programmatically by calling the underlying functions. 
+In this vignette, we illustrate both alternatives, using example data 
+provided with the package. 
 
 # Installation
 
