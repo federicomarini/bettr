@@ -1,8 +1,15 @@
-#' @keywords internal
-#' @noRd
+#' Generate random colors for annotations
 #' 
+#' @param df A `data.frame` with annotations in columns.
+#' @param inputColors A list with predefined colors for some of the 
+#'     annotations, or `NULL`.
 #' @param ggplot2Columns Names of columns for which we should use the standard 
 #'     ggplot2 colors if nothing else is specified
+#' 
+#' @returns A list with color vectors for all annotations.
+#' 
+#' @keywords internal
+#' @noRd
 #' 
 #' @importFrom circlize colorRamp2
 #' @importFrom grDevices colors
@@ -41,10 +48,16 @@
     )
 }
 
-## Emulate ggplot2 colors
-## stackoverflow.com/questions/8197559/emulate-ggplot2-default-color-palette
+#' Emulate ggplot2 colors
+#' stackoverflow.com/questions/8197559/emulate-ggplot2-default-color-palette
+#' 
+#' @param n Numeric scalar, the number of colors to generate.
+#' 
+#' @returns A length-`n` vector of colors.
+#' 
 #' @keywords internal
 #' @noRd
+#' 
 #' @importFrom grDevices hcl
 .gg_color_hue <- function(n) {
     hues <- seq(15, 375, length = n + 1)

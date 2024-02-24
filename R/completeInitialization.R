@@ -1,5 +1,4 @@
-#' @keywords internal
-#' @noRd
+#' Complete the initialization by specifying transforms for all metrics
 #' 
 #' @param transformList A list with one element per metric. Each list element 
 #'     is another list, with up to four elements, named 'offset', 'flip', 
@@ -8,6 +7,12 @@
 #' @param metrics The full list of metrics. For entries that don't have a list 
 #'     element in `transformList`, one will be generated, with default 
 #'     values. 
+#' 
+#' @returns A list containing the complete transform specification for each 
+#' metric. 
+#' 
+#' @keywords internal
+#' @noRd
 #' 
 .completeInitialization <- function(transformList, metrics) {
     .assertVector(x = transformList, type = "list")
@@ -41,6 +46,15 @@
     transformList
 }
 
+#' Check validity of a value specified for a transform
+#' 
+#' @param value The specified value.
+#' @param defaultValue The default value for the transform aspect.
+#' @param The entry type, either "offset", "flip", "transform" or "cuts".
+#' 
+#' @returns A valid value for the aspect (either the provided one or the 
+#' default value). Raises an error if an invalid value is provided. 
+#' 
 #' @keywords internal
 #' @noRd
 #' 
