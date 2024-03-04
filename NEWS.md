@@ -1,3 +1,7 @@
+# bettr 0.99.1
+
+* Add R (>= 4.4.0) to Depends
+
 # bettr 0.99.0
 
 * Ready for submission to Bioconductor
