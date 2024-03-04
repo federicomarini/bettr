@@ -20,7 +20,7 @@ providing the individual components."><!-- mathjax --><script src="https://cdnjs
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">bettr</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.1</span>
       </span>
     </div>
 
@@ -105,21 +105,21 @@ one entry per metric included in <code>metrics</code>.</p></dd>
 <dd><p>Named list with initial values of transformation
 parameters for each metric. Each list entry should correspond to one
 metric, and take the form of a list with up to four elements, named:</p>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> <span class="er">**</span>flip<span class="sc">**</span><span class="er">:</span> Logical scalar; whether or not to flip the sign of the </span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    metric values. Defaults to <span class="st">`</span><span class="at">FALSE</span><span class="st">`</span>.</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> <span class="er">**</span>offset<span class="sc">**</span><span class="er">:</span> Numeric scalar; offset to add to <span class="fu">the</span> (flipped) </span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    metric values. Defaults to <span class="st">`</span><span class="at">0</span><span class="st">`</span>.</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> <span class="er">**</span>transform<span class="sc">**</span><span class="er">:</span> Character scalar; one of <span class="st">'None'</span>, <span class="st">'z-score'</span>, </span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'\[0,1\]'</span>, <span class="st">'\[-1,1\]'</span>, <span class="st">'Rank'</span>, <span class="st">'Rank+\[0,1\]'</span> or <span class="st">'z-score+\[0,1\]'</span>, </span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    indicating which transform to apply to </span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    the metric <span class="fu">values</span> (after any flipping and<span class="sc">/</span>or adding the offset). </span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    Defaults to <span class="st">'None'</span>.</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> <span class="er">**</span>cuts<span class="sc">**</span><span class="er">:</span> Numeric vector or <span class="st">`</span><span class="at">NULL</span><span class="st">`</span>; the cut points that will </span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    be used to bin the metric <span class="fu">values</span> (after the other transformations). </span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    Defaults to <span class="st">`</span><span class="at">NULL</span><span class="st">`</span>. </span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>Only values deviating from the defaults need to be explicitly specified, </span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>the others will be initialized to their default values.</span></code></pre><p></p></div></dd>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="sc">*</span> <span class="er">**</span>flip<span class="sc">**</span><span class="er">:</span> Logical scalar; whether or not to flip the sign of the </span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>    metric values. Defaults to <span class="st">`</span><span class="at">FALSE</span><span class="st">`</span>.</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="sc">*</span> <span class="er">**</span>offset<span class="sc">**</span><span class="er">:</span> Numeric scalar; offset to add to <span class="fu">the</span> (flipped) </span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>    metric values. Defaults to <span class="st">`</span><span class="at">0</span><span class="st">`</span>.</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="sc">*</span> <span class="er">**</span>transform<span class="sc">**</span><span class="er">:</span> Character scalar; one of <span class="st">'None'</span>, <span class="st">'z-score'</span>, </span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>    <span class="st">'\[0,1\]'</span>, <span class="st">'\[-1,1\]'</span>, <span class="st">'Rank'</span>, <span class="st">'Rank+\[0,1\]'</span> or <span class="st">'z-score+\[0,1\]'</span>, </span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>    indicating which transform to apply to </span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>    the metric <span class="fu">values</span> (after any flipping and<span class="sc">/</span>or adding the offset). </span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>    Defaults to <span class="st">'None'</span>.</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="sc">*</span> <span class="er">**</span>cuts<span class="sc">**</span><span class="er">:</span> Numeric vector or <span class="st">`</span><span class="at">NULL</span><span class="st">`</span>; the cut points that will </span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>    be used to bin the metric <span class="fu">values</span> (after the other transformations). </span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>    Defaults to <span class="st">`</span><span class="at">NULL</span><span class="st">`</span>. </span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>Only values deviating from the defaults need to be explicitly specified, </span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>the others will be initialized to their default values.</span></code></pre><p></p></div></dd>
 
 
 <dt>metricInfo</dt>
