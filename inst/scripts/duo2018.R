@@ -3,6 +3,7 @@ suppressPackageStartupMessages({
     library(ExperimentHub)
     library(dplyr)
     library(tidyr)
+    library(bettr)
 })
 
 shannon_entropy <- function(cluster_assignments) {
