@@ -17,7 +17,8 @@ test_that("bettr app works", {
                        metricInfo = metricInfo, metricColors = metricColors, 
                        idInfo = idInfo)
     app <- shinytest2::AppDriver$new(shiny_app, name = "bettr_app", 
-                                     seed = 42)
+                                     seed = 42, wait = TRUE,
+                                     width = 1589, height = 999)
     
     app$set_inputs(metric1_weight = 0.2)
     app$set_inputs(metric2_weight = 0.2)

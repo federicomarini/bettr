@@ -6,12 +6,12 @@
     "barpolar_scalefactor": 1.5,
     "barpolar_showcomp": false,
     "bettrHeatmap__shinyjquiBookmarkState__resizable": {
-      "width": 694,
+      "width": 1291,
       "height": 600
     },
     "bettrHeatmap_is_resizing": false,
     "bettrHeatmap_size": {
-      "width": 694,
+      "width": 1291,
       "height": 600
     },
     "heatmap_plot_type": "Heatmap",
@@ -68,8 +68,8 @@
   },
   "output": {
     "bettrHeatmap": {
-      "src": "[image data hash: e3aace38d58d6f718465f6c1a9af16cc]",
-      "width": 694,
+      "src": "[image data hash: c822cc4094f97cc560a59bcbf224f3f6]",
+      "width": 1291,
       "height": 600,
       "alt": "Plot object",
       "coordmap": {
@@ -83,7 +83,7 @@
             },
             "range": {
               "left": 0,
-              "right": 1388,
+              "right": 2582,
               "bottom": 1199,
               "top": -1
             },
@@ -97,7 +97,7 @@
           }
         ],
         "dims": {
-          "width": 1388,
+          "width": 2582,
           "height": 1200
         }
       }
