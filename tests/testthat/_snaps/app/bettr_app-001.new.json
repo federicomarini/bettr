@@ -1,0 +1,437 @@
+{
+  "input": {
+    "Group_G1_weight": 0.2,
+    "Group_G2_weight": 0.2,
+    "autoAdjustHmHeight": 0,
+    "barpolar_scalefactor": 1.5,
+    "barpolar_showcomp": false,
+    "bettrHeatmap__shinyjquiBookmarkState__resizable": {
+      "width": 1291,
+      "height": 600
+    },
+    "bettrHeatmap_is_resizing": false,
+    "bettrHeatmap_size": {
+      "width": 1291,
+      "height": 600
+    },
+    "heatmap_plot_type": "Heatmap",
+    "highlightMethod": null,
+    "hm_colnameheight": 6,
+    "hm_rownamewidth": 6,
+    "hmheight": 600,
+    "idTopNGrouping": "---",
+    "id_ordering": "high-to-low",
+    "keepIdBy_Type": [
+      "T1",
+      "T2"
+    ],
+    "keepIds": [
+      "M1",
+      "M2",
+      "M3"
+    ],
+    "keepMetricBy_Group": [
+      "G1",
+      "G2"
+    ],
+    "keepMetrics": [
+      "metric1",
+      "metric2",
+      "metric3"
+    ],
+    "labelsize": 10,
+    "metric1_bincuts": null,
+    "metric1_flip": true,
+    "metric1_offset": 4,
+    "metric1_transform": "None",
+    "metric1_weight": 0.2,
+    "metric2_bincuts": null,
+    "metric2_flip": false,
+    "metric2_offset": 0,
+    "metric2_transform": "None",
+    "metric2_weight": 0.2,
+    "metric3_levels": [
+      "a",
+      "b"
+    ],
+    "metric3_weight": 0.2,
+    "metricCollapseGroup": true,
+    "metricCollapseMethod": "mean",
+    "metricGrouping": "Group",
+    "metricManipulationSummary": "---",
+    "metricToManipulate": "---",
+    "nbrTopIds": 10,
+    "resetWeights": 0,
+    "scoreMethod": "weighted mean",
+    "showOnlyTopIds": false,
+    "show_row_names": true
+  },
+  "output": {
+    "bettrHeatmap": {
+      "src": "[image data hash: 3b4a444f023112f2e4263ab7848f0657]",
+      "width": 1291,
+      "height": 600,
+      "alt": "Plot object",
+      "coordmap": {
+        "panels": [
+          {
+            "domain": {
+              "left": -0.04,
+              "right": 1.04,
+              "bottom": -0.04,
+              "top": 1.04
+            },
+            "range": {
+              "left": 0,
+              "right": 2582,
+              "bottom": 1199,
+              "top": -1
+            },
+            "log": {
+              "x": null,
+              "y": null
+            },
+            "mapping": {
+
+            }
+          }
+        ],
+        "dims": {
+          "width": 2582,
+          "height": 1200
+        }
+      }
+    },
+    "bettrHeatmapUI": {
+      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"bettrHeatmap\" style=\"width:100%;height:600px;\"><\/div>\n<iframe srcdoc=\"&lt;p&gt;cant catch me&lt;/p&gt;\" class=\"jqui_self_cleaning_script\" style=\"width:0;height:0;border:none;display:none !important\" onload=\"$(function(){$(document).one(&#10;            events   = &quot;shiny:value&quot;,&#10;            selector = &quot;[id=&#39;bettrHeatmap&#39;]&quot;,&#10;            handler  = function(e) { setTimeout(function(){shinyjqui.msgCallback({&quot;ui&quot;:&quot;[id=&#39;bettrHeatmap&#39;]&quot;,&quot;type&quot;:&quot;interaction&quot;,&quot;func&quot;:&quot;resizable&quot;,&quot;operation&quot;:&quot;enable&quot;,&quot;options&quot;:{},&quot;debug&quot;:false,&quot;_js_idx&quot;:{&quot;ui&quot;:false,&quot;type&quot;:false,&quot;func&quot;:false,&quot;operation&quot;:false,&quot;options&quot;:[],&quot;debug&quot;:false}});&#10;      $(&quot;.jqui_self_cleaning_script&quot;).remove();}, 10); }&#10;        );});\"><\/iframe>",
+      "deps": [
+        {
+          "name": "jqueryui",
+          "version": "1.12.1",
+          "src": {
+            "href": "jqueryui-1.12.1"
+          },
+          "meta": null,
+          "script": "jquery-ui.min.js",
+          "stylesheet": "jquery-ui.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        },
+        {
+          "name": "touch-punch",
+          "version": "0.2.3",
+          "src": {
+            "href": "touch-punch-0.2.3"
+          },
+          "meta": null,
+          "script": "jquery.ui.touch-punch.min.js",
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        },
+        {
+          "name": "shinyjqui-assets",
+          "version": "0.4.0",
+          "src": {
+            "href": "shinyjqui-assets-0.4.0"
+          },
+          "meta": null,
+          "script": "shinyjqui.min.js",
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
+    "highlightMethodUI": {
+      "html": "<div class=\"form-group shiny-input-container\">\n  <label class=\"control-label\" id=\"highlightMethod-label\" for=\"highlightMethod\">Highlight ID<\/label>\n  <div>\n    <select id=\"highlightMethod\" class=\"shiny-input-select\" multiple=\"multiple\"><option value=\"M1\">M1<\/option>\n<option value=\"M2\">M2<\/option>\n<option value=\"M3\">M3<\/option><\/select>\n    <script type=\"application/json\" data-for=\"highlightMethod\">{\"plugins\":[\"selectize-plugin-a11y\"]}<\/script>\n  <\/div>\n<\/div>",
+      "deps": [
+        {
+          "name": "selectize",
+          "version": "0.15.2",
+          "src": {
+            "href": "selectize-0.15.2"
+          },
+          "meta": null,
+          "script": [
+            "selectize.min.js",
+            "selectize-plugin-a11y.min.js"
+          ],
+          "stylesheet": "selectize.css",
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        }
+      ]
+    },
+    "idFilterByInfoUI": {
+      "html": "<div class=\"form-group shiny-input-container\">\n  <label class=\"control-label\" id=\"keepIdBy_Type-label\" for=\"keepIdBy_Type\">Type<\/label>\n  <div>\n    <select id=\"keepIdBy_Type\" class=\"shiny-input-select\" multiple=\"multiple\"><option value=\"T1\" selected>T1<\/option>\n<option value=\"T2\" selected>T2<\/option><\/select>\n    <script type=\"application/json\" data-for=\"keepIdBy_Type\">{\"plugins\":[\"selectize-plugin-a11y\"]}<\/script>\n  <\/div>\n<\/div>",
+      "deps": [
+        {
+          "name": "selectize",
+          "version": "0.15.2",
+          "src": {
+            "href": "selectize-0.15.2"
+          },
+          "meta": null,
+          "script": [
+            "selectize.min.js",
+            "selectize-plugin-a11y.min.js"
+          ],
+          "stylesheet": "selectize.css",
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        }
+      ]
+    },
+    "idTopNGroupingUI": {
+      "html": "<div class=\"form-group shiny-input-container\">\n  <label class=\"control-label\" id=\"idTopNGrouping-label\" for=\"idTopNGrouping\">Grouping of IDs<\/label>\n  <div>\n    <select class=\"shiny-input-select form-control\" id=\"idTopNGrouping\"><option value=\"---\" selected>---<\/option>\n<option value=\"Type\">Type<\/option><\/select>\n    <script type=\"application/json\" data-for=\"idTopNGrouping\">{\"plugins\":[\"selectize-plugin-a11y\"]}<\/script>\n  <\/div>\n<\/div>",
+      "deps": [
+        {
+          "name": "selectize",
+          "version": "0.15.2",
+          "src": {
+            "href": "selectize-0.15.2"
+          },
+          "meta": null,
+          "script": [
+            "selectize.min.js",
+            "selectize-plugin-a11y.min.js"
+          ],
+          "stylesheet": "selectize.css",
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        }
+      ]
+    },
+    "metric1_transformUI": {
+      "html": "<div class=\"form-group shiny-input-container\">\n  <div class=\"checkbox\">\n    <label>\n      <input id=\"metric1_flip\" type=\"checkbox\" class=\"shiny-input-checkbox\" checked=\"checked\"/>\n      <span>Flip<\/span>\n    <\/label>\n  <\/div>\n<\/div>\n<div class=\"form-group shiny-input-container\">\n  <label class=\"control-label\" id=\"metric1_offset-label\" for=\"metric1_offset\">Offset<\/label>\n  <input id=\"metric1_offset\" type=\"number\" class=\"shiny-input-number form-control\" value=\"4\"/>\n<\/div>\n<div id=\"metric1_transform\" class=\"form-group shiny-input-radiogroup shiny-input-container\" role=\"radiogroup\" aria-labelledby=\"metric1_transform-label\">\n  <label class=\"control-label\" id=\"metric1_transform-label\" for=\"metric1_transform\">Transform<\/label>\n  <div class=\"shiny-options-group\">\n    <div class=\"radio\">\n      <label>\n        <input type=\"radio\" name=\"metric1_transform\" value=\"None\" checked=\"checked\"/>\n        <span>None<\/span>\n      <\/label>\n    <\/div>\n    <div class=\"radio\">\n      <label>\n        <input type=\"radio\" name=\"metric1_transform\" value=\"z-score\"/>\n        <span>z-score<\/span>\n      <\/label>\n    <\/div>\n    <div class=\"radio\">\n      <label>\n        <input type=\"radio\" name=\"metric1_transform\" value=\"[0,1]\"/>\n        <span>[0,1]<\/span>\n      <\/label>\n    <\/div>\n    <div class=\"radio\">\n      <label>\n        <input type=\"radio\" name=\"metric1_transform\" value=\"[-1,1]\"/>\n        <span>[-1,1]<\/span>\n      <\/label>\n    <\/div>\n    <div class=\"radio\">\n      <label>\n        <input type=\"radio\" name=\"metric1_transform\" value=\"Rank\"/>\n        <span>Rank<\/span>\n      <\/label>\n    <\/div>\n    <div class=\"radio\">\n      <label>\n        <input type=\"radio\" name=\"metric1_transform\" value=\"Rank+[0,1]\"/>\n        <span>Rank+[0,1]<\/span>\n      <\/label>\n    <\/div>\n    <div class=\"radio\">\n      <label>\n        <input type=\"radio\" name=\"metric1_transform\" value=\"z-score+[0,1]\"/>\n        <span>z-score+[0,1]<\/span>\n      <\/label>\n    <\/div>\n  <\/div>\n<\/div>\n<div class=\"form-group shiny-input-container\">\n  <label class=\"control-label\" id=\"metric1_bincuts-label\" for=\"metric1_bincuts\">Cut points for\ncategorization<\/label>\n  <div>\n    <select class=\"shiny-input-select form-control\" id=\"metric1_bincuts\" multiple=\"multiple\"><\/select>\n    <script type=\"application/json\" data-for=\"metric1_bincuts\">{\"create\":true,\"plugins\":[\"selectize-plugin-a11y\"]}<\/script>\n  <\/div>\n<\/div>",
+      "deps": [
+        {
+          "name": "selectize",
+          "version": "0.15.2",
+          "src": {
+            "href": "selectize-0.15.2"
+          },
+          "meta": null,
+          "script": [
+            "selectize.min.js",
+            "selectize-plugin-a11y.min.js"
+          ],
+          "stylesheet": "selectize.css",
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        }
+      ]
+    },
+    "metric2_transformUI": {
+      "html": "<div class=\"form-group shiny-input-container\">\n  <div class=\"checkbox\">\n    <label>\n      <input id=\"metric2_flip\" type=\"checkbox\" class=\"shiny-input-checkbox\"/>\n      <span>Flip<\/span>\n    <\/label>\n  <\/div>\n<\/div>\n<div class=\"form-group shiny-input-container\">\n  <label class=\"control-label\" id=\"metric2_offset-label\" for=\"metric2_offset\">Offset<\/label>\n  <input id=\"metric2_offset\" type=\"number\" class=\"shiny-input-number form-control\" value=\"0\"/>\n<\/div>\n<div id=\"metric2_transform\" class=\"form-group shiny-input-radiogroup shiny-input-container\" role=\"radiogroup\" aria-labelledby=\"metric2_transform-label\">\n  <label class=\"control-label\" id=\"metric2_transform-label\" for=\"metric2_transform\">Transform<\/label>\n  <div class=\"shiny-options-group\">\n    <div class=\"radio\">\n      <label>\n        <input type=\"radio\" name=\"metric2_transform\" value=\"None\" checked=\"checked\"/>\n        <span>None<\/span>\n      <\/label>\n    <\/div>\n    <div class=\"radio\">\n      <label>\n        <input type=\"radio\" name=\"metric2_transform\" value=\"z-score\"/>\n        <span>z-score<\/span>\n      <\/label>\n    <\/div>\n    <div class=\"radio\">\n      <label>\n        <input type=\"radio\" name=\"metric2_transform\" value=\"[0,1]\"/>\n        <span>[0,1]<\/span>\n      <\/label>\n    <\/div>\n    <div class=\"radio\">\n      <label>\n        <input type=\"radio\" name=\"metric2_transform\" value=\"[-1,1]\"/>\n        <span>[-1,1]<\/span>\n      <\/label>\n    <\/div>\n    <div class=\"radio\">\n      <label>\n        <input type=\"radio\" name=\"metric2_transform\" value=\"Rank\"/>\n        <span>Rank<\/span>\n      <\/label>\n    <\/div>\n    <div class=\"radio\">\n      <label>\n        <input type=\"radio\" name=\"metric2_transform\" value=\"Rank+[0,1]\"/>\n        <span>Rank+[0,1]<\/span>\n      <\/label>\n    <\/div>\n    <div class=\"radio\">\n      <label>\n        <input type=\"radio\" name=\"metric2_transform\" value=\"z-score+[0,1]\"/>\n        <span>z-score+[0,1]<\/span>\n      <\/label>\n    <\/div>\n  <\/div>\n<\/div>\n<div class=\"form-group shiny-input-container\">\n  <label class=\"control-label\" id=\"metric2_bincuts-label\" for=\"metric2_bincuts\">Cut points for\ncategorization<\/label>\n  <div>\n    <select class=\"shiny-input-select form-control\" id=\"metric2_bincuts\" multiple=\"multiple\"><\/select>\n    <script type=\"application/json\" data-for=\"metric2_bincuts\">{\"create\":true,\"plugins\":[\"selectize-plugin-a11y\"]}<\/script>\n  <\/div>\n<\/div>",
+      "deps": [
+        {
+          "name": "selectize",
+          "version": "0.15.2",
+          "src": {
+            "href": "selectize-0.15.2"
+          },
+          "meta": null,
+          "script": [
+            "selectize.min.js",
+            "selectize-plugin-a11y.min.js"
+          ],
+          "stylesheet": "selectize.css",
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        }
+      ]
+    },
+    "metric3_transformUI": {
+      "html": "<div class=\"rank-list-container default-sortable custom-sortable\" id=\"rank-list-metric3_levels\">\n  <p class=\"rank-list-title\">Levels<\/p>\n  <div class=\"rank-list\" id=\"metric3_levels\">\n    <div class=\"rank-list-item\">a<\/div>\n    <div class=\"rank-list-item\">b<\/div>\n  <\/div>\n<\/div>\n<div id=\"htmlwidget-30e4409849e39179307f\" style=\"width:0px;height:0px;\" class=\"sortable html-widget\"><\/div>\n<script type=\"application/json\" data-for=\"htmlwidget-30e4409849e39179307f\">{\"x\":{\"css_id\":\"metric3_levels\",\"options\":{\"animation\":150,\"emptyInsertThreshold\":12.5,\"onSort\":\"function(evt) {\\n  if (typeof Shiny !== \\\"undefined\\\") {\\n    Shiny.setInputValue(\\\"metric3_levels:sortablejs.rank_list\\\", $.map(  this.el.children, function(child) {  return     $(child).attr('data-rank-id') ||     $.trim(child.innerText);}))\\n  }\\n}\",\"onLoad\":\"function() {\\n  try {\\n    (function(evt) {\\n  if (typeof Shiny !== \\\"undefined\\\") {\\n    Shiny.setInputValue(\\\"metric3_levels:sortablejs.rank_list\\\", $.map(  this.el.children, function(child) {  return     $(child).attr('data-rank-id') ||     $.trim(child.innerText);}))\\n  }\\n}).apply(this, arguments);\\n  } catch(e) {\\n    if (window.console && window.console.error) window.console.error(e);\\n  }\\n\\n  try {\\n    (function(evt) {\\n    var css_ids = [\\\"metric3_levels\\\"];\\n    setTimeout(function() {\\n      css_ids.map(function(id) {\\n        var el = window.document.getElementById(id);\\n        if (el) {\\n          Sortable.utils.toggleClass(el, 'rank-list-empty', el.children.length == 0);\\n        }\\n      })\\n    }, 0);\\n  }).apply(this, arguments);\\n  } catch(e) {\\n    if (window.console && window.console.error) window.console.error(e);\\n  }\\n}\"}},\"evals\":[\"options.onSort\",\"options.onLoad\"],\"jsHooks\":[]}<\/script>\n<style>.rank-list-container.custom-sortable {\n                                    background-color: #3c453c;\n                                    }\n                                    .custom-sortable .rank-list-item {\n                                    background-color: #02075d;\n                                    }\n                                    <\/style>",
+      "deps": [
+        {
+          "name": "htmlwidgets",
+          "version": "1.6.4",
+          "src": {
+            "href": "htmlwidgets-1.6.4"
+          },
+          "meta": null,
+          "script": "htmlwidgets.js",
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        },
+        {
+          "name": "SortableJS",
+          "version": "1.15.0",
+          "src": {
+            "href": "SortableJS-1.15.0"
+          },
+          "meta": null,
+          "script": "sortable.js",
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        },
+        {
+          "name": "sortable-binding",
+          "version": "0.5.0",
+          "src": {
+            "href": "sortable-binding-0.5.0"
+          },
+          "meta": null,
+          "script": "sortable.js",
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "all_files": false
+        },
+        {
+          "name": "sortable-rank-list",
+          "version": "0.5.0",
+          "src": {
+            "href": "sortable-rank-list-0.5.0"
+          },
+          "meta": null,
+          "script": "rank_list_binding.js",
+          "stylesheet": "rank_list.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
+    "metricFilterByInfoUI": {
+      "html": "<div class=\"form-group shiny-input-container\">\n  <label class=\"control-label\" id=\"keepMetricBy_Group-label\" for=\"keepMetricBy_Group\">Group<\/label>\n  <div>\n    <select id=\"keepMetricBy_Group\" class=\"shiny-input-select\" multiple=\"multiple\"><option value=\"G1\" selected>G1<\/option>\n<option value=\"G2\" selected>G2<\/option><\/select>\n    <script type=\"application/json\" data-for=\"keepMetricBy_Group\">{\"plugins\":[\"selectize-plugin-a11y\"]}<\/script>\n  <\/div>\n<\/div>",
+      "deps": [
+        {
+          "name": "selectize",
+          "version": "0.15.2",
+          "src": {
+            "href": "selectize-0.15.2"
+          },
+          "meta": null,
+          "script": [
+            "selectize.min.js",
+            "selectize-plugin-a11y.min.js"
+          ],
+          "stylesheet": "selectize.css",
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        }
+      ]
+    },
+    "metricGroupingUI": {
+      "html": "<div class=\"form-group shiny-input-container\">\n  <label class=\"control-label\" id=\"metricGrouping-label\" for=\"metricGrouping\">Grouping of metrics<\/label>\n  <div>\n    <select class=\"shiny-input-select form-control\" id=\"metricGrouping\"><option value=\"---\" selected>---<\/option>\n<option value=\"Group\">Group<\/option><\/select>\n    <script type=\"application/json\" data-for=\"metricGrouping\">{\"plugins\":[\"selectize-plugin-a11y\"]}<\/script>\n  <\/div>\n<\/div>",
+      "deps": [
+        {
+          "name": "selectize",
+          "version": "0.15.2",
+          "src": {
+            "href": "selectize-0.15.2"
+          },
+          "meta": null,
+          "script": [
+            "selectize.min.js",
+            "selectize-plugin-a11y.min.js"
+          ],
+          "stylesheet": "selectize.css",
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        }
+      ]
+    },
+    "metricManipulationSummaryUI": {
+      "html": "<div class=\"tabbable\">\n  <ul class=\"nav nav-hidden shiny-tab-input\" id=\"metricManipulationSummary\" data-tabsetid=\"1492\">\n    <li class=\"nav-item\">\n      <a href=\"#tab-1492-1\" data-toggle=\"tab\" data-bs-toggle=\"tab\" data-value=\"---\" class=\"nav-link active\"><\/a>\n    <\/li>\n    <li class=\"nav-item\">\n      <a href=\"#tab-1492-2\" data-toggle=\"tab\" data-bs-toggle=\"tab\" data-value=\"metric1\" class=\"nav-link\"><\/a>\n    <\/li>\n    <li class=\"nav-item\">\n      <a href=\"#tab-1492-3\" data-toggle=\"tab\" data-bs-toggle=\"tab\" data-value=\"metric2\" class=\"nav-link\"><\/a>\n    <\/li>\n    <li class=\"nav-item\">\n      <a href=\"#tab-1492-4\" data-toggle=\"tab\" data-bs-toggle=\"tab\" data-value=\"metric3\" class=\"nav-link\"><\/a>\n    <\/li>\n  <\/ul>\n  <div class=\"tab-content\" data-tabsetid=\"1492\">\n    <div class=\"tab-pane active\" data-value=\"---\" id=\"tab-1492-1\"><\/div>\n    <div class=\"tab-pane\" data-value=\"metric1\" id=\"tab-1492-2\">\n      <div class=\"row\">\n        <div class=\"col-sm-4\">\n          <div id=\"metric1_transformUI\" class=\"shiny-html-output\"><\/div>\n        <\/div>\n        <div class=\"col-sm-8\">\n          <div class=\"shiny-plot-output html-fill-item\" id=\"metric1_plotsummary\" style=\"width:100%;height:400px;\"><\/div>\n        <\/div>\n      <\/div>\n    <\/div>\n    <div class=\"tab-pane\" data-value=\"metric2\" id=\"tab-1492-3\">\n      <div class=\"row\">\n        <div class=\"col-sm-4\">\n          <div id=\"metric2_transformUI\" class=\"shiny-html-output\"><\/div>\n        <\/div>\n        <div class=\"col-sm-8\">\n          <div class=\"shiny-plot-output html-fill-item\" id=\"metric2_plotsummary\" style=\"width:100%;height:400px;\"><\/div>\n        <\/div>\n      <\/div>\n    <\/div>\n    <div class=\"tab-pane\" data-value=\"metric3\" id=\"tab-1492-4\">\n      <div class=\"row\">\n        <div class=\"col-sm-4\">\n          <div id=\"metric3_transformUI\" class=\"shiny-html-output\"><\/div>\n        <\/div>\n        <div class=\"col-sm-8\">\n          <div class=\"shiny-plot-output html-fill-item\" id=\"metric3_plotsummary\" style=\"width:100%;height:400px;\"><\/div>\n        <\/div>\n      <\/div>\n    <\/div>\n  <\/div>\n<\/div>",
+      "deps": [
+
+      ]
+    },
+    "metricToManipulateUI": {
+      "html": "<div class=\"form-group shiny-input-container\">\n  <label class=\"control-label\" id=\"metricToManipulate-label\" for=\"metricToManipulate\">Select metric to transform<\/label>\n  <div>\n    <select class=\"shiny-input-select form-control\" id=\"metricToManipulate\"><option value=\"---\" selected>---<\/option>\n<option value=\"metric1\">metric1<\/option>\n<option value=\"metric2\">metric2<\/option>\n<option value=\"metric3\">metric3<\/option><\/select>\n    <script type=\"application/json\" data-for=\"metricToManipulate\">{\"plugins\":[\"selectize-plugin-a11y\"]}<\/script>\n  <\/div>\n<\/div>",
+      "deps": [
+        {
+          "name": "selectize",
+          "version": "0.15.2",
+          "src": {
+            "href": "selectize-0.15.2"
+          },
+          "meta": null,
+          "script": [
+            "selectize.min.js",
+            "selectize-plugin-a11y.min.js"
+          ],
+          "stylesheet": "selectize.css",
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        }
+      ]
+    },
+    "weights": {
+      "html": "<div class=\"form-group shiny-input-container\">\n  <label class=\"control-label\" id=\"Group_G1_weight-label\" for=\"Group_G1_weight\">G1<\/label>\n  <input class=\"js-range-slider\" id=\"Group_G1_weight\" data-skin=\"shiny\" data-min=\"0\" data-max=\"1\" data-from=\"0.2\" data-step=\"0.05\" data-grid=\"true\" data-grid-num=\"10\" data-grid-snap=\"false\" data-prettify-separator=\",\" data-prettify-enabled=\"true\" data-keyboard=\"true\" data-data-type=\"number\"/>\n<\/div>\n<div class=\"form-group shiny-input-container\">\n  <label class=\"control-label\" id=\"Group_G2_weight-label\" for=\"Group_G2_weight\">G2<\/label>\n  <input class=\"js-range-slider\" id=\"Group_G2_weight\" data-skin=\"shiny\" data-min=\"0\" data-max=\"1\" data-from=\"0.2\" data-step=\"0.05\" data-grid=\"true\" data-grid-num=\"10\" data-grid-snap=\"false\" data-prettify-separator=\",\" data-prettify-enabled=\"true\" data-keyboard=\"true\" data-data-type=\"number\"/>\n<\/div>",
+      "deps": [
+        {
+          "name": "ionrangeslider-javascript",
+          "version": "2.3.1",
+          "src": {
+            "href": "ionrangeslider-javascript-2.3.1"
+          },
+          "meta": null,
+          "script": "js/ion.rangeSlider.min.js",
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        },
+        {
+          "name": "strftime",
+          "version": "0.9.2",
+          "src": {
+            "href": "strftime-0.9.2"
+          },
+          "meta": null,
+          "script": "strftime-min.js",
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        },
+        {
+          "name": "ionRangeSlider",
+          "version": "2.3.1",
+          "src": {
+            "href": "ionRangeSlider-2.3.1"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": "ionRangeSlider.css",
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        }
+      ]
+    }
+  },
+  "export": {
+
+  }
+}
