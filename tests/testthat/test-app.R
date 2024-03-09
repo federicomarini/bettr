@@ -16,6 +16,11 @@ test_that("bettr app works", {
                        initialTransforms = initialTransforms, 
                        metricInfo = metricInfo, metricColors = metricColors, 
                        idInfo = idInfo)
+    
+    ## To generate the code below, run 
+    ## shinytest2::record_test(shiny_app, name = "bettr_app", seed = 42)
+    ## and copy the code in the display
+    
     app <- shinytest2::AppDriver$new(shiny_app, name = "bettr_app", 
                                      seed = 42, wait = TRUE,
                                      width = 1589, height = 999)
