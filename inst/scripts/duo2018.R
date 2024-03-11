@@ -102,6 +102,10 @@ saveRDS(list(df = res_summary_wide, metricInfo = metricInfo,
              metricColors = metric_colors), 
         file = "inst/extdata/duo2018.rds")
 
+write.table(res_summary_wide, file = "inst/extdata/duo2018_results.csv",
+            sep = ",", quote = FALSE, row.names = FALSE, 
+            col.names = TRUE)
+
 se <- assembleSE(df = res_summary_wide, idCol = "method", 
                  initialWeights = NULL, 
                  initialTransforms = initialTransforms, 

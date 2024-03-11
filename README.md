@@ -34,13 +34,13 @@ performed by [Duo et al (2018)](https://f1000research.com/articles/7-1141).
 
 ## Installation
 
-The development version of `bettr` can be installed from GitHub: 
+`bettr` can be installed from Bioconductor (from release 3.19 onwards): 
 
 ``` r
-if (!require("remotes", quietly = TRUE))
-    install.packages("remotes")
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
 
-remotes::install_github("federicomarini/bettr")
+BiocManager::install("bettr")
 ```
 
 ## Usage

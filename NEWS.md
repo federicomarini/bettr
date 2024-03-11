@@ -1,3 +1,8 @@
+# bettr 0.99.2
+
+* Update installation instructions
+* Expand vignette
+
 # bettr 0.99.1
 
 * Add R (>= 4.4.0) to Depends
