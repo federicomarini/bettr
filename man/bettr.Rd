@@ -103,7 +103,7 @@ metricInfo <- data.frame(Metric = c("metric1", "metric2", "metric3"),
                          Group = c("G1", "G2", "G2"))
 idInfo <- data.frame(Method = c("M1", "M2", "M3"), 
                      Type = c("T1", "T1", "T2"))
-metricColors = list(Group = c(G1 = "red", G2 = "blue"))
+metricColors <- list(Group = c(G1 = "red", G2 = "blue"))
 if (interactive()) {
     bettr(df = df, idCol = "Method", 
     metrics = c("metric1", "metric2", "metric3"),
