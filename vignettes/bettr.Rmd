@@ -39,13 +39,13 @@ provided with the package.
 
 # Installation
 
-`bettr` can be installed from GitHub: 
+`bettr` can be installed from Bioconductor (from release 3.19 onwards): 
 
 ```{r, eval=FALSE}
-if (!require("remotes", quietly = TRUE))
-    install.packages("remotes")
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
 
-remotes::install_github("federicomarini/bettr")
+BiocManager::install("bettr")
 ```
 
 # Usage
