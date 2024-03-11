@@ -25,8 +25,8 @@ application, as well as help identifying gaps and possibilities for
 improvement. A typical benchmark evaluates a set of methods using multiple 
 different metrics, intended to capture different aspects of their performance. 
 The best method to choose in any given situation can then be found, e.g., 
-by averaging the different performance metrics, putting more emphasis on those 
-that are more important to the specific situation. 
+by averaging the different performance metrics, possibly putting more emphasis 
+on those that are more important to the specific situation. 
 
 Inspired by the 
 [OECD 'Better Life Index'](https://www.oecdbetterlifeindex.org/#/11111111111),
@@ -36,6 +36,19 @@ that are most important to them. `bettr` can be used interactively, via a
 R/shiny application, or programmatically by calling the underlying functions. 
 In this vignette, we illustrate both alternatives, using example data 
 provided with the package. 
+
+Given the abundance of methods available for 
+computational analysis of biological data, both within and beyond Bioconductor,
+and the importance of careful, adaptive benchmarking, we believe that 
+`bettr` will be a useful complement to currently available Bioconductor 
+infrastructure related to benchmarking and performance estimation. 
+Other packages (e.g., `r Biocpkg("pipeComp")` or 
+`r Biocpkg("SummarizedBenchmark")`) provide frameworks for _executing_
+benchmarks by applying and recording pre-defined workflows to data. Packages 
+such as `r Biocpkg("iCOBRA")` and `r CRANpkg("ROCR")` instead provide 
+functionality for calculating well-established evaluation metric. In contrast, 
+`bettr` focuses on _visual exploration_ of benchmark results, represented by 
+the values of several evaluation metrics. 
 
 # Installation
 
