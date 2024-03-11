@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">bettr</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.2</span>
       </span>
     </div>
 
@@ -73,7 +73,7 @@
                         <h4 data-toc-skip class="author">Charlotte
 Soneson &amp; Federico Marini</h4>
             
-            <h4 data-toc-skip class="date">2024-03-04</h4>
+            <h4 data-toc-skip class="date">2024-03-11</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/federicomarini/bettr/blob/HEAD/vignettes/bettr.Rmd" class="external-link"><code>vignettes/bettr.Rmd</code></a></small>
       <div class="hidden name"><code>bettr.Rmd</code></div>
@@ -92,8 +92,8 @@ improvement. A typical benchmark evaluates a set of methods using
 multiple different metrics, intended to capture different aspects of
 their performance. The best method to choose in any given situation can
 then be found, e.g., by averaging the different performance metrics,
-putting more emphasis on those that are more important to the specific
-situation.</p>
+possibly putting more emphasis on those that are more important to the
+specific situation.</p>
 <p>Inspired by the <a href="https://www.oecdbetterlifeindex.org/#/11111111111" class="external-link">OECD ‘Better
 Life Index’</a>, the <code>bettr</code> package was developed to provide
 support for this last step. It allows users to easily create performance
@@ -102,16 +102,31 @@ summaries emphasizing the aspects that are most important to them.
 or programmatically by calling the underlying functions. In this
 vignette, we illustrate both alternatives, using example data provided
 with the package.</p>
+<p>Given the abundance of methods available for computational analysis
+of biological data, both within and beyond Bioconductor, and the
+importance of careful, adaptive benchmarking, we believe that
+<code>bettr</code> will be a useful complement to currently available
+Bioconductor infrastructure related to benchmarking and performance
+estimation. Other packages (e.g., <em><a href="https://bioconductor.org/packages/3.19/pipeComp" class="external-link">pipeComp</a></em>
+or <em><a href="https://bioconductor.org/packages/3.19/SummarizedBenchmark" class="external-link">SummarizedBenchmark</a></em>)
+provide frameworks for <em>executing</em> benchmarks by applying and
+recording pre-defined workflows to data. Packages such as <em><a href="https://bioconductor.org/packages/3.19/iCOBRA" class="external-link">iCOBRA</a></em> and
+<em><a href="https://CRAN.R-project.org/package=ROCR" class="external-link">ROCR</a></em>
+instead provide functionality for calculating well-established
+evaluation metric. In contrast, <code>bettr</code> focuses on <em>visual
+exploration</em> of benchmark results, represented by the values of
+several evaluation metrics.</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p><code>bettr</code> can be installed from GitHub:</p>
+<p><code>bettr</code> can be installed from Bioconductor (from release
+3.19 onwards):</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://remotes.r-lib.org" class="external-link">"remotes"</a></span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://bioconductor.github.io/BiocManager/" class="external-link">"BiocManager"</a></span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"federicomarini/bettr"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://bioconductor.github.io/BiocManager/reference/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"bettr"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
@@ -121,6 +136,7 @@ with the package.</p>
 <span>    <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/federicomarini/bettr" class="external-link">"bettr"</a></span><span class="op">)</span></span>
 <span>    <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://bioconductor.org/packages/SummarizedExperiment" class="external-link">"SummarizedExperiment"</a></span><span class="op">)</span></span>
 <span>    <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://tibble.tidyverse.org/" class="external-link">"tibble"</a></span><span class="op">)</span></span>
+<span>    <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://dplyr.tidyverse.org" class="external-link">"dplyr"</a></span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
 <p>The main input to <code>bettr</code> is a <code>data.frame</code>
 containing values of several metrics for several methods. In addition,
@@ -171,11 +187,198 @@ individual components.</p>
 </h2>
 <p>Next, we show a more elaborate example, visualizing data from the
 benchmark of single-cell clustering methods performed by <a href="https://f1000research.com/articles/7-1141" class="external-link">Duo et al (2018)</a>.
-The benchmark results are provided as an example data set in
-<code>bettr</code>:</p>
+The values for a set of evaluation metrics applied to results obtained
+by several clustering methods are provided in a <code>.csv</code> file
+in the package:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">duo2018</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"duo2018se.rds"</span>, </span>
-<span>                               package <span class="op">=</span> <span class="st">"bettr"</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"duo2018_results.csv"</span>, </span>
+<span>                            package <span class="op">=</span> <span class="st">"bettr"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 14 49</span></span>
+<span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 14 × 49</span></span></span>
+<span><span class="co">#&gt;    method      ARI_Koh ARI_KohTCC ARI_Kumar ARI_KumarTCC ARI_SimKumar4easy</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> CIDR          0.672      0.805     0.989        0.977             1    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> FlowSOM       0.699      0.855     0.512        0.563             1    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> PCAHC         0.869      0.891     1            1                 1    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> PCAKmeans     0.836      0.903     0.989        0.978             1    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> RaceID2       0.280      0.276     0.949        1                 0.644</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> RtsneKmeans   0.966      0.967     0.989        1                 1    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> SAFE          0.613      0.950     0.989        1                 0.952</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> SC3           0.939      0.939     1            1                 1    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> SC3svm        0.927      0.929     1            1                 1    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> Seurat        0.862      0.902     0.988        0.989             1    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> TSCAN         0.639      0.618     1            1                 1    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> monocle       0.855      0.963     0.988        1                 0.995</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">13</span> pcaReduce     0.935      0.979     1            1                 1    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">14</span> ascend       <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>         1            0.988             1    </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 43 more variables: ARI_SimKumar4hard &lt;dbl&gt;, ARI_SimKumar8hard &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   ARI_Trapnell &lt;dbl&gt;, ARI_TrapnellTCC &lt;dbl&gt;, ARI_Zhengmix4eq &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   ARI_Zhengmix4uneq &lt;dbl&gt;, ARI_Zhengmix8eq &lt;dbl&gt;, elapsed_Koh &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   elapsed_KohTCC &lt;dbl&gt;, elapsed_Kumar &lt;dbl&gt;, elapsed_KumarTCC &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   elapsed_SimKumar4easy &lt;dbl&gt;, elapsed_SimKumar4hard &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   elapsed_SimKumar8hard &lt;dbl&gt;, elapsed_Trapnell &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   elapsed_TrapnellTCC &lt;dbl&gt;, elapsed_Zhengmix4eq &lt;dbl&gt;, …</span></span></span></code></pre></div>
+<p>As we can see, we have 14 methods (rows) and 48 different metrics
+(columns). The first column provides the name of the clustering method.
+More precisely, the columns correspond to four different metrics, each
+of which was applied to clustering output from of 12 data sets. We
+encode this “grouping” of metrics in a data frame, in such a way that we
+can later collapse performance across data sets in
+<code>bettr</code>:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">metricInfo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>Metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>Class <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"_.*"</span>, <span class="st">""</span>, <span class="va">Metric</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">metricInfo</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 2</span></span></span>
+<span><span class="co">#&gt;   Metric            Class</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> ARI_Koh           ARI  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> ARI_KohTCC        ARI  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> ARI_Kumar         ARI  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> ARI_KumarTCC      ARI  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> ARI_SimKumar4easy ARI  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> ARI_SimKumar4hard ARI</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">metricInfo</span><span class="op">$</span><span class="va">Class</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;            ARI        elapsed nclust.vs.true s.norm.vs.true </span></span>
+<span><span class="co">#&gt;             12             12             12             12</span></span></code></pre></div>
+<p>In order to make different metrics comparable, we next define the
+transformation that should be applied to each of them within
+<code>bettr</code>. First, we need to make sure that the metric are
+consistent in terms of whether large values indicate “good” or “bad”
+performance. In our case, for both the <code>elapsed</code> (elapsed run
+time), <code>nclust.vs.true</code> (difference between estimated and
+true number of clusters) and <code>s.norm.vs.true</code> (difference
+between estimated and true normalized Shannon entropy for a clustering),
+a small value indicates “better” performance, while for the
+<code>ARI</code> (adjusted Rand index), larger values are better. Hence,
+we will flip the sign of the first three before doing additional
+analyses. Moreover, the different metrics clearly live in different
+numeric ranges - the maximal value of the <code>ARI</code> is 1, while
+the other metrics can have much larger values. As an example, here we
+therefore scale the three other metrics linearly to the interval
+<code>[0, 1]</code> to make them more comparable to the <code>ARI</code>
+values. We record these transformations in a list, that will be passed
+to <code>bettr</code>:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## Initialize list</span></span>
+<span><span class="va">initialTransforms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">res</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"elapsed|nclust.vs.true|s.norm.vs.true"</span>, </span>
+<span>                                       <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span>, value <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span>, </span>
+<span>                            <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="op">{</span></span>
+<span>                                <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>flip <span class="op">=</span> <span class="cn">TRUE</span>, transform <span class="op">=</span> <span class="st">'[0,1]'</span><span class="op">)</span></span>
+<span>                            <span class="op">}</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">initialTransforms</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 36</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">initialTransforms</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  [1] "elapsed_Koh"                  "elapsed_KohTCC"              </span></span>
+<span><span class="co">#&gt;  [3] "elapsed_Kumar"                "elapsed_KumarTCC"            </span></span>
+<span><span class="co">#&gt;  [5] "elapsed_SimKumar4easy"        "elapsed_SimKumar4hard"       </span></span>
+<span><span class="co">#&gt;  [7] "elapsed_SimKumar8hard"        "elapsed_Trapnell"            </span></span>
+<span><span class="co">#&gt;  [9] "elapsed_TrapnellTCC"          "elapsed_Zhengmix4eq"         </span></span>
+<span><span class="co">#&gt; [11] "elapsed_Zhengmix4uneq"        "elapsed_Zhengmix8eq"         </span></span>
+<span><span class="co">#&gt; [13] "s.norm.vs.true_Koh"           "s.norm.vs.true_KohTCC"       </span></span>
+<span><span class="co">#&gt; [15] "s.norm.vs.true_Kumar"         "s.norm.vs.true_KumarTCC"     </span></span>
+<span><span class="co">#&gt; [17] "s.norm.vs.true_SimKumar4easy" "s.norm.vs.true_SimKumar4hard"</span></span>
+<span><span class="co">#&gt; [19] "s.norm.vs.true_SimKumar8hard" "s.norm.vs.true_Trapnell"     </span></span>
+<span><span class="co">#&gt; [21] "s.norm.vs.true_TrapnellTCC"   "s.norm.vs.true_Zhengmix4eq"  </span></span>
+<span><span class="co">#&gt; [23] "s.norm.vs.true_Zhengmix4uneq" "s.norm.vs.true_Zhengmix8eq"  </span></span>
+<span><span class="co">#&gt; [25] "nclust.vs.true_Koh"           "nclust.vs.true_KohTCC"       </span></span>
+<span><span class="co">#&gt; [27] "nclust.vs.true_Kumar"         "nclust.vs.true_KumarTCC"     </span></span>
+<span><span class="co">#&gt; [29] "nclust.vs.true_SimKumar4easy" "nclust.vs.true_SimKumar4hard"</span></span>
+<span><span class="co">#&gt; [31] "nclust.vs.true_SimKumar8hard" "nclust.vs.true_Trapnell"     </span></span>
+<span><span class="co">#&gt; [33] "nclust.vs.true_TrapnellTCC"   "nclust.vs.true_Zhengmix4eq"  </span></span>
+<span><span class="co">#&gt; [35] "nclust.vs.true_Zhengmix4uneq" "nclust.vs.true_Zhengmix8eq"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">initialTransforms</span><span class="op">)</span></span>
+<span><span class="co">#&gt; $elapsed_Koh</span></span>
+<span><span class="co">#&gt; $elapsed_Koh$flip</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $elapsed_Koh$transform</span></span>
+<span><span class="co">#&gt; [1] "[0,1]"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $elapsed_KohTCC</span></span>
+<span><span class="co">#&gt; $elapsed_KohTCC$flip</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $elapsed_KohTCC$transform</span></span>
+<span><span class="co">#&gt; [1] "[0,1]"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $elapsed_Kumar</span></span>
+<span><span class="co">#&gt; $elapsed_Kumar$flip</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $elapsed_Kumar$transform</span></span>
+<span><span class="co">#&gt; [1] "[0,1]"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $elapsed_KumarTCC</span></span>
+<span><span class="co">#&gt; $elapsed_KumarTCC$flip</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $elapsed_KumarTCC$transform</span></span>
+<span><span class="co">#&gt; [1] "[0,1]"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $elapsed_SimKumar4easy</span></span>
+<span><span class="co">#&gt; $elapsed_SimKumar4easy$flip</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $elapsed_SimKumar4easy$transform</span></span>
+<span><span class="co">#&gt; [1] "[0,1]"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $elapsed_SimKumar4hard</span></span>
+<span><span class="co">#&gt; $elapsed_SimKumar4hard$flip</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $elapsed_SimKumar4hard$transform</span></span>
+<span><span class="co">#&gt; [1] "[0,1]"</span></span></code></pre></div>
+<p>We can specify four different aspects of the desired transform, which
+will be applied in the following order:</p>
+<ul>
+<li>
+<code>flip</code> (<code>TRUE</code> or <code>FALSE</code>, whether
+to flip the sign of the values). The default is <code>FALSE</code>.</li>
+<li>
+<code>offset</code> (a numeric value to add to the observed values,
+possibly after applying the sign flip). The default is 0.</li>
+<li>
+<code>transform</code> (one of <code>None</code>,
+<code>[0,1]</code>, <code>[-1,1]</code>, <code>z-score</code>, or
+<code>Rank</code>). The default is <code>None</code>.</li>
+<li>
+<code>cuts</code> (a numeric vector of cuts that will be used to
+turn a numeric variable into a categorical one). The default is
+<code>NULL</code>.</li>
+</ul>
+<p>Only values that deviate from the defaults need to be specified.</p>
+<p>Finally, we can define a set of colors that we would like to use for
+visualizing the methods and metrics in <code>bettr</code>.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">metricColors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    Class <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>ARI <span class="op">=</span> <span class="st">"purple"</span>, elapsed <span class="op">=</span> <span class="st">"forestgreen"</span>, </span>
+<span>              nclust.vs.true <span class="op">=</span> <span class="st">"blue"</span>, </span>
+<span>              s.norm.vs.true <span class="op">=</span> <span class="st">"orange"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">idColors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>        CIDR <span class="op">=</span> <span class="st">"#332288"</span>, FlowSOM <span class="op">=</span> <span class="st">"#6699CC"</span>, PCAHC <span class="op">=</span> <span class="st">"#88CCEE"</span>, </span>
+<span>        PCAKmeans <span class="op">=</span> <span class="st">"#44AA99"</span>, pcaReduce <span class="op">=</span> <span class="st">"#117733"</span>,</span>
+<span>        RtsneKmeans <span class="op">=</span> <span class="st">"#999933"</span>, Seurat <span class="op">=</span> <span class="st">"#DDCC77"</span>, SC3svm <span class="op">=</span> <span class="st">"#661100"</span>, </span>
+<span>        SC3 <span class="op">=</span> <span class="st">"#CC6677"</span>, TSCAN <span class="op">=</span> <span class="st">"grey34"</span>, ascend <span class="op">=</span> <span class="st">"orange"</span>, SAFE <span class="op">=</span> <span class="st">"black"</span>,</span>
+<span>        monocle <span class="op">=</span> <span class="st">"red"</span>, RaceID2 <span class="op">=</span> <span class="st">"blue"</span></span>
+<span>    <span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>All the information defined so far can be combined in a
+<code>SummarizedExperiment</code> object, as shown above for the small
+example data:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">duo2018</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assembleSE.html">assembleSE</a></span><span class="op">(</span>df <span class="op">=</span> <span class="va">res</span>, idCol <span class="op">=</span> <span class="st">"method"</span>, metricInfo <span class="op">=</span> <span class="va">metricInfo</span>, </span>
+<span>                      initialTransforms <span class="op">=</span> <span class="va">initialTransforms</span>,</span>
+<span>                      metricColors <span class="op">=</span> <span class="va">metricColors</span>, idColors <span class="op">=</span> <span class="va">idColors</span><span class="op">)</span></span>
 <span><span class="va">duo2018</span></span>
 <span><span class="co">#&gt; class: SummarizedExperiment </span></span>
 <span><span class="co">#&gt; dim: 14 48 </span></span>
@@ -186,14 +389,12 @@ The benchmark results are provided as an example data set in
 <span><span class="co">#&gt; colnames(48): ARI_Koh ARI_KohTCC ... nclust.vs.true_Zhengmix4uneq</span></span>
 <span><span class="co">#&gt;   nclust.vs.true_Zhengmix8eq</span></span>
 <span><span class="co">#&gt; colData names(2): Metric Class</span></span></code></pre></div>
-<p>Here, the summary <code>data.frame</code> (provided in the
-<code>assay</code> of the <code>SummarizedExperiment</code> object)
-contains values for 48 performance measures (4 different metrics, each
-for 12 data sets) for 14 clustering methods. We also provide a
-<code>metricInfo</code> <code>data.frame</code>, assigning each metric
-to a class, and two lists of colors that we would like to use for the
-different metrics and data sets.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<p>The <code>assay</code> of the <code>SummarizedExperiment</code>
+object contains the values for the 48 performance measures for the 14
+clustering methods. The <code>metricInfo</code> is stored in the
+<code>colData</code>, and the lists of colors and the initial transforms
+in the <code>metadata</code>:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Display the whole performance table</span></span>
 <span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">duo2018</span>, <span class="st">"values"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 14 × 48</span></span></span>
@@ -250,37 +451,27 @@ different metrics and data sets.</p>
 <span><span class="fu">metadata</span><span class="op">(</span><span class="va">duo2018</span><span class="op">)</span><span class="op">$</span><span class="va">bettrInfo</span><span class="op">$</span><span class="va">metricColors</span></span>
 <span><span class="co">#&gt; $Class</span></span>
 <span><span class="co">#&gt;            ARI        elapsed nclust.vs.true s.norm.vs.true </span></span>
-<span><span class="co">#&gt;       "purple"  "forestgreen"         "blue"       "orange"</span></span></code></pre></div>
-<p>Finally, we need to transform the metrics in order to make them
-comparable (first, so that a high value is ‘good’, and second, so that
-the numeric ranges of the metrics are comparable). In this case, we have
-chosen to first flip the values (multiply by -1) of all metrics
-representing elapsed time (<code>elapsed</code>) and the absolute
-deviation of the number of clusters and Shannon entropies from the
-ground truth (<code>nclust.vs.true</code> and
-<code>s.norm.vs.true</code>). Next, each of these metrics is scaled
-linearly to the interval <code>[0, 1]</code>. These transformations are
-stored in <code>duo2018$initialTransforms</code>.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu">metadata</span><span class="op">(</span><span class="va">duo2018</span><span class="op">)</span><span class="op">$</span><span class="va">bettrInfo</span><span class="op">$</span><span class="va">initialTransforms</span><span class="op">)</span></span>
+<span><span class="co">#&gt;       "purple"  "forestgreen"         "blue"       "orange"</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu">metadata</span><span class="op">(</span><span class="va">duo2018</span><span class="op">)</span><span class="op">$</span><span class="va">bettrInfo</span><span class="op">$</span><span class="va">initialTransforms</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  [1] "elapsed_Koh"                  "elapsed_KohTCC"              </span></span>
 <span><span class="co">#&gt;  [3] "elapsed_Kumar"                "elapsed_KumarTCC"            </span></span>
 <span><span class="co">#&gt;  [5] "elapsed_SimKumar4easy"        "elapsed_SimKumar4hard"       </span></span>
 <span><span class="co">#&gt;  [7] "elapsed_SimKumar8hard"        "elapsed_Trapnell"            </span></span>
 <span><span class="co">#&gt;  [9] "elapsed_TrapnellTCC"          "elapsed_Zhengmix4eq"         </span></span>
 <span><span class="co">#&gt; [11] "elapsed_Zhengmix4uneq"        "elapsed_Zhengmix8eq"         </span></span>
-<span><span class="co">#&gt; [13] "nclust.vs.true_Koh"           "nclust.vs.true_KohTCC"       </span></span>
-<span><span class="co">#&gt; [15] "nclust.vs.true_Kumar"         "nclust.vs.true_KumarTCC"     </span></span>
-<span><span class="co">#&gt; [17] "nclust.vs.true_SimKumar4easy" "nclust.vs.true_SimKumar4hard"</span></span>
-<span><span class="co">#&gt; [19] "nclust.vs.true_SimKumar8hard" "nclust.vs.true_Trapnell"     </span></span>
-<span><span class="co">#&gt; [21] "nclust.vs.true_TrapnellTCC"   "nclust.vs.true_Zhengmix4eq"  </span></span>
-<span><span class="co">#&gt; [23] "nclust.vs.true_Zhengmix4uneq" "nclust.vs.true_Zhengmix8eq"  </span></span>
-<span><span class="co">#&gt; [25] "s.norm.vs.true_Koh"           "s.norm.vs.true_KohTCC"       </span></span>
-<span><span class="co">#&gt; [27] "s.norm.vs.true_Kumar"         "s.norm.vs.true_KumarTCC"     </span></span>
-<span><span class="co">#&gt; [29] "s.norm.vs.true_SimKumar4easy" "s.norm.vs.true_SimKumar4hard"</span></span>
-<span><span class="co">#&gt; [31] "s.norm.vs.true_SimKumar8hard" "s.norm.vs.true_Trapnell"     </span></span>
-<span><span class="co">#&gt; [33] "s.norm.vs.true_TrapnellTCC"   "s.norm.vs.true_Zhengmix4eq"  </span></span>
-<span><span class="co">#&gt; [35] "s.norm.vs.true_Zhengmix4uneq" "s.norm.vs.true_Zhengmix8eq"</span></span>
+<span><span class="co">#&gt; [13] "s.norm.vs.true_Koh"           "s.norm.vs.true_KohTCC"       </span></span>
+<span><span class="co">#&gt; [15] "s.norm.vs.true_Kumar"         "s.norm.vs.true_KumarTCC"     </span></span>
+<span><span class="co">#&gt; [17] "s.norm.vs.true_SimKumar4easy" "s.norm.vs.true_SimKumar4hard"</span></span>
+<span><span class="co">#&gt; [19] "s.norm.vs.true_SimKumar8hard" "s.norm.vs.true_Trapnell"     </span></span>
+<span><span class="co">#&gt; [21] "s.norm.vs.true_TrapnellTCC"   "s.norm.vs.true_Zhengmix4eq"  </span></span>
+<span><span class="co">#&gt; [23] "s.norm.vs.true_Zhengmix4uneq" "s.norm.vs.true_Zhengmix8eq"  </span></span>
+<span><span class="co">#&gt; [25] "nclust.vs.true_Koh"           "nclust.vs.true_KohTCC"       </span></span>
+<span><span class="co">#&gt; [27] "nclust.vs.true_Kumar"         "nclust.vs.true_KumarTCC"     </span></span>
+<span><span class="co">#&gt; [29] "nclust.vs.true_SimKumar4easy" "nclust.vs.true_SimKumar4hard"</span></span>
+<span><span class="co">#&gt; [31] "nclust.vs.true_SimKumar8hard" "nclust.vs.true_Trapnell"     </span></span>
+<span><span class="co">#&gt; [33] "nclust.vs.true_TrapnellTCC"   "nclust.vs.true_Zhengmix4eq"  </span></span>
+<span><span class="co">#&gt; [35] "nclust.vs.true_Zhengmix4uneq" "nclust.vs.true_Zhengmix8eq"</span></span>
 <span></span>
 <span><span class="co">## An example of a transformation - elapsed time for the Koh dataset</span></span>
 <span><span class="fu">metadata</span><span class="op">(</span><span class="va">duo2018</span><span class="op">)</span><span class="op">$</span><span class="va">bettrInfo</span><span class="op">$</span><span class="va">initialTransforms</span><span class="op">$</span><span class="va">elapsed_Koh</span></span>
@@ -290,7 +481,7 @@ stored in <code>duo2018$initialTransforms</code>.</p>
 <span><span class="co">#&gt; $transform</span></span>
 <span><span class="co">#&gt; [1] "[0,1]"</span></span></code></pre></div>
 <p>Now, we can launch the app for this data set:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bettr.html">bettr</a></span><span class="op">(</span>bettrSE <span class="op">=</span> <span class="va">duo2018</span>, bstheme <span class="op">=</span> <span class="st">"sandstone"</span><span class="op">)</span></span></code></pre></div>
 <p>The screenshot below illustrates the default view of the interactive
 interface.</p>
@@ -314,7 +505,7 @@ to prepare the input data for plotting (replicating the steps that are
 performed in the app), as well as access to the plotting functions
 themselves. The following code replicates the results for the example
 above.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Assign a higher weight to one of the collapsed metric classes</span></span>
 <span><span class="fu">metadata</span><span class="op">(</span><span class="va">duo2018</span><span class="op">)</span><span class="op">$</span><span class="va">bettrInfo</span><span class="op">$</span><span class="va">initialWeights</span><span class="op">[</span><span class="st">"Class_ARI"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0.55</span></span>
 <span></span>
@@ -555,21 +746,21 @@ above.</p>
 <span></span>
 <span><span class="co">## Call the plotting routines specifying one single parameter</span></span>
 <span><span class="fu"><a href="../reference/makeHeatmap.html">makeHeatmap</a></span><span class="op">(</span>bettrList <span class="op">=</span> <span class="va">prepData</span><span class="op">)</span></span></code></pre></div>
-<p><img src="bettr_files/figure-html/unnamed-chunk-10-1.png" width="672"></p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<p><img src="bettr_files/figure-html/unnamed-chunk-13-1.png" width="672"></p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/makePolarPlot.html">makePolarPlot</a></span><span class="op">(</span>bettrList <span class="op">=</span> <span class="va">prepData</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: Removed 8 rows containing missing values or values outside the scale range</span></span>
 <span><span class="co">#&gt; (`geom_col()`).</span></span></code></pre></div>
-<p><img src="bettr_files/figure-html/unnamed-chunk-10-2.png" width="672"></p>
+<p><img src="bettr_files/figure-html/unnamed-chunk-13-2.png" width="672"></p>
 </div>
 <div class="section level2">
 <h2 id="additional-examples">Additional examples<a class="anchor" aria-label="anchor" href="#additional-examples"></a>
 </h2>
 <p><code>bettr</code> can also be adapted to represent more types of
 such collections of metrics, other than the results of a benchmarking
-study in computational biology. An examplem which is also included in
-the <code>inst/scripts</code> folder of this package, presents the OECD
-Better Life Index (<a href="https://stats.oecd.org/index.aspx?DataSetCode=BLI" class="external-link uri">https://stats.oecd.org/index.aspx?DataSetCode=BLI</a>),
+study in computational biology. An <a href="https://github.com/federicomarini/bettr/blob/devel/inst/scripts/visualize_oecd_data.R" class="external-link">example</a>,
+which is also included in the <code>inst/scripts</code> folder of this
+package, presents the OECD Better Life Index (<a href="https://stats.oecd.org/index.aspx?DataSetCode=BLI" class="external-link uri">https://stats.oecd.org/index.aspx?DataSetCode=BLI</a>),
 spanning over 11 topics, each represented by one to three indicators.
 These indicators are good measures of the concepts of well-being, and
 well suited to display some comparison across countries.</p>
@@ -580,9 +771,9 @@ we encourage users to contribute to that via a Pull Request to <a href="https://
 <div class="section level2">
 <h2 class="unnumbered" id="session-info">Session info<a class="anchor" aria-label="anchor" href="#session-info"></a>
 </h2>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; R Under development (unstable) (2024-03-02 r86034)</span></span>
+<span><span class="co">#&gt; R Under development (unstable) (2024-03-10 r86088)</span></span>
 <span><span class="co">#&gt; Platform: x86_64-apple-darwin20</span></span>
 <span><span class="co">#&gt; Running under: macOS Monterey 12.7.3</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -601,31 +792,32 @@ we encourage users to contribute to that via a Pull Request to <a href="https://
 <span><span class="co">#&gt; [8] base     </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; other attached packages:</span></span>
-<span><span class="co">#&gt;  [1] tibble_3.2.1                SummarizedExperiment_1.33.3</span></span>
-<span><span class="co">#&gt;  [3] Biobase_2.63.0              GenomicRanges_1.55.3       </span></span>
-<span><span class="co">#&gt;  [5] GenomeInfoDb_1.39.6         IRanges_2.37.1             </span></span>
-<span><span class="co">#&gt;  [7] S4Vectors_0.41.3            BiocGenerics_0.49.1        </span></span>
-<span><span class="co">#&gt;  [9] MatrixGenerics_1.15.0       matrixStats_1.2.0          </span></span>
-<span><span class="co">#&gt; [11] bettr_0.99.1                BiocStyle_2.31.0           </span></span>
+<span><span class="co">#&gt;  [1] dplyr_1.1.4                 tibble_3.2.1               </span></span>
+<span><span class="co">#&gt;  [3] SummarizedExperiment_1.33.3 Biobase_2.63.0             </span></span>
+<span><span class="co">#&gt;  [5] GenomicRanges_1.55.3        GenomeInfoDb_1.39.8        </span></span>
+<span><span class="co">#&gt;  [7] IRanges_2.37.1              S4Vectors_0.41.4           </span></span>
+<span><span class="co">#&gt;  [9] BiocGenerics_0.49.1         MatrixGenerics_1.15.0      </span></span>
+<span><span class="co">#&gt; [11] matrixStats_1.2.0           bettr_0.99.2               </span></span>
+<span><span class="co">#&gt; [13] BiocStyle_2.31.0           </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
 <span><span class="co">#&gt;   [1] bitops_1.0-7            gridExtra_2.3           rlang_1.1.3            </span></span>
 <span><span class="co">#&gt;   [4] magrittr_2.0.3          clue_0.3-65             GetoptLong_1.0.5       </span></span>
-<span><span class="co">#&gt;   [7] compiler_4.4.0          png_0.1-8               systemfonts_1.0.5      </span></span>
+<span><span class="co">#&gt;   [7] compiler_4.4.0          png_0.1-8               systemfonts_1.0.6      </span></span>
 <span><span class="co">#&gt;  [10] vctrs_0.6.5             stringr_1.5.1           pkgconfig_2.0.3        </span></span>
 <span><span class="co">#&gt;  [13] shape_1.4.6.1           crayon_1.5.2            fastmap_1.1.1          </span></span>
 <span><span class="co">#&gt;  [16] ellipsis_0.3.2          backports_1.4.1         XVector_0.43.1         </span></span>
 <span><span class="co">#&gt;  [19] labeling_0.4.3          utf8_1.2.4              learnr_0.11.5          </span></span>
-<span><span class="co">#&gt;  [22] shinyjqui_0.4.1         promises_1.2.1          rmarkdown_2.25         </span></span>
+<span><span class="co">#&gt;  [22] shinyjqui_0.4.1         promises_1.2.1          rmarkdown_2.26         </span></span>
 <span><span class="co">#&gt;  [25] ragg_1.2.7              purrr_1.0.2             xfun_0.42              </span></span>
 <span><span class="co">#&gt;  [28] zlibbioc_1.49.0         cachem_1.0.8            jsonlite_1.8.8         </span></span>
-<span><span class="co">#&gt;  [31] highr_0.10              later_1.3.2             DelayedArray_0.29.8    </span></span>
+<span><span class="co">#&gt;  [31] highr_0.10              later_1.3.2             DelayedArray_0.29.9    </span></span>
 <span><span class="co">#&gt;  [34] parallel_4.4.0          cluster_2.1.6           R6_2.5.1               </span></span>
 <span><span class="co">#&gt;  [37] bslib_0.6.1             stringi_1.8.3           RColorBrewer_1.1-3     </span></span>
 <span><span class="co">#&gt;  [40] rpart_4.1.23            jquerylib_0.1.4         assertthat_0.2.1       </span></span>
 <span><span class="co">#&gt;  [43] Rcpp_1.0.12             bookdown_0.38           iterators_1.0.14       </span></span>
 <span><span class="co">#&gt;  [46] knitr_1.45              base64enc_0.1-3         httpuv_1.6.14          </span></span>
-<span><span class="co">#&gt;  [49] Matrix_1.6-5            nnet_7.3-19             tidyselect_1.2.0       </span></span>
+<span><span class="co">#&gt;  [49] Matrix_1.6-5            nnet_7.3-19             tidyselect_1.2.1       </span></span>
 <span><span class="co">#&gt;  [52] rstudioapi_0.15.0       abind_1.4-5             yaml_2.3.8             </span></span>
 <span><span class="co">#&gt;  [55] doParallel_1.0.17       codetools_0.2-19        lattice_0.22-5         </span></span>
 <span><span class="co">#&gt;  [58] withr_3.0.0             shiny_1.8.0             evaluate_0.23          </span></span>
@@ -639,12 +831,12 @@ we encourage users to contribute to that via a Pull Request to <a href="https://
 <span><span class="co">#&gt;  [82] grid_4.4.0              tidyr_1.3.1             sortable_0.5.0         </span></span>
 <span><span class="co">#&gt;  [85] colorspace_2.1-0        GenomeInfoDbData_1.2.11 htmlTable_2.4.2        </span></span>
 <span><span class="co">#&gt;  [88] Formula_1.2-5           cli_3.6.2               textshaping_0.3.7      </span></span>
-<span><span class="co">#&gt;  [91] fansi_1.0.6             S4Arrays_1.3.4          ComplexHeatmap_2.19.0  </span></span>
-<span><span class="co">#&gt;  [94] dplyr_1.1.4             gtable_0.3.4            sass_0.4.8             </span></span>
-<span><span class="co">#&gt;  [97] digest_0.6.34           SparseArray_1.3.4       farver_2.1.1           </span></span>
-<span><span class="co">#&gt; [100] rjson_0.2.21            htmlwidgets_1.6.4       memoise_2.0.1          </span></span>
-<span><span class="co">#&gt; [103] htmltools_0.5.7         pkgdown_2.0.7.9000      lifecycle_1.0.4        </span></span>
-<span><span class="co">#&gt; [106] mime_0.12               GlobalOptions_0.1.2</span></span></code></pre></div>
+<span><span class="co">#&gt;  [91] fansi_1.0.6             S4Arrays_1.3.6          ComplexHeatmap_2.19.0  </span></span>
+<span><span class="co">#&gt;  [94] gtable_0.3.4            sass_0.4.8              digest_0.6.35          </span></span>
+<span><span class="co">#&gt;  [97] SparseArray_1.3.4       farver_2.1.1            rjson_0.2.21           </span></span>
+<span><span class="co">#&gt; [100] htmlwidgets_1.6.4       memoise_2.0.1           htmltools_0.5.7        </span></span>
+<span><span class="co">#&gt; [103] pkgdown_2.0.7.9000      lifecycle_1.0.4         mime_0.12              </span></span>
+<span><span class="co">#&gt; [106] GlobalOptions_0.1.2</span></span></code></pre></div>
 </div>
   </div>
 
