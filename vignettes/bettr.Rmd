@@ -55,6 +55,7 @@ suppressPackageStartupMessages({
     library("bettr")
     library("SummarizedExperiment")
     library("tibble")
+    library("dplyr")
 })
 ```
 
@@ -106,21 +107,106 @@ bettr(df = df, idCol = "Method", metricInfo = metricInfo, idInfo = idInfo)
 
 Next, we show a more elaborate example, visualizing data from the benchmark of
 single-cell clustering methods performed by 
-[Duo et al (2018)](https://f1000research.com/articles/7-1141). The benchmark 
-results are provided as an example data set in `bettr`:
+[Duo et al (2018)](https://f1000research.com/articles/7-1141). The values 
+for a set of evaluation metrics applied to results obtained by several 
+clustering methods are provided in a `.csv` file in the package:
 
 ```{r}
-duo2018 <- readRDS(system.file("extdata", "duo2018se.rds", 
-                               package = "bettr"))
+res <- read.csv(system.file("extdata", "duo2018_results.csv", 
+                            package = "bettr"))
+dim(res)
+tibble(res)
+```
+
+As we can see, we have 14 methods (rows) and 48 different metrics (columns). 
+The first column provides the name of the clustering method.
+More precisely, the columns correspond to four different metrics, each of 
+which was applied to clustering output from of 12 data sets. We encode this 
+"grouping" of metrics in a data frame, in such a way that we can later 
+collapse performance across data sets in `bettr`: 
+
+```{r}
+metricInfo <- tibble(Metric = colnames(res)[-1]) |>
+    mutate(Class = sub("_.*", "", Metric))
+head(metricInfo)
+table(metricInfo$Class)
+```
+
+In order to make different metrics comparable, we next define the 
+transformation that should be applied to each of them within `bettr`. First, 
+we need to make sure that the metric are consistent in terms of whether large 
+values indicate "good" or "bad" performance. In our case, for both the `elapsed`
+(elapsed run time), `nclust.vs.true` (difference between estimated and true 
+number of clusters) and `s.norm.vs.true` (difference between estimated and 
+true normalized Shannon entropy for a clustering), a small value indicates 
+"better" performance, while for the `ARI` (adjusted Rand index), larger 
+values are better. Hence, we will flip the sign of the first three before 
+doing additional analyses. Moreover, the different metrics clearly live in 
+different numeric ranges - the maximal value of the `ARI` is 1, while the 
+other metrics can have much larger values. As an example, here we therefore 
+scale the three other metrics linearly to the interval `[0, 1]` to make them 
+more comparable to the `ARI` values. We record these transformations in a list, 
+that will be passed to `bettr`:
+
+```{r}
+## Initialize list
+initialTransforms <- lapply(res[, grep("elapsed|nclust.vs.true|s.norm.vs.true", 
+                                       colnames(res), value = TRUE)], 
+                            function(i) {
+                                list(flip = TRUE, transform = '[0,1]')
+                            })
+
+length(initialTransforms)
+names(initialTransforms)
+head(initialTransforms)
+```
+
+We can specify four different aspects of the desired transform, which will 
+be applied in the following order:
+
+* `flip` (`TRUE` or `FALSE`, whether to flip the sign of the values). 
+The default is `FALSE`.
+* `offset` (a numeric value to add to the observed values, possibly after 
+applying the sign flip). The default is 0.
+* `transform` (one of `None`, `[0,1]`, `[-1,1]`, `z-score`, or `Rank`).
+The default is `None`.
+* `cuts` (a numeric vector of cuts that will be used to turn a numeric 
+variable into a categorical one). The default is `NULL`. 
+
+Only values that deviate from the defaults need to be specified.
+
+Finally, we can define a set of colors that we would like to use for 
+visualizing the methods and metrics in `bettr`. 
+
+```{r}
+metricColors <- list(
+    Class = c(ARI = "purple", elapsed = "forestgreen", 
+              nclust.vs.true = "blue", 
+              s.norm.vs.true = "orange"))
+idColors <- list(
+    method = c(
+        CIDR = "#332288", FlowSOM = "#6699CC", PCAHC = "#88CCEE", 
+        PCAKmeans = "#44AA99", pcaReduce = "#117733",
+        RtsneKmeans = "#999933", Seurat = "#DDCC77", SC3svm = "#661100", 
+        SC3 = "#CC6677", TSCAN = "grey34", ascend = "orange", SAFE = "black",
+        monocle = "red", RaceID2 = "blue"
+    ))
+```
+
+All the information defined so far can be combined in a `SummarizedExperiment`
+object, as shown above for the small example data: 
+
+```{r}
+duo2018 <- assembleSE(df = res, idCol = "method", metricInfo = metricInfo, 
+                      initialTransforms = initialTransforms,
+                      metricColors = metricColors, idColors = idColors)
 duo2018
 ```
 
-Here, the summary `data.frame` (provided in the `assay` of the 
-`SummarizedExperiment` object) contains values for 48 performance 
-measures (4 different metrics, each for 12 data sets) for 14 clustering 
-methods. We also provide a `metricInfo` `data.frame`, assigning each metric 
-to a class, and two lists of colors that we would like to use for the 
-different metrics and data sets. 
+The `assay` of the `SummarizedExperiment` object contains the values for 
+the 48 performance measures for the 14 clustering methods. 
+The `metricInfo` is stored in the `colData`, and the lists of colors and the 
+initial transforms in the `metadata`:
 
 ```{r}
 ## Display the whole performance table
@@ -132,19 +218,7 @@ head(colData(duo2018), 12)
 ## These are the color definitions (can mix character and hex values)
 metadata(duo2018)$bettrInfo$idColors
 metadata(duo2018)$bettrInfo$metricColors
-```
 
-Finally, we need to transform the metrics in 
-order to make them comparable (first, so that a high value is 'good', and 
-second, so that the numeric ranges of the metrics are comparable). In this 
-case, we have chosen to first flip the values (multiply by -1) of all 
-metrics representing elapsed time (`elapsed`) and the absolute deviation of 
-the number of clusters and Shannon entropies from the ground truth 
-(`nclust.vs.true` and `s.norm.vs.true`). Next, each of these metrics is scaled 
-linearly to the interval `[0, 1]`. These transformations are stored in 
-`duo2018$initialTransforms`. 
-
-```{r}
 names(metadata(duo2018)$bettrInfo$initialTransforms)
 
 ## An example of a transformation - elapsed time for the Koh dataset
