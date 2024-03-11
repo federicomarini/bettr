@@ -296,7 +296,7 @@ makePolarPlot(bettrList = prepData)
 
 `bettr` can also be adapted to represent more types of such collections of 
 metrics, other than the results of a benchmarking study in computational 
-biology. An examplem which is also included in the `inst/scripts` folder of 
+biology. An [example](https://github.com/federicomarini/bettr/blob/devel/inst/scripts/visualize_oecd_data.R), which is also included in the `inst/scripts` folder of 
 this package, presents the OECD Better Life Index 
 (https://stats.oecd.org/index.aspx?DataSetCode=BLI), spanning over 11 topics, 
 each represented by one to three indicators. These indicators are good measures 
