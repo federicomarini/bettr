@@ -292,6 +292,29 @@ makeHeatmap(bettrList = prepData)
 makePolarPlot(bettrList = prepData)
 ```
 
+# Exporting data from the app
+
+It is possible to export the data used internally by the interactive 
+application, in the same format as the output from `bettrGetReady()`.
+To enable such export, first generate the `app` object using the `bettr()`
+function, and then assign the call to `shiny::runApp()` to a variable to 
+capture the output. For example: 
+
+```{r}
+if (interactive()) {
+    app <- bettr(bettrSE = duo2018, bstheme = "sandstone")
+    out <- shiny::runApp(app)
+}
+```
+
+To activate the export, make sure to click the button 'Close app' (in the 
+bottom of the left-hand side bar) in order to 
+close the application (don't just close the window). This will take you back to 
+your R session, where the variable `out` will be populated with the data used 
+in the app (in the same format as the output from `bettrGetReady()`).
+This list can be directly provided as the input to e.g. `makeHeatmap()` and 
+the other plotting functions via the `bettrList` argument, as shown above.
+
 # Additional examples
 
 `bettr` can also be adapted to represent more types of such collections of 

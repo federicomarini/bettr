@@ -1,3 +1,7 @@
+# bettr 0.99.3
+
+* Add button to close app and return data
+
 # bettr 0.99.2
 
 * Update installation instructions
