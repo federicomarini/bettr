@@ -83,7 +83,7 @@
 #'     selectInput hr reactiveValues reactive outputOptions renderUI 
 #'     selectizeInput updateTabsetPanel observe observeEvent tabPanelBody 
 #'     plotOutput tagList tags HTML validate need renderPlot updateNumericInput 
-#'     sliderInput shinyApp
+#'     sliderInput shinyApp stopApp
 #' @importFrom sortable rank_list
 #' @importFrom shinyjqui jqui_resizable
 #' @importFrom dplyr filter select mutate left_join arrange relocate
@@ -268,7 +268,8 @@ bettr <- function(df, idCol = "Method",
                         shiny::uiOutput(outputId = "weights"),
                         shiny::actionButton(inputId = "resetWeights", 
                                             label = "Reset to uniform weights")
-                    )
+                    ),
+                    shiny::actionButton("close_app", "Close app")
                 )
             ),
             
@@ -1012,6 +1013,27 @@ bettr <- function(df, idCol = "Method",
                             }))
                 }
             }
+        })
+        
+        ## Close app ----------------------------------------------------------
+        shiny::observeEvent(input$close_app, {
+            shiny::stopApp(returnValue = list(
+                plotdata = plotdata(), 
+                scoredata = scoredata(), 
+                idColors = prep$idColors, 
+                metricColors = prep$metricColors, 
+                metricGrouping = input$metricGrouping,
+                metricCollapseGroup = input$metricCollapseGroup, 
+                idInfo = values$idInfo, 
+                metricInfo = values$metricInfo, 
+                metricGroupCol = metricGroupCol, 
+                methods = methodsInUse(), 
+                idCol = idCol, 
+                metricCol = metricCol, 
+                valueCol = valueCol, 
+                weightCol = weightCol, 
+                scoreCol = scoreCol
+            ))
         })
         
     }
