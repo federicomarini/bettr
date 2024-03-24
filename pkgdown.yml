@@ -1,7 +1,7 @@
 pandoc: 3.1.11
 pkgdown: 2.0.7.9000
-pkgdown_sha: af458182837a2b5d5bccbf3bf442eb6de7875696
+pkgdown_sha: 676cf1dce39e4dc5aa1bcb671b1e14e992589a0a
 articles:
   bettr: bettr.html
-last_built: 2024-03-11T20:29Z
+last_built: 2024-03-24T16:47Z
 
