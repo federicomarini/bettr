@@ -19,7 +19,7 @@ all required columns are available."><!-- mathjax --><script src="https://cdnjs.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">bettr</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -76,7 +76,7 @@ all required columns are available.</p>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>bettrList</dt>
+    <dl><dt id="arg-bettrlist">bettrList<a class="anchor" aria-label="anchor" href="#arg-bettrlist"></a></dt>
 <dd><p>A <code>list</code>, the output object from <code>prepData</code>.
 If <code>bettrList</code> is provided, arguments <code>plotdata</code>,
 <code>scoredata</code>, <code>idCol</code>, <code>metricCol</code>, <code>valueCol</code>,
@@ -88,42 +88,42 @@ will be ignored and the corresponding values will be extracted from
 functions, as it ensures compatibility of all components.</p></dd>
 
 
-<dt>plotdata</dt>
+<dt id="arg-plotdata">plotdata<a class="anchor" aria-label="anchor" href="#arg-plotdata"></a></dt>
 <dd><p>A <code>data.frame</code> with columns representing methods,
 metrics, scores, and weights. Typically obtained as
 <code>prepData$plotdata</code>, where <code>prepData</code> is the output from
 <code>bettrGetReady</code>.</p></dd>
 
 
-<dt>idCol</dt>
+<dt id="arg-idcol">idCol<a class="anchor" aria-label="anchor" href="#arg-idcol"></a></dt>
 <dd><p>Character scalar indicating which column of <code>plotdata</code> and
 <code>scoredata</code> contains the method IDs.</p></dd>
 
 
-<dt>metricCol</dt>
+<dt id="arg-metriccol">metricCol<a class="anchor" aria-label="anchor" href="#arg-metriccol"></a></dt>
 <dd><p>Character scalar indicating which column of <code>plotdata</code>
 contains the metric IDs. Typically, <code>"Metric"</code>.</p></dd>
 
 
-<dt>valueCol</dt>
+<dt id="arg-valuecol">valueCol<a class="anchor" aria-label="anchor" href="#arg-valuecol"></a></dt>
 <dd><p>Character scalar indicating which column of <code>plotdata</code>
 contains the metric values. Typically, <code>"ScaledValue"</code>.</p></dd>
 
 
-<dt>metricGroupCol</dt>
+<dt id="arg-metricgroupcol">metricGroupCol<a class="anchor" aria-label="anchor" href="#arg-metricgroupcol"></a></dt>
 <dd><p>Character scalar indicating which column of
 <code>plotdata</code> contains the information about the metric group.
 Typically, <code>"metricGroup"</code>.</p></dd>
 
 
-<dt>metricColors</dt>
+<dt id="arg-metriccolors">metricColors<a class="anchor" aria-label="anchor" href="#arg-metriccolors"></a></dt>
 <dd><p>Named list with colors used for the metrics and
 any other metric annotations. Typically obtained as
 <code>prepData$metricColors</code>, where <code>prepData</code> is the output from
 <code>bettrGetReady</code>.</p></dd>
 
 
-<dt>metricCollapseGroup</dt>
+<dt id="arg-metriccollapsegroup">metricCollapseGroup<a class="anchor" aria-label="anchor" href="#arg-metriccollapsegroup"></a></dt>
 <dd><p>Logical scalar indicating whether metrics
 should be collapsed by the group variable provided by
 <code>metricGrouping</code>. Typically obtained as
@@ -131,14 +131,14 @@ should be collapsed by the group variable provided by
 output from <code>bettrGetReady</code>.</p></dd>
 
 
-<dt>metricGrouping</dt>
+<dt id="arg-metricgrouping">metricGrouping<a class="anchor" aria-label="anchor" href="#arg-metricgrouping"></a></dt>
 <dd><p>Character scalar indicating the column of
 <code>metricInfo</code> that was used to group metrics. Typically obtained as
 <code>prepData$metricGrouping</code>, where <code>prepData</code> is the output
 from <code>bettrGetReady</code>.</p></dd>
 
 
-<dt>labelSize</dt>
+<dt id="arg-labelsize">labelSize<a class="anchor" aria-label="anchor" href="#arg-labelsize"></a></dt>
 <dd><p>Numeric scalar providing the size of the labels in the plot.</p></dd>
 
 </dl></div>
@@ -182,7 +182,7 @@ from <code>bettrGetReady</code>.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.9000.</p>
 </div>
 
       </footer></div>
