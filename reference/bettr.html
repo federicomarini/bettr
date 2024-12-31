@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">bettr</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.1</span>
       </span>
     </div>
 
@@ -69,7 +69,8 @@
 <span>  weightResolution <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  bstheme <span class="op">=</span> <span class="st">"darkly"</span>,</span>
 <span>  appTitle <span class="op">=</span> <span class="st">"bettr"</span>,</span>
-<span>  bettrSE <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  bettrSE <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  addStopButton <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -167,6 +168,11 @@ this is not <code>NULL</code>, <code>df</code>, <code>metrics</code>, <code>init
 <code>initialTransforms</code>, <code>metricInfo</code>, <code>metricColors</code>, <code>idInfo</code> and
 <code>idColors</code> arguments will be ignored and the information will be
 extracted from the <code>SummarizedExperiment</code> object.</p></dd>
+
+
+<dt id="arg-addstopbutton">addStopButton<a class="anchor" aria-label="anchor" href="#arg-addstopbutton"></a></dt>
+<dd><p>Logical scalar. If <code>TRUE</code> (default), will add a
+button to stop the app (by calling <code><a href="https://rdrr.io/pkg/shiny/man/stopApp.html" class="external-link">shiny::stopApp</a></code>).</p></dd>
 
 </dl></div>
     <div id="value">
