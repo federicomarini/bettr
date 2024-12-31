@@ -17,7 +17,8 @@ bettr(
   weightResolution = 0.05,
   bstheme = "darkly",
   appTitle = "bettr",
-  bettrSE = NULL
+  bettrSE = NULL,
+  addStopButton = TRUE
 )
 }
 \arguments{
@@ -88,6 +89,9 @@ this is not \code{NULL}, \code{df}, \code{metrics}, \code{initialWeights},
 \code{initialTransforms}, \code{metricInfo}, \code{metricColors}, \code{idInfo} and
 \code{idColors} arguments will be ignored and the information will be
 extracted from the \code{SummarizedExperiment} object.}
+
+\item{addStopButton}{Logical scalar. If \code{TRUE} (default), will add a
+button to stop the app (by calling \code{shiny::stopApp}).}
 }
 \value{
 A shiny application

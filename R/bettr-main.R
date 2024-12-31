@@ -3,7 +3,7 @@
 .checkArgs_bettr <- function(
         df, idCol, metrics, initialWeights, initialTransforms, metricInfo, 
         metricColors, idInfo, idColors, weightResolution, bstheme,
-        appTitle) {
+        appTitle, addStopButton) {
     .checkArgs_assembleSE(df = df, idCol = idCol, metrics = metrics, 
                           initialWeights = initialWeights, 
                           initialTransforms = initialTransforms, 
@@ -12,6 +12,7 @@
     .assertScalar(x = weightResolution, type = "numeric", rngIncl = c(0, 1))
     .assertScalar(x = bstheme, type = "character")
     .assertScalar(x = appTitle, type = "character")
+    .assertScalar(x = addStopButton, type = "logical")
 }
 
 #' Launch bettr app to explore and aggregate performance metrics
@@ -70,6 +71,8 @@
 #'     (see https://bootswatch.com/). Default 'darkly'.
 #' @param appTitle Character scalar giving the title that will be used for 
 #'     the app. Defaults to 'bettr'.
+#' @param addStopButton Logical scalar. If `TRUE` (default), will add a
+#'     button to stop the app (by calling `shiny::stopApp`).
 #'  
 #' @export
 #' 
@@ -115,7 +118,8 @@ bettr <- function(df, idCol = "Method",
                   metricInfo = NULL, metricColors = NULL,
                   idInfo = NULL, idColors = NULL,
                   weightResolution = 0.05, bstheme = "darkly",
-                  appTitle = "bettr", bettrSE = NULL) {
+                  appTitle = "bettr", bettrSE = NULL,
+                  addStopButton = TRUE) {
     
     ## Get arguments from bettrSE if provided ---------------------------------
     if (!is.null(bettrSE)) {
@@ -153,7 +157,8 @@ bettr <- function(df, idCol = "Method",
                      metricInfo = metricInfo, metricColors = metricColors,
                      idInfo = idInfo, idColors = idColors, 
                      weightResolution = weightResolution, 
-                     bstheme = bstheme, appTitle = appTitle)
+                     bstheme = bstheme, appTitle = appTitle,
+                     addStopButton = addStopButton)
     
     ## Prepare data -----------------------------------------------------------
     prep <- .prepareData(df = df, idCol = idCol, metrics = metrics, 
@@ -269,7 +274,7 @@ bettr <- function(df, idCol = "Method",
                         shiny::actionButton(inputId = "resetWeights", 
                                             label = "Reset to uniform weights")
                     ),
-                    shiny::actionButton("close_app", "Close app")
+                    shiny::uiOutput("close_app_ui")
                 )
             ),
             
@@ -1016,6 +1021,13 @@ bettr <- function(df, idCol = "Method",
         })
         
         ## Close app ----------------------------------------------------------
+        output$close_app_ui <- shiny::renderUI({
+            if (addStopButton) {
+                shiny::actionButton("close_app", "Close app")
+            } else {
+                NULL
+            }
+        })
         shiny::observeEvent(input$close_app, {
             shiny::stopApp(returnValue = list(
                 plotdata = plotdata(), 
