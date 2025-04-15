@@ -1,6 +1,6 @@
 Package: bettr
 Title: A Better Way To Explore What Is Best
-Version: 1.4.0
+Version: 1.5.0
 Date: 2024-03-24
 Authors@R: 
     c(person("Federico", "Marini", 
