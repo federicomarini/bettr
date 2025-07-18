@@ -1,3 +1,7 @@
+# bettr 1.5.1
+
+* Minor fixes to tests to be more robust to possible future changes in ggplot2
+
 # bettr 0.99.3
 
 * Add button to close app and return data
