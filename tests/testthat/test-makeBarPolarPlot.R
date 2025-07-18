@@ -25,7 +25,7 @@ test_that("BarPolarPlot works", {
         methods = unique(scoredata$Method), labelSize = 10,
         showComposition = FALSE, scaleFactorPolars = 1.5
     )
-    expect_s3_class(bpp, "ggplot")
+    expect_true(ggplot2::is_ggplot(bpp))
     
     bpp <- makeBarPolarPlot(
         bettrList = NULL,
@@ -37,7 +37,7 @@ test_that("BarPolarPlot works", {
         methods = NULL, labelSize = 10,
         showComposition = FALSE, scaleFactorPolars = 1.5
     )
-    expect_s3_class(bpp, "ggplot")
+    expect_true(ggplot2::is_ggplot(bpp))
     
     ## With bettrList instead
     bpp2 <- makeBarPolarPlot(
@@ -50,7 +50,7 @@ test_that("BarPolarPlot works", {
                          methods = unique(scoredata$Method)), 
         labelSize = 10, showComposition = FALSE, scaleFactorPolars = 1.5
     )
-    expect_s3_class(bpp2, "ggplot")
+    expect_true(ggplot2::is_ggplot(bpp2))
     
     bpp <- makeBarPolarPlot(
         bettrList = NULL,
@@ -62,7 +62,7 @@ test_that("BarPolarPlot works", {
         methods = unique(scoredata$Method), labelSize = 10,
         showComposition = TRUE, scaleFactorPolars = 1.5
     )
-    expect_s3_class(bpp, "ggplot")
+    expect_true(ggplot2::is_ggplot(bpp))
     
     grpdf <- plotdata |>
         dplyr::group_by(Method, Group) |>
@@ -81,5 +81,5 @@ test_that("BarPolarPlot works", {
         methods = unique(scoredata$Method), labelSize = 10,
         showComposition = TRUE, scaleFactorPolars = 1.5
     )
-    expect_s3_class(bpp, "ggplot")
+    expect_true(ggplot2::is_ggplot(bpp))
 })

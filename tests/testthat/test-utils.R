@@ -11,5 +11,5 @@ test_that("utils work", {
     
     p1 <- .makeMetricSummaryPlot(x = rnorm(10))
     p1
-    expect_s3_class(p1, "ggplot")
+    expect_true(ggplot2::is_ggplot(p1))
 })

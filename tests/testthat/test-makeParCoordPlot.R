@@ -28,7 +28,7 @@ test_that("ParCoordPlot works", {
         metricGrouping = "---", highlightMethod = "---", labelSize = 10
     )
     bpp
-    expect_s3_class(bpp, "ggplot")
+    expect_true(ggplot2::is_ggplot(bpp))
     
     bpp <- makeParCoordPlot(
         bettrList = NULL,
@@ -41,7 +41,7 @@ test_that("ParCoordPlot works", {
         metricGrouping = "---", highlightMethod = "---", labelSize = 10
     )
     bpp
-    expect_s3_class(bpp, "ggplot")
+    expect_true(ggplot2::is_ggplot(bpp))
     
     ## With bettrList instead
     bpp2 <- makeParCoordPlot(
@@ -55,7 +55,7 @@ test_that("ParCoordPlot works", {
             metricGrouping = "---"), highlightMethod = "---", labelSize = 10
     )
     bpp2
-    expect_s3_class(bpp2, "ggplot")
+    expect_true(ggplot2::is_ggplot(bpp2))
     
     plotdata$metricGroup <- plotdata$Group
     bpp <- makeParCoordPlot(
@@ -69,7 +69,7 @@ test_that("ParCoordPlot works", {
         metricGrouping = "Group", highlightMethod = "---", labelSize = 10
     )
     bpp
-    expect_s3_class(bpp, "ggplot")
+    expect_true(ggplot2::is_ggplot(bpp))
     
     plotdata$metricGroup <- plotdata$NumCol
     bpp <- makeParCoordPlot(
@@ -83,7 +83,7 @@ test_that("ParCoordPlot works", {
         metricGrouping = "NumCol", highlightMethod = "---", labelSize = 10
     )
     bpp
-    expect_s3_class(bpp, "ggplot")
+    expect_true(ggplot2::is_ggplot(bpp))
     
     bpp <- makeParCoordPlot(
         bettrList = NULL,
@@ -96,6 +96,6 @@ test_that("ParCoordPlot works", {
         metricGrouping = "---", highlightMethod = "M1", labelSize = 10
     )
     bpp
-    expect_s3_class(bpp, "ggplot")
+    expect_true(ggplot2::is_ggplot(bpp))
     
 })

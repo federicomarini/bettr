@@ -22,7 +22,7 @@ test_that("PolarPlot works", {
         metricColors = list(Metric = c("blue", "red", "green")),
         metricCollapseGroup = FALSE, metricGrouping = "Group", labelSize = 10
     )
-    expect_s3_class(bpp, "ggplot")
+    expect_true(ggplot2::is_ggplot(bpp))
     
     ## With bettrList instead
     bpp2 <- makePolarPlot(
@@ -34,7 +34,7 @@ test_that("PolarPlot works", {
             metricCollapseGroup = FALSE, metricGrouping = "Group"),
         labelSize = 10
     )
-    expect_s3_class(bpp2, "ggplot")
+    expect_true(ggplot2::is_ggplot(bpp2))
     
     bpp <- makePolarPlot(
         bettrList = NULL,
@@ -43,7 +43,7 @@ test_that("PolarPlot works", {
         metricColors = list(Metric = c("blue", "red", "green")),
         metricCollapseGroup = FALSE, metricGrouping = "Group", labelSize = 10
     )
-    expect_s3_class(bpp, "ggplot")
+    expect_true(ggplot2::is_ggplot(bpp))
     
     grpdf <- plotdata |>
         dplyr::group_by(Method, Group) |>
@@ -60,5 +60,5 @@ test_that("PolarPlot works", {
         metricColors = list(Group = c("blue", "red", "green")),
         metricCollapseGroup = TRUE, metricGrouping = "Group", labelSize = 10
     )
-    expect_s3_class(bpp, "ggplot")
+    expect_true(ggplot2::is_ggplot(bpp))
 })
