@@ -48,4 +48,13 @@ BiocManager::install("bettr")
 For more details on how to use `bettr`, we refer to the 
 [vignette](https://federicomarini.github.io/bettr/articles/bettr.html).
 If you have questions or run into problems, feel free to open an 
-[issue](https://github.com/federicomarini/bettr/issues).
+[issue](https://github.com/federicomarini/bettr/issues). Try to provide a 
+reproducible example, and always include the code you used and your session 
+info, that will make it much easier for us to help.
+
+## Contributing to `bettr`
+
+If you would like to contribute to `bettr`, you can do so by sending a pull 
+request to this repository. If the contribution involves changes in the 
+functionality provided by `bettr`, we encourage you to first open an issue to 
+discuss the intended contribution.
