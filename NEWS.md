@@ -1,3 +1,7 @@
+# bettr 1.5.2
+
+* Add possibility to specify the default weight for metrics
+
 # bettr 1.5.1
 
 * Minor fixes to tests to be more robust to possible future changes in ggplot2
