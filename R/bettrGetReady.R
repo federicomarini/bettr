@@ -4,7 +4,7 @@
         df, idCol, metrics, initialWeights, initialTransforms, metricInfo, 
         metricColors, idInfo, idColors, scoreMethod, idOrdering, 
         showOnlyTopIds, nbrTopIds, idTopNGrouping, keepIds, metricGrouping,
-        metricCollapseGroup, metricCollapseMethod) {
+        metricCollapseGroup, metricCollapseMethod, defaultWeightValue) {
     .assertVector(x = df, type = "data.frame")
     .assertScalar(x = idCol, type = "character", validValues = colnames(df))
     .assertVector(x = metrics, type = "character", validValues = colnames(df))
@@ -30,6 +30,7 @@
     .assertScalar(x = metricCollapseGroup, type = "logical")
     .assertScalar(x = metricCollapseMethod, type = "character", 
                   validValues = c("mean", "max", "min"))
+    .assertScalar(x = defaultWeightValue, type = "numeric", rngIncl = c(0, 1))
 }
 
 #' Prepare data for plotting with bettr
@@ -104,7 +105,8 @@ bettrGetReady <- function(df, idCol = "Method",
                           idTopNGrouping = NULL, 
                           keepIds = NULL, 
                           metricGrouping = NULL, metricCollapseGroup = FALSE, 
-                          metricCollapseMethod = "mean", bettrSE = NULL) {
+                          metricCollapseMethod = "mean", 
+                          defaultWeight = 0.2, bettrSE = NULL) {
 
     ## Get arguments from bettrSE if provided ---------------------------------
     if (!is.null(bettrSE)) {
@@ -140,7 +142,8 @@ bettrGetReady <- function(df, idCol = "Method",
         idTopNGrouping = idTopNGrouping, keepIds = keepIds,
         metricGrouping = metricGrouping, 
         metricCollapseGroup = metricCollapseGroup,
-        metricCollapseMethod = metricCollapseMethod
+        metricCollapseMethod = metricCollapseMethod,
+        defaultWeightValue = defaultWeight
     )
 
     
@@ -151,8 +154,7 @@ bettrGetReady <- function(df, idCol = "Method",
     metricCol <- "Metric"
     valueCol <- "ScaledValue"
     metricGroupCol <- "metricGroup"
-    defaultWeightValue <- 0.2
-    
+
     if (is.null(idTopNGrouping)) {
         idTopNGrouping <- "---"
     }
@@ -175,7 +177,7 @@ bettrGetReady <- function(df, idCol = "Method",
         idColors = idColors,
         weightResolution = 0.05,
         metricCol = metricCol, 
-        defaultWeightValue = defaultWeightValue
+        defaultWeightValue = defaultWeight
     )
     
     values <- list(

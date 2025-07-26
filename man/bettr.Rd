@@ -18,7 +18,8 @@ bettr(
   bstheme = "darkly",
   appTitle = "bettr",
   bettrSE = NULL,
-  addStopButton = TRUE
+  addStopButton = TRUE,
+  defaultWeight = 0.2
 )
 }
 \arguments{
@@ -92,6 +93,9 @@ extracted from the \code{SummarizedExperiment} object.}
 
 \item{addStopButton}{Logical scalar. If \code{TRUE} (default), will add a
 button to stop the app (by calling \code{shiny::stopApp}).}
+
+\item{defaultWeight}{Numeric scalar between 0 and 1, giving the default
+weight to assign to each metric.}
 }
 \value{
 A shiny application

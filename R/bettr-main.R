@@ -3,7 +3,7 @@
 .checkArgs_bettr <- function(
         df, idCol, metrics, initialWeights, initialTransforms, metricInfo, 
         metricColors, idInfo, idColors, weightResolution, bstheme,
-        appTitle, addStopButton) {
+        appTitle, addStopButton, defaultWeightValue) {
     .checkArgs_assembleSE(df = df, idCol = idCol, metrics = metrics, 
                           initialWeights = initialWeights, 
                           initialTransforms = initialTransforms, 
@@ -13,6 +13,7 @@
     .assertScalar(x = bstheme, type = "character")
     .assertScalar(x = appTitle, type = "character")
     .assertScalar(x = addStopButton, type = "logical")
+    .assertScalar(x = defaultWeightValue, type = "numeric", rngIncl = c(0, 1))
 }
 
 #' Launch bettr app to explore and aggregate performance metrics
@@ -73,6 +74,8 @@
 #'     the app. Defaults to 'bettr'.
 #' @param addStopButton Logical scalar. If `TRUE` (default), will add a
 #'     button to stop the app (by calling `shiny::stopApp`).
+#' @param defaultWeight Numeric scalar between 0 and 1, giving the default 
+#'     weight to assign to each metric.
 #'  
 #' @export
 #' 
@@ -119,7 +122,7 @@ bettr <- function(df, idCol = "Method",
                   idInfo = NULL, idColors = NULL,
                   weightResolution = 0.05, bstheme = "darkly",
                   appTitle = "bettr", bettrSE = NULL,
-                  addStopButton = TRUE) {
+                  addStopButton = TRUE, defaultWeight = 0.2) {
     
     ## Get arguments from bettrSE if provided ---------------------------------
     if (!is.null(bettrSE)) {
@@ -148,8 +151,7 @@ bettr <- function(df, idCol = "Method",
     metricCol <- "Metric"
     valueCol <- "ScaledValue"
     metricGroupCol <- "metricGroup"
-    defaultWeightValue <- 0.2
-    
+
     ## Check validity of input arguments --------------------------------------
     .checkArgs_bettr(df = df, idCol = idCol, metrics = metrics,
                      initialWeights = initialWeights,
@@ -158,7 +160,8 @@ bettr <- function(df, idCol = "Method",
                      idInfo = idInfo, idColors = idColors, 
                      weightResolution = weightResolution, 
                      bstheme = bstheme, appTitle = appTitle,
-                     addStopButton = addStopButton)
+                     addStopButton = addStopButton,
+                     defaultWeightValue = defaultWeight)
     
     ## Prepare data -----------------------------------------------------------
     prep <- .prepareData(df = df, idCol = idCol, metrics = metrics, 
@@ -170,7 +173,7 @@ bettr <- function(df, idCol = "Method",
                          idColors = idColors,
                          weightResolution = weightResolution,
                          metricCol = metricCol, 
-                         defaultWeightValue = defaultWeightValue)
+                         defaultWeightValue = defaultWeight)
     
     ## UI definition ----------------------------------------------------------
     p_layout <- 
@@ -821,7 +824,7 @@ bettr <- function(df, idCol = "Method",
             for (j in metrics) {
                 shiny::updateNumericInput(
                     session, inputId = paste0(j, "_weight"), 
-                    value = defaultWeightValue
+                    value = defaultWeight
                 )
             }
         })
