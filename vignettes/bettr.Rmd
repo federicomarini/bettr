@@ -33,7 +33,7 @@ Inspired by the
 the `bettr` package was developed to provide support for this last step. It 
 allows users to easily create performance summaries emphasizing the aspects 
 that are most important to them. `bettr` can be used interactively, via a 
-R/shiny application, or programmatically by calling the underlying functions. 
+R/Shiny application, or programmatically by calling the underlying functions. 
 In this vignette, we illustrate both alternatives, using example data 
 provided with the package. 
 
@@ -42,11 +42,10 @@ computational analysis of biological data, both within and beyond Bioconductor,
 and the importance of careful, adaptive benchmarking, we believe that 
 `bettr` will be a useful complement to currently available Bioconductor 
 infrastructure related to benchmarking and performance estimation. 
-Other packages (e.g., `r Biocpkg("pipeComp")` or 
-`r Biocpkg("SummarizedBenchmark")`) provide frameworks for _executing_
+Other packages (e.g., `r Biocpkg("pipeComp")`) provide frameworks for _executing_
 benchmarks by applying and recording pre-defined workflows to data. Packages 
 such as `r Biocpkg("iCOBRA")` and `r CRANpkg("ROCR")` instead provide 
-functionality for calculating well-established evaluation metric. In contrast, 
+functionality for calculating well-established evaluation metrics. In contrast, 
 `bettr` focuses on _visual exploration_ of benchmark results, represented by 
 the values of several evaluation metrics. 
 
@@ -93,7 +92,7 @@ idInfo <- data.frame(Method = c("M1", "M2", "M3"),
 ```
 
 To simplify handling and sharing, the data can be combined into a 
-`SummarizedExperiment` (with methods as rows and metrics as columns) as 
+`SummarizedExperiment` object (with methods as rows and metrics as columns) as 
 follows: 
 
 ```{r}
@@ -102,8 +101,8 @@ se <- assembleSE(df = df, idCol = "Method", metricInfo = metricInfo,
 se
 ```
 
-The interactive application to explore the rankings can then be launched by 
-means of the `bettr()` function. The input can be either the assembled 
+The interactive application to explore the rankings can then be launched by
+calling the `bettr()` function. The input can be either the assembled 
 `SummarizedExperiment` object or the individual components. 
 
 ```{r}
@@ -134,7 +133,7 @@ tibble(res)
 As we can see, we have 14 methods (rows) and 48 different metrics (columns). 
 The first column provides the name of the clustering method.
 More precisely, the columns correspond to four different metrics, each of 
-which was applied to clustering output from of 12 data sets. We encode this 
+which was applied to clustering output from 12 data sets. We encode this 
 "grouping" of metrics in a data frame, in such a way that we can later 
 collapse performance across data sets in `bettr`: 
 
@@ -195,7 +194,8 @@ visualizing the methods and metrics in `bettr`.
 metricColors <- list(
     Class = c(ARI = "purple", elapsed = "forestgreen", 
               nclust.vs.true = "blue", 
-              s.norm.vs.true = "orange"))
+              s.norm.vs.true = "orange"
+    ))
 idColors <- list(
     method = c(
         CIDR = "#332288", FlowSOM = "#6699CC", PCAHC = "#88CCEE", 
@@ -247,12 +247,21 @@ bettr(bettrSE = duo2018, bstheme = "sandstone")
 ```
 
 The screenshot below illustrates the default view of the interactive 
-interface. 
+interface. The methods (rows) are sorted by the aggregated scores, which are 
+shown as bars to the right of the heatmap (recall that in this case, large 
+scores are better). If we have many methods, we can choose to only display the 
+top ones by ticking the `Show only top IDs` box in the left-hand sidebar. 
+If additional annotations are provided for the methods (similarly as for the 
+metrics above), we can further display only the top methods in each group. This 
+can be useful e.g. in situations where each tool is run with many different 
+parameter settings, and we want to limit the plot to the best parameter 
+settings for each tool. 
 
 <img src="bettr-screenshot-heatmap.png" width="100%">
 
 We can choose to collapse the metric values to have a single 
-value for each metric class, to reduce the redundancy. We can now also 
+value for each metric class, to reduce the redundancy (via `Metrics` - 
+`Grouping of metrics` in the left-hand sidebar). We can now also 
 freely decide how to weight the respective metrics by means of the sliders in 
 the left side bar. The bars on top of the heatmap show the current weight 
 assignment. 
@@ -263,9 +272,16 @@ assignment.
 
 <img src="bettr-screenshot-polar.png" width="100%">
 
+At any point, methods and metrics can be filtered out (either individually or
+by excluding all methods and metrics with a specified annotation) via the 
+`Filter methods/metrics` tab. The metrics can be transformed interactively 
+in the `Transform metrics` tab (see above for the different transformation 
+options). Finally, the current transformed values for all metrics as well as 
+the summary scores can be viewed in the `Data table` tab. 
+
 # Programmatic interface
 
-The interactive application showcased above, is the main entry point to using
+The interactive application showcased above is the main entry point to using
 `bettr`. However, we also provide a wrapper function to prepare the input data 
 for plotting (replicating the steps that are performed in the app), as well as 
 access to the plotting functions themselves. The following code replicates the 
@@ -317,12 +333,14 @@ the other plotting functions via the `bettrList` argument, as shown above.
 
 # Additional examples
 
-`bettr` can also be adapted to represent more types of such collections of 
-metrics, other than the results of a benchmarking study in computational 
-biology. An [example](https://github.com/federicomarini/bettr/blob/devel/inst/scripts/visualize_oecd_data.R), which is also included in the `inst/scripts` folder of 
+`bettr` can also be adapted to represent other types of collections of 
+metric scores than the results of benchmarking studies in computational 
+biology. An 
+[example](https://github.com/federicomarini/bettr/blob/devel/inst/scripts/visualize_oecd_data.R), 
+which is also included in the `inst/scripts` folder of 
 this package, presents the OECD Better Life Index 
 (https://stats.oecd.org/index.aspx?DataSetCode=BLI), spanning over 11 topics, 
-each represented by one to three indicators. These indicators are good measures 
+each represented by one to three indicators. These indicators are measures 
 of the concepts of well-being, and well suited to display some
 comparison across countries.
 

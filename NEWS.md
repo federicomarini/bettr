@@ -1,3 +1,7 @@
+# bettr 1.5.3
+
+* Expand vignette with more details about the app
+
 # bettr 1.5.2
 
 * Add possibility to specify the default weight for metrics

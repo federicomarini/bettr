@@ -43,6 +43,12 @@ if (!require("BiocManager", quietly = TRUE))
 BiocManager::install("bettr")
 ```
 
+The latest development version can be installed from GitHub via 
+
+```r
+BiocManager::install("federicomarini/bettr")
+```
+
 ## Usage
 
 For more details on how to use `bettr`, we refer to the 
