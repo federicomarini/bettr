@@ -218,7 +218,8 @@ bettr <- function(df = NULL, idCol = "Method",
             bettr_idCol = if (!uploadMode) idCol else NULL,
             bettr_metrics = if (!uploadMode) metrics else NULL,
             file_uploaded = FALSE,
-            switched_to_bettr = FALSE
+            switched_to_bettr = FALSE,
+            original_filename = NULL
         )
         
         # Dynamic sidebar based on app mode
@@ -257,7 +258,7 @@ bettr <- function(df = NULL, idCol = "Method",
                         shiny::br(),
                         shiny::actionButton(
                             inputId = "switchToBettr",
-                            label = "Launch bettr Interface",
+                            label = "Launch Interface",
                             class = "btn-primary"
                         )
                     ),
@@ -276,6 +277,41 @@ bettr <- function(df = NULL, idCol = "Method",
                 bslib::accordion(
                     open = TRUE, 
                     multiple = TRUE,
+                    bslib::accordion_panel(
+                        "Upload Data",
+                        shiny::fileInput(
+                            inputId = "csvFileReload",
+                            label = "Choose CSV File",
+                            accept = c(".csv", ".CSV"),
+                            multiple = FALSE
+                        ),
+
+                        
+                        shiny::conditionalPanel(
+                            condition = "output.fileUploadedReload == true",
+                            shiny::selectInput(
+                                inputId = "idColReload",
+                                label = "ID Column:",
+                                choices = NULL,
+                                selected = NULL
+                            ),
+                            
+                            shiny::selectInput(
+                                inputId = "metricColsReload",
+                                label = "Metric Columns:",
+                                choices = NULL,
+                                selected = NULL,
+                                multiple = TRUE
+                            ),
+                            
+                            shiny::br(),
+                            shiny::actionButton(
+                                inputId = "reloadData",
+                                label = "Reload Data",
+                                class = "btn-warning"
+                            )
+                        )
+                    ),
                     bslib::accordion_panel(
                         "Methods/IDs",
                         shiny::uiOutput(outputId = "highlightMethodUI"),
@@ -400,7 +436,7 @@ bettr <- function(df = NULL, idCol = "Method",
                                 12,
                                 bslib::card(
                                     shiny::h4("Data Preview"),
-                                    shiny::p("Configure your data columns in the sidebar, then click 'Launch bettr Interface'."),
+                                    shiny::p("Configure your data columns in the sidebar, then click 'Launch Interface'."),
                                     DT::dataTableOutput("dataPreview")
                                 )
                             )
@@ -545,6 +581,12 @@ bettr <- function(df = NULL, idCol = "Method",
             }
         })
         
+        # Reload data state
+        reload_state <- shiny::reactiveValues(
+            uploaded_data = NULL,
+            file_uploaded = FALSE
+        )
+        
         # Upload functionality - CSV file handling
         shiny::observeEvent(input$csvFile, {
             shiny::req(input$csvFile)
@@ -553,9 +595,10 @@ bettr <- function(df = NULL, idCol = "Method",
                 # Read the CSV file
                 csv_data <- utils::read.csv(input$csvFile$datapath, stringsAsFactors = FALSE)
                 
-                # Store the data
+                # Store the data and filename
                 app_state$uploaded_data <- csv_data
                 app_state$file_uploaded <- TRUE
+                app_state$original_filename <- input$csvFile$name
                 
                 # Update column choices
                 col_names <- colnames(csv_data)
@@ -580,11 +623,144 @@ bettr <- function(df = NULL, idCol = "Method",
             })
         })
         
+        # Reload functionality - CSV file handling for bettr mode
+        shiny::observeEvent(input$csvFileReload, {
+            shiny::req(input$csvFileReload)
+            
+            tryCatch({
+                # Read the CSV file
+                csv_data <- utils::read.csv(input$csvFileReload$datapath, stringsAsFactors = FALSE)
+                
+                # Store the data
+                reload_state$uploaded_data <- csv_data
+                reload_state$file_uploaded <- TRUE
+                
+                # Update column choices
+                col_names <- colnames(csv_data)
+                numeric_cols <- col_names[sapply(csv_data, function(x) is.numeric(x) || 
+                                                 (is.character(x) && !any(is.na(suppressWarnings(as.numeric(x))))))]
+                
+                shiny::updateSelectInput(session, "idColReload", 
+                                       choices = col_names,
+                                       selected = col_names[1])
+                
+                shiny::updateSelectInput(session, "metricColsReload",
+                                       choices = numeric_cols,
+                                       selected = numeric_cols[1:min(3, length(numeric_cols))])
+                
+                shiny::showNotification("New file uploaded successfully! Configure columns and click 'Reload Data'.")
+                
+            }, error = function(e) {
+                shiny::showNotification(
+                    paste("Error reading file:", e$message), 
+                    duration = 10
+                )
+            })
+        })
+        
+        # Handle reload with new data
+        shiny::observeEvent(input$reloadData, {
+            shiny::req(reload_state$uploaded_data, input$idColReload, input$metricColsReload)
+            
+            tryCatch({
+                # Validate selections
+                if (length(input$metricColsReload) < 1) {
+                    shiny::showNotification("Please select at least one metric column.")
+                    return()
+                }
+                
+                if (input$idColReload %in% input$metricColsReload) {
+                    shiny::showNotification("ID column cannot also be a metric column.")
+                    return()
+                }
+                
+                # Prepare data for bettr
+                upload_df <- reload_state$uploaded_data
+                
+                # Ensure metric columns are numeric
+                for (col in input$metricColsReload) {
+                    if (!is.numeric(upload_df[[col]])) {
+                        upload_df[[col]] <- as.numeric(upload_df[[col]])
+                    }
+                }
+                
+                # Remove rows with missing ID values
+                upload_df <- upload_df[!is.na(upload_df[[input$idColReload]]) & upload_df[[input$idColReload]] != "", ]
+                
+                if (nrow(upload_df) == 0) {
+                    shiny::showNotification("No valid data rows found.")
+                    return()
+                }
+                
+                # Update app state with new data
+                app_state$bettr_data <- upload_df
+                app_state$bettr_idCol <- input$idColReload
+                app_state$bettr_metrics <- input$metricColsReload
+                app_state$original_filename <- input$csvFileReload$name
+                
+                # Update global variables
+                idCol <<- input$idColReload
+                metrics <<- input$metricColsReload
+                df <<- upload_df
+                
+                # Re-prepare data for bettr functionality
+                prep <<- .prepareData(df = upload_df, idCol = input$idColReload, metrics = input$metricColsReload, 
+                                     initialWeights = initialWeights,
+                                     initialTransforms = initialTransforms, 
+                                     metricInfo = metricInfo, 
+                                     metricColors = metricColors, 
+                                     idInfo = idInfo,
+                                     idColors = idColors,
+                                     weightResolution = weightResolution,
+                                     metricCol = metricCol, 
+                                     defaultWeightValue = defaultWeight)
+                
+                # Update reactive values
+                values$df <- upload_df
+                values$metrics <- input$metricColsReload
+                values$nMetrics <- length(input$metricColsReload)
+                values$metricInfo <- if (!is.null(prep)) prep$metricInfo else NULL
+                values$idInfo <- if (!is.null(prep)) prep$idInfo else NULL
+                values$methods <- unique(upload_df[[input$idColReload]])
+                values$currentWeights <- if (!is.null(prep)) prep$initialWeights else setNames(rep(defaultWeight, length(input$metricColsReload)), input$metricColsReload)
+                
+                # Reset reload state
+                reload_state$file_uploaded <- FALSE
+                reload_state$uploaded_data <- NULL
+                
+                shiny::showNotification("Data reloaded successfully!")
+                
+            }, error = function(e) {
+                shiny::showNotification(
+                    paste("Error reloading data:", e$message), 
+                    duration = 10
+                )
+            })
+        })
+        
         # Output flags for conditional panels
         output$fileUploaded <- shiny::reactive({
             app_state$file_uploaded
         })
         shiny::outputOptions(output, "fileUploaded", suspendWhenHidden = FALSE)
+        
+        output$fileUploadedReload <- shiny::reactive({
+            reload_state$file_uploaded
+        })
+        shiny::outputOptions(output, "fileUploadedReload", suspendWhenHidden = FALSE)
+        
+        output$hasOriginalFile <- shiny::reactive({
+            !is.null(app_state$original_filename)
+        })
+        shiny::outputOptions(output, "hasOriginalFile", suspendWhenHidden = FALSE)
+        
+        output$currentFileName <- shiny::renderText({
+            if (!is.null(app_state$original_filename)) {
+                app_state$original_filename
+            } else {
+                ""
+            }
+        })
         
         output$switchedToBettr <- shiny::reactive({
             app_state$switched_to_bettr
