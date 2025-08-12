@@ -76,6 +76,9 @@
 #'     button to stop the app (by calling `shiny::stopApp`).
 #' @param defaultWeight Numeric scalar between 0 and 1, giving the default 
 #'     weight to assign to each metric.
+#' @param uploadMode Logical scalar. If `TRUE`, launches the app in upload mode
+#'     where users can upload CSV files. If `FALSE` (default), requires data
+#'     to be provided via the `df` parameter.
 #'  
 #' @export
 #' 
@@ -115,14 +118,41 @@
 #'     idInfo = idInfo)
 #' }
 #' 
-bettr <- function(df, idCol = "Method", 
-                  metrics = setdiff(colnames(df), idCol),
+bettr <- function(df = NULL, idCol = "Method", 
+                  metrics = if(!is.null(df)) setdiff(colnames(df), idCol) else NULL,
                   initialWeights = NULL, initialTransforms = list(),
                   metricInfo = NULL, metricColors = NULL,
                   idInfo = NULL, idColors = NULL,
                   weightResolution = 0.05, bstheme = "darkly",
                   appTitle = "bettr", bettrSE = NULL,
-                  addStopButton = TRUE, defaultWeight = 0.2) {
+                  addStopButton = TRUE, defaultWeight = 0.2,
+                  uploadMode = FALSE) {
+    
+    ## Handle upload mode ----------------------------------------------------
+    if (uploadMode || is.null(df)) {
+        # Try to source the upload function
+        upload_file <- system.file("R", "bettr-upload.R", package = "bettr", mustWork = FALSE)
+        if (file.exists(upload_file) && nchar(upload_file) > 0) {
+            source(upload_file)
+        } else {
+            # Try relative path (for development)
+            upload_file_dev <- file.path("R", "bettr-upload.R")
+            if (file.exists(upload_file_dev)) {
+                source(upload_file_dev)
+            }
+        }
+        
+        if (exists("bettr_upload")) {
+            return(bettr_upload(weightResolution = weightResolution, 
+                              bstheme = bstheme, appTitle = appTitle,
+                              addStopButton = addStopButton, 
+                              defaultWeight = defaultWeight))
+        } else {
+            # Fallback if upload function not available
+            stop("Upload mode requested but bettr_upload function not available. ",
+                 "Please provide data via the 'df' parameter.")
+        }
+    }
     
     ## Get arguments from bettrSE if provided ---------------------------------
     if (!is.null(bettrSE)) {
