@@ -1,5 +1,5 @@
 test_that("prepareData works", {
-    expect_error(.completeInitialization(transformList = 1, metrics = "m1"),
+    expect_error(bettr:::.completeInitialization(transformList = 1, metrics = "m1"),
                  "'transformList' must be of class 'list'")
     
     df <- data.frame(Method = rep(c("A", "B", "C"), each = 3),
@@ -12,7 +12,7 @@ test_that("prepareData works", {
     idInfo <- data.frame(Method = c("A", "B", "C"), lets = letters[1:3])
     
     set.seed(123)
-    pd <- .prepareData(df = df, idCol = "Method", metrics = c("m1", "m2", "m3"),
+    pd <- bettr:::.prepareData(df = df, idCol = "Method", metrics = c("m1", "m2", "m3"),
                        initialWeights = c(m1 = 0.1, m2 = 0.3, m3 = 0.5),
                        initialTransforms = list(), metricInfo = metricInfo, 
                        metricColors = list(), 
@@ -55,7 +55,7 @@ test_that("prepareData works", {
     expect_equal(pd$metricInfo, metricInfo)
     
     set.seed(345)
-    pd <- .prepareData(df = df, idCol = "Method", metrics = c("m1", "m2", "m3"),
+    pd <- bettr:::.prepareData(df = df, idCol = "Method", metrics = c("m1", "m2", "m3"),
                        initialWeights = NULL,
                        initialTransforms = list(m1 = list(offset = 4),
                                                 m2 = list(flip = TRUE)), 
@@ -97,7 +97,7 @@ test_that("prepareData works", {
     expect_null(pd$metricInfo)
     
     set.seed(678)
-    pd <- .prepareData(df = df, idCol = "Method", metrics = c("m1", "m2", "m3"),
+    pd <- bettr:::.prepareData(df = df, idCol = "Method", metrics = c("m1", "m2", "m3"),
                        initialWeights = NULL,
                        initialTransforms = list(m1 = list(offset = 4),
                                                 m2 = list(flip = TRUE)), 

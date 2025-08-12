@@ -10,12 +10,12 @@ test_that("adding scores works", {
     idInfo <- data.frame(Method = c("A", "B", "C"), lets = c("a", "b", "b"),
                          lets2 = c("d", "d", "e"))
     
-    ld <- .makeLongData(df = df, idCol = "Method", 
+    ld <- bettr:::.makeLongData(df = df, idCol = "Method", 
                         metrics = c("m1", "m2", "m3"), 
                         metricCol = "Metric", valueCol = "ScaledValue",
                         metricGrouping = "---", metricInfo = metricInfo, 
                         metricGroupCol = "metricGroup")
-    ldw <- .addWeightsToLongData(
+    ldw <- bettr:::.addWeightsToLongData(
         df = ld, metricCollapseGroup = FALSE, 
         metricGrouping = "---",
         metricGroupCol = "metricGroup", 
@@ -26,14 +26,14 @@ test_that("adding scores works", {
                        lets3_n_weight = 0.1, lets3_o_weight = 0.9),
         weightCol = "Weight", metricCol = "Metric",
         metrics = c("m1", "m2", "m3"))
-    cld <- .collapseLongData(df = ldw, metricCollapseGroup = FALSE, 
+    cld <- bettr:::.collapseLongData(df = ldw, metricCollapseGroup = FALSE, 
                              metricGrouping = "---", idCol = "Method",
                              metricGroupCol = "metricGroup", 
                              valueCol = "ScaledValue", weightCol = "Weight", 
                              metricCol = "Metric", collapseMethod = "mean")
     
     ## Weighted mean
-    scd <- .calculateScores(df = cld, scoreMethod = "weighted mean", 
+    scd <- bettr:::.calculateScores(df = cld, scoreMethod = "weighted mean", 
                             idCol = "Method", scoreCol = "Score", 
                             weightCol = "Weight", valueCol = "ScaledValue", 
                             metricCol = "Metric")
@@ -45,7 +45,7 @@ test_that("adding scores works", {
     
     ## Sort and filter
     ## -- keep all, no grouping
-    sfcd <- .sortAndFilterScoreData(scoreDf = scd, idInfo = idInfo, 
+    sfcd <- bettr:::.sortAndFilterScoreData(scoreDf = scd, idInfo = idInfo, 
                                     idCol = "Method", scoreCol = "Score",
                                     idTopNGrouping = "---", 
                                     idOrdering = "high-to-low", 
@@ -58,7 +58,7 @@ test_that("adding scores works", {
     expect_equal(sfcd$Score, c(2.203737, 1.283924, 1.238278), tolerance = 0.001)
     
     ## -- keep all, no grouping, low-to-high
-    sfcd <- .sortAndFilterScoreData(scoreDf = scd, idInfo = idInfo, 
+    sfcd <- bettr:::.sortAndFilterScoreData(scoreDf = scd, idInfo = idInfo, 
                                     idCol = "Method", scoreCol = "Score",
                                     idTopNGrouping = "---", 
                                     idOrdering = "low-to-high", 
@@ -71,7 +71,7 @@ test_that("adding scores works", {
     expect_equal(sfcd$Score, c(1.238278, 1.283924, 2.203737), tolerance = 0.001)
     
     ## -- top 1, no grouping
-    sfcd <- .sortAndFilterScoreData(scoreDf = scd, idInfo = idInfo, 
+    sfcd <- bettr:::.sortAndFilterScoreData(scoreDf = scd, idInfo = idInfo, 
                                     idCol = "Method", scoreCol = "Score",
                                     idTopNGrouping = "---", 
                                     idOrdering = "high-to-low", 
@@ -83,7 +83,7 @@ test_that("adding scores works", {
     expect_equal(sfcd$Score, c(2.203737), tolerance = 0.001)
     
     ## -- top 1, no grouping, no idInfo
-    sfcd <- .sortAndFilterScoreData(scoreDf = scd, idInfo = NULL, 
+    sfcd <- bettr:::.sortAndFilterScoreData(scoreDf = scd, idInfo = NULL, 
                                     idCol = "Method", scoreCol = "Score",
                                     idTopNGrouping = "---", 
                                     idOrdering = "high-to-low", 
@@ -95,7 +95,7 @@ test_that("adding scores works", {
     expect_equal(sfcd$Score, c(2.203737), tolerance = 0.001)
     
     ## -- top 1 low-to-high, no grouping
-    sfcd <- .sortAndFilterScoreData(scoreDf = scd, idInfo = idInfo, 
+    sfcd <- bettr:::.sortAndFilterScoreData(scoreDf = scd, idInfo = idInfo, 
                                     idCol = "Method", scoreCol = "Score",
                                     idTopNGrouping = "---", 
                                     idOrdering = "low-to-high", 
@@ -107,7 +107,7 @@ test_that("adding scores works", {
     expect_equal(sfcd$Score, c(1.238278), tolerance = 0.001)
     
     ## -- top 1, grouping
-    sfcd <- .sortAndFilterScoreData(scoreDf = scd, idInfo = idInfo, 
+    sfcd <- bettr:::.sortAndFilterScoreData(scoreDf = scd, idInfo = idInfo, 
                                     idCol = "Method", scoreCol = "Score",
                                     idTopNGrouping = "lets", 
                                     idOrdering = "high-to-low", 
@@ -119,7 +119,7 @@ test_that("adding scores works", {
     expect_equal(sfcd$Score, c(2.203737, 1.238278), tolerance = 0.001)
     
     ## -- try to group by non-existing variable
-    expect_error(.sortAndFilterScoreData(scoreDf = scd, idInfo = idInfo, 
+    expect_error(bettr:::.sortAndFilterScoreData(scoreDf = scd, idInfo = idInfo, 
                                          idCol = "Method", scoreCol = "Score",
                                          idTopNGrouping = "missing", 
                                          idOrdering = "high-to-low", 
@@ -127,7 +127,7 @@ test_that("adding scores works", {
                  "Must group by variables found")
     
     ## Weighted median
-    scd <- .calculateScores(df = cld, scoreMethod = "weighted median", 
+    scd <- bettr:::.calculateScores(df = cld, scoreMethod = "weighted median", 
                             idCol = "Method", scoreCol = "Score", 
                             weightCol = "Weight", valueCol = "ScaledValue", 
                             metricCol = "Metric")
@@ -138,7 +138,7 @@ test_that("adding scores works", {
     expect_equal(scd$Score, c(2.364915, 2.821402, 2.677257), tolerance = 0.001)
     
     ## Weighted fraction highest
-    scd <- .calculateScores(df = cld, scoreMethod = "weighted fraction highest", 
+    scd <- bettr:::.calculateScores(df = cld, scoreMethod = "weighted fraction highest", 
                             idCol = "Method", scoreCol = "Score", 
                             weightCol = "Weight", valueCol = "ScaledValue", 
                             metricCol = "Metric")
@@ -150,7 +150,7 @@ test_that("adding scores works", {
     expect_equal(scd$Score, c(0, 1, 0), tolerance = 0.001)
     
     ## Weighted fraction lowest
-    scd <- .calculateScores(df = cld, scoreMethod = "weighted fraction lowest", 
+    scd <- bettr:::.calculateScores(df = cld, scoreMethod = "weighted fraction lowest", 
                             idCol = "Method", scoreCol = "Score", 
                             weightCol = "Weight", valueCol = "ScaledValue", 
                             metricCol = "Metric")

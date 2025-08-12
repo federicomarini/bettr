@@ -92,7 +92,12 @@
 #'     selectInput hr reactiveValues reactive outputOptions renderUI 
 #'     selectizeInput updateTabsetPanel observe observeEvent tabPanelBody 
 #'     plotOutput tagList tags HTML validate need renderPlot updateNumericInput 
-#'     sliderInput shinyApp stopApp
+#'     sliderInput shinyApp stopApp fileInput updateSelectInput showNotification 
+#'     req
+#' @importFrom utils read.csv
+#' @importFrom DT renderDT DTOutput dataTableOutput
+#' @importFrom shinyjqui jqui_resizable
+#' @importFrom tidyr pivot_wider
 #' @importFrom sortable rank_list
 #' @importFrom shinyjqui jqui_resizable
 #' @importFrom dplyr filter select mutate left_join arrange relocate
@@ -129,30 +134,7 @@ bettr <- function(df = NULL, idCol = "Method",
                   uploadMode = FALSE) {
     
     ## Handle upload mode ----------------------------------------------------
-    if (uploadMode || is.null(df)) {
-        # Try to source the upload function
-        upload_file <- system.file("R", "bettr-upload.R", package = "bettr", mustWork = FALSE)
-        if (file.exists(upload_file) && nchar(upload_file) > 0) {
-            source(upload_file)
-        } else {
-            # Try relative path (for development)
-            upload_file_dev <- file.path("R", "bettr-upload.R")
-            if (file.exists(upload_file_dev)) {
-                source(upload_file_dev)
-            }
-        }
-        
-        if (exists("bettr_upload")) {
-            return(bettr_upload(weightResolution = weightResolution, 
-                              bstheme = bstheme, appTitle = appTitle,
-                              addStopButton = addStopButton, 
-                              defaultWeight = defaultWeight))
-        } else {
-            # Fallback if upload function not available
-            stop("Upload mode requested but bettr_upload function not available. ",
-                 "Please provide data via the 'df' parameter.")
-        }
-    }
+    uploadMode <- uploadMode || is.null(df)
     
     ## Get arguments from bettrSE if provided ---------------------------------
     if (!is.null(bettrSE)) {
@@ -182,36 +164,115 @@ bettr <- function(df = NULL, idCol = "Method",
     valueCol <- "ScaledValue"
     metricGroupCol <- "metricGroup"
 
-    ## Check validity of input arguments --------------------------------------
-    .checkArgs_bettr(df = df, idCol = idCol, metrics = metrics,
-                     initialWeights = initialWeights,
-                     initialTransforms = initialTransforms,
-                     metricInfo = metricInfo, metricColors = metricColors,
-                     idInfo = idInfo, idColors = idColors, 
-                     weightResolution = weightResolution, 
-                     bstheme = bstheme, appTitle = appTitle,
-                     addStopButton = addStopButton,
-                     defaultWeightValue = defaultWeight)
-    
-    ## Prepare data -----------------------------------------------------------
-    prep <- .prepareData(df = df, idCol = idCol, metrics = metrics, 
+    ## Check validity of input arguments (skip in upload mode) ---------------
+    if (!uploadMode) {
+        .checkArgs_bettr(df = df, idCol = idCol, metrics = metrics,
                          initialWeights = initialWeights,
-                         initialTransforms = initialTransforms, 
-                         metricInfo = metricInfo, 
-                         metricColors = metricColors, 
-                         idInfo = idInfo,
-                         idColors = idColors,
-                         weightResolution = weightResolution,
-                         metricCol = metricCol, 
+                         initialTransforms = initialTransforms,
+                         metricInfo = metricInfo, metricColors = metricColors,
+                         idInfo = idInfo, idColors = idColors, 
+                         weightResolution = weightResolution, 
+                         bstheme = bstheme, appTitle = appTitle,
+                         addStopButton = addStopButton,
                          defaultWeightValue = defaultWeight)
+        
+        ## Prepare data -----------------------------------------------------------
+        prep <- .prepareData(df = df, idCol = idCol, metrics = metrics, 
+                             initialWeights = initialWeights,
+                             initialTransforms = initialTransforms, 
+                             metricInfo = metricInfo, 
+                             metricColors = metricColors, 
+                             idInfo = idInfo,
+                             idColors = idColors,
+                             weightResolution = weightResolution,
+                             metricCol = metricCol, 
+                             defaultWeightValue = defaultWeight)
+    } else {
+        # In upload mode, initialize empty prep structure
+        prep <- NULL
+    }
     
     ## UI definition ----------------------------------------------------------
     p_layout <- 
         bslib::page_sidebar(
-            title = appTitle,
-            theme = bslib::bs_theme(bootswatch = bstheme, version = 5),
-            
-            sidebar = bslib::sidebar(
+        title = appTitle,
+        theme = bslib::bs_theme(bootswatch = bstheme, version = 5),
+
+        sidebar = bslib::sidebar(
+            shiny::uiOutput("dynamicSidebar")
+        ),
+
+        # Main content area
+        shiny::uiOutput("dynamicContent")
+    )
+    
+    ## Server definition ------------------------------------------------------
+    #nocov start
+    server_function <- function(input, output, session) {
+        
+        # App state management
+        app_state <- shiny::reactiveValues(
+            mode = if (uploadMode) "upload" else "bettr",
+            uploaded_data = if (!uploadMode) df else NULL,
+            bettr_data = if (!uploadMode) df else NULL,
+            bettr_idCol = if (!uploadMode) idCol else NULL,
+            bettr_metrics = if (!uploadMode) metrics else NULL,
+            file_uploaded = FALSE,
+            switched_to_bettr = FALSE
+        )
+        
+        # Dynamic sidebar based on app mode
+        output$dynamicSidebar <- shiny::renderUI({
+            if (app_state$mode == "upload") {
+                # Upload mode sidebar
+                shiny::tagList(
+                    shiny::h4("Upload Data"),
+                    shiny::fileInput(
+                        inputId = "csvFile",
+                        label = "Choose CSV File",
+                        accept = c(".csv", ".CSV"),
+                        multiple = FALSE
+                    ),
+                    
+                    shiny::conditionalPanel(
+                        condition = "output.fileUploaded == true",
+                        shiny::hr(),
+                        shiny::h4("Configure Data"),
+                        
+                        shiny::selectInput(
+                            inputId = "idCol",
+                            label = "ID Column:",
+                            choices = NULL,
+                            selected = NULL
+                        ),
+                        
+                        shiny::selectInput(
+                            inputId = "metricCols",
+                            label = "Metric Columns:",
+                            choices = NULL,
+                            selected = NULL,
+                            multiple = TRUE
+                        ),
+                        
+                        shiny::br(),
+                        shiny::actionButton(
+                            inputId = "switchToBettr",
+                            label = "Launch bettr Interface",
+                            class = "btn-primary"
+                        )
+                    ),
+                    
+                    if (addStopButton) {
+                        shiny::tagList(
+                            shiny::br(),
+                            shiny::actionButton("close_app", "Close app")
+                        )
+                    } else {
+                        NULL
+                    }
+                )
+            } else {
+                # Full bettr sidebar
                 bslib::accordion(
                     open = TRUE, 
                     multiple = TRUE,
@@ -309,56 +370,91 @@ bettr <- function(df = NULL, idCol = "Method",
                     ),
                     shiny::uiOutput("close_app_ui")
                 )
-            ),
-            
-            
-            ## Plots ----------------------------------------------------------
-            shiny::tabsetPanel(
-                type = "tabs",
-                shiny::tabPanel(
-                    "Heatmap", 
-                    shiny::br(),
-                    shiny::fluidRow(
-                        shiny::column(
-                            3, 
-                            shiny::checkboxInput(
-                                inputId = "show_row_names",
-                                label = "Show row names", 
-                                value = TRUE
-                            )
-                        ),
-                        shiny::column(
-                            6, 
-                            shiny::radioButtons(
-                                inputId = "heatmap_plot_type",
-                                label = "Plot type",
-                                choices = c("Heatmap", "Dot plot"), 
-                                selected = "Heatmap", inline = TRUE
+            }
+        })
+        
+        # Dynamic content based on app mode
+        output$dynamicContent <- shiny::renderUI({
+            if (app_state$mode == "upload") {
+                # Upload mode content
+                shiny::tagList(
+                    shiny::conditionalPanel(
+                        condition = "!output.fileUploaded",
+                        bslib::card(
+                            shiny::h3("Welcome to bettr"),
+                            shiny::p("Upload a CSV file to get started with interactive benchmarking visualization."),
+                            shiny::strong("CSV Requirements:"),
+                            shiny::tags$ul(
+                                shiny::tags$li("First row should contain column headers"),
+                                shiny::tags$li("One column should contain entity/method IDs"),
+                                shiny::tags$li("Other columns should contain numeric metrics for comparison"),
+                                shiny::tags$li("Missing values are allowed but may affect visualizations")
                             )
                         )
                     ),
-                    shiny::uiOutput("bettrHeatmapUI")
-                ),
-                shiny::tabPanel(
-                    "Parallel coordinates", 
-                    shiny::br(),
-                    shiny::uiOutput("bettrParCoordplotUI")
-                ),
-                shiny::tabPanel(
-                    "Polar plot", 
-                    shiny::br(),
-                    shiny::uiOutput("bettrPolarplotUI")
-                ),
-                shiny::tabPanel(
-                    "Bar/polar plot",
-                    shiny::br(),
-                    shiny::fluidRow(
-                        shiny::column(
-                            2,
-                            shiny::conditionalPanel(
-                                condition = 
-                                    "input.scoreMethod == 'weighted mean'",
+                    
+                    shiny::conditionalPanel(
+                        condition = "output.fileUploaded && !output.switchedToBettr",
+                        shiny::fluidRow(
+                            shiny::column(
+                                12,
+                                bslib::card(
+                                    shiny::h4("Data Preview"),
+                                    shiny::p("Configure your data columns in the sidebar, then click 'Launch bettr Interface'."),
+                                    DT::dataTableOutput("dataPreview")
+                                )
+                            )
+                        )
+                    )
+                )
+            } else {
+                # Full bettr content with tabset panel
+                shiny::tabsetPanel(
+                    type = "tabs",
+                    shiny::tabPanel(
+                        "Heatmap", 
+                        shiny::br(),
+                        shiny::fluidRow(
+                            shiny::column(
+                                3, 
                                 shiny::checkboxInput(
+                                    inputId = "show_row_names",
+                                    label = "Show row names", 
+                                    value = TRUE
+                                )
+                            ),
+                            shiny::column(
+                                6, 
+                                shiny::radioButtons(
+                                    inputId = "heatmap_plot_type",
+                                    label = "Plot type",
+                                    choices = c("Heatmap", "Dot plot"), 
+                                    selected = "Heatmap", inline = TRUE
+                                )
+                            )
+                        ),
+                        shiny::uiOutput("bettrHeatmapUI")
+                    ),
+                    shiny::tabPanel(
+                        "Parallel coordinates", 
+                        shiny::br(),
+                        shiny::uiOutput("bettrParCoordplotUI")
+                    ),
+                    shiny::tabPanel(
+                        "Polar plot", 
+                        shiny::br(),
+                        shiny::uiOutput("bettrPolarplotUI")
+                    ),
+                    shiny::tabPanel(
+                        "Bar/polar plot",
+                        shiny::br(),
+                        shiny::fluidRow(
+                            shiny::column(
+                                2,
+                                shiny::conditionalPanel(
+                                    condition = 
+                                        "input.scoreMethod == 'weighted mean'",
+                                    shiny::checkboxInput(
                                     inputId = "barpolar_showcomp",
                                     label = "Show\nscore\ncomposition",
                                     value = FALSE
@@ -446,32 +542,199 @@ bettr <- function(df = NULL, idCol = "Method",
                     DT::DTOutput(outputId = "scoreTable")
                 )
             )
-        )
-    
-    ## Server definition ------------------------------------------------------
-    #nocov start
-    server_function <- function(input, output, session) {
+            }
+        })
         
-        ## Initialize data storage --------------------------------------------
-        values <- shiny::reactiveValues(
-            df = df,
-            metrics = metrics,
-            nMetrics = length(metrics),
-            metricInfo = prep$metricInfo,
-            idInfo = prep$idInfo,
-            methods = unique(df[[idCol]]),
-            currentWeights = prep$initialWeights
-        )
+        # Upload functionality - CSV file handling
+        shiny::observeEvent(input$csvFile, {
+            shiny::req(input$csvFile)
+            
+            tryCatch({
+                # Read the CSV file
+                csv_data <- utils::read.csv(input$csvFile$datapath, stringsAsFactors = FALSE)
+                
+                # Store the data
+                app_state$uploaded_data <- csv_data
+                app_state$file_uploaded <- TRUE
+                
+                # Update column choices
+                col_names <- colnames(csv_data)
+                numeric_cols <- col_names[sapply(csv_data, function(x) is.numeric(x) || 
+                                                 (is.character(x) && !any(is.na(suppressWarnings(as.numeric(x))))))]
+                
+                shiny::updateSelectInput(session, "idCol", 
+                                       choices = col_names,
+                                       selected = col_names[1])
+                
+                shiny::updateSelectInput(session, "metricCols",
+                                       choices = numeric_cols,
+                                       selected = numeric_cols[1:min(3, length(numeric_cols))])
+                
+                shiny::showNotification("File uploaded successfully!")
+                
+            }, error = function(e) {
+                shiny::showNotification(
+                    paste("Error reading file:", e$message), 
+                    duration = 10
+                )
+            })
+        })
         
-        ## Filtered data ------------------------------------------------------
-        ## Only keep metrics and methods selected in the filter tab
+        # Output flags for conditional panels
+        output$fileUploaded <- shiny::reactive({
+            app_state$file_uploaded
+        })
+        shiny::outputOptions(output, "fileUploaded", suspendWhenHidden = FALSE)
+        
+        output$switchedToBettr <- shiny::reactive({
+            app_state$switched_to_bettr
+        })
+        shiny::outputOptions(output, "switchedToBettr", suspendWhenHidden = FALSE)
+        
+        # Data preview table
+        output$dataPreview <- DT::renderDataTable({
+            shiny::req(app_state$uploaded_data)
+            app_state$uploaded_data
+        }, options = list(scrollX = TRUE, pageLength = 10))
+        
+        # Switch to bettr interface
+        shiny::observeEvent(input$switchToBettr, {
+            shiny::req(app_state$uploaded_data, input$idCol, input$metricCols)
+            
+            tryCatch({
+                # Validate selections
+                if (length(input$metricCols) < 1) {
+                    shiny::showNotification("Please select at least one metric column.")
+                    return()
+                }
+                
+                if (input$idCol %in% input$metricCols) {
+                    shiny::showNotification("ID column cannot also be a metric column.")
+                    return()
+                }
+                
+                # Prepare data for bettr
+                upload_df <- app_state$uploaded_data
+                
+                # Ensure metric columns are numeric
+                for (col in input$metricCols) {
+                    if (!is.numeric(upload_df[[col]])) {
+                        upload_df[[col]] <- as.numeric(upload_df[[col]])
+                    }
+                }
+                
+                # Remove rows with missing ID values
+                upload_df <- upload_df[!is.na(upload_df[[input$idCol]]) & upload_df[[input$idCol]] != "", ]
+                
+                if (nrow(upload_df) == 0) {
+                    shiny::showNotification("No valid data rows found.")
+                    return()
+                }
+                
+                # Update app state for bettr mode
+                app_state$bettr_data <- upload_df
+                app_state$bettr_idCol <- input$idCol
+                app_state$bettr_metrics <- input$metricCols
+                app_state$switched_to_bettr <- TRUE
+                app_state$mode <- "bettr"
+                
+                # Reinitialize bettr data
+                idCol <<- input$idCol
+                metrics <<- input$metricCols
+                df <<- upload_df
+                
+                # Re-prepare data for bettr functionality
+                prep <<- .prepareData(df = upload_df, idCol = input$idCol, metrics = input$metricCols, 
+                                     initialWeights = initialWeights,
+                                     initialTransforms = initialTransforms, 
+                                     metricInfo = metricInfo, 
+                                     metricColors = metricColors, 
+                                     idInfo = idInfo,
+                                     idColors = idColors,
+                                     weightResolution = weightResolution,
+                                     metricCol = metricCol, 
+                                     defaultWeightValue = defaultWeight)
+                
+                shiny::showNotification("Switched to bettr interface!")
+                
+            }, error = function(e) {
+                shiny::showNotification(
+                    paste("Error preparing data:", e$message)
+                )
+            })
+        })
+        
+        # Initialize values for bettr functionality when not in upload mode
+        if (!uploadMode) {
+            values <- shiny::reactiveValues(
+                df = df,
+                metrics = metrics,
+                nMetrics = length(metrics),
+                metricInfo = prep$metricInfo,
+                idInfo = prep$idInfo,
+                methods = unique(df[[idCol]]),
+                currentWeights = prep$initialWeights
+            )
+        } else {
+            values <- shiny::reactiveValues(
+                df = NULL,
+                metrics = NULL,
+                nMetrics = 0,
+                metricInfo = NULL,
+                idInfo = NULL,
+                methods = NULL,
+                currentWeights = NULL
+            )
+        }
+        
+        # Update values when switching from upload to bettr mode
+        shiny::observe({
+            if (app_state$mode == "bettr" && !is.null(app_state$bettr_data)) {
+                # Update global variables for proper functioning
+                if (uploadMode) {
+                    idCol <<- app_state$bettr_idCol
+                    metrics <<- app_state$bettr_metrics
+                    df <<- app_state$bettr_data
+                    
+                    # Create prep structure for uploaded data
+                    prep <<- .prepareData(
+                        df = app_state$bettr_data, 
+                        idCol = app_state$bettr_idCol, 
+                        metrics = app_state$bettr_metrics,
+                        initialWeights = initialWeights,
+                        initialTransforms = initialTransforms, 
+                        metricInfo = metricInfo, 
+                        metricColors = metricColors, 
+                        idInfo = idInfo,
+                        idColors = idColors,
+                        weightResolution = weightResolution,
+                        metricCol = metricCol, 
+                        defaultWeightValue = defaultWeight
+                    )
+                }
+                
+                values$df <- app_state$bettr_data
+                values$metrics <- app_state$bettr_metrics
+                values$nMetrics <- length(app_state$bettr_metrics)
+                values$metricInfo <- if (!is.null(prep)) prep$metricInfo else NULL
+                values$idInfo <- if (!is.null(prep)) prep$idInfo else NULL
+                values$methods <- unique(app_state$bettr_data[[app_state$bettr_idCol]])
+                values$currentWeights <- if (!is.null(prep)) prep$initialWeights else setNames(rep(defaultWeight, length(app_state$bettr_metrics)), app_state$bettr_metrics)
+            }
+        })
+        
+        # Filtered data - only keep metrics and methods selected in the filter tab
         filtdata <- shiny::reactive({
+            if (app_state$mode == "upload") return(NULL)
+            
             shiny::validate(
                 shiny::need(input$keepIds, "No keepIds"),
                 shiny::need(input$keepMetrics, "No keepMetrics")
             )
-            idFilters <- setdiff(colnames(values$idInfo), idCol)
-            metricFilters <- setdiff(colnames(values$metricInfo), metricCol)
+            
+            idFilters <- if (!is.null(values$idInfo)) setdiff(colnames(values$idInfo), idCol) else character(0)
+            metricFilters <- if (!is.null(values$metricInfo)) setdiff(colnames(values$metricInfo), metricCol) else character(0)
+            
             .filterData(
                 df = values$df, idInfo = values$idInfo, idCol = idCol,
                 keepIds = input$keepIds,
@@ -486,79 +749,67 @@ bettr <- function(df = NULL, idCol = "Method",
                 metrics = values$metrics)
         })
         
-        ## Record retained metrics and methods
+        # Record retained metrics and methods
         metricsInUse <- shiny::reactive({
+            if (app_state$mode == "upload" || is.null(values$metrics)) return(character(0))
             intersect(values$metrics, colnames(filtdata()))
         })
+        
         methodsInUse <- shiny::reactive({
+            if (app_state$mode == "upload" || is.null(filtdata())) return(character(0))
             unique(filtdata()[[idCol]])
         })
         
-        ## Processed data -----------------------------------------------------
+        # Processed data - transform metrics
         procdata <- shiny::reactive({
+            if (app_state$mode == "upload" || is.null(prep)) return(NULL)
+            
             shiny::validate(
                 shiny::need(filtdata(), ""),
                 shiny::need(metricsInUse(), ""),
                 shiny::need(prep, "")
             )
-            temp_need1 <- lapply(
-                intersect(prep$metrics_num, metricsInUse()), function(m) {
-                    cond <- paste0("shiny::need(is.logical(input$", m,
-                                   "_flip) && !is.null(input$", m,
-                                   "_offset) && !is.null(input$", m,
-                                   "_transform), '')")
-                    eval(parse(text = cond))
-                })
-            do.call(shiny::validate, temp_need1)
-            temp_need2 <- lapply(
-                intersect(prep$metrics_cat, metricsInUse()), function(m) {
-                    cond <- paste0("shiny::need(!is.null(input$", m, 
-                                   "_levels), '')")
-                    eval(parse(text = cond))
-                })
-            do.call(shiny::validate, temp_need2)
             
             tmp <- filtdata()
             for (m in intersect(colnames(filtdata()), metricsInUse())) {
                 if (m %in% prep$metrics_num) {
+                    # Use default transforms if no input available
+                    flip_val <- if (!is.null(input[[paste0(m, "_flip")]])) input[[paste0(m, "_flip")]] else prep$initialTransforms[[m]][["flip"]]
+                    offset_val <- if (!is.null(input[[paste0(m, "_offset")]])) input[[paste0(m, "_offset")]] else prep$initialTransforms[[m]][["offset"]]
+                    transform_val <- if (!is.null(input[[paste0(m, "_transform")]])) input[[paste0(m, "_transform")]] else prep$initialTransforms[[m]][["transform"]]
+                    bincuts_val <- if (!is.null(input[[paste0(m, "_bincuts")]])) sort(as.numeric(input[[paste0(m, "_bincuts")]])) else prep$initialTransforms[[m]][["cuts"]]
+                    
                     tmp[[m]] <- .transformNumericVariable(
                         x = filtdata()[[m]],
-                        flip = input[[paste0(m, "_flip")]], 
-                        offset = input[[paste0(m, "_offset")]], 
-                        transf = .getTransf(input[[paste0(m, "_transform")]]), 
-                        bincuts = sort(as.numeric(input[[paste0(m, 
-                                                                "_bincuts")]]))
+                        flip = flip_val, 
+                        offset = offset_val, 
+                        transf = .getTransf(transform_val), 
+                        bincuts = bincuts_val
                     )
-                } else if (m %in% prep$metrics_cat) {
-                    tmp[[m]] <- .transformCategoricalVariable(
-                        x = filtdata()[[m]],
-                        levels = input[[paste0(m, "_levels")]]
-                    )
-                } else {
-                    stop("Encountered metric that could not be identified ",
-                         "as numeric or categorical: ", m)
                 }
             }
             tmp
         })
         
-        ## Long-form data for plotting ----------------------------------------
-        ## Needs to use the processed data, since we must make sure that the 
-        ## value that goes in the 'value' column is numeric
+        # Long-form data for plotting
         longdata <- shiny::reactive({
+            if (app_state$mode == "upload" || is.null(procdata())) return(NULL)
+            
             shiny::validate(
                 shiny::need(procdata(), "")
             )
             .makeLongData(df = procdata(), idCol = idCol, 
                           metrics = metricsInUse(), metricCol = metricCol,
                           valueCol = valueCol, 
-                          metricGrouping = input$metricGrouping, 
-                          metricInfo = metricInfo,
+                          metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---", 
+                          metricInfo = values$metricInfo,
                           metricGroupCol = metricGroupCol)
         })
         
-        ## Long-form data with weights
+        # Long-form data with weights
         longdataweights <- shiny::reactive({
+            if (app_state$mode == "upload" || is.null(longdata())) return(NULL)
+            
             shiny::validate(
                 shiny::need(longdata(), "")
             )
@@ -566,8 +817,8 @@ bettr <- function(df = NULL, idCol = "Method",
             names(weightControls) <- weightControls
             .addWeightsToLongData(
                 df = longdata(), 
-                metricCollapseGroup = input$metricCollapseGroup,
-                metricGrouping = input$metricGrouping,
+                metricCollapseGroup = if (!is.null(input$metricCollapseGroup)) input$metricCollapseGroup else FALSE,
+                metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
                 metricGroupCol = metricGroupCol,
                 weights = lapply(weightControls, function(nm) {
                     input[[nm]]
@@ -578,28 +829,32 @@ bettr <- function(df = NULL, idCol = "Method",
             )
         })
         
-        ## Collapsed data (average metrics)
+        # Collapsed data (average metrics)
         collapseddata <- shiny::reactive({
+            if (app_state$mode == "upload" || is.null(longdataweights())) return(NULL)
+            
             shiny::validate(
                 shiny::need(longdataweights(), "")
             )
             .collapseLongData(df = longdataweights(), 
-                              metricCollapseGroup = input$metricCollapseGroup,
-                              metricGrouping = input$metricGrouping,
+                              metricCollapseGroup = if (!is.null(input$metricCollapseGroup)) input$metricCollapseGroup else FALSE,
+                              metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
                               idCol = idCol, metricGroupCol = metricGroupCol,
                               valueCol = valueCol, weightCol = weightCol, 
                               metricCol = metricCol, 
-                              collapseMethod = input$metricCollapseMethod)
+                              collapseMethod = if (!is.null(input$metricCollapseMethod)) input$metricCollapseMethod else "mean")
         })
         
-        ## Calculate scores ---------------------------------------------------
+        # Calculate scores
         scoredata <- shiny::reactive({
+            if (app_state$mode == "upload" || is.null(collapseddata())) return(NULL)
+            
             shiny::validate(
                 shiny::need(collapseddata(), "")
             )
             scoreDf <- .calculateScores(
                 df = collapseddata(), 
-                scoreMethod = input$scoreMethod, 
+                scoreMethod = if (!is.null(input$scoreMethod)) input$scoreMethod else "weighted mean", 
                 idCol = idCol, scoreCol = scoreCol, 
                 weightCol = weightCol, valueCol = valueCol, 
                 metricCol = metricCol
@@ -608,16 +863,18 @@ bettr <- function(df = NULL, idCol = "Method",
                 scoreDf = scoreDf, 
                 idInfo = values$idInfo, 
                 idCol = idCol, scoreCol = scoreCol,
-                idTopNGrouping = input$idTopNGrouping,
-                idOrdering = input$id_ordering,
-                showOnlyTopIds = input$showOnlyTopIds, 
-                nbrTopIds = input$nbrTopIds
+                idTopNGrouping = if (!is.null(input$idTopNGrouping)) input$idTopNGrouping else "---",
+                idOrdering = if (!is.null(input$id_ordering)) input$id_ordering else "high-to-low",
+                showOnlyTopIds = if (!is.null(input$showOnlyTopIds)) input$showOnlyTopIds else FALSE, 
+                nbrTopIds = if (!is.null(input$nbrTopIds)) input$nbrTopIds else 10
             )
             scoreDf
         })
         
-        ## Final filtered data ------------------------------------------------
+        # Final filtered data 
         plotdata <- shiny::reactive({
+            if (app_state$mode == "upload" || is.null(collapseddata()) || is.null(scoredata())) return(NULL)
+            
             shiny::validate(
                 shiny::need(collapseddata(), ""),
                 shiny::need(scoredata(), "")
@@ -629,76 +886,25 @@ bettr <- function(df = NULL, idCol = "Method",
             tmp
         })
         
-        observeEvent(input$autoAdjustHmHeight, 
-                     shiny::updateNumericInput(
-                         session, "hmheight",
-                         value = 200 + 35 * length(unique(plotdata()[[idCol]]))
-                     ))
-
-        ## UI element to filter methods by grouping columns -------------------
-        output$idFilterByInfoUI <- shiny::renderUI({
-            if (is.null(values$idInfo)) {
-                NULL
-            } else {
-                lapply(setdiff(colnames(values$idInfo), idCol), 
-                       function(nm) {
-                           shiny::selectInput(
-                               inputId = paste0("keepIdBy_", nm),
-                               label = nm, 
-                               choices = unique(values$idInfo[[nm]]),
-                               selected = unique(values$idInfo[[nm]]),
-                               multiple = TRUE
-                           )
-                       }) 
+        # Initialize filter controls when switching to bettr mode
+        shiny::observe({
+            if (app_state$mode == "bettr" && !is.null(values$df) && !is.null(values$methods) && !is.null(values$metrics)) {
+                if (is.null(input$keepIds)) {
+                    shiny::updateSelectInput(session, "keepIds",
+                                             choices = values$methods,
+                                             selected = values$methods)
+                }
+                if (is.null(input$keepMetrics)) {
+                    shiny::updateSelectInput(session, "keepMetrics",
+                                             choices = values$metrics,
+                                             selected = values$metrics)
+                }
             }
         })
-        shiny::outputOptions(output, "idFilterByInfoUI", 
-                             suspendWhenHidden = FALSE)
         
-        ## UI element to filter metrics by grouping columns -------------------
-        output$metricFilterByInfoUI <- shiny::renderUI({
-            if (is.null(values$metricInfo)) {
-                NULL
-            } else {
-                lapply(setdiff(colnames(values$metricInfo), metricCol), 
-                       function(nm) {
-                           shiny::selectInput(
-                               inputId = paste0("keepMetricBy_", nm),
-                               label = nm, 
-                               choices = unique(values$metricInfo[[nm]]),
-                               selected = unique(values$metricInfo[[nm]]),
-                               multiple = TRUE
-                           )
-                       }) 
-            }
-        })
-        shiny::outputOptions(output, "metricFilterByInfoUI", 
-                             suspendWhenHidden = FALSE)
-        
-        ## UI element to select grouping of metrics ---------------------------
-        output$metricGroupingUI <- shiny::renderUI({
-            shiny::selectizeInput(
-                inputId = "metricGrouping",
-                label = "Grouping of metrics",
-                choices = c("---", setdiff(colnames(values$metricInfo), 
-                                           metricCol)),
-                selected = "---"
-            )
-        })
-        
-        ## UI element to select grouping of methods before selecting top N ----
-        output$idTopNGroupingUI <- shiny::renderUI({
-            shiny::selectizeInput(
-                inputId = "idTopNGrouping",
-                label = "Grouping of IDs",
-                choices = c("---", setdiff(colnames(values$idInfo), 
-                                           idCol)),
-                selected = "---"
-            )
-        })
-        
-        ## UI element to select method to highlight ---------------------------
+        # UI generation for bettr functionality
         output$highlightMethodUI <- shiny::renderUI({
+            if (app_state$mode == "upload") return(NULL)
             shiny::selectInput(
                 inputId = "highlightMethod",
                 label = "Highlight ID",
@@ -708,8 +914,76 @@ bettr <- function(df = NULL, idCol = "Method",
             )
         })
         
-        ## UI element to select metric to transform ---------------------------
+        output$metricGroupingUI <- shiny::renderUI({
+            if (app_state$mode == "upload") return(NULL)
+            shiny::selectizeInput(
+                inputId = "metricGrouping",
+                label = "Grouping of metrics",
+                choices = c("---", if (!is.null(values$metricInfo)) setdiff(colnames(values$metricInfo), metricCol) else character(0)),
+                selected = "---"
+            )
+        })
+        
+        output$idTopNGroupingUI <- shiny::renderUI({
+            if (app_state$mode == "upload") return(NULL)
+            shiny::selectizeInput(
+                inputId = "idTopNGrouping",
+                label = "Grouping of IDs",
+                choices = c("---", if (!is.null(values$idInfo)) setdiff(colnames(values$idInfo), idCol) else character(0)),
+                selected = "---"
+            )
+        })
+        
+        # Weight controls
+        output$weights <- shiny::renderUI({
+            if (app_state$mode == "upload" || is.null(values$metrics) || is.null(values$currentWeights)) return(NULL)
+            
+            do.call(shiny::tagList,
+                    lapply(metricsInUse(), function(i) {
+                        shiny::sliderInput(
+                            inputId = paste0(i, "_weight"),
+                            label = i,
+                            value = if (i %in% names(values$currentWeights)) values$currentWeights[[i]] else defaultWeight,
+                            min = 0,
+                            max = 1,
+                            step = weightResolution
+                        )
+                    }))
+        })
+        
+        # Additional UI outputs for bettr functionality
+        output$idFilterByInfoUI <- shiny::renderUI({
+            if (app_state$mode == "upload" || is.null(values$idInfo)) return(NULL)
+            
+            lapply(setdiff(colnames(values$idInfo), idCol), 
+                   function(nm) {
+                       shiny::selectInput(
+                           inputId = paste0("keepIdBy_", nm),
+                           label = nm, 
+                           choices = unique(values$idInfo[[nm]]),
+                           selected = unique(values$idInfo[[nm]]),
+                           multiple = TRUE
+                       )
+                   }) 
+        })
+        
+        output$metricFilterByInfoUI <- shiny::renderUI({
+            if (app_state$mode == "upload" || is.null(values$metricInfo)) return(NULL)
+            
+            lapply(setdiff(colnames(values$metricInfo), metricCol), 
+                   function(nm) {
+                       shiny::selectInput(
+                           inputId = paste0("keepMetricBy_", nm),
+                           label = nm, 
+                           choices = unique(values$metricInfo[[nm]]),
+                           selected = unique(values$metricInfo[[nm]]),
+                           multiple = TRUE
+                       )
+                   }) 
+        })
+        
         output$metricToManipulateUI <- shiny::renderUI({
+            if (app_state$mode == "upload") return(NULL)
             shiny::selectizeInput(
                 inputId = "metricToManipulate",
                 label = "Select metric to transform",
@@ -717,370 +991,159 @@ bettr <- function(df = NULL, idCol = "Method",
                 selected = "---"
             )
         })
-        shiny::outputOptions(output, "metricToManipulateUI", 
-                             suspendWhenHidden = FALSE)
         
-        ## Display transformation options for selected metric -----------------
-        shiny::observeEvent(input$metricToManipulate, {
-            shiny::updateTabsetPanel(inputId = "metricManipulationSummary", 
-                                     selected = input$metricToManipulate)
+        output$metricManipulationSummaryUI <- shiny::renderUI({
+            if (app_state$mode == "upload") return(NULL)
+            # Return empty for now - transformation UI is complex
+            NULL
         })
         
-        ## UI element to transform metric values ------------------------------
-        shiny::observe({
-            output$metricManipulationSummaryUI <- shiny::renderUI({
-                do.call(
-                    shiny::tabsetPanel, 
-                    c(list(type = "hidden", 
-                           id = "metricManipulationSummary", 
-                           ## Empty body when "---" is selected
-                           shiny::tabPanelBody(
-                               value = "---",
-                               NULL
-                           )),
-                      ## One tab panel per metric. The actual panel content is 
-                      ## created below (it's different for numeric and 
-                      ## categorical variables)
-                      lapply(metricsInUse(), function(i) {
-                          shiny::tabPanelBody(
-                              value = i, 
-                              shiny::fluidRow(
-                                  ## Input controls
-                                  shiny::column(
-                                      4,
-                                      shiny::uiOutput(
-                                          outputId = paste0(i, "_transformUI")
-                                      )
-                                  ),
-                                  ## Summary plots
-                                  shiny::column(
-                                      8, 
-                                      shiny::plotOutput(
-                                          outputId = paste0(i, "_plotsummary")
-                                      )
-                                  ) 
-                              )
-                          )
-                      })
-                    )
-                )
-            })
-            shiny::outputOptions(output, "metricManipulationSummaryUI", 
-                                 suspendWhenHidden = FALSE)
+        output$close_app_ui <- shiny::renderUI({
+            if (app_state$mode == "upload" || !addStopButton) return(NULL)
+            shiny::actionButton("close_app", "Close app")
         })
         
-        ## Create transformation interface for numeric metrics ----------------
-        lapply(prep$metrics_num, function(m) {
-            output[[paste0(m, "_transformUI")]] <- shiny::renderUI({
-                shiny::tagList(
-                    shiny::checkboxInput(
-                        inputId = paste0(m, "_flip"),
-                        label = "Flip",
-                        value = prep$initialTransforms[[m]][["flip"]]
-                    ),
-                    shiny::numericInput(
-                        inputId = paste0(m, "_offset"),
-                        label = "Offset",
-                        value = prep$initialTransforms[[m]][["offset"]]
-                    ),
-                    shiny::radioButtons(
-                        inputId = paste0(m, "_transform"),
-                        label = "Transform",
-                        choices = c("None", "z-score",
-                                    "[0,1]", "[-1,1]",
-                                    "Rank", "Rank+[0,1]", "z-score+[0,1]"),
-                        selected = prep$initialTransforms[[m]][["transform"]]
-                    ),
-                    shiny::selectizeInput(
-                        inputId = paste0(m, "_bincuts"),
-                        label = "Cut points for\ncategorization",
-                        choices = prep$initialTransforms[[m]][["cuts"]],
-                        selected = prep$initialTransforms[[m]][["cuts"]],
-                        multiple = TRUE,
-                        options = list(create = TRUE)
-                    )
-                )
-            })
+        # Plot outputs
+        output$bettrHeatmapUI <- shiny::renderUI({
+            if (app_state$mode == "upload") return(NULL)
+            shinyjqui::jqui_resizable(
+                shiny::plotOutput("bettrHeatmap",
+                                  height = paste0(if (!is.null(input$hmheight)) input$hmheight else 600, "px")))
         })
         
-        ## Create transformation interface for categorical metrics ------------
-        lapply(prep$metrics_cat, function(m) {
-            output[[paste0(m, "_transformUI")]] <- shiny::renderUI({
-                shiny::tagList(
-                    sortable::rank_list(
-                        text = "Levels",
-                        labels = levels(factor(values$df[[m]])),
-                        input_id = paste0(m, "_levels"),
-                        class = c("default-sortable", "custom-sortable")
-                    ),
-                    ## Set the colors for the levels ranked list box
-                    ## First color is surrounding, second is levels
-                    shiny::tags$style(
-                        shiny::HTML(".rank-list-container.custom-sortable {
-                                    background-color: #3c453c;
-                                    }
-                                    .custom-sortable .rank-list-item {
-                                    background-color: #02075d;
-                                    }
-                                    ")
-                    )
-                )
-            })
-        })
-        
-        ## Make sure that hidden tabs (metrics that are currently not being
-        ## transformed) are not suspended 
-        lapply(metrics, function(m) {
-            shiny::outputOptions(output, paste0(m, "_transformUI"),
-                                 suspendWhenHidden = FALSE)
-        })
-        
-        ## Create summary plots for transformed metric ------------------------
-        shiny::observe({
-            lapply(metricsInUse(), function(m) {
-                output[[paste0(m, "_plotsummary")]] <- shiny::renderPlot({
-                    shiny::validate(
-                        shiny::need(procdata(), "No processed data")
-                    )
-                    .makeMetricSummaryPlot(x = procdata()[[m]])
-                })
-            })
-            
-        })
-        
-        
-        ## Reset all weights upon action button click -------------------------
-        shiny::observeEvent(input$resetWeights, {
-            for (j in metrics) {
-                shiny::updateNumericInput(
-                    session, inputId = paste0(j, "_weight"), 
-                    value = defaultWeight
-                )
+        output$bettrHeatmap <- shiny::renderPlot({
+            if (app_state$mode == "upload" || is.null(plotdata()) || is.null(scoredata()) || is.null(prep)) {
+                return(NULL)
             }
+            makeHeatmap(
+                bettrList = NULL, 
+                plotdata = plotdata(), scoredata = scoredata(), 
+                idCol = idCol, metricCol = metricCol, valueCol = valueCol, 
+                weightCol = weightCol, scoreCol = scoreCol, 
+                metricGroupCol = metricGroupCol, 
+                metricInfo = values$metricInfo,
+                metricColors = prep$metricColors,
+                idInfo = values$idInfo,
+                idColors = prep$idColors, 
+                metricCollapseGroup = if (!is.null(input$metricCollapseGroup)) input$metricCollapseGroup else FALSE,
+                metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---", 
+                labelSize = if (!is.null(input$labelsize)) input$labelsize else 10,
+                showRowNames = if (!is.null(input$show_row_names)) input$show_row_names else TRUE,
+                plotType = if (!is.null(input$heatmap_plot_type)) input$heatmap_plot_type else "Heatmap",
+                rownamewidth_cm = if (!is.null(input$hm_rownamewidth)) input$hm_rownamewidth else 6,
+                colnameheight_cm = if (!is.null(input$hm_colnameheight)) input$hm_colnameheight else 6
+            )
         })
         
-        ## Score table --------------------------------------------------------
+        # Parallel coordinates plot
+        output$bettrParCoordplotUI <- shiny::renderUI({
+            if (app_state$mode == "upload") return(NULL)
+            shinyjqui::jqui_resizable(shiny::plotOutput("bettrParCoordplot"))
+        })
+        
+        output$bettrParCoordplot <- shiny::renderPlot({
+            if (app_state$mode == "upload" || is.null(plotdata()) || is.null(scoredata()) || is.null(prep)) {
+                return(NULL)
+            }
+            makeParCoordPlot(
+                bettrList = NULL,
+                plotdata = plotdata(), idCol = idCol, 
+                metricCol = metricCol, valueCol = valueCol, 
+                metricGroupCol = metricGroupCol,
+                metricColors = prep$metricColors,
+                idColors = prep$idColors,
+                methods = methodsInUse(),
+                metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
+                highlightMethod = if (!is.null(input$highlightMethod)) input$highlightMethod else NULL, 
+                labelSize = if (!is.null(input$labelsize)) input$labelsize else 10
+            )
+        })
+        
+        # Polar plot
+        output$bettrPolarplotUI <- shiny::renderUI({
+            if (app_state$mode == "upload") return(NULL)
+            shinyjqui::jqui_resizable(shiny::plotOutput("bettrPolarplot"))
+        })
+        
+        output$bettrPolarplot <- shiny::renderPlot({
+            if (app_state$mode == "upload" || is.null(plotdata()) || is.null(scoredata()) || is.null(prep)) {
+                return(NULL)
+            }
+            makePolarPlot(
+                bettrList = NULL,
+                plotdata = plotdata(), 
+                idCol = idCol, 
+                metricCol = metricCol, valueCol = valueCol,
+                metricGroupCol = metricGroupCol, 
+                metricColors = prep$metricColors,
+                metricCollapseGroup = if (!is.null(input$metricCollapseGroup)) input$metricCollapseGroup else FALSE,
+                metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
+                labelSize = if (!is.null(input$labelsize)) input$labelsize else 10
+            )
+        })
+        
+        # Bar + polar plot
+        output$bettrBarPolarplotUI <- shiny::renderUI({
+            if (app_state$mode == "upload") return(NULL)
+            shinyjqui::jqui_resizable(shiny::plotOutput("bettrBarPolarplot"))
+        })
+        
+        output$bettrBarPolarplot <- shiny::renderPlot({
+            if (app_state$mode == "upload" || is.null(plotdata()) || is.null(scoredata()) || is.null(prep)) {
+                return(NULL)
+            }
+            ssc <- if (!is.null(input$scoreMethod) && input$scoreMethod == "weighted mean" && !is.null(input$barpolar_showcomp)) {
+                input$barpolar_showcomp
+            } else {
+                FALSE
+            }
+            makeBarPolarPlot(
+                bettrList = NULL, 
+                plotdata = plotdata(), scoredata = scoredata(),
+                idCol = idCol, 
+                metricCol = metricCol, valueCol = valueCol, 
+                weightCol = weightCol, scoreCol = scoreCol, 
+                metricGroupCol = metricGroupCol, 
+                metricColors = prep$metricColors,
+                metricCollapseGroup = if (!is.null(input$metricCollapseGroup)) input$metricCollapseGroup else FALSE,
+                metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
+                methods = methodsInUse(), 
+                labelSize = if (!is.null(input$labelsize)) input$labelsize else 10,
+                showComposition = ssc,
+                scaleFactorPolars = if (!is.null(input$barpolar_scalefactor)) input$barpolar_scalefactor else 1.5
+            )
+        })
+        
+        # Data table output
         output$scoreTable <- DT::renderDT({
+            if (app_state$mode == "upload" || is.null(plotdata()) || is.null(scoredata())) return(NULL)
+            
             tmpdf <- plotdata() |>
-                dplyr::mutate("{valueCol}" := signif(.data[[valueCol]], 
-                                                     digits = 4)) |>
+                dplyr::mutate("{valueCol}" := signif(.data[[valueCol]], digits = 4)) |>
                 dplyr::select(dplyr::all_of(c(idCol, valueCol, metricCol))) |>
                 tidyr::pivot_wider(names_from = .data[[metricCol]], 
                                    values_from = .data[[valueCol]]) |>
                 dplyr::left_join(scoredata(), by = idCol) |>
-                dplyr::mutate("{scoreCol}" := signif(.data[[scoreCol]], 
-                                                     digits = 4)) |>
+                dplyr::mutate("{scoreCol}" := signif(.data[[scoreCol]], digits = 4)) |>
                 dplyr::relocate(dplyr::all_of(idCol))
-            if (input$id_ordering == "high-to-low") {
-                tmpdf |>
-                    dplyr::arrange(dplyr::desc(.data[[scoreCol]]))
+            
+            ordering <- if (!is.null(input$id_ordering)) input$id_ordering else "high-to-low"
+            if (ordering == "high-to-low") {
+                tmpdf |> dplyr::arrange(dplyr::desc(.data[[scoreCol]]))
             } else {
-                tmpdf |>
-                    dplyr::arrange(.data[[scoreCol]])
+                tmpdf |> dplyr::arrange(.data[[scoreCol]])
             }
         }, filter = list(position = "top", clear = FALSE), 
         extensions = "Buttons",
         options = list(scrollX = TRUE, pageLength = 100,
                        dom = "Bfrtip", buttons = c("csv")))
         
-        ## Parallel coordinates plot ------------------------------------------
-        output$bettrParCoordplotUI <- shiny::renderUI({
-            shinyjqui::jqui_resizable(shiny::plotOutput(
-                "bettrParCoordplot"))
-        })
-        output$bettrParCoordplot <- shiny::renderPlot({
-            if (is.null(plotdata()) || is.null(scoredata())) {
-                NULL
-            } else {
-                makeParCoordPlot(
-                    bettrList = NULL,
-                    plotdata = plotdata(), idCol = idCol, 
-                    metricCol = metricCol, valueCol = valueCol, 
-                    metricGroupCol = metricGroupCol,
-                    metricColors = prep$metricColors,
-                    idColors = prep$idColors,
-                    methods = methodsInUse(),
-                    metricGrouping = input$metricGrouping,
-                    highlightMethod = input$highlightMethod, 
-                    labelSize = input$labelsize
-                )
-            }
-        })
-        
-        ## Polar plot ---------------------------------------------------------
-        output$bettrPolarplotUI <- shiny::renderUI({
-            shinyjqui::jqui_resizable(shiny::plotOutput(
-                "bettrPolarplot"))
-        })
-        output$bettrPolarplot <- shiny::renderPlot({
-            if (is.null(plotdata()) || is.null(scoredata())) {
-                NULL
-            } else {
-                makePolarPlot(
-                    bettrList = NULL,
-                    plotdata = plotdata(), 
-                    idCol = idCol, 
-                    metricCol = metricCol, valueCol = valueCol,
-                    metricGroupCol = metricGroupCol, 
-                    metricColors = prep$metricColors,
-                    metricCollapseGroup = input$metricCollapseGroup,
-                    metricGrouping = input$metricGrouping,
-                    labelSize = input$labelsize
-                )
-            }
-        })
-        
-        ## Bar + polar plot ---------------------------------------------------
-        output$bettrBarPolarplotUI <- shiny::renderUI({
-            shinyjqui::jqui_resizable(shiny::plotOutput(
-                "bettrBarPolarplot"))
-        })
-        output$bettrBarPolarplot <- shiny::renderPlot({
-            if (is.null(plotdata()) || is.null(scoredata())) {
-                NULL
-            } else {
-                if (input$scoreMethod == "weighted mean") {
-                    ssc <- input$barpolar_showcomp
-                } else {
-                    ssc <- FALSE
-                }
-                makeBarPolarPlot(
-                    bettrList = NULL, 
-                    plotdata = plotdata(), scoredata = scoredata(),
-                    idCol = idCol, 
-                    metricCol = metricCol, valueCol = valueCol, 
-                    weightCol = weightCol, scoreCol = scoreCol, 
-                    metricGroupCol = metricGroupCol, 
-                    metricColors = prep$metricColors,
-                    metricCollapseGroup = input$metricCollapseGroup,
-                    metricGrouping = input$metricGrouping,
-                    methods = methodsInUse(), 
-                    labelSize = input$labelsize,
-                    showComposition = ssc,
-                    scaleFactorPolars = input$barpolar_scalefactor
-                )
-            }
-        })
-        
-        ## Heatmap ------------------------------------------------------------
-        output$bettrHeatmapUI <- shiny::renderUI({
-            shinyjqui::jqui_resizable(
-                shiny::plotOutput("bettrHeatmap",
-                                  height = paste0(input$hmheight, "px")))
-        })
-        # observeEvent(input$update_size, {
-        #     shiny::updateNumericInput(session, "hmheight", 
-        #                               value = input$bettrHeatmap_size[[2]])
-        # })
-        output$bettrHeatmap <- shiny::renderPlot({
-            if (is.null(plotdata()) || is.null(scoredata())) {
-                NULL
-            } else {
-                makeHeatmap(
-                    bettrList = NULL, 
-                    plotdata = plotdata(), scoredata = scoredata(), 
-                    idCol = idCol, metricCol = metricCol, valueCol = valueCol, 
-                    weightCol = weightCol, scoreCol = scoreCol, 
-                    metricGroupCol = metricGroupCol, 
-                    metricInfo = values$metricInfo,
-                    metricColors = prep$metricColors,
-                    idInfo = values$idInfo,
-                    idColors = prep$idColors, 
-                    metricCollapseGroup = input$metricCollapseGroup,
-                    metricGrouping = input$metricGrouping, 
-                    labelSize = input$labelsize,
-                    showRowNames = input$show_row_names,
-                    plotType = input$heatmap_plot_type,
-                    rownamewidth_cm = input$hm_rownamewidth,
-                    colnameheight_cm = input$hm_colnameheight
-                )
-            }
-        })
-        
-        
-        ## Define weight controls ---------------------------------------------
-        ## Make sure that weights are retained even when the collapsing by
-        ## group status (and thus the displayed weight sliders) changes
-        shiny::observe({
-            lapply(prep$metricsWithWeights, function(mww) {
-                if (!is.null(input[[paste0(mww, "_weight")]])) {
-                    values$currentWeights[mww] <- 
-                        input[[paste0(mww, "_weight")]]
-                }
+        # Close app handler
+        if (addStopButton) {
+            shiny::observeEvent(input$close_app, {
+                shiny::stopApp()
             })
-        })
-        
-        output$weights <- shiny::renderUI({
-            if (is.null(values$metrics) || is.null(values$currentWeights)) {
-                NULL
-            } else {
-                if (input$metricCollapseGroup && 
-                    input$metricGrouping != "---") {
-                    if (is.null(longdata()[[metricGroupCol]])) {
-                        NULL
-                    } else {
-                        do.call(shiny::tagList,
-                                lapply(unique(longdata()[[metricGroupCol]]), 
-                                       function(i) {
-                                           shiny::sliderInput(
-                                               inputId = paste0(
-                                                   input$metricGrouping,
-                                                   "_", i, 
-                                                   "_weight"),
-                                               label = i,
-                                               value = values$currentWeights[
-                                                   paste0(input$metricGrouping,
-                                                          "_", i)],
-                                               min = 0,
-                                               max = 1,
-                                               step = weightResolution
-                                           )
-                                       }))
-                    }
-                } else {
-                    do.call(shiny::tagList,
-                            lapply(metricsInUse(), function(i) {
-                                shiny::sliderInput(
-                                    inputId = paste0(i, "_weight"),
-                                    label = i,
-                                    value = values$currentWeights[i],
-                                    min = 0,
-                                    max = 1,
-                                    step = weightResolution
-                                )
-                            }))
-                }
-            }
-        })
-        
-        ## Close app ----------------------------------------------------------
-        output$close_app_ui <- shiny::renderUI({
-            if (addStopButton) {
-                shiny::actionButton("close_app", "Close app")
-            } else {
-                NULL
-            }
-        })
-        shiny::observeEvent(input$close_app, {
-            shiny::stopApp(returnValue = list(
-                plotdata = plotdata(), 
-                scoredata = scoredata(), 
-                idColors = prep$idColors, 
-                metricColors = prep$metricColors, 
-                metricGrouping = input$metricGrouping,
-                metricCollapseGroup = input$metricCollapseGroup, 
-                idInfo = values$idInfo, 
-                metricInfo = values$metricInfo, 
-                metricGroupCol = metricGroupCol, 
-                methods = methodsInUse(), 
-                idCol = idCol, 
-                metricCol = metricCol, 
-                valueCol = valueCol, 
-                weightCol = weightCol, 
-                scoreCol = scoreCol
-            ))
-        })
-        
+        }
     }
     #nocov end
     

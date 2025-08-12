@@ -14,7 +14,7 @@ test_that("filterData works", {
     keepIdsBy <- list(lets = c("a", "b"), lets2 = c("d", "e"))
     keepMetrics <- c("m1", "m2", "m3")
     keepMetricsBy <- list(num = c(1, 2), lets3 = c("m", "n", "o"))
-    fd <- .filterData(df = df, idInfo = idInfo, idCol = "Method", 
+    fd <- bettr:::.filterData(df = df, idInfo = idInfo, idCol = "Method", 
                       keepIds = keepIds, keepIdsBy = keepIdsBy, 
                       metricInfo = metricInfo, metricCol = "Metric",
                       keepMetrics = keepMetrics, keepMetricsBy = keepMetricsBy, 
@@ -30,7 +30,7 @@ test_that("filterData works", {
     keepIdsBy <- list(lets = c("a", "b"), lets2 = c("d", "e"))
     keepMetrics <- c("m1", "m2", "m3")
     keepMetricsBy <- list(num = c(1, 2), lets3 = c("m", "n", "o"))
-    fd <- .filterData(df = df, idInfo = idInfo, idCol = "Method", 
+    fd <- bettr:::.filterData(df = df, idInfo = idInfo, idCol = "Method", 
                       keepIds = keepIds, keepIdsBy = keepIdsBy, 
                       metricInfo = metricInfo, metricCol = "Metric",
                       keepMetrics = keepMetrics, keepMetricsBy = keepMetricsBy, 
@@ -46,7 +46,7 @@ test_that("filterData works", {
     keepIdsBy <- list(lets = c("a", "b"), lets2 = c("d"))
     keepMetrics <- c("m1", "m2", "m3")
     keepMetricsBy <- list(num = c(1, 2), lets3 = c("m", "n", "o"))
-    fd <- .filterData(df = df, idInfo = idInfo, idCol = "Method", 
+    fd <- bettr:::.filterData(df = df, idInfo = idInfo, idCol = "Method", 
                       keepIds = keepIds, keepIdsBy = keepIdsBy, 
                       metricInfo = metricInfo, metricCol = "Metric",
                       keepMetrics = keepMetrics, keepMetricsBy = keepMetricsBy, 
@@ -62,7 +62,7 @@ test_that("filterData works", {
     keepIdsBy <- list(lets = c("a", "b"), lets2 = c("e"))
     keepMetrics <- c("m1", "m2", "m3")
     keepMetricsBy <- list(num = c(1, 2), lets3 = c("m", "n", "o"))
-    fd <- .filterData(df = df, idInfo = idInfo, idCol = "Method", 
+    fd <- bettr:::.filterData(df = df, idInfo = idInfo, idCol = "Method", 
                       keepIds = keepIds, keepIdsBy = keepIdsBy, 
                       metricInfo = metricInfo, metricCol = "Metric",
                       keepMetrics = keepMetrics, keepMetricsBy = keepMetricsBy, 
@@ -78,7 +78,7 @@ test_that("filterData works", {
     keepIdsBy <- list(lets = c("a", "b"), lets2 = c("e"))
     keepMetrics <- c("m1", "m2", "m3")
     keepMetricsBy <- list(num = c(1, 2), lets3 = c("m", "n", "o"))
-    fd <- .filterData(df = df, idInfo = idInfo, idCol = "Method", 
+    fd <- bettr:::.filterData(df = df, idInfo = idInfo, idCol = "Method", 
                       keepIds = keepIds, keepIdsBy = keepIdsBy, 
                       metricInfo = metricInfo, metricCol = "Metric",
                       keepMetrics = keepMetrics, keepMetricsBy = keepMetricsBy, 
@@ -94,7 +94,7 @@ test_that("filterData works", {
     keepIdsBy <- list(lets = c("a", "b"), lets2 = c("d", "e"))
     keepMetrics <- c("m2", "m3")
     keepMetricsBy <- list(num = c(1, 2), lets3 = c("m", "n", "o"))
-    fd <- .filterData(df = df, idInfo = idInfo, idCol = "Method", 
+    fd <- bettr:::.filterData(df = df, idInfo = idInfo, idCol = "Method", 
                       keepIds = keepIds, keepIdsBy = keepIdsBy, 
                       metricInfo = metricInfo, metricCol = "Metric",
                       keepMetrics = keepMetrics, keepMetricsBy = keepMetricsBy, 
@@ -110,7 +110,7 @@ test_that("filterData works", {
     keepIdsBy <- list(lets = c("a", "b"), lets2 = c("d", "e"))
     keepMetrics <- c("m2", "m3")
     keepMetricsBy <- list(num = c(2), lets3 = c("m", "n", "o"))
-    fd <- .filterData(df = df, idInfo = idInfo, idCol = "Method", 
+    fd <- bettr:::.filterData(df = df, idInfo = idInfo, idCol = "Method", 
                       keepIds = keepIds, keepIdsBy = keepIdsBy, 
                       metricInfo = metricInfo, metricCol = "Metric",
                       keepMetrics = keepMetrics, keepMetricsBy = keepMetricsBy, 
@@ -126,7 +126,7 @@ test_that("filterData works", {
     keepIdsBy <- list(lets = c("a", "b"), lets2 = c("d", "e"))
     keepMetrics <- c("m2", "m3")
     keepMetricsBy <- list(num = c(2), lets3 = c("m", "n"))
-    fd <- .filterData(df = df, idInfo = idInfo, idCol = "Method", 
+    fd <- bettr:::.filterData(df = df, idInfo = idInfo, idCol = "Method", 
                       keepIds = keepIds, keepIdsBy = keepIdsBy, 
                       metricInfo = metricInfo, metricCol = "Metric",
                       keepMetrics = keepMetrics, keepMetricsBy = keepMetricsBy, 
@@ -141,7 +141,7 @@ test_that("filterData works", {
     keepIdsBy <- list(lets = c("a", "b"), lets2 = c("d", "e"))
     keepMetrics <- c("m2", "m3")
     keepMetricsBy <- list(num = c(1), lets3 = c("m", "n"))
-    fd <- .filterData(df = df, idInfo = idInfo, idCol = "Method", 
+    fd <- bettr:::.filterData(df = df, idInfo = idInfo, idCol = "Method", 
                       keepIds = keepIds, keepIdsBy = keepIdsBy, 
                       metricInfo = metricInfo, metricCol = "Metric",
                       keepMetrics = keepMetrics, keepMetricsBy = keepMetricsBy, 
@@ -156,7 +156,7 @@ test_that("filterData works", {
     keepIdsBy <- list(lets = c("a", "b"), lets2 = c("d", "e"))
     keepMetrics <- c("m2", "m3")
     keepMetricsBy <- list(num = c(1), lets3 = c("m", "n"))
-    fd <- .filterData(df = df, idInfo = NULL, idCol = "Method", 
+    fd <- bettr:::.filterData(df = df, idInfo = NULL, idCol = "Method", 
                       keepIds = keepIds, keepIdsBy = keepIdsBy, 
                       metricInfo = metricInfo, metricCol = "Metric",
                       keepMetrics = keepMetrics, keepMetricsBy = keepMetricsBy, 
@@ -171,7 +171,7 @@ test_that("filterData works", {
     keepIdsBy <- list(lets = c("a", "b"), lets2 = c("d", "e"))
     keepMetrics <- c("m2", "m3")
     keepMetricsBy <- list(num = c(1), lets3 = c("m", "n"))
-    fd <- .filterData(df = df, idInfo = NULL, idCol = "Method", 
+    fd <- bettr:::.filterData(df = df, idInfo = NULL, idCol = "Method", 
                       keepIds = keepIds, keepIdsBy = keepIdsBy, 
                       metricInfo = NULL, metricCol = "Metric",
                       keepMetrics = keepMetrics, keepMetricsBy = keepMetricsBy, 

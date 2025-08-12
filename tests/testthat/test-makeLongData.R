@@ -10,7 +10,7 @@ test_that("long data generation works", {
                          lets2 = c("d", "d", "e"))
     
     ## Without grouping
-    ld <- .makeLongData(df = df, idCol = "Method", 
+    ld <- bettr:::.makeLongData(df = df, idCol = "Method", 
                         metrics = c("m1", "m2", "m3"), 
                         metricCol = "Metric", valueCol = "ScaledValue",
                         metricGrouping = "---", metricInfo = metricInfo, 
@@ -24,7 +24,7 @@ test_that("long data generation works", {
                  ignore_attr = TRUE)
     
     ## With grouping
-    ld <- .makeLongData(df = df, idCol = "Method", 
+    ld <- bettr:::.makeLongData(df = df, idCol = "Method", 
                         metrics = c("m1", "m2", "m3"), 
                         metricCol = "Metric", valueCol = "ScaledValue",
                         metricGrouping = "num", metricInfo = metricInfo, 
@@ -39,7 +39,7 @@ test_that("long data generation works", {
                  ignore_attr = TRUE)
     
     ## With grouping, don't keep all metrics
-    ld <- .makeLongData(df = df, idCol = "Method", 
+    ld <- bettr:::.makeLongData(df = df, idCol = "Method", 
                         metrics = c("m1", "m3"), 
                         metricCol = "Metric", valueCol = "ScaledValue",
                         metricGrouping = "num", metricInfo = metricInfo, 
@@ -66,12 +66,12 @@ test_that("adding weights to long data works", {
                          lets2 = c("d", "d", "e"))
     
     ## Without grouping
-    ld <- .makeLongData(df = df, idCol = "Method", 
+    ld <- bettr:::.makeLongData(df = df, idCol = "Method", 
                         metrics = c("m1", "m2", "m3"), 
                         metricCol = "Metric", valueCol = "ScaledValue",
                         metricGrouping = "---", metricInfo = metricInfo, 
                         metricGroupCol = "metricGroup")
-    ldw <- .addWeightsToLongData(df = ld, metricCollapseGroup = FALSE, 
+    ldw <- bettr:::.addWeightsToLongData(df = ld, metricCollapseGroup = FALSE, 
                                  metricGrouping = "---",
                                  metricGroupCol = "metricGroup", 
                                  weights = list(m1_weight = 0.2, m2_weight = 0.3, m3_weight = 0.1,
@@ -90,12 +90,12 @@ test_that("adding weights to long data works", {
     expect_equal(ldw$Weight, c(0.2, 0.3, 0.1, 0.2, 0.3, 0.1, 0.2, 0.3, 0.1))
     
     ## With grouping
-    ld <- .makeLongData(df = df, idCol = "Method", 
+    ld <- bettr:::.makeLongData(df = df, idCol = "Method", 
                         metrics = c("m1", "m2", "m3"), 
                         metricCol = "Metric", valueCol = "ScaledValue",
                         metricGrouping = "num", metricInfo = metricInfo, 
                         metricGroupCol = "metricGroup")
-    ldw <- .addWeightsToLongData(df = ld, metricCollapseGroup = TRUE, 
+    ldw <- bettr:::.addWeightsToLongData(df = ld, metricCollapseGroup = TRUE, 
                                  metricGrouping = "num",
                                  metricGroupCol = "metricGroup", 
                                  weights = list(m1_weight = 0.2, m2_weight = 0.3, m3_weight = 0.1,
@@ -115,7 +115,7 @@ test_that("adding weights to long data works", {
     expect_equal(ldw$Weight, c(0.7, 0.7, 0.1, 0.7, 0.7, 0.1, 0.7, 0.7, 0.1))
     
     ## Missing weights -> return NULL
-    ldw <- .addWeightsToLongData(df = ld, metricCollapseGroup = TRUE, 
+    ldw <- bettr:::.addWeightsToLongData(df = ld, metricCollapseGroup = TRUE, 
                                  metricGrouping = "num",
                                  metricGroupCol = "metricGroup", 
                                  weights = list(m1_weight = 0.2, m2_weight = 0.3, m3_weight = 0.1,
@@ -140,12 +140,12 @@ test_that("collapsing long data works", {
                          lets2 = c("d", "d", "e"))
     
     ## Without grouping
-    ld <- .makeLongData(df = df, idCol = "Method", 
+    ld <- bettr:::.makeLongData(df = df, idCol = "Method", 
                         metrics = c("m1", "m2", "m3"), 
                         metricCol = "Metric", valueCol = "ScaledValue",
                         metricGrouping = "---", metricInfo = metricInfo, 
                         metricGroupCol = "metricGroup")
-    ldw <- .addWeightsToLongData(df = ld, metricCollapseGroup = FALSE, 
+    ldw <- bettr:::.addWeightsToLongData(df = ld, metricCollapseGroup = FALSE, 
                                  metricGrouping = "---",
                                  metricGroupCol = "metricGroup", 
                                  weights = list(m1_weight = 0.2, m2_weight = 0.3, m3_weight = 0.1,
@@ -155,7 +155,7 @@ test_that("collapsing long data works", {
                                                 lets3_n_weight = 0.1, lets3_o_weight = 0.9),
                                  weightCol = "Weight", metricCol = "Metric",
                                  metrics = c("m1", "m2", "m3"))
-    cld <- .collapseLongData(df = ldw, metricCollapseGroup = FALSE, 
+    cld <- bettr:::.collapseLongData(df = ldw, metricCollapseGroup = FALSE, 
                              metricGrouping = "---", idCol = "Method",
                              metricGroupCol = "metricGroup", 
                              valueCol = "ScaledValue", weightCol = "Weight", 
@@ -163,12 +163,12 @@ test_that("collapsing long data works", {
     expect_equal(ldw, cld)
     
     ## With grouping
-    ld <- .makeLongData(df = df, idCol = "Method", 
+    ld <- bettr:::.makeLongData(df = df, idCol = "Method", 
                         metrics = c("m1", "m2", "m3"), 
                         metricCol = "Metric", valueCol = "ScaledValue",
                         metricGrouping = "num", metricInfo = metricInfo, 
                         metricGroupCol = "metricGroup")
-    ldw <- .addWeightsToLongData(df = ld, metricCollapseGroup = TRUE, 
+    ldw <- bettr:::.addWeightsToLongData(df = ld, metricCollapseGroup = TRUE, 
                                  metricGrouping = "num",
                                  metricGroupCol = "metricGroup", 
                                  weights = list(m1_weight = 0.2, m2_weight = 0.3, m3_weight = 0.1,
@@ -178,7 +178,7 @@ test_that("collapsing long data works", {
                                                 lets3_n_weight = 0.1, lets3_o_weight = 0.9),
                                  weightCol = "Weight", metricCol = "Metric",
                                  metrics = c("m1", "m2", "m3"))
-    cld <- .collapseLongData(df = ldw, metricCollapseGroup = TRUE, 
+    cld <- bettr:::.collapseLongData(df = ldw, metricCollapseGroup = TRUE, 
                              metricGrouping = "num", idCol = "Method",
                              metricGroupCol = "metricGroup", 
                              valueCol = "ScaledValue", weightCol = "Weight", 
@@ -202,12 +202,12 @@ test_that("collapsing long data works", {
     expect_equal(cld$Weight, c(0.7, 0.1, 0.7, 0.1, 0.7, 0.1))
     
     ## With grouping - max collapse
-    ld <- .makeLongData(df = df, idCol = "Method", 
+    ld <- bettr:::.makeLongData(df = df, idCol = "Method", 
                         metrics = c("m1", "m2", "m3"), 
                         metricCol = "Metric", valueCol = "ScaledValue",
                         metricGrouping = "num", metricInfo = metricInfo, 
                         metricGroupCol = "metricGroup")
-    ldw <- .addWeightsToLongData(df = ld, metricCollapseGroup = TRUE, 
+    ldw <- bettr:::.addWeightsToLongData(df = ld, metricCollapseGroup = TRUE, 
                                  metricGrouping = "num",
                                  metricGroupCol = "metricGroup", 
                                  weights = list(m1_weight = 0.2, m2_weight = 0.3, m3_weight = 0.1,
@@ -217,7 +217,7 @@ test_that("collapsing long data works", {
                                                 lets3_n_weight = 0.1, lets3_o_weight = 0.9),
                                  weightCol = "Weight", metricCol = "Metric",
                                  metrics = c("m1", "m2", "m3"))
-    cld <- .collapseLongData(df = ldw, metricCollapseGroup = TRUE, 
+    cld <- bettr:::.collapseLongData(df = ldw, metricCollapseGroup = TRUE, 
                              metricGrouping = "num", idCol = "Method",
                              metricGroupCol = "metricGroup", 
                              valueCol = "ScaledValue", weightCol = "Weight", 
@@ -241,12 +241,12 @@ test_that("collapsing long data works", {
     expect_equal(cld$Weight, c(0.7, 0.1, 0.7, 0.1, 0.7, 0.1))
     
     ## With grouping - min collapse
-    ld <- .makeLongData(df = df, idCol = "Method", 
+    ld <- bettr:::.makeLongData(df = df, idCol = "Method", 
                         metrics = c("m1", "m2", "m3"), 
                         metricCol = "Metric", valueCol = "ScaledValue",
                         metricGrouping = "num", metricInfo = metricInfo, 
                         metricGroupCol = "metricGroup")
-    ldw <- .addWeightsToLongData(df = ld, metricCollapseGroup = TRUE, 
+    ldw <- bettr:::.addWeightsToLongData(df = ld, metricCollapseGroup = TRUE, 
                                  metricGrouping = "num",
                                  metricGroupCol = "metricGroup", 
                                  weights = list(m1_weight = 0.2, m2_weight = 0.3, m3_weight = 0.1,
@@ -256,7 +256,7 @@ test_that("collapsing long data works", {
                                                 lets3_n_weight = 0.1, lets3_o_weight = 0.9),
                                  weightCol = "Weight", metricCol = "Metric",
                                  metrics = c("m1", "m2", "m3"))
-    cld <- .collapseLongData(df = ldw, metricCollapseGroup = TRUE, 
+    cld <- bettr:::.collapseLongData(df = ldw, metricCollapseGroup = TRUE, 
                              metricGrouping = "num", idCol = "Method",
                              metricGroupCol = "metricGroup", 
                              valueCol = "ScaledValue", weightCol = "Weight", 
@@ -282,12 +282,12 @@ test_that("collapsing long data works", {
     ## With grouping - min collapse (with NAs)
     df0 <- df
     df0$m1[1] <- df0$m2[1] <- NA
-    ld <- .makeLongData(df = df0, idCol = "Method", 
+    ld <- bettr:::.makeLongData(df = df0, idCol = "Method", 
                         metrics = c("m1", "m2", "m3"), 
                         metricCol = "Metric", valueCol = "ScaledValue",
                         metricGrouping = "num", metricInfo = metricInfo, 
                         metricGroupCol = "metricGroup")
-    ldw <- .addWeightsToLongData(df = ld, metricCollapseGroup = TRUE, 
+    ldw <- bettr:::.addWeightsToLongData(df = ld, metricCollapseGroup = TRUE, 
                                  metricGrouping = "num",
                                  metricGroupCol = "metricGroup", 
                                  weights = list(m1_weight = 0.2, m2_weight = 0.3, m3_weight = 0.1,
@@ -298,7 +298,7 @@ test_that("collapsing long data works", {
                                  weightCol = "Weight", metricCol = "Metric",
                                  metrics = c("m1", "m2", "m3"))
     expect_warning(
-        cld <- .collapseLongData(df = ldw, metricCollapseGroup = TRUE, 
+        cld <- bettr:::.collapseLongData(df = ldw, metricCollapseGroup = TRUE, 
                                  metricGrouping = "num", idCol = "Method",
                                  metricGroupCol = "metricGroup", 
                                  valueCol = "ScaledValue", weightCol = "Weight", 

@@ -1,20 +1,20 @@
 test_that("generateColors works", {
-    expect_equal(.gg_color_hue(3), 
+    expect_equal(bettr:::.gg_color_hue(3), 
                  c("#F8766D", "#00BA38", "#619CFF"))
     
-    expect_null(.generateColors(df = NULL, inputColors = NULL))
+    expect_null(bettr:::.generateColors(df = NULL, inputColors = NULL))
     
     df <- data.frame(colA = LETTERS[1:4], 
                      colB = c("A", "A", "A", "B"),
                      colC = 1:4, 
                      colD = 5:8)
     
-    expect_error(.generateColors(df = df, inputColors = list, 
+    expect_error(bettr:::.generateColors(df = df, inputColors = list, 
                                  ggplot2Columns = "colC"),
                  "ggplot2 colors for continuous columns")
     
     set.seed(1)
-    gc <- .generateColors(df = df, inputColors = list(), ggplot2Columns = c())
+    gc <- bettr:::.generateColors(df = df, inputColors = list(), ggplot2Columns = c())
     expect_type(gc, "list")
     expect_length(gc, 4)
     expect_type(gc$colA, "character")
@@ -30,7 +30,7 @@ test_that("generateColors works", {
     expect_equal(gc$colD(7), "#A08EDFFF")
     
     set.seed(1)
-    gc <- .generateColors(df = df, inputColors = list(colB = c(A = "blue", B = "red")), ggplot2Columns = c())
+    gc <- bettr:::.generateColors(df = df, inputColors = list(colB = c(A = "blue", B = "red")), ggplot2Columns = c())
     expect_type(gc, "list")
     expect_length(gc, 4)
     expect_type(gc$colA, "character")
