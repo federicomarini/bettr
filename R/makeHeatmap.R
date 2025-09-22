@@ -136,7 +136,7 @@ makeHeatmap <- function(bettrList = NULL,
     ## If bettrList is provided, extract arguments from there
     if (!is.null(bettrList)) {
         .assertVector(x = bettrList, type = "list")
-        stopifnot(c("plotdata", "scoredata", "idCol", "metricCol", 
+        stopifnot(c("plotdata", "scoredata", "idCol", "metricCol",
                     "valueCol", "weightCol", "scoreCol", "metricGroupCol",
                     "metricInfo", "metricColors", "idInfo", "idColors",
                     "metricCollapseGroup", "metricGrouping") %in%

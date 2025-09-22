@@ -110,7 +110,7 @@ makeBarPolarPlot <- function(bettrList = NULL,
         labelSize = labelSize, showComposition = showComposition,
         scaleFactorPolars = scaleFactorPolars
     )
-    
+
     ## Define polar plots -----------------------------------------------------
     rplots <- lapply(methods, function(m) {
         ggplot2::ggplot(dplyr::filter(plotdata, .data[[idCol]] == m),
