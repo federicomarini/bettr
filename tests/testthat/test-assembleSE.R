@@ -99,16 +99,16 @@ test_that("assembleSE works", {
                      metricInfo = NULL, metricColors = NULL,
                      idInfo = NULL, idColors = NULL)
     expect_s4_class(se, "SummarizedExperiment")
-    expect_equal(dim(se), c(3, 2))
-    expect_equal(colnames(se), c("metric1", "metric2"))
-    expect_equal(rownames(se), c("M1", "M2", "M3"))
-    expect_equal(SummarizedExperiment::assayNames(se), "values")
+    expect_identical(dim(se), c(3, 2))
+    expect_identical(colnames(se), c("metric1", "metric2"))
+    expect_identical(rownames(se), c("M1", "M2", "M3"))
+    expect_identical(SummarizedExperiment::assayNames(se), "values")
     expect_equal(SummarizedExperiment::assay(se, "values"), df[, -1],
                  ignore_attr = TRUE)
     expect_s4_class(SummarizedExperiment::rowData(se), "DFrame")
-    expect_equal(ncol(SummarizedExperiment::rowData(se)), 0)
+    expect_identical(ncol(SummarizedExperiment::rowData(se)), 0)
     expect_s4_class(SummarizedExperiment::colData(se), "DFrame")
-    expect_equal(ncol(SummarizedExperiment::colData(se)), 0)
+    expect_identical(ncol(SummarizedExperiment::colData(se)), 0)
     expect_type(S4Vectors::metadata(se), "list")
     expect_type(S4Vectors::metadata(se)$bettrInfo, "list")
     expect_named(S4Vectors::metadata(se)$bettrInfo,
@@ -117,9 +117,9 @@ test_that("assembleSE works", {
     expect_null(S4Vectors::metadata(se)$bettrInfo$metricColors)
     expect_null(S4Vectors::metadata(se)$bettrInfo$idColors)
     expect_null(S4Vectors::metadata(se)$bettrInfo$initialWeights)
-    expect_equal(S4Vectors::metadata(se)$bettrInfo$idCol, "Method")
-    expect_equal(S4Vectors::metadata(se)$bettrInfo$metrics, c("metric1", "metric2"))
-    expect_equal(S4Vectors::metadata(se)$bettrInfo$initialTransforms, list())
+    expect_identical(S4Vectors::metadata(se)$bettrInfo$idCol, "Method")
+    expect_identical(S4Vectors::metadata(se)$bettrInfo$metrics, c("metric1", "metric2"))
+    expect_identical(S4Vectors::metadata(se)$bettrInfo$initialTransforms, list())
 
     ## With annotations
     metricColors <- list(metric1 = "blue", metric2 = "green", metric3 = "red")
@@ -134,18 +134,18 @@ test_that("assembleSE works", {
                      metricInfo = metricInfo, metricColors = metricColors,
                      idInfo = idInfo, idColors = idColors)
     expect_s4_class(se, "SummarizedExperiment")
-    expect_equal(dim(se), c(3, 2))
-    expect_equal(colnames(se), c("metric1", "metric2"))
-    expect_equal(rownames(se), c("M1", "M2", "M3"))
-    expect_equal(SummarizedExperiment::assayNames(se), "values")
+    expect_identical(dim(se), c(3, 2))
+    expect_identical(colnames(se), c("metric1", "metric2"))
+    expect_identical(rownames(se), c("M1", "M2", "M3"))
+    expect_identical(SummarizedExperiment::assayNames(se), "values")
     expect_equal(SummarizedExperiment::assay(se, "values"), df[, -1],
                  ignore_attr = TRUE)
     expect_s4_class(SummarizedExperiment::rowData(se), "DFrame")
-    expect_equal(ncol(SummarizedExperiment::rowData(se)), 2)
+    expect_identical(ncol(SummarizedExperiment::rowData(se)), 2)
     expect_equal(as.data.frame(SummarizedExperiment::rowData(se)), idInfo,
                  ignore_attr = TRUE)
     expect_s4_class(SummarizedExperiment::colData(se), "DFrame")
-    expect_equal(ncol(SummarizedExperiment::colData(se)), 2)
+    expect_identical(ncol(SummarizedExperiment::colData(se)), 2)
     expect_equal(as.data.frame(SummarizedExperiment::colData(se)),
                  metricInfo[-3, ], ignore_attr = TRUE)
     expect_type(S4Vectors::metadata(se), "list")
@@ -153,11 +153,11 @@ test_that("assembleSE works", {
     expect_named(S4Vectors::metadata(se)$bettrInfo,
                  c("idCol", "metrics", "initialWeights", "initialTransforms",
                    "metricColors", "idColors"))
-    expect_equal(S4Vectors::metadata(se)$bettrInfo$metricColors, metricColors)
-    expect_equal(S4Vectors::metadata(se)$bettrInfo$idColors, idColors)
-    expect_equal(S4Vectors::metadata(se)$bettrInfo$initialWeights, initialWeights)
-    expect_equal(S4Vectors::metadata(se)$bettrInfo$idCol, "Method")
-    expect_equal(S4Vectors::metadata(se)$bettrInfo$metrics, c("metric1", "metric2"))
-    expect_equal(S4Vectors::metadata(se)$bettrInfo$initialTransforms,
-                 initialTransforms)
+    expect_identical(S4Vectors::metadata(se)$bettrInfo$metricColors, metricColors)
+    expect_identical(S4Vectors::metadata(se)$bettrInfo$idColors, idColors)
+    expect_identical(S4Vectors::metadata(se)$bettrInfo$initialWeights, initialWeights)
+    expect_identical(S4Vectors::metadata(se)$bettrInfo$idCol, "Method")
+    expect_identical(S4Vectors::metadata(se)$bettrInfo$metrics, c("metric1", "metric2"))
+    expect_identical(S4Vectors::metadata(se)$bettrInfo$initialTransforms,
+                     initialTransforms)
 })

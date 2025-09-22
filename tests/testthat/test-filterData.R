@@ -20,10 +20,10 @@ test_that("filterData works", {
                       keepMetrics = keepMetrics, keepMetricsBy = keepMetricsBy,
                       metrics = metrics)
     expect_s3_class(fd, "data.frame")
-    expect_equal(dim(fd), c(3, 4))
+    expect_identical(dim(fd), c(3, 4))
     expect_named(fd, c("Method", "m1", "m2", "m3"))
-    expect_equal(fd$Method, c("A", "B", "C"))
-    expect_equal(fd$m1, df$m1)
+    expect_identical(fd$Method, c("A", "B", "C"))
+    expect_identical(fd$m1, df$m1)
 
     ## Method filtering
     keepIds <- c("A", "C")
@@ -36,10 +36,10 @@ test_that("filterData works", {
                       keepMetrics = keepMetrics, keepMetricsBy = keepMetricsBy,
                       metrics = metrics)
     expect_s3_class(fd, "data.frame")
-    expect_equal(dim(fd), c(2, 4))
+    expect_identical(dim(fd), c(2, 4))
     expect_named(fd, c("Method", "m1", "m2", "m3"))
-    expect_equal(fd$Method, c("A", "C"))
-    expect_equal(fd$m1, df$m1[c(1, 3)])
+    expect_identical(fd$Method, c("A", "C"))
+    expect_identical(fd$m1, df$m1[c(1, 3)])
 
     ## Method filtering by annotation
     keepIds <- c("A", "C")
@@ -52,10 +52,10 @@ test_that("filterData works", {
                       keepMetrics = keepMetrics, keepMetricsBy = keepMetricsBy,
                       metrics = metrics)
     expect_s3_class(fd, "data.frame")
-    expect_equal(dim(fd), c(1, 4))
+    expect_identical(dim(fd), c(1, 4))
     expect_named(fd, c("Method", "m1", "m2", "m3"))
-    expect_equal(fd$Method, "A")
-    expect_equal(fd$m1, df$m1[1])
+    expect_identical(fd$Method, "A")
+    expect_identical(fd$m1, df$m1[1])
 
     ## Method filtering
     keepIds <- c("A", "C")
@@ -68,10 +68,10 @@ test_that("filterData works", {
                       keepMetrics = keepMetrics, keepMetricsBy = keepMetricsBy,
                       metrics = metrics)
     expect_s3_class(fd, "data.frame")
-    expect_equal(dim(fd), c(1, 4))
+    expect_identical(dim(fd), c(1, 4))
     expect_named(fd, c("Method", "m1", "m2", "m3"))
-    expect_equal(fd$Method, "C")
-    expect_equal(fd$m1, df$m1[3])
+    expect_identical(fd$Method, "C")
+    expect_identical(fd$m1, df$m1[3])
 
     ## Method filtering
     keepIds <- c("A", "B", "C")
@@ -84,10 +84,10 @@ test_that("filterData works", {
                       keepMetrics = keepMetrics, keepMetricsBy = keepMetricsBy,
                       metrics = metrics)
     expect_s3_class(fd, "data.frame")
-    expect_equal(dim(fd), c(1, 4))
+    expect_identical(dim(fd), c(1, 4))
     expect_named(fd, c("Method", "m1", "m2", "m3"))
-    expect_equal(fd$Method, "C")
-    expect_equal(fd$m1, df$m1[3])
+    expect_identical(fd$Method, "C")
+    expect_identical(fd$m1, df$m1[3])
 
     ## Metric filtering
     keepIds <- c("A", "B", "C")
@@ -100,10 +100,10 @@ test_that("filterData works", {
                       keepMetrics = keepMetrics, keepMetricsBy = keepMetricsBy,
                       metrics = metrics)
     expect_s3_class(fd, "data.frame")
-    expect_equal(dim(fd), c(3, 3))
+    expect_identical(dim(fd), c(3, 3))
     expect_named(fd, c("Method", "m2", "m3"))
-    expect_equal(fd$Method, c("A", "B", "C"))
-    expect_equal(fd$m2, df$m2)
+    expect_identical(fd$Method, c("A", "B", "C"))
+    expect_identical(fd$m2, df$m2)
 
     ## Metric filtering by annotation
     keepIds <- c("A", "B", "C")
@@ -116,10 +116,10 @@ test_that("filterData works", {
                       keepMetrics = keepMetrics, keepMetricsBy = keepMetricsBy,
                       metrics = metrics)
     expect_s3_class(fd, "data.frame")
-    expect_equal(dim(fd), c(3, 2))
+    expect_identical(dim(fd), c(3, 2))
     expect_named(fd, c("Method", "m3"))
-    expect_equal(fd$Method, c("A", "B", "C"))
-    expect_equal(fd$m3, df$m3)
+    expect_identical(fd$Method, c("A", "B", "C"))
+    expect_identical(fd$m3, df$m3)
 
     ## Method and metric filtering
     keepIds <- c("A", "B")
@@ -132,9 +132,9 @@ test_that("filterData works", {
                       keepMetrics = keepMetrics, keepMetricsBy = keepMetricsBy,
                       metrics = metrics)
     expect_s3_class(fd, "data.frame")
-    expect_equal(dim(fd), c(2, 1))
+    expect_identical(dim(fd), c(2, 1))
     expect_named(fd, "Method")
-    expect_equal(fd$Method, c("A", "B"))
+    expect_identical(fd$Method, c("A", "B"))
 
     ## Method and metric filtering
     keepIds <- c("A", "B")
@@ -147,9 +147,9 @@ test_that("filterData works", {
                       keepMetrics = keepMetrics, keepMetricsBy = keepMetricsBy,
                       metrics = metrics)
     expect_s3_class(fd, "data.frame")
-    expect_equal(dim(fd), c(2, 2))
+    expect_identical(dim(fd), c(2, 2))
     expect_named(fd, c("Method", "m2"))
-    expect_equal(fd$Method, c("A", "B"))
+    expect_identical(fd$Method, c("A", "B"))
 
     ## Method and metric filtering, no idInfo
     keepIds <- c("A", "B")
@@ -162,9 +162,9 @@ test_that("filterData works", {
                       keepMetrics = keepMetrics, keepMetricsBy = keepMetricsBy,
                       metrics = metrics)
     expect_s3_class(fd, "data.frame")
-    expect_equal(dim(fd), c(2, 2))
+    expect_identical(dim(fd), c(2, 2))
     expect_named(fd, c("Method", "m2"))
-    expect_equal(fd$Method, c("A", "B"))
+    expect_identical(fd$Method, c("A", "B"))
 
     ## Method and metric filtering, no metricInfo
     keepIds <- c("A", "B")
@@ -177,7 +177,7 @@ test_that("filterData works", {
                       keepMetrics = keepMetrics, keepMetricsBy = keepMetricsBy,
                       metrics = metrics)
     expect_s3_class(fd, "data.frame")
-    expect_equal(dim(fd), c(2, 3))
+    expect_identical(dim(fd), c(2, 3))
     expect_named(fd, c("Method", "m2", "m3"))
-    expect_equal(fd$Method, c("A", "B"))
+    expect_identical(fd$Method, c("A", "B"))
 })

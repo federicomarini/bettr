@@ -16,10 +16,10 @@ test_that("long data generation works", {
                         metricGrouping = "---", metricInfo = metricInfo,
                         metricGroupCol = "metricGroup")
     expect_s3_class(ld, "data.frame")
-    expect_equal(dim(ld), c(9, 3))
+    expect_identical(dim(ld), c(9, 3))
     expect_named(ld, c("Method", "Metric", "ScaledValue"))
-    expect_equal(ld$Method, rep(c("A", "B", "C"), each = 3))
-    expect_equal(ld$Metric, rep(c("m1", "m2", "m3"), 3))
+    expect_identical(ld$Method, rep(c("A", "B", "C"), each = 3))
+    expect_identical(ld$Metric, rep(c("m1", "m2", "m3"), 3))
     expect_equal(ld$ScaledValue, unlist(c(df[1, -1], df[2, -1], df[3, -1])),
                  ignore_attr = TRUE)
 
@@ -30,11 +30,11 @@ test_that("long data generation works", {
                         metricGrouping = "num", metricInfo = metricInfo,
                         metricGroupCol = "metricGroup")
     expect_s3_class(ld, "data.frame")
-    expect_equal(dim(ld), c(9, 4))
+    expect_identical(dim(ld), c(9, 4))
     expect_named(ld, c("Method", "Metric", "ScaledValue", "metricGroup"))
-    expect_equal(ld$Method, rep(c("A", "B", "C"), each = 3))
-    expect_equal(ld$Metric, rep(c("m1", "m2", "m3"), 3))
-    expect_equal(ld$metricGroup, rep(c(1, 1, 2), 3))
+    expect_identical(ld$Method, rep(c("A", "B", "C"), each = 3))
+    expect_identical(ld$Metric, rep(c("m1", "m2", "m3"), 3))
+    expect_identical(ld$metricGroup, rep(c(1, 1, 2), 3))
     expect_equal(ld$ScaledValue, unlist(c(df[1, -1], df[2, -1], df[3, -1])),
                  ignore_attr = TRUE)
 
@@ -45,11 +45,11 @@ test_that("long data generation works", {
                         metricGrouping = "num", metricInfo = metricInfo,
                         metricGroupCol = "metricGroup")
     expect_s3_class(ld, "data.frame")
-    expect_equal(dim(ld), c(6, 4))
+    expect_identical(dim(ld), c(6, 4))
     expect_named(ld, c("Method", "Metric", "ScaledValue", "metricGroup"))
-    expect_equal(ld$Method, rep(c("A", "B", "C"), each = 2))
-    expect_equal(ld$Metric, rep(c("m1", "m3"), 3))
-    expect_equal(ld$metricGroup, rep(c(1, 2), 3))
+    expect_identical(ld$Method, rep(c("A", "B", "C"), each = 2))
+    expect_identical(ld$Metric, rep(c("m1", "m3"), 3))
+    expect_identical(ld$metricGroup, rep(c(1, 2), 3))
     expect_equal(ld$ScaledValue, unlist(c(df[1, -c(1, 3)], df[2, -c(1, 3)], df[3, -c(1, 3)])),
                  ignore_attr = TRUE)
 })
@@ -82,12 +82,12 @@ test_that("adding weights to long data works", {
                                  weightCol = "Weight", metricCol = "Metric",
                                  metrics = c("m1", "m2", "m3"))
     expect_s3_class(ldw, "data.frame")
-    expect_equal(dim(ldw), c(9, 4))
+    expect_identical(dim(ldw), c(9, 4))
     expect_named(ldw, c("Method", "Metric", "ScaledValue", "Weight"))
-    expect_equal(ldw$Method, ld$Method)
-    expect_equal(ldw$Metric, ld$Metric)
-    expect_equal(ldw$ScaledValue, ld$ScaledValue)
-    expect_equal(ldw$Weight, c(0.2, 0.3, 0.1, 0.2, 0.3, 0.1, 0.2, 0.3, 0.1))
+    expect_identical(ldw$Method, ld$Method)
+    expect_identical(ldw$Metric, ld$Metric)
+    expect_identical(ldw$ScaledValue, ld$ScaledValue)
+    expect_identical(ldw$Weight, c(0.2, 0.3, 0.1, 0.2, 0.3, 0.1, 0.2, 0.3, 0.1))
 
     ## With grouping
     ld <- .makeLongData(df = df, idCol = "Method",
@@ -106,13 +106,13 @@ test_that("adding weights to long data works", {
                                  weightCol = "Weight", metricCol = "Metric",
                                  metrics = c("m1", "m2", "m3"))
     expect_s3_class(ldw, "data.frame")
-    expect_equal(dim(ldw), c(9, 5))
+    expect_identical(dim(ldw), c(9, 5))
     expect_named(ldw, c("Method", "Metric", "ScaledValue", "metricGroup", "Weight"))
-    expect_equal(ldw$Method, ld$Method)
-    expect_equal(ldw$Metric, ld$Metric)
-    expect_equal(ldw$ScaledValue, ld$ScaledValue)
-    expect_equal(ldw$metricGroup, ld$metricGroup)
-    expect_equal(ldw$Weight, c(0.7, 0.7, 0.1, 0.7, 0.7, 0.1, 0.7, 0.7, 0.1))
+    expect_identical(ldw$Method, ld$Method)
+    expect_identical(ldw$Metric, ld$Metric)
+    expect_identical(ldw$ScaledValue, ld$ScaledValue)
+    expect_identical(ldw$metricGroup, ld$metricGroup)
+    expect_identical(ldw$Weight, c(0.7, 0.7, 0.1, 0.7, 0.7, 0.1, 0.7, 0.7, 0.1))
 
     ## Missing weights -> return NULL
     ldw <- .addWeightsToLongData(df = ld, metricCollapseGroup = TRUE,
@@ -160,7 +160,7 @@ test_that("collapsing long data works", {
                              metricGroupCol = "metricGroup",
                              valueCol = "ScaledValue", weightCol = "Weight",
                              metricCol = "Metric", collapseMethod = "mean")
-    expect_equal(ldw, cld)
+    expect_identical(ldw, cld)
 
     ## With grouping
     ld <- .makeLongData(df = df, idCol = "Method",
@@ -184,22 +184,22 @@ test_that("collapsing long data works", {
                              valueCol = "ScaledValue", weightCol = "Weight",
                              metricCol = "Metric", collapseMethod = "mean")
     expect_s3_class(cld, "data.frame")
-    expect_equal(dim(cld), c(6, 5))
+    expect_identical(dim(cld), c(6, 5))
     expect_named(cld, c("Method", "metricGroup", "ScaledValue", "Weight", "Metric"))
-    expect_equal(cld$metricGroup, cld$Metric)
-    expect_equal(cld$ScaledValue[cld$Method == "A" & cld$metricGroup == 1],
-                 mean(ldw$ScaledValue[ldw$Method == "A" & ldw$metricGroup == 1]))
-    expect_equal(cld$ScaledValue[cld$Method == "B" & cld$metricGroup == 1],
-                 mean(ldw$ScaledValue[ldw$Method == "B" & ldw$metricGroup == 1]))
-    expect_equal(cld$ScaledValue[cld$Method == "C" & cld$metricGroup == 1],
-                 mean(ldw$ScaledValue[ldw$Method == "C" & ldw$metricGroup == 1]))
-    expect_equal(cld$ScaledValue[cld$Method == "A" & cld$metricGroup == 2],
-                 mean(ldw$ScaledValue[ldw$Method == "A" & ldw$metricGroup == 2]))
-    expect_equal(cld$ScaledValue[cld$Method == "B" & cld$metricGroup == 2],
-                 mean(ldw$ScaledValue[ldw$Method == "B" & ldw$metricGroup == 2]))
-    expect_equal(cld$ScaledValue[cld$Method == "C" & cld$metricGroup == 2],
-                 mean(ldw$ScaledValue[ldw$Method == "C" & ldw$metricGroup == 2]))
-    expect_equal(cld$Weight, c(0.7, 0.1, 0.7, 0.1, 0.7, 0.1))
+    expect_identical(cld$metricGroup, cld$Metric)
+    expect_identical(cld$ScaledValue[cld$Method == "A" & cld$metricGroup == 1],
+                     mean(ldw$ScaledValue[ldw$Method == "A" & ldw$metricGroup == 1]))
+    expect_identical(cld$ScaledValue[cld$Method == "B" & cld$metricGroup == 1],
+                     mean(ldw$ScaledValue[ldw$Method == "B" & ldw$metricGroup == 1]))
+    expect_identical(cld$ScaledValue[cld$Method == "C" & cld$metricGroup == 1],
+                     mean(ldw$ScaledValue[ldw$Method == "C" & ldw$metricGroup == 1]))
+    expect_identical(cld$ScaledValue[cld$Method == "A" & cld$metricGroup == 2],
+                     mean(ldw$ScaledValue[ldw$Method == "A" & ldw$metricGroup == 2]))
+    expect_identical(cld$ScaledValue[cld$Method == "B" & cld$metricGroup == 2],
+                     mean(ldw$ScaledValue[ldw$Method == "B" & ldw$metricGroup == 2]))
+    expect_identical(cld$ScaledValue[cld$Method == "C" & cld$metricGroup == 2],
+                     mean(ldw$ScaledValue[ldw$Method == "C" & ldw$metricGroup == 2]))
+    expect_identical(cld$Weight, c(0.7, 0.1, 0.7, 0.1, 0.7, 0.1))
 
     ## With grouping - max collapse
     ld <- .makeLongData(df = df, idCol = "Method",
@@ -223,22 +223,22 @@ test_that("collapsing long data works", {
                              valueCol = "ScaledValue", weightCol = "Weight",
                              metricCol = "Metric", collapseMethod = "max")
     expect_s3_class(cld, "data.frame")
-    expect_equal(dim(cld), c(6, 5))
+    expect_identical(dim(cld), c(6, 5))
     expect_named(cld, c("Method", "metricGroup", "ScaledValue", "Weight", "Metric"))
-    expect_equal(cld$metricGroup, cld$Metric)
-    expect_equal(cld$ScaledValue[cld$Method == "A" & cld$metricGroup == 1],
-                 max(ldw$ScaledValue[ldw$Method == "A" & ldw$metricGroup == 1]))
-    expect_equal(cld$ScaledValue[cld$Method == "B" & cld$metricGroup == 1],
-                 max(ldw$ScaledValue[ldw$Method == "B" & ldw$metricGroup == 1]))
-    expect_equal(cld$ScaledValue[cld$Method == "C" & cld$metricGroup == 1],
-                 max(ldw$ScaledValue[ldw$Method == "C" & ldw$metricGroup == 1]))
-    expect_equal(cld$ScaledValue[cld$Method == "A" & cld$metricGroup == 2],
-                 max(ldw$ScaledValue[ldw$Method == "A" & ldw$metricGroup == 2]))
-    expect_equal(cld$ScaledValue[cld$Method == "B" & cld$metricGroup == 2],
-                 max(ldw$ScaledValue[ldw$Method == "B" & ldw$metricGroup == 2]))
-    expect_equal(cld$ScaledValue[cld$Method == "C" & cld$metricGroup == 2],
-                 max(ldw$ScaledValue[ldw$Method == "C" & ldw$metricGroup == 2]))
-    expect_equal(cld$Weight, c(0.7, 0.1, 0.7, 0.1, 0.7, 0.1))
+    expect_identical(cld$metricGroup, cld$Metric)
+    expect_identical(cld$ScaledValue[cld$Method == "A" & cld$metricGroup == 1],
+                     max(ldw$ScaledValue[ldw$Method == "A" & ldw$metricGroup == 1]))
+    expect_identical(cld$ScaledValue[cld$Method == "B" & cld$metricGroup == 1],
+                     max(ldw$ScaledValue[ldw$Method == "B" & ldw$metricGroup == 1]))
+    expect_identical(cld$ScaledValue[cld$Method == "C" & cld$metricGroup == 1],
+                     max(ldw$ScaledValue[ldw$Method == "C" & ldw$metricGroup == 1]))
+    expect_identical(cld$ScaledValue[cld$Method == "A" & cld$metricGroup == 2],
+                     max(ldw$ScaledValue[ldw$Method == "A" & ldw$metricGroup == 2]))
+    expect_identical(cld$ScaledValue[cld$Method == "B" & cld$metricGroup == 2],
+                     max(ldw$ScaledValue[ldw$Method == "B" & ldw$metricGroup == 2]))
+    expect_identical(cld$ScaledValue[cld$Method == "C" & cld$metricGroup == 2],
+                     max(ldw$ScaledValue[ldw$Method == "C" & ldw$metricGroup == 2]))
+    expect_identical(cld$Weight, c(0.7, 0.1, 0.7, 0.1, 0.7, 0.1))
 
     ## With grouping - min collapse
     ld <- .makeLongData(df = df, idCol = "Method",
@@ -262,22 +262,22 @@ test_that("collapsing long data works", {
                              valueCol = "ScaledValue", weightCol = "Weight",
                              metricCol = "Metric", collapseMethod = "min")
     expect_s3_class(cld, "data.frame")
-    expect_equal(dim(cld), c(6, 5))
+    expect_identical(dim(cld), c(6, 5))
     expect_named(cld, c("Method", "metricGroup", "ScaledValue", "Weight", "Metric"))
-    expect_equal(cld$metricGroup, cld$Metric)
-    expect_equal(cld$ScaledValue[cld$Method == "A" & cld$metricGroup == 1],
-                 min(ldw$ScaledValue[ldw$Method == "A" & ldw$metricGroup == 1]))
-    expect_equal(cld$ScaledValue[cld$Method == "B" & cld$metricGroup == 1],
-                 min(ldw$ScaledValue[ldw$Method == "B" & ldw$metricGroup == 1]))
-    expect_equal(cld$ScaledValue[cld$Method == "C" & cld$metricGroup == 1],
-                 min(ldw$ScaledValue[ldw$Method == "C" & ldw$metricGroup == 1]))
-    expect_equal(cld$ScaledValue[cld$Method == "A" & cld$metricGroup == 2],
-                 min(ldw$ScaledValue[ldw$Method == "A" & ldw$metricGroup == 2]))
-    expect_equal(cld$ScaledValue[cld$Method == "B" & cld$metricGroup == 2],
-                 min(ldw$ScaledValue[ldw$Method == "B" & ldw$metricGroup == 2]))
-    expect_equal(cld$ScaledValue[cld$Method == "C" & cld$metricGroup == 2],
-                 min(ldw$ScaledValue[ldw$Method == "C" & ldw$metricGroup == 2]))
-    expect_equal(cld$Weight, c(0.7, 0.1, 0.7, 0.1, 0.7, 0.1))
+    expect_identical(cld$metricGroup, cld$Metric)
+    expect_identical(cld$ScaledValue[cld$Method == "A" & cld$metricGroup == 1],
+                     min(ldw$ScaledValue[ldw$Method == "A" & ldw$metricGroup == 1]))
+    expect_identical(cld$ScaledValue[cld$Method == "B" & cld$metricGroup == 1],
+                     min(ldw$ScaledValue[ldw$Method == "B" & ldw$metricGroup == 1]))
+    expect_identical(cld$ScaledValue[cld$Method == "C" & cld$metricGroup == 1],
+                     min(ldw$ScaledValue[ldw$Method == "C" & ldw$metricGroup == 1]))
+    expect_identical(cld$ScaledValue[cld$Method == "A" & cld$metricGroup == 2],
+                     min(ldw$ScaledValue[ldw$Method == "A" & ldw$metricGroup == 2]))
+    expect_identical(cld$ScaledValue[cld$Method == "B" & cld$metricGroup == 2],
+                     min(ldw$ScaledValue[ldw$Method == "B" & ldw$metricGroup == 2]))
+    expect_identical(cld$ScaledValue[cld$Method == "C" & cld$metricGroup == 2],
+                     min(ldw$ScaledValue[ldw$Method == "C" & ldw$metricGroup == 2]))
+    expect_identical(cld$Weight, c(0.7, 0.1, 0.7, 0.1, 0.7, 0.1))
 
     ## With grouping - min collapse (with NAs)
     df0 <- df
@@ -306,19 +306,19 @@ test_that("collapsing long data works", {
         "no non-missing arguments to min"
     )
     expect_s3_class(cld, "data.frame")
-    expect_equal(dim(cld), c(6, 5))
+    expect_identical(dim(cld), c(6, 5))
     expect_named(cld, c("Method", "metricGroup", "ScaledValue", "Weight", "Metric"))
-    expect_equal(cld$metricGroup, cld$Metric)
-    expect_equal(cld$ScaledValue[cld$Method == "A" & cld$metricGroup == 1], NA_real_)
-    expect_equal(cld$ScaledValue[cld$Method == "B" & cld$metricGroup == 1],
-                 min(ldw$ScaledValue[ldw$Method == "B" & ldw$metricGroup == 1]))
-    expect_equal(cld$ScaledValue[cld$Method == "C" & cld$metricGroup == 1],
-                 min(ldw$ScaledValue[ldw$Method == "C" & ldw$metricGroup == 1]))
-    expect_equal(cld$ScaledValue[cld$Method == "A" & cld$metricGroup == 2],
-                 min(ldw$ScaledValue[ldw$Method == "A" & ldw$metricGroup == 2]))
-    expect_equal(cld$ScaledValue[cld$Method == "B" & cld$metricGroup == 2],
-                 min(ldw$ScaledValue[ldw$Method == "B" & ldw$metricGroup == 2]))
-    expect_equal(cld$ScaledValue[cld$Method == "C" & cld$metricGroup == 2],
-                 min(ldw$ScaledValue[ldw$Method == "C" & ldw$metricGroup == 2]))
-    expect_equal(cld$Weight, c(0.7, 0.1, 0.7, 0.1, 0.7, 0.1))
+    expect_identical(cld$metricGroup, cld$Metric)
+    expect_identical(cld$ScaledValue[cld$Method == "A" & cld$metricGroup == 1], NA_real_)
+    expect_identical(cld$ScaledValue[cld$Method == "B" & cld$metricGroup == 1],
+                     min(ldw$ScaledValue[ldw$Method == "B" & ldw$metricGroup == 1]))
+    expect_identical(cld$ScaledValue[cld$Method == "C" & cld$metricGroup == 1],
+                     min(ldw$ScaledValue[ldw$Method == "C" & ldw$metricGroup == 1]))
+    expect_identical(cld$ScaledValue[cld$Method == "A" & cld$metricGroup == 2],
+                     min(ldw$ScaledValue[ldw$Method == "A" & ldw$metricGroup == 2]))
+    expect_identical(cld$ScaledValue[cld$Method == "B" & cld$metricGroup == 2],
+                     min(ldw$ScaledValue[ldw$Method == "B" & ldw$metricGroup == 2]))
+    expect_identical(cld$ScaledValue[cld$Method == "C" & cld$metricGroup == 2],
+                     min(ldw$ScaledValue[ldw$Method == "C" & ldw$metricGroup == 2]))
+    expect_identical(cld$Weight, c(0.7, 0.1, 0.7, 0.1, 0.7, 0.1))
 })
