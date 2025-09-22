@@ -1,11 +1,11 @@
 test_that("adding scores works", {
-    set.seed(123)
-    df <- data.frame(Method = rep(c("A", "B", "C"), each = 3),
-                     Metric = rep(c("m1", "m2", "m3"), 3),
-                     Value = c(NA, runif(n = 8, min = 0, max = 3))) |>
+    set.seed(123L)
+    df <- data.frame(Method = rep(c("A", "B", "C"), each = 3L),
+                     Metric = rep(c("m1", "m2", "m3"), 3L),
+                     Value = c(NA, runif(n = 8L, min = 0.0, max = 3.0))) |>
         tidyr::pivot_wider(names_from = Metric, values_from = Value)
     metrics <- setdiff(colnames(df), "Method")
-    metricInfo <- data.frame(Metric = c("m1", "m2", "m3"), num = c(1, 1, 2),
+    metricInfo <- data.frame(Metric = c("m1", "m2", "m3"), num = c(1.0, 1.0, 2.0),
                              lets3 = c("m", "n", "o"))
     idInfo <- data.frame(Method = c("A", "B", "C"), lets = c("a", "b", "b"),
                          lets2 = c("d", "d", "e"))
@@ -39,7 +39,7 @@ test_that("adding scores works", {
                             weightCol = "Weight", valueCol = "ScaledValue",
                             metricCol = "Metric")
     expect_s3_class(scd, "data.frame")
-    expect_identical(dim(scd), c(3, 2))
+    expect_identical(dim(scd), c(3L, 2L))
     expect_named(scd, c("Method", "Score"))
     expect_identical(scd$Method, c("A", "B", "C"))
     expect_equal(scd$Score, c(1.238278, 2.203737, 1.283924), tolerance = 0.001)
@@ -50,11 +50,11 @@ test_that("adding scores works", {
                                     idCol = "Method", scoreCol = "Score",
                                     idTopNGrouping = "---",
                                     idOrdering = "high-to-low",
-                                    showOnlyTopIds = FALSE, nbrTopIds = 1)
+                                    showOnlyTopIds = FALSE, nbrTopIds = 1L)
     expect_s3_class(sfcd, "data.frame")
-    expect_identical(dim(sfcd), c(3, 4))
+    expect_identical(dim(sfcd), c(3L, 4L))
     expect_named(sfcd, c("Method", "Score", "lets", "lets2"))
-    expect_true(all(diff(sfcd$Score) <= 0))
+    expect_true(all(diff(sfcd$Score) <= 0.0))
     expect_identical(sfcd$Method, c("B", "C", "A"))
     expect_equal(sfcd$Score, c(2.203737, 1.283924, 1.238278), tolerance = 0.001)
 
@@ -63,11 +63,11 @@ test_that("adding scores works", {
                                     idCol = "Method", scoreCol = "Score",
                                     idTopNGrouping = "---",
                                     idOrdering = "low-to-high",
-                                    showOnlyTopIds = FALSE, nbrTopIds = 1)
+                                    showOnlyTopIds = FALSE, nbrTopIds = 1L)
     expect_s3_class(sfcd, "data.frame")
-    expect_identical(dim(sfcd), c(3, 4))
+    expect_identical(dim(sfcd), c(3L, 4L))
     expect_named(sfcd, c("Method", "Score", "lets", "lets2"))
-    expect_true(all(diff(sfcd$Score) >= 0))
+    expect_true(all(diff(sfcd$Score) >= 0.0))
     expect_identical(sfcd$Method, c("A", "C", "B"))
     expect_equal(sfcd$Score, c(1.238278, 1.283924, 2.203737), tolerance = 0.001)
 
@@ -76,9 +76,9 @@ test_that("adding scores works", {
                                     idCol = "Method", scoreCol = "Score",
                                     idTopNGrouping = "---",
                                     idOrdering = "high-to-low",
-                                    showOnlyTopIds = TRUE, nbrTopIds = 1)
+                                    showOnlyTopIds = TRUE, nbrTopIds = 1L)
     expect_s3_class(sfcd, "data.frame")
-    expect_identical(dim(sfcd), c(1, 4))
+    expect_identical(dim(sfcd), c(1L, 4L))
     expect_named(sfcd, c("Method", "Score", "lets", "lets2"))
     expect_identical(sfcd$Method, "B")
     expect_equal(sfcd$Score, 2.203737, tolerance = 0.001)
@@ -88,9 +88,9 @@ test_that("adding scores works", {
                                     idCol = "Method", scoreCol = "Score",
                                     idTopNGrouping = "---",
                                     idOrdering = "high-to-low",
-                                    showOnlyTopIds = TRUE, nbrTopIds = 1)
+                                    showOnlyTopIds = TRUE, nbrTopIds = 1L)
     expect_s3_class(sfcd, "data.frame")
-    expect_identical(dim(sfcd), c(1, 2))
+    expect_identical(dim(sfcd), c(1L, 2L))
     expect_named(sfcd, c("Method", "Score"))
     expect_identical(sfcd$Method, "B")
     expect_equal(sfcd$Score, 2.203737, tolerance = 0.001)
@@ -100,9 +100,9 @@ test_that("adding scores works", {
                                     idCol = "Method", scoreCol = "Score",
                                     idTopNGrouping = "---",
                                     idOrdering = "low-to-high",
-                                    showOnlyTopIds = TRUE, nbrTopIds = 1)
+                                    showOnlyTopIds = TRUE, nbrTopIds = 1L)
     expect_s3_class(sfcd, "data.frame")
-    expect_identical(dim(sfcd), c(1, 4))
+    expect_identical(dim(sfcd), c(1L, 4L))
     expect_named(sfcd, c("Method", "Score", "lets", "lets2"))
     expect_identical(sfcd$Method, "A")
     expect_equal(sfcd$Score, 1.238278, tolerance = 0.001)
@@ -112,9 +112,9 @@ test_that("adding scores works", {
                                     idCol = "Method", scoreCol = "Score",
                                     idTopNGrouping = "lets",
                                     idOrdering = "high-to-low",
-                                    showOnlyTopIds = TRUE, nbrTopIds = 1)
+                                    showOnlyTopIds = TRUE, nbrTopIds = 1L)
     expect_s3_class(sfcd, "data.frame")
-    expect_identical(dim(sfcd), c(2, 4))
+    expect_identical(dim(sfcd), c(2L, 4L))
     expect_named(sfcd, c("Method", "Score", "lets", "lets2"))
     expect_identical(sfcd$Method, c("B", "A"))
     expect_equal(sfcd$Score, c(2.203737, 1.238278), tolerance = 0.001)
@@ -124,7 +124,7 @@ test_that("adding scores works", {
                                          idCol = "Method", scoreCol = "Score",
                                          idTopNGrouping = "missing",
                                          idOrdering = "high-to-low",
-                                         showOnlyTopIds = TRUE, nbrTopIds = 1),
+                                         showOnlyTopIds = TRUE, nbrTopIds = 1L),
                  "Must group by variables found")
 
     ## Weighted median
@@ -133,7 +133,7 @@ test_that("adding scores works", {
                             weightCol = "Weight", valueCol = "ScaledValue",
                             metricCol = "Metric")
     expect_s3_class(scd, "data.frame")
-    expect_identical(dim(scd), c(3, 2))
+    expect_identical(dim(scd), c(3L, 2L))
     expect_named(scd, c("Method", "Score"))
     expect_identical(scd$Method, c("A", "B", "C"))
     expect_equal(scd$Score, c(2.364915, 2.821402, 2.677257), tolerance = 0.001)
@@ -144,11 +144,11 @@ test_that("adding scores works", {
                             weightCol = "Weight", valueCol = "ScaledValue",
                             metricCol = "Metric")
     expect_s3_class(scd, "data.frame")
-    expect_identical(dim(scd), c(3, 2))
+    expect_identical(dim(scd), c(3L, 2L))
     expect_named(scd, c("Method", "Score"))
     expect_identical(scd$Method, c("A", "B", "C"))
     ## B highest for m1, m2, m3
-    expect_equal(scd$Score, c(0, 1, 0), tolerance = 0.001)
+    expect_equal(scd$Score, c(0.0, 1.0, 0.0), tolerance = 0.001)
 
     ## Weighted fraction lowest
     scd <- .calculateScores(df = cld, scoreMethod = "weighted fraction lowest",
@@ -156,9 +156,9 @@ test_that("adding scores works", {
                             weightCol = "Weight", valueCol = "ScaledValue",
                             metricCol = "Metric")
     expect_s3_class(scd, "data.frame")
-    expect_identical(dim(scd), c(3, 2))
+    expect_identical(dim(scd), c(3L, 2L))
     expect_named(scd, c("Method", "Score"))
     expect_identical(scd$Method, c("A", "B", "C"))
     ## C lowest for m1; A lowest for m2 and m3 (and missing for m1)
-    expect_equal(scd$Score, c(1, 0, 0.33333), tolerance = 0.001)
+    expect_equal(scd$Score, c(1.0, 0.0, 0.33333), tolerance = 0.001)
 })

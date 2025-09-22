@@ -1,17 +1,17 @@
 test_that("prepareData works", {
-    expect_error(.completeInitialization(transformList = 1, metrics = "m1"),
+    expect_error(.completeInitialization(transformList = 1L, metrics = "m1"),
                  "'transformList' must be of class 'list'")
 
-    df <- data.frame(Method = rep(c("A", "B", "C"), each = 3),
-                     Metric = rep(c("m1", "m2", "m3"), 3),
-                     Value = runif(n = 9, min = 0, max = 3)) |>
+    df <- data.frame(Method = rep(c("A", "B", "C"), each = 3L),
+                     Metric = rep(c("m1", "m2", "m3"), 3L),
+                     Value = runif(n = 9L, min = 0.0, max = 3.0)) |>
         tidyr::spread(key = Metric, value = Value)
     df$m3 <- paste0("V", df$m3)
     metrics <- setdiff(colnames(df), "Method")
-    metricInfo <- data.frame(Metric = c("m1", "m2", "m3"), num = 1:3)
-    idInfo <- data.frame(Method = c("A", "B", "C"), lets = letters[1:3])
+    metricInfo <- data.frame(Metric = c("m1", "m2", "m3"), num = 1L:3L)
+    idInfo <- data.frame(Method = c("A", "B", "C"), lets = letters[1L:3L])
 
-    set.seed(123)
+    set.seed(123L)
     pd <- .prepareData(df = df, idCol = "Method", metrics = c("m1", "m2", "m3"),
                        initialWeights = c(m1 = 0.1, m2 = 0.3, m3 = 0.5),
                        initialTransforms = list(), metricInfo = metricInfo,
@@ -36,12 +36,12 @@ test_that("prepareData works", {
     expect_type(pd$metricColors$num, "closure")
     expect_identical(pd$metricColors$Metric, c(m1 = "#F8766D", m2 = "#00BA38", m3 = "#619CFF"))
     expect_type(pd$initialTransforms, "list")
-    expect_length(pd$initialTransforms, 2)
+    expect_length(pd$initialTransforms, 2L)
     expect_named(pd$initialTransforms, c("m1", "m2"))
     expect_type(pd$initialTransforms$m1, "list")
     expect_identical(pd$initialTransforms$m1, pd$initialTransforms$m2)
     expect_type(pd$initialTransforms$m1, "list")
-    expect_length(pd$initialTransforms$m1, 4)
+    expect_length(pd$initialTransforms$m1, 4L)
     expect_named(pd$initialTransforms$m1, c("offset", "flip", "cuts", "transform"))
     expect_type(pd$metricsWithWeights, "character")
     expect_identical(pd$metricsWithWeights, c("m1", "m2", "m3", "Metric_m1",
@@ -54,12 +54,12 @@ test_that("prepareData works", {
     expect_identical(pd$idInfo, idInfo)
     expect_identical(pd$metricInfo, metricInfo)
 
-    set.seed(345)
+    set.seed(345L)
     pd <- .prepareData(df = df, idCol = "Method", metrics = c("m1", "m2", "m3"),
                        initialWeights = NULL,
-                       initialTransforms = list(m1 = list(offset = 4),
+                       initialTransforms = list(m1 = list(offset = 4.0),
                                                 m2 = list(flip = TRUE)),
-                       metricInfo = metricInfo[, 1, drop = FALSE],
+                       metricInfo = metricInfo[, 1L, drop = FALSE],
                        metricColors = list(),
                        idInfo = idInfo,
                        idColors = list(Method = c(A = "blue", B = "green", C = "yellow")),
@@ -80,15 +80,15 @@ test_that("prepareData works", {
     expect_named(pd$metricColors, "Metric")
     expect_identical(pd$metricColors$Metric, c(m1 = "#F8766D", m2 = "#00BA38", m3 = "#619CFF"))
     expect_type(pd$initialTransforms, "list")
-    expect_length(pd$initialTransforms, 2)
+    expect_length(pd$initialTransforms, 2L)
     expect_named(pd$initialTransforms, c("m1", "m2"))
     expect_type(pd$initialTransforms$m1, "list")
-    expect_identical(pd$initialTransforms$m1$offset, 4)
+    expect_identical(pd$initialTransforms$m1$offset, 4.0)
     expect_false(pd$initialTransforms$m1$flip)
-    expect_identical(pd$initialTransforms$m2$offset, 0)
+    expect_identical(pd$initialTransforms$m2$offset, 0.0)
     expect_true(pd$initialTransforms$m2$flip)
     expect_type(pd$initialTransforms$m1, "list")
-    expect_length(pd$initialTransforms$m1, 4)
+    expect_length(pd$initialTransforms$m1, 4L)
     expect_named(pd$initialTransforms$m1, c("offset", "flip", "cuts", "transform"))
     expect_type(pd$metricsWithWeights, "character")
     expect_identical(pd$metricsWithWeights, c("m1", "m2", "m3"))
@@ -96,14 +96,14 @@ test_that("prepareData works", {
     expect_identical(pd$idInfo, idInfo)
     expect_null(pd$metricInfo)
 
-    set.seed(678)
+    set.seed(678L)
     pd <- .prepareData(df = df, idCol = "Method", metrics = c("m1", "m2", "m3"),
                        initialWeights = NULL,
-                       initialTransforms = list(m1 = list(offset = 4),
+                       initialTransforms = list(m1 = list(offset = 4.0),
                                                 m2 = list(flip = TRUE)),
-                       metricInfo = metricInfo[, 1, drop = FALSE],
+                       metricInfo = metricInfo[, 1L, drop = FALSE],
                        metricColors = list(),
-                       idInfo = idInfo[, 1, drop = FALSE],
+                       idInfo = idInfo[, 1L, drop = FALSE],
                        idColors = list(Method = c(A = "blue", B = "green", C = "yellow")),
                        weightResolution = 0.05, metricCol = "Metric",
                        defaultWeightValue = 0.2)
@@ -121,15 +121,15 @@ test_that("prepareData works", {
     expect_named(pd$metricColors, "Metric")
     expect_identical(pd$metricColors$Metric, c(m1 = "#F8766D", m2 = "#00BA38", m3 = "#619CFF"))
     expect_type(pd$initialTransforms, "list")
-    expect_length(pd$initialTransforms, 2)
+    expect_length(pd$initialTransforms, 2L)
     expect_named(pd$initialTransforms, c("m1", "m2"))
     expect_type(pd$initialTransforms$m1, "list")
-    expect_identical(pd$initialTransforms$m1$offset, 4)
+    expect_identical(pd$initialTransforms$m1$offset, 4.0)
     expect_false(pd$initialTransforms$m1$flip)
-    expect_identical(pd$initialTransforms$m2$offset, 0)
+    expect_identical(pd$initialTransforms$m2$offset, 0.0)
     expect_true(pd$initialTransforms$m2$flip)
     expect_type(pd$initialTransforms$m1, "list")
-    expect_length(pd$initialTransforms$m1, 4)
+    expect_length(pd$initialTransforms$m1, 4L)
     expect_named(pd$initialTransforms$m1, c("offset", "flip", "cuts", "transform"))
     expect_type(pd$metricsWithWeights, "character")
     expect_identical(pd$metricsWithWeights, c("m1", "m2", "m3"))

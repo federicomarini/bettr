@@ -5,11 +5,11 @@ test_that("utils work", {
                  c(A = 0.2, B = 0.2))
     expect_equal(.assignInitialWeights(weights = c(A = 0.12345, B = 0.738189),
                                        metrics = c("A1", "B1"),
-                                       defaultWeightValue = 1,
+                                       defaultWeightValue = 1.0,
                                        weightResolution = 0.05),
-                 c(A = 0.10, B = 0.75, A1 = 1, B1 = 1))
+                 c(A = 0.10, B = 0.75, A1 = 1.0, B1 = 1.0))
 
-    p1 <- .makeMetricSummaryPlot(x = rnorm(10))
+    p1 <- .makeMetricSummaryPlot(x = rnorm(10L))
     p1
     expect_true(ggplot2::is_ggplot(p1))
 })

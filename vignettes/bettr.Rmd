@@ -79,8 +79,8 @@ used to group and filter them in the interactive application.
 ```{r}
 ## Data for two metrics (metric1, metric2) for three methods (M1, M2, M3)
 df <- data.frame(Method = c("M1", "M2", "M3"),
-                 metric1 = c(1, 2, 3),
-                 metric2 = c(3, 1, 2))
+                 metric1 = c(1.0, 2.0, 3.0),
+                 metric2 = c(3.0, 1.0, 2.0))
 
 ## More information for metrics
 metricInfo <- data.frame(Metric = c("metric1", "metric2", "metric3"),
@@ -138,7 +138,7 @@ which was applied to clustering output from 12 data sets. We encode this
 collapse performance across data sets in `bettr`: 
 
 ```{r}
-metricInfo <- tibble(Metric = colnames(res)[-1]) |>
+metricInfo <- tibble(Metric = colnames(res)[-1L]) |>
     mutate(Class = sub("_.*", "", Metric))
 head(metricInfo)
 table(metricInfo$Class)
@@ -227,7 +227,7 @@ initial transforms in the `metadata`:
 tibble(assay(duo2018, "values"))
 
 ## Showing the first metric, evaluated on all datasets
-head(colData(duo2018), 12)
+head(colData(duo2018), 12L)
 
 ## These are the color definitions (can mix character and hex values)
 metadata(duo2018)$bettrInfo$idColors
