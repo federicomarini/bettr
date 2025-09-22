@@ -303,7 +303,8 @@ test_that("collapsing long data works", {
                                  metricGroupCol = "metricGroup", 
                                  valueCol = "ScaledValue", weightCol = "Weight", 
                                  metricCol = "Metric", collapseMethod = "min"),
-        "no non-missing arguments to min")
+        "no non-missing arguments to min"
+    )
     expect_s3_class(cld, "data.frame")
     expect_equal(dim(cld), c(6, 5))
     expect_named(cld, c("Method", "metricGroup", "ScaledValue", "Weight", "Metric"))

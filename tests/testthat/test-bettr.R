@@ -38,9 +38,8 @@ test_that("bettr stops with invalid inputs", {
     expect_error(bettr(df = df, initialWeights = rep(0.5, ncol(df) - 1)),
                  "'namesinitialWeights' must not be NULL")
     expect_error(bettr(df = df, initialWeights = setNames(
-        rep(-1, ncol(df) - 1), nm = metrics)),
-        "'initialWeights' must be within [0,1]",
-        fixed = TRUE)
+        rep(-1, ncol(df) - 1), nm = metrics
+    )), "'initialWeights' must be within [0,1]", fixed = TRUE)
 
     ## metricInfo
     expect_warning({

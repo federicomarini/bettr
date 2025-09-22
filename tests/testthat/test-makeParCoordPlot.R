@@ -52,7 +52,8 @@ test_that("ParCoordPlot works", {
             metricColors = list(Metric = c("blue", "red", "green")),
             idColors = list(Method = .gg_color_hue(8)),
             methods = unique(scoredata$Method),
-            metricGrouping = "---"), highlightMethod = "---", labelSize = 10
+            metricGrouping = "---"
+        ), highlightMethod = "---", labelSize = 10
     )
     bpp2
     expect_true(ggplot2::is_ggplot(bpp2))

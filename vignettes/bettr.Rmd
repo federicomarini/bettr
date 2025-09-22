@@ -194,8 +194,8 @@ visualizing the methods and metrics in `bettr`.
 metricColors <- list(
     Class = c(ARI = "purple", elapsed = "forestgreen", 
               nclust.vs.true = "blue", 
-              s.norm.vs.true = "orange"
-    ))
+              s.norm.vs.true = "orange")
+)
 idColors <- list(
     method = c(
         CIDR = "#332288", FlowSOM = "#6699CC", PCAHC = "#88CCEE", 
@@ -203,7 +203,8 @@ idColors <- list(
         RtsneKmeans = "#999933", Seurat = "#DDCC77", SC3svm = "#661100", 
         SC3 = "#CC6677", TSCAN = "grey34", ascend = "orange", SAFE = "black",
         monocle = "red", RaceID2 = "blue"
-    ))
+    )
+)
 ```
 
 All the information defined so far can be combined in a `SummarizedExperiment`
@@ -297,7 +298,8 @@ metadata(duo2018)$bettrInfo$initialWeights["Class_ARI"] <- 0.55
 prepData <- bettrGetReady(
     bettrSE = duo2018, idCol = "method", 
     scoreMethod = "weighted mean", metricGrouping = "Class", 
-    metricCollapseGroup = TRUE)
+    metricCollapseGroup = TRUE
+)
 
 ## This object is fairly verbose and detailed, 
 ## but has the whole set of info needed

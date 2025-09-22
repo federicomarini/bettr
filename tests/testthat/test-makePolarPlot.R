@@ -31,8 +31,8 @@ test_that("PolarPlot works", {
             metricCol = "Metric", valueCol = "ScaledValue", 
             metricGroupCol = "---", 
             metricColors = list(Metric = c("blue", "red", "green")),
-            metricCollapseGroup = FALSE, metricGrouping = "Group"),
-        labelSize = 10
+            metricCollapseGroup = FALSE, metricGrouping = "Group"
+        ), labelSize = 10
     )
     expect_true(ggplot2::is_ggplot(bpp2))
     

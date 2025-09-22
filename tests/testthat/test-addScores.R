@@ -25,7 +25,8 @@ test_that("adding scores works", {
                        num_2_weight = 0.1, lets3_m_weight = 0.4, 
                        lets3_n_weight = 0.1, lets3_o_weight = 0.9),
         weightCol = "Weight", metricCol = "Metric",
-        metrics = c("m1", "m2", "m3"))
+        metrics = c("m1", "m2", "m3")
+    )
     cld <- .collapseLongData(df = ldw, metricCollapseGroup = FALSE, 
                              metricGrouping = "---", idCol = "Method",
                              metricGroupCol = "metricGroup", 
