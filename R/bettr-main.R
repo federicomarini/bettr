@@ -1,14 +1,14 @@
 #' @keywords internal
 #' @noRd
-.checkArgs_bettr <- function(
+.checkArgsBettr <- function(
         df, idCol, metrics, initialWeights, initialTransforms, metricInfo,
         metricColors, idInfo, idColors, weightResolution, bstheme,
         appTitle, addStopButton, defaultWeightValue) {
-    .checkArgs_assembleSE(df = df, idCol = idCol, metrics = metrics,
-                          initialWeights = initialWeights,
-                          initialTransforms = initialTransforms,
-                          metricInfo = metricInfo, metricColors = metricColors,
-                          idInfo = idInfo, idColors = idColors)
+    .checkArgsAssembleSE(df = df, idCol = idCol, metrics = metrics,
+                         initialWeights = initialWeights,
+                         initialTransforms = initialTransforms,
+                         metricInfo = metricInfo, metricColors = metricColors,
+                         idInfo = idInfo, idColors = idColors)
     .assertScalar(x = weightResolution, type = "numeric", rngIncl = c(0.0, 1.0))
     .assertScalar(x = bstheme, type = "character")
     .assertScalar(x = appTitle, type = "character")
@@ -154,15 +154,15 @@ bettr <- function(df, idCol = "Method",
     metricGroupCol <- "metricGroup"
 
     ## Check validity of input arguments --------------------------------------
-    .checkArgs_bettr(df = df, idCol = idCol, metrics = metrics,
-                     initialWeights = initialWeights,
-                     initialTransforms = initialTransforms,
-                     metricInfo = metricInfo, metricColors = metricColors,
-                     idInfo = idInfo, idColors = idColors,
-                     weightResolution = weightResolution,
-                     bstheme = bstheme, appTitle = appTitle,
-                     addStopButton = addStopButton,
-                     defaultWeightValue = defaultWeight)
+    .checkArgsBettr(df = df, idCol = idCol, metrics = metrics,
+                    initialWeights = initialWeights,
+                    initialTransforms = initialTransforms,
+                    metricInfo = metricInfo, metricColors = metricColors,
+                    idInfo = idInfo, idColors = idColors,
+                    weightResolution = weightResolution,
+                    bstheme = bstheme, appTitle = appTitle,
+                    addStopButton = addStopButton,
+                    defaultWeightValue = defaultWeight)
 
     ## Prepare data -----------------------------------------------------------
     prep <- .prepareData(df = df, idCol = idCol, metrics = metrics,
@@ -177,7 +177,7 @@ bettr <- function(df, idCol = "Method",
                          defaultWeightValue = defaultWeight)
 
     ## UI definition ----------------------------------------------------------
-    p_layout <-
+    pLayout <-
         bslib::page_sidebar(
             title = appTitle,
             theme = bslib::bs_theme(bootswatch = bstheme, version = 5L),
@@ -422,7 +422,7 @@ bettr <- function(df, idCol = "Method",
 
     ## Server definition ------------------------------------------------------
     #nocov start
-    server_function <- function(input, output, session) {
+    serverFunction <- function(input, output, session) {
 
         ## Initialize data storage --------------------------------------------
         values <- shiny::reactiveValues(
@@ -476,7 +476,7 @@ bettr <- function(df, idCol = "Method",
                 shiny::need(metricsInUse(), ""),
                 shiny::need(prep, "")
             )
-            temp_need1 <- lapply(
+            tempNeed1 <- lapply(
                 intersect(prep$metrics_num, metricsInUse()), function(m) {
                     cond <- paste0("shiny::need(is.logical(input$", m,
                                    "_flip) && !is.null(input$", m,
@@ -485,15 +485,15 @@ bettr <- function(df, idCol = "Method",
                     eval(parse(text = cond))
                 }
             )
-            do.call(shiny::validate, temp_need1)
-            temp_need2 <- lapply(
+            do.call(shiny::validate, tempNeed1)
+            tempNeed2 <- lapply(
                 intersect(prep$metrics_cat, metricsInUse()), function(m) {
                     cond <- paste0("shiny::need(!is.null(input$", m,
                                    "_levels), '')")
                     eval(parse(text = cond))
                 }
             )
-            do.call(shiny::validate, temp_need2)
+            do.call(shiny::validate, tempNeed2)
 
             tmp <- filtdata()
             for (m in intersect(colnames(filtdata()), metricsInUse())) {
@@ -1065,5 +1065,5 @@ bettr <- function(df, idCol = "Method",
     #nocov end
 
     # Generate app ------------------------------------------------------------
-    shiny::shinyApp(ui = p_layout, server = server_function)
+    shiny::shinyApp(ui = pLayout, server = serverFunction)
 }

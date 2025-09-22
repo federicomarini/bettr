@@ -47,15 +47,15 @@
                          defaultWeightValue) {
 
     ## Split metrics into numeric and categorical -----------------------------
-    metrics_classes <- vapply(df[, metrics, drop = FALSE], class, NA_character_)
-    metrics_num <- intersect(
-        metrics, names(metrics_classes[metrics_classes %in% c("numeric",
-                                                              "integer")])
+    metricsClasses <- vapply(df[, metrics, drop = FALSE], class, NA_character_)
+    metricsNum <- intersect(
+        metrics, names(metricsClasses[metricsClasses %in% c("numeric",
+                                                            "integer")])
     )
-    metrics_cat <- intersect(
-        metrics, names(metrics_classes[metrics_classes %in%
-                                           c("factor", "character",
-                                             "logical")])
+    metricsCat <- intersect(
+        metrics, names(metricsClasses[metricsClasses %in%
+                                          c("factor", "character",
+                                            "logical")])
     )
 
     ## Define annotation colors -----------------------------------------------
@@ -87,7 +87,7 @@
 
     ## Add non-specified initializations and check validity -------------------
     initialTransforms <- .completeInitialization(initialTransforms,
-                                                 metrics_num)
+                                                 metricsNum)
 
     ## Assign initial weights -------------------------------------------------
     metricsWithWeights <- c(
@@ -103,8 +103,8 @@
     )
 
     ## Return -----------------------------------------------------------------
-    list(metrics_num = metrics_num,
-         metrics_cat = metrics_cat, idColors = idColors,
+    list(metrics_num = metricsNum,
+         metrics_cat = metricsCat, idColors = idColors,
          metricColors = metricColors, initialTransforms = initialTransforms,
          metricsWithWeights = metricsWithWeights,
          initialWeights = initialWeights,

@@ -41,7 +41,7 @@
                  if (is.numeric(x)) {
                      stop("Can't use ggplot2 colors for continuous columns")
                  } else {
-                     setNames(.gg_color_hue(length(unique(x))),
+                     setNames(.ggColorHue(length(unique(x))),
                               nm = as.character(unique(x)))
                  }
              }))
@@ -58,7 +58,7 @@
 #' @noRd
 #'
 #' @importFrom grDevices hcl
-.gg_color_hue <- function(n) {
+.ggColorHue <- function(n) {
     hues <- seq(15L, 375L, length = n + 1L)
     grDevices::hcl(h = hues, l = 65L, c = 100L)[seq_len(n)]
 }

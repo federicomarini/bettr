@@ -21,11 +21,11 @@
         ## Round initial weights to right resolution to fit with the sliders
         weights <- round(weights * (1.0 / weightResolution)) /
             (1.0 / weightResolution)
-        missing_metrics <- setdiff(metrics, names(weights))
-        if (length(missing_metrics) > 0L) {
-            weights_add <- rep(defaultWeightValue, length(missing_metrics))
-            names(weights_add) <- missing_metrics
-            weights <- c(weights, weights_add)
+        missingMetrics <- setdiff(metrics, names(weights))
+        if (length(missingMetrics) > 0L) {
+            weightsAdd <- rep(defaultWeightValue, length(missingMetrics))
+            names(weightsAdd) <- missingMetrics
+            weights <- c(weights, weightsAdd)
         }
     }
     weights

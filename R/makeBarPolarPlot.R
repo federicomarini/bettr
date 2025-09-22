@@ -1,6 +1,6 @@
 #' @keywords internal
 #' @noRd
-.checkArgs_makeBarPolarPlot <- function(
+.checkArgsMakeBarPolarPlot <- function(
         plotdata, scoredata, idCol, metricCol, valueCol, weightCol, scoreCol,
         metricGroupCol, metricColors, metricCollapseGroup, metricGrouping,
         methods, labelSize, showComposition, scaleFactorPolars) {
@@ -100,7 +100,7 @@ makeBarPolarPlot <- function(bettrList = NULL,
         metricColors[[metricCol]] <- metricColors[[metricGrouping]]
     }
 
-    .checkArgs_makeBarPolarPlot(
+    .checkArgsMakeBarPolarPlot(
         plotdata = plotdata, scoredata = scoredata, idCol = idCol,
         metricCol = metricCol, valueCol = valueCol, weightCol = weightCol,
         scoreCol = scoreCol, metricGroupCol = metricGroupCol,

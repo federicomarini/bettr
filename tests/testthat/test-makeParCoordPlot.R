@@ -9,7 +9,9 @@ test_that("ParCoordPlot works", {
         Metric = rep(paste0("S", seq_len(3L)), each = 8L),
         Group = rep(c("A", "A", "B"), each = 8L),
         NumCol = rep(c(1.0, 1.0, 2.0), each = 8L),
-        ScaledValue = c(7.0, 8.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 8.0, 7.0, 5.0, 4.0, 6.0, 1.0, 3.0, 2.0, 8.0, 7.0, 3.0, 5.0, 2.0, 4.0, 6.0, 1.0),
+        ScaledValue = c(7.0, 8.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 8.0, 7.0,
+                        5.0, 4.0, 6.0, 1.0, 3.0, 2.0, 8.0, 7.0, 3.0, 5.0,
+                        2.0, 4.0, 6.0, 1.0),
         Weight = 0.2
     )
     metricInfo <- data.frame(Metric = paste0("S", seq_len(3L)),
@@ -23,7 +25,7 @@ test_that("ParCoordPlot works", {
         metricCol = "Metric", valueCol = "ScaledValue",
         metricGroupCol = "metricGroup",
         metricColors = list(Metric = c("blue", "red", "green")),
-        idColors = list(Method = .gg_color_hue(8L)),
+        idColors = list(Method = .ggColorHue(8L)),
         methods = unique(scoredata$Method),
         metricGrouping = "---", highlightMethod = "---", labelSize = 10.0
     )
@@ -36,7 +38,7 @@ test_that("ParCoordPlot works", {
         metricCol = "Metric", valueCol = "ScaledValue",
         metricGroupCol = "metricGroup",
         metricColors = list(Metric = c("blue", "red", "green")),
-        idColors = list(Method = .gg_color_hue(8L)),
+        idColors = list(Method = .ggColorHue(8L)),
         methods = NULL,
         metricGrouping = "---", highlightMethod = "---", labelSize = 10.0
     )
@@ -50,7 +52,7 @@ test_that("ParCoordPlot works", {
             metricCol = "Metric", valueCol = "ScaledValue",
             metricGroupCol = "metricGroup",
             metricColors = list(Metric = c("blue", "red", "green")),
-            idColors = list(Method = .gg_color_hue(8L)),
+            idColors = list(Method = .ggColorHue(8L)),
             methods = unique(scoredata$Method),
             metricGrouping = "---"
         ), highlightMethod = "---", labelSize = 10.0
@@ -65,7 +67,7 @@ test_that("ParCoordPlot works", {
         metricCol = "Metric", valueCol = "ScaledValue",
         metricGroupCol = "metricGroup",
         metricColors = list(Group = c("blue", "red")),
-        idColors = list(Method = .gg_color_hue(8L)),
+        idColors = list(Method = .ggColorHue(8L)),
         methods = unique(scoredata$Method),
         metricGrouping = "Group", highlightMethod = "---", labelSize = 10.0
     )
@@ -79,7 +81,7 @@ test_that("ParCoordPlot works", {
         metricCol = "Metric", valueCol = "ScaledValue",
         metricGroupCol = "metricGroup",
         metricColors = list(NumCol = circlize::colorRamp2(c(1.0, 2.0), c("white", "blue"))),
-        idColors = list(Method = .gg_color_hue(8L)),
+        idColors = list(Method = .ggColorHue(8L)),
         methods = unique(scoredata$Method),
         metricGrouping = "NumCol", highlightMethod = "---", labelSize = 10.0
     )
@@ -92,7 +94,7 @@ test_that("ParCoordPlot works", {
         metricCol = "Metric", valueCol = "ScaledValue",
         metricGroupCol = "metricGroup",
         metricColors = list(Metric = c("blue", "red", "green")),
-        idColors = list(Method = .gg_color_hue(8L)),
+        idColors = list(Method = .ggColorHue(8L)),
         methods = unique(scoredata$Method),
         metricGrouping = "---", highlightMethod = "M1", labelSize = 10.0
     )

@@ -1,6 +1,6 @@
 #' @keywords internal
 #' @noRd
-.checkArgs_makeHeatmap <- function(
+.checkArgsMakeHeatmap <- function(
         plotdata, scoredata, idCol, metricCol, valueCol, weightCol, scoreCol,
         metricGroupCol, metricInfo, metricColors, idInfo, idColors,
         metricCollapseGroup, metricGrouping, labelSize, showRowNames,
@@ -164,7 +164,7 @@ makeHeatmap <- function(bettrList = NULL,
             dplyr::mutate("{ metricCol }" := .data[[metricGrouping]])
     }
 
-    .checkArgs_makeHeatmap(
+    .checkArgsMakeHeatmap(
         plotdata = plotdata, scoredata = scoredata, idCol = idCol,
         metricCol = metricCol, valueCol = valueCol, weightCol = weightCol,
         scoreCol = scoreCol, metricGroupCol = metricGroupCol,
@@ -312,7 +312,7 @@ makeHeatmap <- function(bettrList = NULL,
             left_annotation = rowAnnotLeft
         )
     } else if (plotType == "Dot plot") {
-        layer_fun <- function(j, i, x, y, w, h, fill) {
+        layerFun <- function(j, i, x, y, w, h, fill) {
             grid::grid.rect(x = x, y = y, width = w, height = h,
                             gp = grid::gpar(col = NA, fill = NA))
             grid::grid.circle(
@@ -326,7 +326,7 @@ makeHeatmap <- function(bettrList = NULL,
         }
         hm <- ComplexHeatmap::Heatmap(
             matrix = mat, name = "Relative\nvalue",
-            layer_fun = layer_fun,
+            layer_fun = layerFun,
             rect_gp = gpar(type = "rect", fill = NA, col = "lightgrey"),
             col = heatmapCols,
             na_col = "white",

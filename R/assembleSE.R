@@ -1,7 +1,7 @@
 #' @keywords internal
 #' @noRd
 #'
-.checkArgs_assembleSE <- function(
+.checkArgsAssembleSE <- function(
         df, idCol, metrics, initialWeights, initialTransforms, metricInfo,
         metricColors, idInfo, idColors) {
     ## df is a data.frame with one column containing method IDs, and the others
@@ -93,11 +93,11 @@ assembleSE <- function(df, idCol = "Method",
 
     ## Check arguments
     ## -------------------------------------------------------------------------
-    .checkArgs_assembleSE(df = df, idCol = idCol, metrics = metrics,
-                          initialWeights = initialWeights,
-                          initialTransforms = initialTransforms,
-                          metricInfo = metricInfo, metricColors = metricColors,
-                          idInfo = idInfo, idColors = idColors)
+    .checkArgsAssembleSE(df = df, idCol = idCol, metrics = metrics,
+                         initialWeights = initialWeights,
+                         initialTransforms = initialTransforms,
+                         metricInfo = metricInfo, metricColors = metricColors,
+                         idInfo = idInfo, idColors = idColors)
 
     ## Assemble SE
     ## -------------------------------------------------------------------------

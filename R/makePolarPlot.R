@@ -1,6 +1,6 @@
 #' @keywords internal
 #' @noRd
-.checkArgs_makePolarPlot <- function(
+.checkArgsMakePolarPlot <- function(
         plotdata, idCol, metricCol, valueCol, metricGroupCol, metricColors,
         metricCollapseGroup, metricGrouping, labelSize) {
     .assertVector(x = plotdata, type = "data.frame")
@@ -73,7 +73,7 @@ makePolarPlot <- function(bettrList = NULL,
         metricColors[[metricCol]] <- metricColors[[metricGrouping]]
     }
 
-    .checkArgs_makePolarPlot(
+    .checkArgsMakePolarPlot(
         plotdata = plotdata, idCol = idCol, metricCol = metricCol,
         valueCol = valueCol, metricGroupCol = metricGroupCol,
         metricColors = metricColors,

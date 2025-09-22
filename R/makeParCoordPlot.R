@@ -1,6 +1,6 @@
 #' @keywords internal
 #' @noRd
-.checkArgs_makeParCoordPlot <- function(
+.checkArgsMakeParCoordPlot <- function(
         plotdata, idCol, metricCol, valueCol, metricGroupCol, metricColors,
         idColors, methods, metricGrouping, labelSize, highlightMethod) {
     .assertVector(x = plotdata, type = "data.frame")
@@ -83,7 +83,7 @@ makeParCoordPlot <- function(bettrList = NULL,
         methods <- unique(plotdata[[idCol]])
     }
 
-    .checkArgs_makeParCoordPlot(
+    .checkArgsMakeParCoordPlot(
         plotdata = plotdata, idCol = idCol, metricCol = metricCol,
         valueCol = valueCol, metricGroupCol = metricGroupCol,
         metricColors = metricColors, idColors = idColors, methods = methods,

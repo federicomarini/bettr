@@ -50,7 +50,8 @@ test_that("long data generation works", {
     expect_identical(ld$Method, rep(c("A", "B", "C"), each = 2L))
     expect_identical(ld$Metric, rep(c("m1", "m3"), 3L))
     expect_identical(ld$metricGroup, rep(c(1.0, 2.0), 3L))
-    expect_equal(ld$ScaledValue, unlist(c(df[1L, -c(1L, 3L)], df[2L, -c(1L, 3L)], df[3L, -c(1L, 3L)])),
+    expect_equal(ld$ScaledValue, unlist(c(df[1L, -c(1L, 3L)], df[2L, -c(1L, 3L)],
+                                          df[3L, -c(1L, 3L)])),
                  ignore_attr = TRUE)
 })
 

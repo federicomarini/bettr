@@ -1,6 +1,6 @@
 #' @keywords internal
 #' @noRd
-.checkArgs_bettrGetReady <- function(
+.checkArgsBettrGetReady <- function(
         df, idCol, metrics, initialWeights, initialTransforms, metricInfo,
         metricColors, idInfo, idColors, scoreMethod, idOrdering,
         showOnlyTopIds, nbrTopIds, idTopNGrouping, keepIds, metricGrouping,
@@ -132,7 +132,7 @@ bettrGetReady <- function(df, idCol = "Method",
 
     ## Check arguments
     ## -------------------------------------------------------------------------
-    .checkArgs_bettrGetReady(
+    .checkArgsBettrGetReady(
         df = df, idCol = idCol, metrics = metrics,
         initialWeights = initialWeights,
         initialTransforms = initialTransforms,

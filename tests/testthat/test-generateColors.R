@@ -1,5 +1,5 @@
 test_that("generateColors works", {
-    expect_identical(.gg_color_hue(3L),
+    expect_identical(.ggColorHue(3L),
                      c("#F8766D", "#00BA38", "#619CFF"))
 
     expect_null(.generateColors(df = NULL, inputColors = NULL))

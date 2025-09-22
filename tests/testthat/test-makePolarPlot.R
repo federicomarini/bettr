@@ -8,7 +8,9 @@ test_that("PolarPlot works", {
         Method = rep(paste0("M", seq_len(8L)), 3L),
         Metric = rep(paste0("S", seq_len(3L)), each = 8L),
         Group = rep(c("A", "A", "B"), each = 8L),
-        ScaledValue = c(7.0, 8.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 8.0, 7.0, 5.0, 4.0, 6.0, 1.0, 3.0, 2.0, 8.0, 7.0, 3.0, 5.0, 2.0, 4.0, 6.0, 1.0),
+        ScaledValue = c(7.0, 8.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 8.0, 7.0,
+                        5.0, 4.0, 6.0, 1.0, 3.0, 2.0, 8.0, 7.0, 3.0, 5.0, 2.0,
+                        4.0, 6.0, 1.0),
         Weight = 0.2
     )
     metricInfo <- data.frame(Metric = paste0("S", seq_len(3L)),
