@@ -165,7 +165,7 @@ that will be passed to `bettr`:
 initialTransforms <- lapply(res[, grep("elapsed|nclust.vs.true|s.norm.vs.true", 
                                        colnames(res), value = TRUE)], 
                             function(i) {
-                                list(flip = TRUE, transform = '[0,1]')
+                                list(flip = TRUE, transform = "[0,1]")
                             })
 
 length(initialTransforms)

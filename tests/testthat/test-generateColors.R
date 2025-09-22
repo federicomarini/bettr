@@ -19,7 +19,8 @@ test_that("generateColors works", {
     expect_length(gc, 4)
     expect_type(gc$colA, "character")
     expect_length(gc$colA, 4)
-    expect_equal(gc$colA, c(A = "dodgerblue1", B = "orchid1", C = "mediumpurple4", D = "grey38"))
+    expect_equal(gc$colA, c(A = "dodgerblue1", B = "orchid1", 
+                            C = "mediumpurple4", D = "grey38"))
     expect_type(gc$colB, "character")
     expect_length(gc$colB, 2)
     expect_equal(gc$colB, c(A = "grey9", B = "gray34"))
@@ -30,12 +31,18 @@ test_that("generateColors works", {
     expect_equal(gc$colD(7), "#A08EDFFF")
     
     set.seed(1)
-    gc <- .generateColors(df = df, inputColors = list(colB = c(A = "blue", B = "red")), ggplot2Columns = c())
+    gc <- .generateColors(
+        df = df, 
+        inputColors = list(colB = c(A = "blue", B = "red")), 
+        ggplot2Columns = c()
+    )
     expect_type(gc, "list")
     expect_length(gc, 4)
     expect_type(gc$colA, "character")
     expect_length(gc$colA, 4)
-    expect_equal(gc$colA, c(A = "dodgerblue1", B = "orchid1", C = "mediumpurple4", D = "grey38"))
+    expect_equal(gc$colA, 
+                 c(A = "dodgerblue1", B = "orchid1", 
+                   C = "mediumpurple4", D = "grey38"))
     expect_type(gc$colB, "character")
     expect_length(gc$colB, 2)
     expect_equal(gc$colB, c(A = "blue", B = "red"))

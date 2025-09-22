@@ -71,8 +71,8 @@
         identical(as.character(sc[[length(sc) - 1L]])[1L], ".assertScalar")) {
         mycall <- sc[[length(sc) - 1L]]
     }
-    args <- lapply(mycall, as.character)[-1L]
-    xname <- if ("x" %in% names(args)) args$x else "argument"
+    myargs <- lapply(mycall, as.character)[-1L]
+    xname <- if ("x" %in% names(myargs)) myargs$x else "argument"
 
     ## Check arguments
     stopifnot(is.null(type) || (length(type) == 1L && is.character(type)))

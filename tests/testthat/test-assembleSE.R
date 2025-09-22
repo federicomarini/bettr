@@ -65,7 +65,7 @@ test_that("assembleSE works", {
     args$metricInfo <- metricInfo[, "Group", drop = FALSE]
     expect_error(do.call(assembleSE, args), 
                  "metricInfo must have a column named 'Metric'")
-    args$metricInfo <- metricInfo |> dplyr::rename(input = Group)
+    args$metricInfo <- dplyr::rename(metricInfo, input = Group)
     expect_error(do.call(assembleSE, args), 
                  "metricInfo can not have columns named")
     
@@ -76,7 +76,7 @@ test_that("assembleSE works", {
     args$idInfo <- idInfo[, "Type", drop = FALSE]
     expect_error(do.call(assembleSE, args), 
                  "idInfo must have a column named 'Method'")
-    args$idInfo <- idInfo |> dplyr::rename(input = Type)
+    args$idInfo <- dplyr::rename(idInfo, input = Type)
     expect_error(do.call(assembleSE, args), 
                  "idInfo can not have columns named")
     

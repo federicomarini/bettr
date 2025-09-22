@@ -37,8 +37,8 @@ test_that("bettr stops with invalid inputs", {
                  "'namesinitialWeights' must not be NULL")
     expect_error(bettr(df = df, initialWeights = rep(0.5, ncol(df) - 1)),
                  "'namesinitialWeights' must not be NULL")
-    expect_error(bettr(df = df, initialWeights = structure(
-        rep(-1, ncol(df) - 1), names = metrics)),
+    expect_error(bettr(df = df, initialWeights = setNames(
+        rep(-1, ncol(df) - 1), nm = metrics)),
         "'initialWeights' must be within [0,1]",
         fixed = TRUE)
 
@@ -188,5 +188,3 @@ test_that("bettr runs with valid inputs", {
     app <- bettr(df, idCol = "Method", bstheme = "sketchy")
     expect_s3_class(app, "shiny.appobj")
 })
-
-
