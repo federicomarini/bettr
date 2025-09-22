@@ -80,7 +80,7 @@ makePolarPlot <- function(bettrList = NULL,
         metricCollapseGroup = metricCollapseGroup,
         metricGrouping = metricGrouping, labelSize = labelSize
     )
-    
+
     ## Plot -------------------------------------------------------------------
     ggplot2::ggplot(plotdata,
                     ggplot2::aes(x = .data[[metricCol]],

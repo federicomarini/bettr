@@ -61,7 +61,7 @@ makeParCoordPlot <- function(bettrList = NULL,
                              metricColors, idColors,
                              methods = NULL, metricGrouping = "---",
                              highlightMethod = NULL, labelSize = 10.0) {
-    
+
     ## If bettrList is provided, extract arguments from there
     if (!is.null(bettrList)) {
         .assertVector(x = bettrList, type = "list")
@@ -114,7 +114,7 @@ makeParCoordPlot <- function(bettrList = NULL,
             ))
         gp <- ggplot2::ggplot(tmp,
                               ggplot2::aes(x = .data[[metricCol]],
-                                           y = .data[[valueCol]])) + 
+                                           y = .data[[valueCol]])) +
             ggplot2::geom_boxplot(outlier.size = -1.0,
                                   ggplot2::aes(fill = .data[[metricGroupCol]]),
                                   alpha = 0.4)
@@ -124,9 +124,10 @@ makeParCoordPlot <- function(bettrList = NULL,
                     colors = do.call(
                         metricColors[[metricGrouping]],
                         list(sort(unique(tmp[[metricGroupCol]])))
-                    ), 
+                    ),
                     values = scales::rescale(sort(
-                        unique(tmp[[metricGroupCol]])))
+                        unique(tmp[[metricGroupCol]])
+                    ))
                 )
         } else {
             gp <- gp +
