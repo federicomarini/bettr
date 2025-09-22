@@ -80,8 +80,8 @@ test_that("adding scores works", {
     expect_s3_class(sfcd, "data.frame")
     expect_equal(dim(sfcd), c(1, 4))
     expect_named(sfcd, c("Method", "Score", "lets", "lets2"))
-    expect_equal(sfcd$Method, c("B"))
-    expect_equal(sfcd$Score, c(2.203737), tolerance = 0.001)
+    expect_equal(sfcd$Method, "B")
+    expect_equal(sfcd$Score, 2.203737, tolerance = 0.001)
     
     ## -- top 1, no grouping, no idInfo
     sfcd <- .sortAndFilterScoreData(scoreDf = scd, idInfo = NULL, 
@@ -92,8 +92,8 @@ test_that("adding scores works", {
     expect_s3_class(sfcd, "data.frame")
     expect_equal(dim(sfcd), c(1, 2))
     expect_named(sfcd, c("Method", "Score"))
-    expect_equal(sfcd$Method, c("B"))
-    expect_equal(sfcd$Score, c(2.203737), tolerance = 0.001)
+    expect_equal(sfcd$Method, "B")
+    expect_equal(sfcd$Score, 2.203737, tolerance = 0.001)
     
     ## -- top 1 low-to-high, no grouping
     sfcd <- .sortAndFilterScoreData(scoreDf = scd, idInfo = idInfo, 
@@ -104,8 +104,8 @@ test_that("adding scores works", {
     expect_s3_class(sfcd, "data.frame")
     expect_equal(dim(sfcd), c(1, 4))
     expect_named(sfcd, c("Method", "Score", "lets", "lets2"))
-    expect_equal(sfcd$Method, c("A"))
-    expect_equal(sfcd$Score, c(1.238278), tolerance = 0.001)
+    expect_equal(sfcd$Method, "A")
+    expect_equal(sfcd$Score, 1.238278, tolerance = 0.001)
     
     ## -- top 1, grouping
     sfcd <- .sortAndFilterScoreData(scoreDf = scd, idInfo = idInfo, 

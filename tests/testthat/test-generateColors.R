@@ -14,7 +14,8 @@ test_that("generateColors works", {
                  "ggplot2 colors for continuous columns")
     
     set.seed(1)
-    gc <- .generateColors(df = df, inputColors = list(), ggplot2Columns = c())
+    gc <- .generateColors(df = df, inputColors = list(), 
+                          ggplot2Columns = character(0))
     expect_type(gc, "list")
     expect_length(gc, 4)
     expect_type(gc$colA, "character")
@@ -34,7 +35,7 @@ test_that("generateColors works", {
     gc <- .generateColors(
         df = df, 
         inputColors = list(colB = c(A = "blue", B = "red")), 
-        ggplot2Columns = c()
+        ggplot2Columns = character(0)
     )
     expect_type(gc, "list")
     expect_length(gc, 4)

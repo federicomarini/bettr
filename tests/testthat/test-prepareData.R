@@ -26,7 +26,7 @@ test_that("prepareData works", {
                        "metricsWithWeights", "initialWeights",
                        "idInfo", "metricInfo"))
     expect_equal(pd$metrics_num, c("m1", "m2"))
-    expect_equal(pd$metrics_cat, c("m3"))
+    expect_equal(pd$metrics_cat, "m3")
     expect_type(pd$idColors, "list")
     expect_equal(pd$idColors$lets, c(a = "lightgoldenrodyellow", 
                                      b = "mediumorchid1", c = "gray26"))
@@ -72,12 +72,12 @@ test_that("prepareData works", {
                        "metricsWithWeights", "initialWeights",
                        "idInfo", "metricInfo"))
     expect_equal(pd$metrics_num, c("m1", "m2"))
-    expect_equal(pd$metrics_cat, c("m3"))
+    expect_equal(pd$metrics_cat, "m3")
     expect_type(pd$idColors, "list")
     expect_equal(pd$idColors$lets, c(a = "slategray", b = "lightskyblue4", c = "grey79"))
     expect_equal(pd$idColors$Method, c(A = "blue", B = "green", C = "yellow"))
     expect_type(pd$metricColors, "list")
-    expect_named(pd$metricColors, c("Metric"))
+    expect_named(pd$metricColors, "Metric")
     expect_equal(pd$metricColors$Metric, c(m1 = "#F8766D", m2 = "#00BA38", m3 = "#619CFF"))
     expect_type(pd$initialTransforms, "list")
     expect_length(pd$initialTransforms, 2)
@@ -114,11 +114,11 @@ test_that("prepareData works", {
                        "metricsWithWeights", "initialWeights",
                        "idInfo", "metricInfo"))
     expect_equal(pd$metrics_num, c("m1", "m2"))
-    expect_equal(pd$metrics_cat, c("m3"))
+    expect_equal(pd$metrics_cat, "m3")
     expect_type(pd$idColors, "list")
     expect_equal(pd$idColors$Method, c(A = "blue", B = "green", C = "yellow"))
     expect_type(pd$metricColors, "list")
-    expect_named(pd$metricColors, c("Metric"))
+    expect_named(pd$metricColors, "Metric")
     expect_equal(pd$metricColors$Metric, c(m1 = "#F8766D", m2 = "#00BA38", m3 = "#619CFF"))
     expect_type(pd$initialTransforms, "list")
     expect_length(pd$initialTransforms, 2)
