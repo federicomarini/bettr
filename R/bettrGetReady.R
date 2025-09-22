@@ -280,7 +280,7 @@ bettrGetReady <- function(df, idCol = "Method",
         nbrTopIds = nbrTopIds
     )
 
-    plotdata <- 
+    plotdata <-
         dplyr::filter(collapseddata, .data[[idCol]] %in% scoredata[[idCol]])
     plotdata[[idCol]] <- factor(plotdata[[idCol]],
                                 levels = scoredata[[idCol]])

@@ -14,49 +14,49 @@ test_that("PolarPlot works", {
     metricInfo <- data.frame(Metric = paste0("S", seq_len(3)),
                              Group = c("A", "A", "B"))
     idInfo <- scoredata[, c("Method", "Type")]
-    
+
     bpp <- makePolarPlot(
         bettrList = NULL,
-        plotdata = plotdata, idCol = "Method", 
-        metricCol = "Metric", valueCol = "ScaledValue", metricGroupCol = "---", 
+        plotdata = plotdata, idCol = "Method",
+        metricCol = "Metric", valueCol = "ScaledValue", metricGroupCol = "---",
         metricColors = list(Metric = c("blue", "red", "green")),
         metricCollapseGroup = FALSE, metricGrouping = "Group", labelSize = 10
     )
     expect_true(ggplot2::is_ggplot(bpp))
-    
+
     ## With bettrList instead
     bpp2 <- makePolarPlot(
         bettrList = list(
-            plotdata = plotdata, idCol = "Method", 
-            metricCol = "Metric", valueCol = "ScaledValue", 
-            metricGroupCol = "---", 
+            plotdata = plotdata, idCol = "Method",
+            metricCol = "Metric", valueCol = "ScaledValue",
+            metricGroupCol = "---",
             metricColors = list(Metric = c("blue", "red", "green")),
             metricCollapseGroup = FALSE, metricGrouping = "Group"
         ), labelSize = 10
     )
     expect_true(ggplot2::is_ggplot(bpp2))
-    
+
     bpp <- makePolarPlot(
         bettrList = NULL,
-        plotdata = plotdata, idCol = "Method", 
-        metricCol = "Metric", valueCol = "ScaledValue", metricGroupCol = "---", 
+        plotdata = plotdata, idCol = "Method",
+        metricCol = "Metric", valueCol = "ScaledValue", metricGroupCol = "---",
         metricColors = list(Metric = c("blue", "red", "green")),
         metricCollapseGroup = FALSE, metricGrouping = "Group", labelSize = 10
     )
     expect_true(ggplot2::is_ggplot(bpp))
-    
+
     grpdf <- plotdata |>
         dplyr::group_by(Method, Group) |>
         dplyr::summarize(ScaledValue = mean(ScaledValue),
-                         Weight = mean(Weight), 
+                         Weight = mean(Weight),
                          .groups = "drop") |>
         dplyr::mutate(Metric = Group) |>
         dplyr::rename(metricGroup = Group)
     bpp <- makePolarPlot(
         bettrList = NULL,
-        plotdata = grpdf, idCol = "Method", 
-        metricCol = "Metric", valueCol = "ScaledValue", 
-        metricGroupCol = "metricGroup", 
+        plotdata = grpdf, idCol = "Method",
+        metricCol = "Metric", valueCol = "ScaledValue",
+        metricGroupCol = "metricGroup",
         metricColors = list(Group = c("blue", "red", "green")),
         metricCollapseGroup = TRUE, metricGrouping = "Group", labelSize = 10
     )

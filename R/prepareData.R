@@ -96,12 +96,12 @@
         }))
     )
     initialWeights <- .assignInitialWeights(
-        weights = initialWeights, 
+        weights = initialWeights,
         metrics = metricsWithWeights,
         defaultWeightValue = defaultWeightValue,
         weightResolution = weightResolution
     )
-    
+
     ## Return -----------------------------------------------------------------
     list(metrics_num = metrics_num,
          metrics_cat = metrics_cat, idColors = idColors,

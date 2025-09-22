@@ -67,7 +67,7 @@ resSummaryWide <- resSummaryTrueK |>
 
 ## Create metric info
 metricInfo <- data.frame(Metric = setdiff(colnames(resSummaryWide), "method")) |>
-    dplyr::mutate(Class = vapply(strsplit(Metric, "_", fixed = TRUE), 
+    dplyr::mutate(Class = vapply(strsplit(Metric, "_", fixed = TRUE),
                                  .subset, 1L, FUN.VALUE = ""))
 
 ## Define colors

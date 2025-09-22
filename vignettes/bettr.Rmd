@@ -78,7 +78,7 @@ used to group and filter them in the interactive application.
 
 ```{r}
 ## Data for two metrics (metric1, metric2) for three methods (M1, M2, M3)
-df <- data.frame(Method = c("M1", "M2", "M3"), 
+df <- data.frame(Method = c("M1", "M2", "M3"),
                  metric1 = c(1, 2, 3),
                  metric2 = c(3, 1, 2))
 
@@ -87,7 +87,7 @@ metricInfo <- data.frame(Metric = c("metric1", "metric2", "metric3"),
                          Group = c("G1", "G2", "G2"))
 
 ## More information for methods ('IDs')
-idInfo <- data.frame(Method = c("M1", "M2", "M3"), 
+idInfo <- data.frame(Method = c("M1", "M2", "M3"),
                      Type = c("T1", "T1", "T2"))
 ```
 
@@ -96,7 +96,7 @@ To simplify handling and sharing, the data can be combined into a
 follows: 
 
 ```{r}
-se <- assembleSE(df = df, idCol = "Method", metricInfo = metricInfo, 
+se <- assembleSE(df = df, idCol = "Method", metricInfo = metricInfo,
                  idInfo = idInfo)
 se
 ```
@@ -124,7 +124,7 @@ for a set of evaluation metrics applied to results obtained by several
 clustering methods are provided in a `.csv` file in the package:
 
 ```{r}
-res <- read.csv(system.file("extdata", "duo2018_results.csv", 
+res <- read.csv(system.file("extdata", "duo2018_results.csv",
                             package = "bettr"))
 dim(res)
 tibble(res)
@@ -162,8 +162,8 @@ that will be passed to `bettr`:
 
 ```{r}
 ## Initialize list
-initialTransforms <- lapply(res[, grep("elapsed|nclust.vs.true|s.norm.vs.true", 
-                                       colnames(res), value = TRUE)], 
+initialTransforms <- lapply(res[, grep("elapsed|nclust.vs.true|s.norm.vs.true",
+                                       colnames(res), value = TRUE)],
                             function(i) {
                                 list(flip = TRUE, transform = "[0,1]")
                             })
@@ -192,15 +192,15 @@ visualizing the methods and metrics in `bettr`.
 
 ```{r}
 metricColors <- list(
-    Class = c(ARI = "purple", elapsed = "forestgreen", 
-              nclust.vs.true = "blue", 
+    Class = c(ARI = "purple", elapsed = "forestgreen",
+              nclust.vs.true = "blue",
               s.norm.vs.true = "orange")
 )
 idColors <- list(
     method = c(
-        CIDR = "#332288", FlowSOM = "#6699CC", PCAHC = "#88CCEE", 
+        CIDR = "#332288", FlowSOM = "#6699CC", PCAHC = "#88CCEE",
         PCAKmeans = "#44AA99", pcaReduce = "#117733",
-        RtsneKmeans = "#999933", Seurat = "#DDCC77", SC3svm = "#661100", 
+        RtsneKmeans = "#999933", Seurat = "#DDCC77", SC3svm = "#661100",
         SC3 = "#CC6677", TSCAN = "grey34", ascend = "orange", SAFE = "black",
         monocle = "red", RaceID2 = "blue"
     )
@@ -211,7 +211,7 @@ All the information defined so far can be combined in a `SummarizedExperiment`
 object, as shown above for the small example data: 
 
 ```{r}
-duo2018 <- assembleSE(df = res, idCol = "method", metricInfo = metricInfo, 
+duo2018 <- assembleSE(df = res, idCol = "method", metricInfo = metricInfo,
                       initialTransforms = initialTransforms,
                       metricColors = metricColors, idColors = idColors)
 duo2018
@@ -296,12 +296,12 @@ results for the example above.
 metadata(duo2018)$bettrInfo$initialWeights["Class_ARI"] <- 0.55
 
 prepData <- bettrGetReady(
-    bettrSE = duo2018, idCol = "method", 
-    scoreMethod = "weighted mean", metricGrouping = "Class", 
+    bettrSE = duo2018, idCol = "method",
+    scoreMethod = "weighted mean", metricGrouping = "Class",
     metricCollapseGroup = TRUE
 )
 
-## This object is fairly verbose and detailed, 
+## This object is fairly verbose and detailed,
 ## but has the whole set of info needed
 prepData
 

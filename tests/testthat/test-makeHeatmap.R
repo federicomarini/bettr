@@ -14,112 +14,112 @@ test_that("makeHeatmap works", {
     metricInfo <- data.frame(Metric = paste0("S", seq_len(3)),
                              Group = c("A", "A", "B"))
     idInfo <- scoredata[, c("Method", "Type")]
-    
+
     hm <- makeHeatmap(
         bettrList = NULL,
-        plotdata = plotdata, scoredata = scoredata, idCol = "Method", 
-        metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
-        scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL, 
-        metricColors = NULL, idInfo = NULL, idColors = NULL, 
-        metricCollapseGroup = FALSE, metricGrouping = NULL, 
-        labelSize = 10, showRowNames = TRUE, 
+        plotdata = plotdata, scoredata = scoredata, idCol = "Method",
+        metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight",
+        scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL,
+        metricColors = NULL, idInfo = NULL, idColors = NULL,
+        metricCollapseGroup = FALSE, metricGrouping = NULL,
+        labelSize = 10, showRowNames = TRUE,
         plotType = "Heatmap", rownamewidth_cm = 6, colnameheight_cm = 6
     )
     expect_s4_class(hm, "HeatmapList")
-    
+
     ## With bettrList instead
     hm2 <- makeHeatmap(
-        bettrList = list(plotdata = plotdata, scoredata = scoredata, 
-                         idCol = "Method", metricCol = "Metric", 
-                         valueCol = "ScaledValue", weightCol = "Weight", 
-                         scoreCol = "Score", metricGroupCol = "---", 
-                         metricInfo = NULL, 
-                         metricColors = NULL, idInfo = NULL, idColors = NULL, 
-                         metricCollapseGroup = FALSE, metricGrouping = NULL), 
-        labelSize = 10, showRowNames = TRUE, 
+        bettrList = list(plotdata = plotdata, scoredata = scoredata,
+                         idCol = "Method", metricCol = "Metric",
+                         valueCol = "ScaledValue", weightCol = "Weight",
+                         scoreCol = "Score", metricGroupCol = "---",
+                         metricInfo = NULL,
+                         metricColors = NULL, idInfo = NULL, idColors = NULL,
+                         metricCollapseGroup = FALSE, metricGrouping = NULL),
+        labelSize = 10, showRowNames = TRUE,
         plotType = "Heatmap", rownamewidth_cm = 6, colnameheight_cm = 6
     )
     expect_s4_class(hm2, "HeatmapList")
-    
+
     expect_error(makeHeatmap(
         bettrList = NULL,
-        plotdata = plotdata, scoredata = scoredata, idCol = "Method", 
-        metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
-        scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL, 
-        metricColors = NULL, idInfo = NULL, idColors = NULL, 
-        metricCollapseGroup = FALSE, metricGrouping = NULL, 
-        labelSize = 10, showRowNames = TRUE, 
+        plotdata = plotdata, scoredata = scoredata, idCol = "Method",
+        metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight",
+        scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL,
+        metricColors = NULL, idInfo = NULL, idColors = NULL,
+        metricCollapseGroup = FALSE, metricGrouping = NULL,
+        labelSize = 10, showRowNames = TRUE,
         plotType = "unknown", rownamewidth_cm = 6, colnameheight_cm = 6
     ), "All values in 'plotType' must be one of")
-    
+
     hm <- makeHeatmap(
         bettrList = NULL,
-        plotdata = plotdata, scoredata = scoredata, idCol = "Method", 
-        metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
-        scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL, 
-        metricColors = NULL, idInfo = NULL, idColors = NULL, 
-        metricCollapseGroup = FALSE, metricGrouping = NULL, 
-        labelSize = 10, showRowNames = TRUE, 
+        plotdata = plotdata, scoredata = scoredata, idCol = "Method",
+        metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight",
+        scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL,
+        metricColors = NULL, idInfo = NULL, idColors = NULL,
+        metricCollapseGroup = FALSE, metricGrouping = NULL,
+        labelSize = 10, showRowNames = TRUE,
         plotType = "Dot plot", rownamewidth_cm = 6, colnameheight_cm = 6
     )
     expect_s4_class(hm, "HeatmapList")
-    
+
     grpdf <- plotdata |>
         dplyr::group_by(Method, Group) |>
         dplyr::summarize(ScaledValue = mean(ScaledValue),
-                         Weight = mean(Weight), 
+                         Weight = mean(Weight),
                          .groups = "drop") |>
         dplyr::mutate(Metric = Group) |>
         dplyr::rename(metricGroup = Group)
     hm <- makeHeatmap(
         bettrList = NULL,
-        plotdata = grpdf, scoredata = scoredata, idCol = "Method", 
-        metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
-        scoreCol = "Score", metricGroupCol = "metricGroup", 
+        plotdata = grpdf, scoredata = scoredata, idCol = "Method",
+        metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight",
+        scoreCol = "Score", metricGroupCol = "metricGroup",
         metricInfo = metricInfo, metricColors = NULL,
-        idInfo = NULL, idColors = NULL, 
-        metricCollapseGroup = TRUE, metricGrouping = "Group", 
-        labelSize = 10, showRowNames = TRUE, 
+        idInfo = NULL, idColors = NULL,
+        metricCollapseGroup = TRUE, metricGrouping = "Group",
+        labelSize = 10, showRowNames = TRUE,
         plotType = "Heatmap", rownamewidth_cm = 6, colnameheight_cm = 6
     )
     expect_s4_class(hm, "HeatmapList")
-    
+
     hm <- makeHeatmap(
         bettrList = NULL,
-        plotdata = plotdata, scoredata = scoredata, idCol = "Method", 
-        metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
-        scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL, 
-        metricColors = NULL, idInfo = idInfo, idColors = NULL, 
-        metricCollapseGroup = FALSE, metricGrouping = NULL, 
-        labelSize = 10, showRowNames = TRUE, 
+        plotdata = plotdata, scoredata = scoredata, idCol = "Method",
+        metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight",
+        scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL,
+        metricColors = NULL, idInfo = idInfo, idColors = NULL,
+        metricCollapseGroup = FALSE, metricGrouping = NULL,
+        labelSize = 10, showRowNames = TRUE,
         plotType = "Heatmap", rownamewidth_cm = 6, colnameheight_cm = 6
     )
     expect_s4_class(hm, "HeatmapList")
-    
+
     negdf <- plotdata
     negdf$ScaledValue[1] <- -8
     hm <- makeHeatmap(
         bettrList = NULL,
-        plotdata = negdf, scoredata = scoredata, idCol = "Method", 
-        metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
-        scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL, 
-        metricColors = NULL, idInfo = idInfo, idColors = NULL, 
-        metricCollapseGroup = FALSE, metricGrouping = NULL, 
-        labelSize = 10, showRowNames = TRUE, 
+        plotdata = negdf, scoredata = scoredata, idCol = "Method",
+        metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight",
+        scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL,
+        metricColors = NULL, idInfo = idInfo, idColors = NULL,
+        metricCollapseGroup = FALSE, metricGrouping = NULL,
+        labelSize = 10, showRowNames = TRUE,
         plotType = "Heatmap", rownamewidth_cm = 6, colnameheight_cm = 6
     )
     expect_s4_class(hm, "HeatmapList")
-    
+
     negdf <- plotdata
     negdf$ScaledValue <- -negdf$ScaledValue
     hm <- makeHeatmap(
         bettrList = NULL,
-        plotdata = negdf, scoredata = scoredata, idCol = "Method", 
-        metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight", 
-        scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL, 
-        metricColors = NULL, idInfo = idInfo, idColors = NULL, 
-        metricCollapseGroup = FALSE, metricGrouping = NULL, 
-        labelSize = 10, showRowNames = TRUE, 
+        plotdata = negdf, scoredata = scoredata, idCol = "Method",
+        metricCol = "Metric", valueCol = "ScaledValue", weightCol = "Weight",
+        scoreCol = "Score", metricGroupCol = "---", metricInfo = NULL,
+        metricColors = NULL, idInfo = idInfo, idColors = NULL,
+        metricCollapseGroup = FALSE, metricGrouping = NULL,
+        labelSize = 10, showRowNames = TRUE,
         plotType = "Heatmap", rownamewidth_cm = 6, colnameheight_cm = 6
     )
     expect_s4_class(hm, "HeatmapList")

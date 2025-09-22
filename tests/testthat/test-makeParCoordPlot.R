@@ -16,12 +16,12 @@ test_that("ParCoordPlot works", {
                              Group = c("A", "A", "B"),
                              NumCol = 1:3)
     idInfo <- scoredata[, c("Method", "Type")]
-    
+
     bpp <- makeParCoordPlot(
         bettrList = NULL,
-        plotdata = plotdata, idCol = "Method", 
-        metricCol = "Metric", valueCol = "ScaledValue",  
-        metricGroupCol = "metricGroup", 
+        plotdata = plotdata, idCol = "Method",
+        metricCol = "Metric", valueCol = "ScaledValue",
+        metricGroupCol = "metricGroup",
         metricColors = list(Metric = c("blue", "red", "green")),
         idColors = list(Method = .gg_color_hue(8)),
         methods = unique(scoredata$Method),
@@ -29,12 +29,12 @@ test_that("ParCoordPlot works", {
     )
     bpp
     expect_true(ggplot2::is_ggplot(bpp))
-    
+
     bpp <- makeParCoordPlot(
         bettrList = NULL,
-        plotdata = plotdata, idCol = "Method", 
-        metricCol = "Metric", valueCol = "ScaledValue",  
-        metricGroupCol = "metricGroup", 
+        plotdata = plotdata, idCol = "Method",
+        metricCol = "Metric", valueCol = "ScaledValue",
+        metricGroupCol = "metricGroup",
         metricColors = list(Metric = c("blue", "red", "green")),
         idColors = list(Method = .gg_color_hue(8)),
         methods = NULL,
@@ -42,13 +42,13 @@ test_that("ParCoordPlot works", {
     )
     bpp
     expect_true(ggplot2::is_ggplot(bpp))
-    
+
     ## With bettrList instead
     bpp2 <- makeParCoordPlot(
         bettrList = list(
-            plotdata = plotdata, idCol = "Method", 
-            metricCol = "Metric", valueCol = "ScaledValue",  
-            metricGroupCol = "metricGroup", 
+            plotdata = plotdata, idCol = "Method",
+            metricCol = "Metric", valueCol = "ScaledValue",
+            metricGroupCol = "metricGroup",
             metricColors = list(Metric = c("blue", "red", "green")),
             idColors = list(Method = .gg_color_hue(8)),
             methods = unique(scoredata$Method),
@@ -57,46 +57,45 @@ test_that("ParCoordPlot works", {
     )
     bpp2
     expect_true(ggplot2::is_ggplot(bpp2))
-    
+
     plotdata$metricGroup <- plotdata$Group
     bpp <- makeParCoordPlot(
         bettrList = NULL,
-        plotdata = plotdata, idCol = "Method", 
-        metricCol = "Metric", valueCol = "ScaledValue", 
-        metricGroupCol = "metricGroup", 
+        plotdata = plotdata, idCol = "Method",
+        metricCol = "Metric", valueCol = "ScaledValue",
+        metricGroupCol = "metricGroup",
         metricColors = list(Group = c("blue", "red")),
         idColors = list(Method = .gg_color_hue(8)),
-        methods = unique(scoredata$Method), 
+        methods = unique(scoredata$Method),
         metricGrouping = "Group", highlightMethod = "---", labelSize = 10
     )
     bpp
     expect_true(ggplot2::is_ggplot(bpp))
-    
+
     plotdata$metricGroup <- plotdata$NumCol
     bpp <- makeParCoordPlot(
         bettrList = NULL,
-        plotdata = plotdata, idCol = "Method", 
-        metricCol = "Metric", valueCol = "ScaledValue", 
-        metricGroupCol = "metricGroup", 
+        plotdata = plotdata, idCol = "Method",
+        metricCol = "Metric", valueCol = "ScaledValue",
+        metricGroupCol = "metricGroup",
         metricColors = list(NumCol = circlize::colorRamp2(c(1, 2), c("white", "blue"))),
         idColors = list(Method = .gg_color_hue(8)),
-        methods = unique(scoredata$Method), 
+        methods = unique(scoredata$Method),
         metricGrouping = "NumCol", highlightMethod = "---", labelSize = 10
     )
     bpp
     expect_true(ggplot2::is_ggplot(bpp))
-    
+
     bpp <- makeParCoordPlot(
         bettrList = NULL,
-        plotdata = plotdata, idCol = "Method", 
-        metricCol = "Metric", valueCol = "ScaledValue",  
-        metricGroupCol = "metricGroup", 
+        plotdata = plotdata, idCol = "Method",
+        metricCol = "Metric", valueCol = "ScaledValue",
+        metricGroupCol = "metricGroup",
         metricColors = list(Metric = c("blue", "red", "green")),
         idColors = list(Method = .gg_color_hue(8)),
-        methods = unique(scoredata$Method), 
+        methods = unique(scoredata$Method),
         metricGrouping = "---", highlightMethod = "M1", labelSize = 10
     )
     bpp
     expect_true(ggplot2::is_ggplot(bpp))
-    
 })

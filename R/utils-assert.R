@@ -116,7 +116,7 @@
         if (!is.null(validValues)) {
             if (any((x < rngIncl[1L] | x > rngIncl[2L]) &
                     !(x %in% validValues))) {
-                stop("'", xname, "' must be within [", rngIncl[1L], ",", 
+                stop("'", xname, "' must be within [", rngIncl[1L], ",",
                      rngIncl[2L], "] (inclusive), or one of: ", vvPrint,
                      call. = FALSE)
             }
@@ -128,7 +128,7 @@
         }
     } else if (!is.null(rngExcl)) {
         if (!is.null(validValues)) {
-            if (any((x <= rngExcl[1L] | x >= rngExcl[2L]) & 
+            if (any((x <= rngExcl[1L] | x >= rngExcl[2L]) &
                     !(x %in% validValues))) {
                 stop("'", xname, "' must be within (", rngExcl[1L], ",",
                      rngExcl[2L], ") (exclusive), or one of: ", vvPrint,
@@ -151,7 +151,7 @@
         stop("'", xname, "' must have length ", len, call. = FALSE)
     }
 
-    if (!is.null(rngLen) && (length(x) < rngLen[1L] || 
+    if (!is.null(rngLen) && (length(x) < rngLen[1L] ||
                              length(x) > rngLen[2L])) {
         stop("length of '", xname, "' must be within [", rngLen[1L], ",",
              rngLen[2L], "] (inclusive)", call. = FALSE)
