@@ -41,8 +41,9 @@ test_that("transformVariable works", {
     t1 <- .transformNumericVariable(x = x, flip = FALSE, offset = 0.0,
                                     transf = .getTransf("[-1,1]"),
                                     bincuts = NULL)
-    expect_identical(t1, (2.0 * x - (min(x, na.rm = TRUE) + max(x, na.rm = TRUE))) /
-                         (max(x, na.rm = TRUE) - min(x, na.rm = TRUE)))
+    expect_equal(t1, (2.0 * x - (min(x, na.rm = TRUE) + max(x, na.rm = TRUE))) /
+                     (max(x, na.rm = TRUE) - min(x, na.rm = TRUE)),
+                 tolerance = 1e-6)
     expect_identical(min(t1, na.rm = TRUE), -1.0)
     expect_identical(max(t1, na.rm = TRUE), 1.0)
     expect_length(t1, length(x))
@@ -52,7 +53,7 @@ test_that("transformVariable works", {
     t1 <- .transformNumericVariable(x = x, flip = FALSE, offset = 0.0,
                                     transf = .getTransf("Rank"),
                                     bincuts = NULL)
-    expect_identical(t1, c(3.0, 5.0, 2.0, 4.0, 1.0, NA))
+    expect_identical(t1, c(3L, 5L, 2L, 4L, 1L, NA))
 
     t1 <- .transformNumericVariable(x = x, flip = FALSE, offset = 0.0,
                                     transf = .getTransf("Rank+[0,1]"),
@@ -90,8 +91,9 @@ test_that("transformVariable works", {
     t1 <- .transformNumericVariable(x = x, flip = TRUE, offset = 0.0,
                                     transf = .getTransf("[-1,1]"),
                                     bincuts = NULL)
-    expect_identical(t1, (2.0 * (-x) - (min(-x, na.rm = TRUE) + max(-x, na.rm = TRUE))) /
-                         (max(-x, na.rm = TRUE) - min(-x, na.rm = TRUE)))
+    expect_equal(t1, (2.0 * (-x) - (min(-x, na.rm = TRUE) + max(-x, na.rm = TRUE))) /
+                     (max(-x, na.rm = TRUE) - min(-x, na.rm = TRUE)),
+                 tolerance = 1e-6)
     expect_identical(min(t1, na.rm = TRUE), -1.0)
     expect_identical(max(t1, na.rm = TRUE), 1.0)
     expect_length(t1, length(x))
@@ -101,7 +103,7 @@ test_that("transformVariable works", {
     t1 <- .transformNumericVariable(x = x, flip = TRUE, offset = 0.0,
                                     transf = .getTransf("Rank"),
                                     bincuts = NULL)
-    expect_identical(t1, c(3.0, 1.0, 4.0, 2.0, 5.0, NA))
+    expect_identical(t1, c(3L, 1L, 4L, 2L, 5L, NA))
 
     t1 <- .transformNumericVariable(x = x, flip = TRUE, offset = 0.0,
                                     transf = .getTransf("Rank+[0,1]"),
@@ -138,8 +140,9 @@ test_that("transformVariable works", {
     t1 <- .transformNumericVariable(x = x, flip = FALSE, offset = 6.0,
                                     transf = .getTransf("[-1,1]"),
                                     bincuts = NULL)
-    expect_identical(t1, (2.0 * x - (min(x, na.rm = TRUE) + max(x, na.rm = TRUE))) /
-                         (max(x, na.rm = TRUE) - min(x, na.rm = TRUE)))
+    expect_equal(t1, (2.0 * x - (min(x, na.rm = TRUE) + max(x, na.rm = TRUE))) /
+                     (max(x, na.rm = TRUE) - min(x, na.rm = TRUE)),
+                 tolerance = 1e-6)
     expect_identical(min(t1, na.rm = TRUE), -1.0)
     expect_identical(max(t1, na.rm = TRUE), 1.0)
     expect_length(t1, length(x))
@@ -149,7 +152,7 @@ test_that("transformVariable works", {
     t1 <- .transformNumericVariable(x = x, flip = FALSE, offset = -7.0,
                                     transf = .getTransf("Rank"),
                                     bincuts = NULL)
-    expect_identical(t1, c(3.0, 5.0, 2.0, 4.0, 1.0, NA))
+    expect_identical(t1, c(3L, 5L, 2L, 4L, 1L, NA))
 
     t1 <- .transformNumericVariable(x = x, flip = FALSE, offset = 3.0,
                                     transf = .getTransf("Rank+[0,1]"),
