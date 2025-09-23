@@ -98,6 +98,7 @@
 #' @importFrom bslib bs_theme sidebar accordion accordion_panel page_sidebar
 #' @importFrom rlang .data
 #' @importFrom DT DTOutput renderDT
+#' @importFrom stats setNames
 #'
 #' @examples
 #' df <- data.frame(Method = c("M1", "M2", "M3"), metric1 = c(1, 2, 3),

@@ -13,6 +13,7 @@
 #'
 #' @importFrom circlize colorRamp2
 #' @importFrom grDevices colors
+#' @importFrom stats setNames
 #'
 .generateColors <- function(df, inputColors, ggplot2Columns = character(0L)) {
     if (is.null(df)) {

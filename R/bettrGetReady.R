@@ -77,6 +77,7 @@
 #' @export
 #'
 #' @importFrom dplyr filter
+#' @importFrom stats setNames
 #'
 #' @examples
 #' ## Generate example data
