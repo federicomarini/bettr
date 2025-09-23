@@ -80,17 +80,17 @@ that all required columns are available.
 }
 \examples{
 ## Generate example data
-df <- data.frame(Method = c("M1", "M2", "M3"), 
+df <- data.frame(Method = c("M1", "M2", "M3"),
                  metric1 = c(1, 2, 3),
                  metric2 = c(3, 1, 2))
 metricInfo <- data.frame(Metric = c("metric1", "metric2", "metric3"),
                          Group = c("G1", "G2", "G2"))
-idInfo <- data.frame(Method = c("M1", "M2", "M3"), 
+idInfo <- data.frame(Method = c("M1", "M2", "M3"),
                      Type = c("T1", "T1", "T2"))
-prepData <- bettrGetReady(df = df, idCol = "Method", 
+prepData <- bettrGetReady(df = df, idCol = "Method",
                           metricInfo = metricInfo, idInfo = idInfo)
 makeParCoordPlot(bettrList = prepData, highlightMethod = "M2")
-                 
+
 }
 \author{
 Charlotte Soneson

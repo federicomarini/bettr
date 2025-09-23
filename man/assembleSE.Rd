@@ -37,20 +37,20 @@ one entry per metric included in \code{metrics}.}
 parameters for each metric. Each list entry should correspond to one
 metric, and take the form of a list with up to four elements, named:
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{* **flip**: Logical scalar; whether or not to flip the sign of the 
+\if{html}{\out{<div class="sourceCode">}}\preformatted{* **flip**: Logical scalar; whether or not to flip the sign of the
     metric values. Defaults to `FALSE`.
-* **offset**: Numeric scalar; offset to add to the (flipped) 
+* **offset**: Numeric scalar; offset to add to the (flipped)
     metric values. Defaults to `0`.
-* **transform**: Character scalar; one of 'None', 'z-score', 
-    '\[0,1\]', '\[-1,1\]', 'Rank', 'Rank+\[0,1\]' or 'z-score+\[0,1\]', 
-    indicating which transform to apply to 
-    the metric values (after any flipping and/or adding the offset). 
+* **transform**: Character scalar; one of 'None', 'z-score',
+    '\[0,1\]', '\[-1,1\]', 'Rank', 'Rank+\[0,1\]' or 'z-score+\[0,1\]',
+    indicating which transform to apply to
+    the metric values (after any flipping and/or adding the offset).
     Defaults to 'None'.
-* **cuts**: Numeric vector or `NULL`; the cut points that will 
-    be used to bin the metric values (after the other transformations). 
-    Defaults to `NULL`. 
+* **cuts**: Numeric vector or `NULL`; the cut points that will
+    be used to bin the metric values (after the other transformations).
+    Defaults to `NULL`.
 
-Only values deviating from the defaults need to be explicitly specified, 
+Only values deviating from the defaults need to be explicitly specified,
 the others will be initialized to their default values.
 }\if{html}{\out{</div>}}}
 
@@ -81,15 +81,15 @@ be used as input to \code{bettr} or \code{bettrGetReady}, instead of
 providing the individual components.
 }
 \examples{
-df <- data.frame(Method = c("M1", "M2", "M3"), 
+df <- data.frame(Method = c("M1", "M2", "M3"),
                  metric1 = c(1, 2, 3),
                  metric2 = c(3, 1, 2))
 metricInfo <- data.frame(Metric = c("metric1", "metric2", "metric3"),
                          Group = c("G1", "G2", "G2"))
-idInfo <- data.frame(Method = c("M1", "M2", "M3"), 
+idInfo <- data.frame(Method = c("M1", "M2", "M3"),
                      Type = c("T1", "T1", "T2"))
 bettrSE <- assembleSE(df = df, metricInfo = metricInfo, idInfo = idInfo)
-                     
+
 }
 \author{
 Charlotte Soneson
