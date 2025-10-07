@@ -1,10 +1,10 @@
-# bettr 1.x.x
+# bettr 1.6.0
 
 -   **Server mode for JSON uploads**: The `bettr()` function now supports a `serverMode` parameter that enables users to upload JSON-formatted benchmark data files directly in the browser, without needing to provide data programmatically via R objects
 -   **JSON serialization**: New `bettrToJSON()` and `bettrFromJSON()` functions enable serializing and deserializing `SummarizedExperiment` objects to/from JSON format
+-   **URL parameters for programmatic loading**: Supports `jsonUrl` and `jsonFile` query parameters to automatically load JSON data on app startup, enabling direct links to visualizations and integration with external tools
 -   **Browser localStorage caching**: Automatic client-side caching of uploaded data and application state
 -   **Cache versioning**: Administrators of the server can force cache invalidation when deploying updates
--   **URL parameters for programmatic loading**: Supports `jsonUrl` and `jsonFile` query parameters to automatically load JSON data on app startup, enabling direct links to visualizations and integration with external tools
 
 # bettr 1.5.3
 

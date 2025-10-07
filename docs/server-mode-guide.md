@@ -1,0 +1,337 @@
+---
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+# Server Mode Guide for bettr
+
+**Version 1.6.0 and later**
+
+## Table of Contents
+
+1.  [Overview](#overview)
+2.  [What's New in Version 1.6.0](#whats-new-in-version-160)
+3.  [Server Mode Basics](#server-mode-basics)
+4.  [JSON Serialization](#json-serialization)
+5.  [URL Parameters for Programmatic
+    Loading](#url-parameters-for-programmatic-loading)
+6.  [Browser Cache Management](#browser-cache-management)
+
+------------------------------------------------------------------------
+
+## Overview {#overview}
+
+Version 1.6.0 introduces **server mode**, a new way to deploy and use
+bettr that enables browser-based JSON file uploads, automatic caching,
+and programmatic data loading via URLs. This makes bettr suitable for:
+
+-   **Multi-user server deployments** where different users need to
+    visualize their own data
+-   **Web-based workflows** without requiring R programming knowledge
+-   **Data sharing** through portable JSON files and direct links
+
+------------------------------------------------------------------------
+
+## What's New in Version 1.6.0
+
+### 1. Server Mode for JSON Uploads
+
+The `bettr()` function now supports a `serverMode` parameter that
+launches the app in a special mode where users upload JSON files through
+the browser.
+
+**Benefits:** - No R programming required for end users - Multiple users
+can use the same server instance with their own data - Data is isolated
+per user session - Automatic browser caching for quick reload
+
+### 2. JSON Serialization {#json-serialization}
+
+New functions for converting bettr data to/from JSON format:
+
+-   `bettrToJSON()` - Export `SummarizedExperiment` to JSON
+-   `bettrFromJSON()` - Import JSON back to `SummarizedExperiment`
+
+**Benefits:** - Portable data format (language-agnostic) - Easy data
+sharing between users and systems - Preserves all metadata, colors,
+weights, and transformations - Enables web-based workflows
+
+### 3. Browser localStorage Caching
+
+Automatic client-side caching of both data and application state.
+
+**What gets cached:** - Uploaded JSON data - Metric weights (all slider
+positions) - Filter selections (selected methods and metrics) -
+Highlighted method - Score aggregation method
+
+**Benefits:** - Page refresh doesn't lose your work - Survives browser
+restarts - No manual saving required - Automatic with 1-second debounce
+
+### 4. Cache Versioning
+
+Administrators can force cache invalidation when deploying updates.
+
+**Use cases:** - Deploy schema changes that require fresh data - Force
+all users to re-upload after breaking changes - Manage cache in
+multi-tenant environments - Troubleshooting cache-related issues
+
+### 5. URL Parameters for Programmatic Loading {#url-parameters-for-programmatic-loading}
+
+Load JSON data automatically via URL query parameters.
+
+**Benefits:** - Create direct links to specific visualizations -
+Integrate with external tools and pipelines - Automate opening
+visualizations after benchmark runs - Share analysis results with a
+simple URL
+
+------------------------------------------------------------------------
+
+## Server Mode Basics {#server-mode-basics}
+
+### Starting a Server
+
+``` r
+library(bettr)
+
+# Basic server mode
+bettr(serverMode = TRUE)
+
+# With cache versioning
+bettr(serverMode = TRUE, cacheVersion = "v1.0")
+
+# Custom theme
+bettr(serverMode = TRUE, bstheme = "flatly")
+```
+
+### What Happens When You Start Server Mode
+
+1.  The app starts listening on a local port (e.g.,
+    `http://127.0.0.1:4567`)
+2.  Users navigate to this URL in their browser
+3.  The upload interface is displayed
+4.  Users can:
+    -   Upload JSON files manually
+    -   Have data loaded automatically via URL parameters (if provided)
+5.  Once data is uploaded, the full bettr interface appears
+6.  All interactions are automatically cached in the browser
+
+### User Interface
+
+**Upload Mode Interface:** - Clean, simple upload area - "Choose JSON
+File" button - Information about browser caching - No "Close app" button
+(for multi-user safety)
+
+**After Upload:** - Full bettr visualization interface - All standard
+features available - "Load Data" panel for uploading new files - "Clear
+Cached Data" button
+
+------------------------------------------------------------------------
+
+## JSON Serialization
+
+### Creating JSON Files
+
+#### From Data Frames
+
+``` r
+library(bettr)
+
+# Create benchmark data
+benchmark_data <- data.frame(
+    Method = c("AlgorithmA", "AlgorithmB", "AlgorithmC"),
+    Accuracy = c(0.95, 0.92, 0.89),
+    Speed = c(120, 150, 100),
+    Memory = c(256, 512, 128)
+)
+
+# Add metric metadata
+metric_info <- data.frame(
+    Metric = c("Accuracy", "Speed", "Memory"),
+    Type = c("Quality", "Performance", "Resource"),
+    Unit = c("Proportion", "ms", "MB")
+)
+
+# Define initial transformations
+transforms <- list(
+    Speed = list(flip = TRUE, transform = "[0,1]"),
+    Memory = list(flip = TRUE, transform = "[0,1]")
+)
+
+# Create SummarizedExperiment
+bettrSE <- assembleSE(
+    df = benchmark_data,
+    idCol = "Method",
+    metricInfo = metric_info,
+    initialTransforms = transforms
+)
+
+# Export to JSON
+bettrToJSON(bettrSE, file = "benchmark_results.json")
+```
+
+#### From Existing SummarizedExperiment
+
+``` r
+# If you already have a SummarizedExperiment
+bettrToJSON(my_existing_SE, file = "my_analysis.json")
+
+# Get JSON as string (for programmatic use)
+json_string <- bettrToJSON(my_existing_SE, file = NULL)
+```
+
+### Reading JSON Files
+
+``` r
+# Read from file
+bettrSE <- bettrFromJSON(file = "benchmark_results.json")
+
+# Read from JSON string
+bettrSE <- bettrFromJSON(json = json_string)
+
+# Use in non-server mode
+bettr(bettrSE = bettrSE)
+```
+
+### What's Preserved in JSON
+
+✅ **All metric values** - Exact numeric data ✅ **Method/entity IDs** -
+Row identifiers ✅ **Metric names** - Column identifiers ✅ **Initial
+transformations** - Flip, offset, transform type, cuts ✅ **Initial
+weights** - Default metric weights ✅ **Metric metadata** - MetricInfo
+data frame ✅ **Method metadata** - IdInfo data frame ✅ **Color
+mappings** - Both metric and method colors ✅ **ID column name** -
+Entity identifier column
+
+------------------------------------------------------------------------
+
+## URL Parameters for Programmatic Loading
+
+### Overview
+
+URL query parameters allow you to automatically load JSON data when
+users open the app.
+
+### Two Loading Methods
+
+#### 1. Load from URL (`jsonUrl`)
+
+```         
+http://localhost:4567/?jsonUrl=https://example.com/data.json
+```
+
+**Use cases:** - Data hosted on web servers - GitHub raw file URLs -
+Cloud storage (S3, Google Cloud Storage, etc.) - Internal company
+servers
+
+**Example:**
+
+``` r
+# Start server
+bettr(serverMode = TRUE)
+
+# Construct URL
+base_url <- "http://localhost:4567"
+data_url <- "https://raw.githubusercontent.com/user/repo/main/results.json"
+full_url <- paste0(base_url, "/?jsonUrl=", URLencode(data_url, reserved = TRUE))
+
+# Open in browser
+browseURL(full_url)
+```
+
+#### 2. Load from File Path (`jsonFile`)
+
+```         
+http://localhost:4567/?jsonFile=/absolute/path/to/data.json
+```
+
+**Use cases:** - Local server deployments - Internal network file
+shares - Automated pipelines on same machine - Development and testing
+
+**Example:**
+
+``` r
+# Start server
+bettr(serverMode = TRUE)
+
+# Construct URL
+base_url <- "http://localhost:4567"
+file_path <- "/Users/username/benchmarks/latest_results.json"
+full_url <- paste0(base_url, "/?jsonFile=", URLencode(file_path, reserved = TRUE))
+
+# Open in browser
+browseURL(full_url)
+```
+
+------------------------------------------------------------------------
+
+## Browser Cache Management {#browser-cache-management}
+
+### How Caching Works
+
+1.  **Automatic Save:**
+    -   When you upload a JSON file, it's saved to browser localStorage
+    -   All UI changes (weights, filters, etc.) are saved after 1 second
+        of inactivity
+    -   No manual action required
+2.  **Automatic Restore:**
+    -   When you reload the page, cached data is automatically restored
+    -   All your settings are preserved exactly as you left them
+    -   A notification confirms the restoration
+3.  **Cache Storage:**
+    -   Stored in browser's localStorage (typically 5-10MB limit)
+    -   Specific to your browser and domain
+    -   Persists across browser restarts
+    -   Not shared across different browsers or devices
+
+### Manual Cache Control
+
+#### Clear Cache Button
+
+Located in the "Load Data" accordion panel:
+
+```         
+Load Data
+├── Choose JSON File
+└── Clear Cached Data (button)
+```
+
+Click to: - Remove all cached data - Remove all cached state - Start
+fresh with a new dataset - Free up browser storage
+
+### Cache Versioning (Administrators)
+
+#### Setting Up Versioning
+
+``` r
+# Deploy version 1.0
+bettr(serverMode = TRUE, cacheVersion = "v1.0")
+
+# Later, deploy version 1.1 with breaking changes
+bettr(serverMode = TRUE, cacheVersion = "v1.1")
+```
+
+#### Version String Format
+
+Any string works - choose what makes sense for your workflow:
+
+``` r
+# Semantic versioning
+cacheVersion = "v1.2.3"
+
+# Date-based
+cacheVersion = "2025-10-07"
+
+# Build numbers
+cacheVersion = "build-456"
+
+# Custom
+cacheVersion = "production-release-oct2025"
+```
+
+#### User Experience
+
+When version changes: 1. User opens the app 2. Browser detects version
+mismatch 3. Cache is automatically cleared 4. User sees: **"Cache was
+cleared due to version update. Please upload your data."** 5. User
+uploads their JSON file again 6. New cache is created with current
+version
