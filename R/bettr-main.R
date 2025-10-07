@@ -309,6 +309,76 @@ bettr <- function(df = NULL, idCol = "Method",
             "))
         ))
 
+    ## Helper function to load JSON data ---------------------------------------
+    .loadJSONDataHelper <- function(bettrSE, json_string, filename,
+                                     app_state, session, values) {
+        # Extract data from bettrSE
+        df_loaded <- as.data.frame(SummarizedExperiment::assay(bettrSE, "values"))
+        bettrInfo <- S4Vectors::metadata(bettrSE)$bettrInfo
+        idCol_loaded <- bettrInfo$idCol
+        df_loaded[[idCol_loaded]] <- rownames(df_loaded)
+        metrics_loaded <- bettrInfo$metrics
+
+        metricInfo_loaded <- as.data.frame(SummarizedExperiment::colData(bettrSE))
+        if (ncol(metricInfo_loaded) == 0L) metricInfo_loaded <- NULL
+
+        idInfo_loaded <- as.data.frame(SummarizedExperiment::rowData(bettrSE))
+        if (ncol(idInfo_loaded) == 0L) idInfo_loaded <- NULL
+
+        # Update app state for bettr mode
+        app_state$bettr_data <- df_loaded
+        app_state$bettr_idCol <- idCol_loaded
+        app_state$bettr_metrics <- metrics_loaded
+        app_state$switched_to_bettr <- TRUE
+        app_state$mode <- "bettr"
+        app_state$original_filename <- filename
+
+        # Reinitialize bettr data
+        idCol <<- idCol_loaded
+        metrics <<- metrics_loaded
+        df <<- df_loaded
+
+        # Re-prepare data for bettr functionality
+        prep <<- .prepareData(
+            df = df_loaded,
+            idCol = idCol_loaded,
+            metrics = metrics_loaded,
+            initialWeights = bettrInfo$initialWeights,
+            initialTransforms = bettrInfo$initialTransforms,
+            metricInfo = metricInfo_loaded,
+            metricColors = bettrInfo$metricColors,
+            idInfo = idInfo_loaded,
+            idColors = bettrInfo$idColors,
+            weightResolution = weightResolution,
+            metricCol = metricCol,
+            defaultWeightValue = defaultWeight
+        )
+
+        # Update reactive values immediately
+        values$df <- df_loaded
+        values$metrics <- metrics_loaded
+        values$nMetrics <- length(metrics_loaded)
+        values$metricInfo <- if (!is.null(prep)) prep$metricInfo else NULL
+        values$idInfo <- if (!is.null(prep)) prep$idInfo else NULL
+        values$methods <- unique(df_loaded[[idCol_loaded]])
+        values$currentWeights <- if (!is.null(prep)) prep$initialWeights else setNames(rep(defaultWeight, length(metrics_loaded)), metrics_loaded)
+
+        # Update filter inputs with new data
+        shiny::updateSelectInput(session, "keepIds",
+                               choices = unique(df_loaded[[idCol_loaded]]),
+                               selected = unique(df_loaded[[idCol_loaded]]))
+
+        shiny::updateSelectInput(session, "keepMetrics",
+                               choices = metrics_loaded,
+                               selected = metrics_loaded)
+
+        # Save to localStorage for session persistence
+        session$sendCustomMessage("saveToLocalStorage", list(
+            data = json_string,
+            filename = filename
+        ))
+    }
+
     ## Server definition ------------------------------------------------------
     #nocov start
     serverFunction <- function(input, output, session) {
@@ -324,6 +394,7 @@ bettr <- function(df = NULL, idCol = "Method",
             switched_to_bettr = FALSE,
             original_filename = NULL
         )
+
 
         # Dynamic sidebar based on app mode
         output$dynamicSidebar <- shiny::renderUI({
@@ -785,71 +856,9 @@ bettr <- function(df = NULL, idCol = "Method",
                 # Parse the JSON file using bettrFromJSON
                 bettrSE <- bettrFromJSON(json = json_string)
 
-                # Extract data from bettrSE
-                df_loaded <- as.data.frame(SummarizedExperiment::assay(bettrSE, "values"))
-                bettrInfo <- S4Vectors::metadata(bettrSE)$bettrInfo
-                idCol_loaded <- bettrInfo$idCol
-                df_loaded[[idCol_loaded]] <- rownames(df_loaded)
-                metrics_loaded <- bettrInfo$metrics
-
-                metricInfo_loaded <- as.data.frame(SummarizedExperiment::colData(bettrSE))
-                if (ncol(metricInfo_loaded) == 0L) metricInfo_loaded <- NULL
-
-                idInfo_loaded <- as.data.frame(SummarizedExperiment::rowData(bettrSE))
-                if (ncol(idInfo_loaded) == 0L) idInfo_loaded <- NULL
-
-                # Update app state for bettr mode
-                app_state$bettr_data <- df_loaded
-                app_state$bettr_idCol <- idCol_loaded
-                app_state$bettr_metrics <- metrics_loaded
-                app_state$switched_to_bettr <- TRUE
-                app_state$mode <- "bettr"
-                app_state$original_filename <- input$jsonFile$name
-
-                # Reinitialize bettr data
-                idCol <<- idCol_loaded
-                metrics <<- metrics_loaded
-                df <<- df_loaded
-
-                # Re-prepare data for bettr functionality
-                prep <<- .prepareData(
-                    df = df_loaded,
-                    idCol = idCol_loaded,
-                    metrics = metrics_loaded,
-                    initialWeights = bettrInfo$initialWeights,
-                    initialTransforms = bettrInfo$initialTransforms,
-                    metricInfo = metricInfo_loaded,
-                    metricColors = bettrInfo$metricColors,
-                    idInfo = idInfo_loaded,
-                    idColors = bettrInfo$idColors,
-                    weightResolution = weightResolution,
-                    metricCol = metricCol,
-                    defaultWeightValue = defaultWeight
-                )
-
-                # Update reactive values immediately
-                values$df <- df_loaded
-                values$metrics <- metrics_loaded
-                values$nMetrics <- length(metrics_loaded)
-                values$metricInfo <- if (!is.null(prep)) prep$metricInfo else NULL
-                values$idInfo <- if (!is.null(prep)) prep$idInfo else NULL
-                values$methods <- unique(df_loaded[[idCol_loaded]])
-                values$currentWeights <- if (!is.null(prep)) prep$initialWeights else setNames(rep(defaultWeight, length(metrics_loaded)), metrics_loaded)
-
-                # Update filter inputs with new data
-                shiny::updateSelectInput(session, "keepIds",
-                                       choices = unique(df_loaded[[idCol_loaded]]),
-                                       selected = unique(df_loaded[[idCol_loaded]]))
-
-                shiny::updateSelectInput(session, "keepMetrics",
-                                       choices = metrics_loaded,
-                                       selected = metrics_loaded)
-
-                # Save to localStorage for session persistence
-                session$sendCustomMessage("saveToLocalStorage", list(
-                    data = json_string,
-                    filename = input$jsonFile$name
-                ))
+                # Load the data using helper function
+                .loadJSONDataHelper(bettrSE, json_string, input$jsonFile$name,
+                                   app_state, session, values)
 
                 shiny::showNotification("JSON file loaded successfully!")
 
@@ -874,69 +883,9 @@ bettr <- function(df = NULL, idCol = "Method",
                 # Parse the JSON file using bettrFromJSON
                 bettrSE <- bettrFromJSON(json = json_string)
 
-                # Extract data from bettrSE
-                df_loaded <- as.data.frame(SummarizedExperiment::assay(bettrSE, "values"))
-                bettrInfo <- S4Vectors::metadata(bettrSE)$bettrInfo
-                idCol_loaded <- bettrInfo$idCol
-                df_loaded[[idCol_loaded]] <- rownames(df_loaded)
-                metrics_loaded <- bettrInfo$metrics
-
-                metricInfo_loaded <- as.data.frame(SummarizedExperiment::colData(bettrSE))
-                if (ncol(metricInfo_loaded) == 0L) metricInfo_loaded <- NULL
-
-                idInfo_loaded <- as.data.frame(SummarizedExperiment::rowData(bettrSE))
-                if (ncol(idInfo_loaded) == 0L) idInfo_loaded <- NULL
-
-                # Update app state with new data
-                app_state$bettr_data <- df_loaded
-                app_state$bettr_idCol <- idCol_loaded
-                app_state$bettr_metrics <- metrics_loaded
-                app_state$original_filename <- input$jsonFileReload$name
-
-                # Update global variables
-                idCol <<- idCol_loaded
-                metrics <<- metrics_loaded
-                df <<- df_loaded
-
-                # Re-prepare data for bettr functionality
-                prep <<- .prepareData(
-                    df = df_loaded,
-                    idCol = idCol_loaded,
-                    metrics = metrics_loaded,
-                    initialWeights = bettrInfo$initialWeights,
-                    initialTransforms = bettrInfo$initialTransforms,
-                    metricInfo = metricInfo_loaded,
-                    metricColors = bettrInfo$metricColors,
-                    idInfo = idInfo_loaded,
-                    idColors = bettrInfo$idColors,
-                    weightResolution = weightResolution,
-                    metricCol = metricCol,
-                    defaultWeightValue = defaultWeight
-                )
-
-                # Update reactive values
-                values$df <- df_loaded
-                values$metrics <- metrics_loaded
-                values$nMetrics <- length(metrics_loaded)
-                values$metricInfo <- if (!is.null(prep)) prep$metricInfo else NULL
-                values$idInfo <- if (!is.null(prep)) prep$idInfo else NULL
-                values$methods <- unique(df_loaded[[idCol_loaded]])
-                values$currentWeights <- if (!is.null(prep)) prep$initialWeights else setNames(rep(defaultWeight, length(metrics_loaded)), metrics_loaded)
-
-                # Update filter inputs with new data
-                shiny::updateSelectInput(session, "keepIds",
-                                       choices = unique(df_loaded[[idCol_loaded]]),
-                                       selected = unique(df_loaded[[idCol_loaded]]))
-
-                shiny::updateSelectInput(session, "keepMetrics",
-                                       choices = metrics_loaded,
-                                       selected = metrics_loaded)
-
-                # Save to localStorage for session persistence
-                session$sendCustomMessage("saveToLocalStorage", list(
-                    data = json_string,
-                    filename = input$jsonFileReload$name
-                ))
+                # Load the data using helper function
+                .loadJSONDataHelper(bettrSE, json_string, input$jsonFileReload$name,
+                                   app_state, session, values)
 
                 shiny::showNotification("Data reloaded successfully!")
 
@@ -1028,6 +977,88 @@ bettr <- function(df = NULL, idCol = "Method",
                 currentWeights = NULL
             )
         }
+
+        # Check for query parameters to auto-load JSON
+        # Use observeEvent with session$clientData$url_search which triggers once on load
+        shiny::observeEvent(session$clientData$url_search, {
+            query <- shiny::parseQueryString(session$clientData$url_search)
+
+            # Handle jsonUrl parameter (load from URL)
+            if (!is.null(query$jsonUrl) && query$jsonUrl != "") {
+                cat("[Session:", session$token, "] Loading JSON from URL:", query$jsonUrl, "\n")
+                tryCatch({
+                    # Download JSON from URL
+                    temp_file <- tempfile(fileext = ".json")
+                    download.file(query$jsonUrl, temp_file, quiet = TRUE)
+                    json_content <- readLines(temp_file, warn = FALSE)
+                    json_string <- paste(json_content, collapse = "\n")
+                    unlink(temp_file)
+
+                    # Parse and load the JSON
+                    bettrSE <- bettrFromJSON(json = json_string)
+
+                    # Extract filename from URL
+                    filename <- basename(query$jsonUrl)
+
+                    # Load the data using helper function
+                    .loadJSONDataHelper(bettrSE, json_string, filename,
+                                       app_state, session, values)
+
+                    cat("[Session:", session$token, "] Successfully loaded JSON from URL\n")
+                    shiny::showNotification(
+                        paste0("Loaded data from URL: ", filename),
+                        duration = 5,
+                        type = "message"
+                    )
+                }, error = function(e) {
+                    cat("[Session:", session$token, "] Error loading JSON from URL:", conditionMessage(e), "\n")
+                    shiny::showNotification(
+                        paste0("Failed to load JSON from URL: ", conditionMessage(e)),
+                        duration = 10,
+                        type = "error"
+                    )
+                })
+            }
+
+            # Handle jsonFile parameter (load from local file path)
+            if (!is.null(query$jsonFile) && query$jsonFile != "") {
+                cat("[Session:", session$token, "] Loading JSON from file:", query$jsonFile, "\n")
+                tryCatch({
+                    # Check if file exists
+                    if (!file.exists(query$jsonFile)) {
+                        stop("File not found: ", query$jsonFile)
+                    }
+
+                    # Read JSON file
+                    json_content <- readLines(query$jsonFile, warn = FALSE)
+                    json_string <- paste(json_content, collapse = "\n")
+
+                    # Parse and load the JSON
+                    bettrSE <- bettrFromJSON(json = json_string)
+
+                    # Extract filename from path
+                    filename <- basename(query$jsonFile)
+
+                    # Load the data using helper function
+                    .loadJSONDataHelper(bettrSE, json_string, filename,
+                                       app_state, session, values)
+
+                    cat("[Session:", session$token, "] Successfully loaded JSON from file\n")
+                    shiny::showNotification(
+                        paste0("Loaded data from file: ", filename),
+                        duration = 5,
+                        type = "message"
+                    )
+                }, error = function(e) {
+                    cat("[Session:", session$token, "] Error loading JSON from file:", conditionMessage(e), "\n")
+                    shiny::showNotification(
+                        paste0("Failed to load JSON from file: ", conditionMessage(e)),
+                        duration = 10,
+                        type = "error"
+                    )
+                })
+            }
+        }, once = TRUE)
 
         # Update values when switching from upload to bettr mode
         shiny::observe({
