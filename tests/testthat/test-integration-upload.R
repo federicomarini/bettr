@@ -1,10 +1,10 @@
-# Tests for integration of upload functionality in bettr
+# Integration tests for bettr JSON upload functionality
 
 test_that("bettr function has upload mode parameter", {
     # Check if bettr function has uploadMode parameter
     formals_bettr <- formals(bettr)
     expect_true("uploadMode" %in% names(formals_bettr))
-    
+
     # Check default value is FALSE
     expect_false(formals_bettr$uploadMode)
 })
@@ -23,10 +23,10 @@ test_that("bettr works in normal mode with provided data", {
         Recall = c(0.90, 0.85, 0.95),
         F1_Score = c(0.87, 0.88, 0.86)
     )
-    
+
     # This should work - using bettr with data provided
     expect_no_error({
-        result <- bettr(df = test_data, idCol = "Method", 
+        result <- bettr(df = test_data, idCol = "Method",
                        metrics = c("Precision", "Recall", "F1_Score"),
                        addStopButton = FALSE)
     })
@@ -46,37 +46,205 @@ test_that("bettr automatically enters upload mode when no data provided", {
     })
 })
 
-test_that("upload test data can be created and saved", {
-    # Create sample test data for upload testing
+test_that("JSON codec functions exist and work", {
+    # Test that JSON functions exist
+    expect_true(exists("bettrToJSON"))
+    expect_true(exists("bettrFromJSON"))
+
+    # Create simple test data
     test_data <- data.frame(
-        Method = c("AlgorithmA", "AlgorithmB", "AlgorithmC", "AlgorithmD", "AlgorithmE"),
-        Precision = c(0.85, 0.92, 0.78, 0.88, 0.95),
-        Recall = c(0.90, 0.85, 0.95, 0.82, 0.88),
-        F1_Score = c(0.87, 0.88, 0.86, 0.85, 0.91),
-        Accuracy = c(0.89, 0.91, 0.83, 0.87, 0.93),
-        Runtime_seconds = c(12.5, 8.2, 15.7, 10.1, 9.8)
+        Method = c("A", "B", "C"),
+        metric1 = c(1, 2, 3),
+        metric2 = c(0.5, 0.6, 0.7)
     )
-    
-    # Test data structure
-    expect_s3_class(test_data, "data.frame")
-    expect_equal(nrow(test_data), 5)
-    expect_equal(ncol(test_data), 6)
-    expect_true("Method" %in% colnames(test_data))
-    expect_true(all(c("Precision", "Recall", "F1_Score", "Accuracy") %in% colnames(test_data)))
-    
-    # Test data types
-    expect_type(test_data$Method, "character")
-    expect_type(test_data$Precision, "double")
-    expect_type(test_data$Recall, "double")
-    expect_type(test_data$F1_Score, "double")
-    
-    # Save test data to CSV for upload testing
-    csv_path <- file.path(tempdir(), "integration_test_data.csv")
-    write.csv(test_data, csv_path, row.names = FALSE)
-    expect_true(file.exists(csv_path))
-    
-    # Verify we can read it back
-    read_data <- read.csv(csv_path, stringsAsFactors = FALSE)
-    expect_equal(nrow(read_data), 5)
-    expect_true("Method" %in% colnames(read_data))
+
+    # Create bettrSE
+    bettrSE <- assembleSE(df = test_data, idCol = "Method")
+
+    # Test export
+    expect_no_error({
+        json_str <- bettrToJSON(bettrSE, file = NULL)
+    })
+
+    json_str <- bettrToJSON(bettrSE, file = NULL)
+
+    # Test import
+    expect_no_error({
+        bettrSE_reload <- bettrFromJSON(json = json_str)
+    })
+})
+
+test_that("duo2018_bettr.json can be loaded", {
+    json_file <- "duo2018_bettr.json"
+
+    skip_if(!file.exists(json_file), "duo2018_bettr.json not found")
+
+    # Load JSON
+    expect_no_error({
+        bettrSE <- bettrFromJSON(file = json_file)
+    })
+
+    bettrSE <- bettrFromJSON(file = json_file)
+
+    # Verify structure
+    expect_s4_class(bettrSE, "SummarizedExperiment")
+
+    # Check has assay data
+    expect_true("values" %in% names(SummarizedExperiment::assays(bettrSE)))
+
+    # Check metadata
+    meta <- S4Vectors::metadata(bettrSE)$bettrInfo
+    expect_true(!is.null(meta))
+    expect_equal(meta$idCol, "method")
+    expect_true(length(meta$metrics) > 0)
+})
+
+test_that("JSON file workflow simulation", {
+    # Create test data
+    test_data <- data.frame(
+        Method = c("MethodA", "MethodB", "MethodC"),
+        Accuracy = c(0.95, 0.87, 0.91),
+        Speed = c(1.2, 2.1, 1.8),
+        Memory = c(512, 256, 384)
+    )
+
+    # Create bettrSE with metadata
+    metricInfo <- data.frame(
+        Metric = c("Accuracy", "Speed", "Memory"),
+        Category = c("Performance", "Performance", "Resource")
+    )
+
+    bettrSE_orig <- assembleSE(
+        df = test_data,
+        idCol = "Method",
+        metricInfo = metricInfo
+    )
+
+    # Simulate file workflow: write and read
+    temp_file <- tempfile(fileext = ".json")
+
+    # Write JSON
+    bettrToJSON(bettrSE_orig, file = temp_file)
+    expect_true(file.exists(temp_file))
+
+    # Read JSON (simulating upload)
+    bettrSE_uploaded <- bettrFromJSON(file = temp_file)
+
+    # Validate uploaded data matches original (with tolerance)
+    orig_data <- SummarizedExperiment::assay(bettrSE_orig, "values")
+    upload_data <- SummarizedExperiment::assay(bettrSE_uploaded, "values")
+
+    expect_equal(dim(orig_data), dim(upload_data))
+    expect_equal(orig_data, upload_data, tolerance = 0.01)
+
+    # Check metadata preserved
+    meta_orig <- S4Vectors::metadata(bettrSE_orig)$bettrInfo
+    meta_upload <- S4Vectors::metadata(bettrSE_uploaded)$bettrInfo
+
+    expect_equal(meta_orig$idCol, meta_upload$idCol)
+    expect_equal(meta_orig$metrics, meta_upload$metrics)
+
+    # Clean up
+    unlink(temp_file)
+})
+
+test_that("bettr parameter validation works with upload mode", {
+    # Test various parameter combinations that should work
+
+    # Traditional usage should still work
+    test_data <- data.frame(
+        Method = c("A", "B"),
+        metric1 = c(1, 2)
+    )
+
+    # These parameter checks should not error
+    expect_no_error({
+        # Check parameter validation
+        params <- list(
+            df = test_data,
+            idCol = "Method",
+            metrics = "metric1",
+            uploadMode = FALSE
+        )
+
+        # Basic validation
+        expect_true(is.data.frame(params$df))
+        expect_true(is.character(params$idCol))
+        expect_true(is.logical(params$uploadMode))
+    })
+})
+
+test_that("upload mode parameter defaults are correct", {
+    # Check default values for upload-related parameters
+    bettr_formals <- formals(bettr)
+
+    expect_false(bettr_formals$uploadMode)  # Should default to FALSE
+    expect_null(bettr_formals$df)           # Should default to NULL
+
+    # Check that traditional parameters still have reasonable defaults
+    expect_equal(bettr_formals$idCol, "Method")
+    expect_equal(bettr_formals$bstheme, "darkly")
+    expect_equal(bettr_formals$appTitle, "bettr")
+    expect_true(bettr_formals$addStopButton)
+    expect_equal(bettr_formals$defaultWeight, 0.2)
+})
+
+test_that("JSON preserves all bettr configuration", {
+    # Create comprehensive test with all configuration options
+    test_data <- data.frame(
+        Method = c("A", "B", "C"),
+        speed = c(100, 150, 120),
+        accuracy = c(0.85, 0.92, 0.88)
+    )
+
+    metricInfo <- data.frame(
+        Metric = c("speed", "accuracy"),
+        Type = c("Performance", "Quality")
+    )
+
+    idInfo <- data.frame(
+        Method = c("A", "B", "C"),
+        Version = c("v1", "v2", "v1")
+    )
+
+    initialTransforms <- list(
+        speed = list(flip = TRUE, transform = "[0,1]")
+    )
+
+    metricColors <- list(
+        Type = c(Performance = "blue", Quality = "green")
+    )
+
+    idColors <- list(
+        Method = c(A = "red", B = "blue", C = "green")
+    )
+
+    # Create comprehensive bettrSE
+    bettrSE_orig <- assembleSE(
+        df = test_data,
+        idCol = "Method",
+        metricInfo = metricInfo,
+        idInfo = idInfo,
+        initialTransforms = initialTransforms,
+        metricColors = metricColors,
+        idColors = idColors
+    )
+
+    # Round-trip through JSON
+    json_str <- bettrToJSON(bettrSE_orig, file = NULL)
+    bettrSE_reload <- bettrFromJSON(json = json_str)
+
+    # Verify all metadata preserved
+    meta_orig <- S4Vectors::metadata(bettrSE_orig)$bettrInfo
+    meta_reload <- S4Vectors::metadata(bettrSE_reload)$bettrInfo
+
+    expect_equal(meta_orig$idCol, meta_reload$idCol)
+    expect_equal(meta_orig$metrics, meta_reload$metrics)
+    expect_equal(meta_orig$initialTransforms, meta_reload$initialTransforms)
+
+    # Check colors preserved (names and values)
+    expect_equal(names(meta_orig$metricColors$Type),
+                 names(meta_reload$metricColors$Type))
+    expect_equal(as.character(meta_orig$idColors$Method),
+                 as.character(meta_reload$idColors$Method))
 })

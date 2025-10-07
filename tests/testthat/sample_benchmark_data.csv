@@ -1,6 +1,0 @@
-Method,Precision,Recall,F1_Score,Accuracy,Runtime_seconds
-AlgorithmA,0.85,0.90,0.87,0.89,12.5
-AlgorithmB,0.92,0.85,0.88,0.91,8.2
-AlgorithmC,0.78,0.95,0.86,0.83,15.7
-AlgorithmD,0.88,0.82,0.85,0.87,10.1
-AlgorithmE,0.95,0.88,0.91,0.93,9.8

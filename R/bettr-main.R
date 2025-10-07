@@ -78,8 +78,8 @@
 #' @param defaultWeight Numeric scalar between 0 and 1, giving the default
 #'     weight to assign to each metric.
 #' @param uploadMode Logical scalar. If `TRUE`, launches the app in upload mode
-#'     where users can upload CSV files. If `FALSE` (default), requires data
-#'     to be provided via the `df` parameter.
+#'     where users can upload JSON files (in bettr format). If `FALSE` (default),
+#'     requires data to be provided via the `df` or `bettrSE` parameter.
 #'
 #' @export
 #'
@@ -94,7 +94,6 @@
 #'     selectizeInput updateTabsetPanel observe observeEvent tabPanelBody
 #'     plotOutput tagList tags HTML validate need renderPlot updateNumericInput
 #'     sliderInput shinyApp stopApp
-#' @importFrom utils read.csv
 #' @importFrom DT renderDT DTOutput dataTableOutput
 #' @importFrom shinyjqui jqui_resizable
 #' @importFrom tidyr pivot_wider
@@ -228,40 +227,12 @@ bettr <- function(df = NULL, idCol = "Method",
             if (app_state$mode == "upload") {
                 # Upload mode sidebar
                 shiny::tagList(
-                    shiny::h4("Upload Data"),
+                    shiny::h4("Load Data"),
                     shiny::fileInput(
-                        inputId = "csvFile",
-                        label = "Choose CSV File",
-                        accept = c(".csv", ".CSV"),
+                        inputId = "jsonFile",
+                        label = "Choose JSON File",
+                        accept = c(".json", ".JSON"),
                         multiple = FALSE
-                    ),
-
-                    shiny::conditionalPanel(
-                        condition = "output.fileUploaded == true",
-                        shiny::hr(),
-                        shiny::h4("Configure Data"),
-
-                        shiny::selectInput(
-                            inputId = "idCol",
-                            label = "ID Column:",
-                            choices = NULL,
-                            selected = NULL
-                        ),
-
-                        shiny::selectInput(
-                            inputId = "metricCols",
-                            label = "Metric Columns:",
-                            choices = NULL,
-                            selected = NULL,
-                            multiple = TRUE
-                        ),
-
-                        shiny::br(),
-                        shiny::actionButton(
-                            inputId = "switchToBettr",
-                            label = "Launch Interface",
-                            class = "btn-primary"
-                        )
                     ),
 
                     if (addStopButton) {
@@ -279,38 +250,12 @@ bettr <- function(df = NULL, idCol = "Method",
                     open = TRUE,
                     multiple = TRUE,
                     bslib::accordion_panel(
-                        "Upload Data",
+                        "Load Data",
                         shiny::fileInput(
-                            inputId = "csvFileReload",
-                            label = "Choose CSV File",
-                            accept = c(".csv", ".CSV"),
+                            inputId = "jsonFileReload",
+                            label = "Choose JSON File",
+                            accept = c(".json", ".JSON"),
                             multiple = FALSE
-                        ),
-
-
-                        shiny::conditionalPanel(
-                            condition = "output.fileUploadedReload == true",
-                            shiny::selectInput(
-                                inputId = "idColReload",
-                                label = "ID Column:",
-                                choices = NULL,
-                                selected = NULL
-                            ),
-
-                            shiny::selectInput(
-                                inputId = "metricColsReload",
-                                label = "Metric Columns:",
-                                choices = NULL,
-                                selected = NULL,
-                                multiple = TRUE
-                            ),
-
-                            shiny::br(),
-                            shiny::actionButton(
-                                inputId = "reloadData",
-                                label = "Reload Data",
-                                class = "btn-warning"
-                            )
                         )
                     ),
                     bslib::accordion_panel(
@@ -417,33 +362,10 @@ bettr <- function(df = NULL, idCol = "Method",
             if (app_state$mode == "upload") {
                 # Upload mode content
                 shiny::tagList(
-                    shiny::conditionalPanel(
-                        condition = "!output.fileUploaded",
-                        bslib::card(
-                            shiny::h3("Welcome to bettr"),
-                            shiny::p("Upload a CSV file to get started with interactive benchmarking visualization."),
-                            shiny::strong("CSV Requirements:"),
-                            shiny::tags$ul(
-                                shiny::tags$li("First row should contain column headers"),
-                                shiny::tags$li("One column should contain entity/method IDs"),
-                                shiny::tags$li("Other columns should contain numeric metrics for comparison"),
-                                shiny::tags$li("Missing values are allowed but may affect visualizations")
-                            )
-                        )
-                    ),
-
-                    shiny::conditionalPanel(
-                        condition = "output.fileUploaded && !output.switchedToBettr",
-                        shiny::fluidRow(
-                            shiny::column(
-                                12,
-                                bslib::card(
-                                    shiny::h4("Data Preview"),
-                                    shiny::p("Configure your data columns in the sidebar, then click 'Launch Interface'."),
-                                    DT::dataTableOutput("dataPreview")
-                                )
-                            )
-                        )
+                    bslib::card(
+                        shiny::h3("Welcome to bettr"),
+                        shiny::p("Upload a JSON file to get started with interactive benchmarking visualization."),
+                        shiny::p("The JSON file should be in the bettr format created by the bettrToJSON() function.")
                     )
                 )
             } else {
@@ -584,264 +506,162 @@ bettr <- function(df = NULL, idCol = "Method",
             }
         })
 
-        # Reload data state
-        reload_state <- shiny::reactiveValues(
-            uploaded_data = NULL,
-            file_uploaded = FALSE
-        )
-
-        # Upload functionality - CSV file handling
-        shiny::observeEvent(input$csvFile, {
-            shiny::req(input$csvFile)
+        # Upload functionality - JSON file handling
+        shiny::observeEvent(input$jsonFile, {
+            shiny::req(input$jsonFile)
 
             tryCatch({
-                # Read the CSV file
-                csv_data <- utils::read.csv(input$csvFile$datapath, stringsAsFactors = FALSE)
+                # Read and parse the JSON file using bettrFromJSON
+                bettrSE <- bettrFromJSON(file = input$jsonFile$datapath)
 
-                # Store the data and filename
-                app_state$uploaded_data <- csv_data
-                app_state$file_uploaded <- TRUE
-                app_state$original_filename <- input$csvFile$name
+                # Extract data from bettrSE
+                df_loaded <- as.data.frame(SummarizedExperiment::assay(bettrSE, "values"))
+                bettrInfo <- S4Vectors::metadata(bettrSE)$bettrInfo
+                idCol_loaded <- bettrInfo$idCol
+                df_loaded[[idCol_loaded]] <- rownames(df_loaded)
+                metrics_loaded <- bettrInfo$metrics
 
-                # Update column choices
-                col_names <- colnames(csv_data)
-                numeric_cols <- col_names[sapply(csv_data, function(x) is.numeric(x) ||
-                                                 (is.character(x) && !any(is.na(suppressWarnings(as.numeric(x))))))]
+                metricInfo_loaded <- as.data.frame(SummarizedExperiment::colData(bettrSE))
+                if (ncol(metricInfo_loaded) == 0L) metricInfo_loaded <- NULL
 
-                shiny::updateSelectInput(session, "idCol",
-                                       choices = col_names,
-                                       selected = col_names[1])
+                idInfo_loaded <- as.data.frame(SummarizedExperiment::rowData(bettrSE))
+                if (ncol(idInfo_loaded) == 0L) idInfo_loaded <- NULL
 
-                shiny::updateSelectInput(session, "metricCols",
-                                       choices = numeric_cols,
-                                       selected = numeric_cols[1:min(3, length(numeric_cols))])
+                # Update app state for bettr mode
+                app_state$bettr_data <- df_loaded
+                app_state$bettr_idCol <- idCol_loaded
+                app_state$bettr_metrics <- metrics_loaded
+                app_state$switched_to_bettr <- TRUE
+                app_state$mode <- "bettr"
+                app_state$original_filename <- input$jsonFile$name
 
-                shiny::showNotification("File uploaded successfully!")
-
-            }, error = function(e) {
-                shiny::showNotification(
-                    paste("Error reading file:", e$message),
-                    duration = 10
-                )
-            })
-        })
-
-        # Reload functionality - CSV file handling for bettr mode
-        shiny::observeEvent(input$csvFileReload, {
-            shiny::req(input$csvFileReload)
-
-            tryCatch({
-                # Read the CSV file
-                csv_data <- utils::read.csv(input$csvFileReload$datapath, stringsAsFactors = FALSE)
-
-                # Store the data
-                reload_state$uploaded_data <- csv_data
-                reload_state$file_uploaded <- TRUE
-
-                # Update column choices
-                col_names <- colnames(csv_data)
-                numeric_cols <- col_names[sapply(csv_data, function(x) is.numeric(x) ||
-                                                 (is.character(x) && !any(is.na(suppressWarnings(as.numeric(x))))))]
-
-                shiny::updateSelectInput(session, "idColReload",
-                                       choices = col_names,
-                                       selected = col_names[1])
-
-                shiny::updateSelectInput(session, "metricColsReload",
-                                       choices = numeric_cols,
-                                       selected = numeric_cols[1:min(3, length(numeric_cols))])
-
-                shiny::showNotification("New file uploaded successfully! Configure columns and click 'Reload Data'.")
-
-            }, error = function(e) {
-                shiny::showNotification(
-                    paste("Error reading file:", e$message),
-                    duration = 10
-                )
-            })
-        })
-
-        # Handle reload with new data
-        shiny::observeEvent(input$reloadData, {
-            shiny::req(reload_state$uploaded_data, input$idColReload, input$metricColsReload)
-
-            tryCatch({
-                # Validate selections
-                if (length(input$metricColsReload) < 1) {
-                    shiny::showNotification("Please select at least one metric column.")
-                    return()
-                }
-
-                if (input$idColReload %in% input$metricColsReload) {
-                    shiny::showNotification("ID column cannot also be a metric column.")
-                    return()
-                }
-
-                # Prepare data for bettr
-                upload_df <- reload_state$uploaded_data
-
-                # Ensure metric columns are numeric
-                for (col in input$metricColsReload) {
-                    if (!is.numeric(upload_df[[col]])) {
-                        upload_df[[col]] <- as.numeric(upload_df[[col]])
-                    }
-                }
-
-                # Remove rows with missing ID values
-                upload_df <- upload_df[!is.na(upload_df[[input$idColReload]]) & upload_df[[input$idColReload]] != "", ]
-
-                if (nrow(upload_df) == 0) {
-                    shiny::showNotification("No valid data rows found.")
-                    return()
-                }
-
-                # Update app state with new data
-                app_state$bettr_data <- upload_df
-                app_state$bettr_idCol <- input$idColReload
-                app_state$bettr_metrics <- input$metricColsReload
-                app_state$original_filename <- input$csvFileReload$name
-
-                # Update global variables
-                idCol <<- input$idColReload
-                metrics <<- input$metricColsReload
-                df <<- upload_df
+                # Reinitialize bettr data
+                idCol <<- idCol_loaded
+                metrics <<- metrics_loaded
+                df <<- df_loaded
 
                 # Re-prepare data for bettr functionality
-                prep <<- .prepareData(df = upload_df, idCol = input$idColReload, metrics = input$metricColsReload,
-                                     initialWeights = initialWeights,
-                                     initialTransforms = initialTransforms,
-                                     metricInfo = metricInfo,
-                                     metricColors = metricColors,
-                                     idInfo = idInfo,
-                                     idColors = idColors,
-                                     weightResolution = weightResolution,
-                                     metricCol = metricCol,
-                                     defaultWeightValue = defaultWeight)
+                prep <<- .prepareData(
+                    df = df_loaded,
+                    idCol = idCol_loaded,
+                    metrics = metrics_loaded,
+                    initialWeights = bettrInfo$initialWeights,
+                    initialTransforms = bettrInfo$initialTransforms,
+                    metricInfo = metricInfo_loaded,
+                    metricColors = bettrInfo$metricColors,
+                    idInfo = idInfo_loaded,
+                    idColors = bettrInfo$idColors,
+                    weightResolution = weightResolution,
+                    metricCol = metricCol,
+                    defaultWeightValue = defaultWeight
+                )
 
-                # Update reactive values
-                values$df <- upload_df
-                values$metrics <- input$metricColsReload
-                values$nMetrics <- length(input$metricColsReload)
+                # Update reactive values immediately
+                values$df <- df_loaded
+                values$metrics <- metrics_loaded
+                values$nMetrics <- length(metrics_loaded)
                 values$metricInfo <- if (!is.null(prep)) prep$metricInfo else NULL
                 values$idInfo <- if (!is.null(prep)) prep$idInfo else NULL
-                values$methods <- unique(upload_df[[input$idColReload]])
-                values$currentWeights <- if (!is.null(prep)) prep$initialWeights else setNames(rep(defaultWeight, length(input$metricColsReload)), input$metricColsReload)
+                values$methods <- unique(df_loaded[[idCol_loaded]])
+                values$currentWeights <- if (!is.null(prep)) prep$initialWeights else setNames(rep(defaultWeight, length(metrics_loaded)), metrics_loaded)
 
-                # Reset reload state
-                reload_state$file_uploaded <- FALSE
-                reload_state$uploaded_data <- NULL
+                # Update filter inputs with new data
+                shiny::updateSelectInput(session, "keepIds",
+                                       choices = unique(df_loaded[[idCol_loaded]]),
+                                       selected = unique(df_loaded[[idCol_loaded]]))
+
+                shiny::updateSelectInput(session, "keepMetrics",
+                                       choices = metrics_loaded,
+                                       selected = metrics_loaded)
+
+                shiny::showNotification("JSON file loaded successfully!")
+
+            }, error = function(e) {
+                shiny::showNotification(
+                    paste("Error reading JSON file:", e$message),
+                    duration = 10,
+                    type = "error"
+                )
+            })
+        })
+
+        # Reload functionality - JSON file handling for bettr mode
+        shiny::observeEvent(input$jsonFileReload, {
+            shiny::req(input$jsonFileReload)
+
+            tryCatch({
+                # Read and parse the JSON file using bettrFromJSON
+                bettrSE <- bettrFromJSON(file = input$jsonFileReload$datapath)
+
+                # Extract data from bettrSE
+                df_loaded <- as.data.frame(SummarizedExperiment::assay(bettrSE, "values"))
+                bettrInfo <- S4Vectors::metadata(bettrSE)$bettrInfo
+                idCol_loaded <- bettrInfo$idCol
+                df_loaded[[idCol_loaded]] <- rownames(df_loaded)
+                metrics_loaded <- bettrInfo$metrics
+
+                metricInfo_loaded <- as.data.frame(SummarizedExperiment::colData(bettrSE))
+                if (ncol(metricInfo_loaded) == 0L) metricInfo_loaded <- NULL
+
+                idInfo_loaded <- as.data.frame(SummarizedExperiment::rowData(bettrSE))
+                if (ncol(idInfo_loaded) == 0L) idInfo_loaded <- NULL
+
+                # Update app state with new data
+                app_state$bettr_data <- df_loaded
+                app_state$bettr_idCol <- idCol_loaded
+                app_state$bettr_metrics <- metrics_loaded
+                app_state$original_filename <- input$jsonFileReload$name
+
+                # Update global variables
+                idCol <<- idCol_loaded
+                metrics <<- metrics_loaded
+                df <<- df_loaded
+
+                # Re-prepare data for bettr functionality
+                prep <<- .prepareData(
+                    df = df_loaded,
+                    idCol = idCol_loaded,
+                    metrics = metrics_loaded,
+                    initialWeights = bettrInfo$initialWeights,
+                    initialTransforms = bettrInfo$initialTransforms,
+                    metricInfo = metricInfo_loaded,
+                    metricColors = bettrInfo$metricColors,
+                    idInfo = idInfo_loaded,
+                    idColors = bettrInfo$idColors,
+                    weightResolution = weightResolution,
+                    metricCol = metricCol,
+                    defaultWeightValue = defaultWeight
+                )
+
+                # Update reactive values
+                values$df <- df_loaded
+                values$metrics <- metrics_loaded
+                values$nMetrics <- length(metrics_loaded)
+                values$metricInfo <- if (!is.null(prep)) prep$metricInfo else NULL
+                values$idInfo <- if (!is.null(prep)) prep$idInfo else NULL
+                values$methods <- unique(df_loaded[[idCol_loaded]])
+                values$currentWeights <- if (!is.null(prep)) prep$initialWeights else setNames(rep(defaultWeight, length(metrics_loaded)), metrics_loaded)
+
+                # Update filter inputs with new data
+                shiny::updateSelectInput(session, "keepIds",
+                                       choices = unique(df_loaded[[idCol_loaded]]),
+                                       selected = unique(df_loaded[[idCol_loaded]]))
+
+                shiny::updateSelectInput(session, "keepMetrics",
+                                       choices = metrics_loaded,
+                                       selected = metrics_loaded)
 
                 shiny::showNotification("Data reloaded successfully!")
 
             }, error = function(e) {
                 shiny::showNotification(
                     paste("Error reloading data:", e$message),
-                    duration = 10
+                    duration = 10,
+                    type = "error"
                 )
             })
         })
 
-        # Output flags for conditional panels
-        output$fileUploaded <- shiny::reactive({
-            app_state$file_uploaded
-        })
-        shiny::outputOptions(output, "fileUploaded", suspendWhenHidden = FALSE)
-
-        output$fileUploadedReload <- shiny::reactive({
-            reload_state$file_uploaded
-        })
-        shiny::outputOptions(output, "fileUploadedReload", suspendWhenHidden = FALSE)
-
-        output$hasOriginalFile <- shiny::reactive({
-            !is.null(app_state$original_filename)
-        })
-        shiny::outputOptions(output, "hasOriginalFile", suspendWhenHidden = FALSE)
-
-        output$currentFileName <- shiny::renderText({
-            if (!is.null(app_state$original_filename)) {
-                app_state$original_filename
-            } else {
-                ""
-            }
-        })
-
-        output$switchedToBettr <- shiny::reactive({
-            app_state$switched_to_bettr
-        })
-        shiny::outputOptions(output, "switchedToBettr", suspendWhenHidden = FALSE)
-
-        # Data preview table
-        output$dataPreview <- DT::renderDataTable({
-            shiny::req(app_state$uploaded_data)
-            app_state$uploaded_data
-        }, options = list(scrollX = TRUE, pageLength = 10))
-
-        # Switch to bettr interface
-        shiny::observeEvent(input$switchToBettr, {
-            shiny::req(app_state$uploaded_data, input$idCol, input$metricCols)
-
-            tryCatch({
-                # Validate selections
-                if (length(input$metricCols) < 1) {
-                    shiny::showNotification("Please select at least one metric column.")
-                    return()
-                }
-
-                if (input$idCol %in% input$metricCols) {
-                    shiny::showNotification("ID column cannot also be a metric column.")
-                    return()
-                }
-
-                # Prepare data for bettr
-                upload_df <- app_state$uploaded_data
-
-                # Ensure metric columns are numeric
-                for (col in input$metricCols) {
-                    if (!is.numeric(upload_df[[col]])) {
-                        upload_df[[col]] <- as.numeric(upload_df[[col]])
-                    }
-                }
-
-                # Remove rows with missing ID values
-                upload_df <- upload_df[!is.na(upload_df[[input$idCol]]) & upload_df[[input$idCol]] != "", ]
-
-                if (nrow(upload_df) == 0) {
-                    shiny::showNotification("No valid data rows found.")
-                    return()
-                }
-
-                # Update app state for bettr mode
-                app_state$bettr_data <- upload_df
-                app_state$bettr_idCol <- input$idCol
-                app_state$bettr_metrics <- input$metricCols
-                app_state$switched_to_bettr <- TRUE
-                app_state$mode <- "bettr"
-
-                # Reinitialize bettr data
-                idCol <<- input$idCol
-                metrics <<- input$metricCols
-                df <<- upload_df
-
-                # Re-prepare data for bettr functionality
-                prep <<- .prepareData(df = upload_df, idCol = input$idCol, metrics = input$metricCols,
-                                     initialWeights = initialWeights,
-                                     initialTransforms = initialTransforms,
-                                     metricInfo = metricInfo,
-                                     metricColors = metricColors,
-                                     idInfo = idInfo,
-                                     idColors = idColors,
-                                     weightResolution = weightResolution,
-                                     metricCol = metricCol,
-                                     defaultWeightValue = defaultWeight)
-
-                shiny::showNotification("Switched to bettr interface!")
-
-            }, error = function(e) {
-                shiny::showNotification(
-                    paste("Error preparing data:", e$message)
-                )
-            })
-        })
 
         # Initialize values for bettr functionality when not in upload mode
         if (!uploadMode) {
@@ -869,29 +689,8 @@ bettr <- function(df = NULL, idCol = "Method",
         # Update values when switching from upload to bettr mode
         shiny::observe({
             if (app_state$mode == "bettr" && !is.null(app_state$bettr_data)) {
-                # Update global variables for proper functioning
-                if (uploadMode) {
-                    idCol <<- app_state$bettr_idCol
-                    metrics <<- app_state$bettr_metrics
-                    df <<- app_state$bettr_data
-
-                    # Create prep structure for uploaded data
-                    prep <<- .prepareData(
-                        df = app_state$bettr_data,
-                        idCol = app_state$bettr_idCol,
-                        metrics = app_state$bettr_metrics,
-                        initialWeights = initialWeights,
-                        initialTransforms = initialTransforms,
-                        metricInfo = metricInfo,
-                        metricColors = metricColors,
-                        idInfo = idInfo,
-                        idColors = idColors,
-                        weightResolution = weightResolution,
-                        metricCol = metricCol,
-                        defaultWeightValue = defaultWeight
-                    )
-                }
-
+                # Note: prep should already be created by the JSON upload handler
+                # Only update the reactive values object
                 values$df <- app_state$bettr_data
                 values$metrics <- app_state$bettr_metrics
                 values$nMetrics <- length(app_state$bettr_metrics)
