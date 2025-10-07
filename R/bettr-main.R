@@ -908,26 +908,51 @@ bettr <- function(df = NULL, idCol = "Method",
                 NULL
             } else {
                 shiny::validate(
-                    shiny::need(input$keepIds, "No keepIds"),
-                    shiny::need(input$keepMetrics, "No keepMetrics")
+                    shiny::need(values$df, "No data"),
+                    shiny::need(values$methods, "No methods"),
+                    shiny::need(values$metrics, "No metrics")
                 )
+
+                # Use defaults if filter inputs are not yet initialized
+                keepIds <- if (!is.null(input$keepIds)) input$keepIds else values$methods
+                keepMetrics <- if (!is.null(input$keepMetrics)) input$keepMetrics else values$metrics
 
                 idFilters <- if (!is.null(values$idInfo)) setdiff(colnames(values$idInfo), idCol) else character(0)
                 metricFilters <- if (!is.null(values$metricInfo)) setdiff(colnames(values$metricInfo), metricCol) else character(0)
 
+                # Build keepIdsBy with defaults
+                keepIdsBy <- lapply(
+                    setNames(idFilters, nm = idFilters),
+                    function(nm) {
+                        inp <- input[[paste0("keepIdBy_", nm)]]
+                        if (is.null(inp) && !is.null(values$idInfo)) {
+                            unique(values$idInfo[[nm]])
+                        } else {
+                            inp
+                        }
+                    }
+                )
+
+                # Build keepMetricsBy with defaults
+                keepMetricsBy <- lapply(
+                    setNames(metricFilters, nm = metricFilters),
+                    function(nm) {
+                        inp <- input[[paste0("keepMetricBy_", nm)]]
+                        if (is.null(inp) && !is.null(values$metricInfo)) {
+                            unique(values$metricInfo[[nm]])
+                        } else {
+                            inp
+                        }
+                    }
+                )
+
                 .filterData(
                     df = values$df, idInfo = values$idInfo, idCol = idCol,
-                    keepIds = input$keepIds,
-                    keepIdsBy = lapply(
-                        setNames(idFilters, nm = idFilters),
-                        function(nm) input[[paste0("keepIdBy_", nm)]]
-                    ),
+                    keepIds = keepIds,
+                    keepIdsBy = keepIdsBy,
                     metricInfo = values$metricInfo,
-                    metricCol = metricCol, keepMetrics = input$keepMetrics,
-                    keepMetricsBy = lapply(
-                        setNames(metricFilters, nm = metricFilters),
-                        function(nm) input[[paste0("keepMetricBy_", nm)]]
-                    ),
+                    metricCol = metricCol, keepMetrics = keepMetrics,
+                    keepMetricsBy = keepMetricsBy,
                     metrics = values$metrics
                 )
             }
@@ -954,24 +979,10 @@ bettr <- function(df = NULL, idCol = "Method",
                     shiny::need(metricsInUse(), ""),
                     shiny::need(prep, "")
                 )
-                tempNeed1 <- lapply(
-                    intersect(prep$metrics_num, metricsInUse()), function(m) {
-                        cond <- paste0("shiny::need(is.logical(input$", m,
-                                       "_flip) && !is.null(input$", m,
-                                       "_offset) && !is.null(input$", m,
-                                       "_transform), '')")
-                        eval(parse(text = cond))
-                    }
-                )
-                do.call(shiny::validate, tempNeed1)
-                tempNeed2 <- lapply(
-                    intersect(prep$metrics_cat, metricsInUse()), function(m) {
-                        cond <- paste0("shiny::need(!is.null(input$", m,
-                                       "_levels), '')")
-                        eval(parse(text = cond))
-                    }
-                )
-                do.call(shiny::validate, tempNeed2)
+                # Note: We don't validate transformation inputs here because they
+                # may not be initialized yet (user hasn't visited Transform tab).
+                # Instead, we'll use default values from prep$initialTransforms
+                # when inputs are NULL (see below)
 
 
                 tmp <- filtdata()
