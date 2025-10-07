@@ -1,12 +1,12 @@
 # Integration tests for bettr JSON upload functionality
 
 test_that("bettr function has upload mode parameter", {
-    # Check if bettr function has uploadMode parameter
+    # Check if bettr function has serverMode parameter
     formals_bettr <- formals(bettr)
-    expect_true("uploadMode" %in% names(formals_bettr))
+    expect_true("serverMode" %in% names(formals_bettr))
 
     # Check default value is FALSE
-    expect_false(formals_bettr$uploadMode)
+    expect_false(formals_bettr$serverMode)
 })
 
 test_that("bettr function has optional df parameter", {
@@ -35,7 +35,7 @@ test_that("bettr works in normal mode with provided data", {
 test_that("bettr works in upload mode", {
     # This should work - using bettr in upload mode
     expect_no_error({
-        result <- bettr(uploadMode = TRUE, addStopButton = FALSE)
+        result <- bettr(serverMode = TRUE, addStopButton = FALSE)
     })
 })
 
@@ -164,13 +164,13 @@ test_that("bettr parameter validation works with upload mode", {
             df = test_data,
             idCol = "Method",
             metrics = "metric1",
-            uploadMode = FALSE
+            serverMode = FALSE
         )
 
         # Basic validation
         expect_true(is.data.frame(params$df))
         expect_true(is.character(params$idCol))
-        expect_true(is.logical(params$uploadMode))
+        expect_true(is.logical(params$serverMode))
     })
 })
 
@@ -178,7 +178,7 @@ test_that("upload mode parameter defaults are correct", {
     # Check default values for upload-related parameters
     bettr_formals <- formals(bettr)
 
-    expect_false(bettr_formals$uploadMode)  # Should default to FALSE
+    expect_false(bettr_formals$serverMode)  # Should default to FALSE
     expect_null(bettr_formals$df)           # Should default to NULL
 
     # Check that traditional parameters still have reasonable defaults

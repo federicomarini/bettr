@@ -77,7 +77,7 @@
 #'     button to stop the app (by calling `shiny::stopApp`).
 #' @param defaultWeight Numeric scalar between 0 and 1, giving the default
 #'     weight to assign to each metric.
-#' @param uploadMode Logical scalar. If `TRUE`, launches the app in upload mode
+#' @param serverMode Logical scalar. If `TRUE`, launches the app in server mode
 #'     where users can upload JSON files (in bettr format). If `FALSE` (default),
 #'     requires data to be provided via the `df` or `bettrSE` parameter.
 #' @param cacheVersion Character string or `NULL` (default). A version identifier
@@ -135,7 +135,7 @@ bettr <- function(df = NULL, idCol = "Method",
                   weightResolution = 0.05, bstheme = "darkly",
                   appTitle = "bettr", bettrSE = NULL,
                   addStopButton = TRUE, defaultWeight = 0.2,
-                  uploadMode = FALSE, cacheVersion = NULL) {
+                  serverMode = FALSE, cacheVersion = NULL) {
 
     ## Get arguments from bettrSE if provided ---------------------------------
     if (!is.null(bettrSE)) {
@@ -159,7 +159,7 @@ bettr <- function(df = NULL, idCol = "Method",
     }
 
     ## Handle upload mode ----------------------------------------------------
-    uploadMode <- uploadMode || is.null(df)
+    serverMode <- serverMode || is.null(df)
 
     ## Define column names assigned internally --------------------------------
     scoreCol <- "Score"
@@ -169,7 +169,7 @@ bettr <- function(df = NULL, idCol = "Method",
     metricGroupCol <- "metricGroup"
 
     ## Check validity of input arguments (skip in upload mode) ---------------
-    if (!uploadMode) {
+    if (!serverMode) {
         .checkArgsBettr(df = df, idCol = idCol, metrics = metrics,
                          initialWeights = initialWeights,
                          initialTransforms = initialTransforms,
@@ -315,11 +315,11 @@ bettr <- function(df = NULL, idCol = "Method",
 
         # App state management
         app_state <- shiny::reactiveValues(
-            mode = if (uploadMode) "upload" else "bettr",
-            uploaded_data = if (!uploadMode) df else NULL,
-            bettr_data = if (!uploadMode) df else NULL,
-            bettr_idCol = if (!uploadMode) idCol else NULL,
-            bettr_metrics = if (!uploadMode) metrics else NULL,
+            mode = if (serverMode) "upload" else "bettr",
+            uploaded_data = if (!serverMode) df else NULL,
+            bettr_data = if (!serverMode) df else NULL,
+            bettr_idCol = if (!serverMode) idCol else NULL,
+            bettr_metrics = if (!serverMode) metrics else NULL,
             file_uploaded = FALSE,
             switched_to_bettr = FALSE,
             original_filename = NULL
@@ -341,16 +341,7 @@ bettr <- function(df = NULL, idCol = "Method",
                         class = "text-muted small",
                         style = "margin-top: -10px;",
                         "Uploaded data will be cached in your browser for quick reload."
-                    ),
-
-                    if (addStopButton) {
-                        shiny::tagList(
-                            shiny::br(),
-                            shiny::actionButton("close_app", "Close app")
-                        )
-                    } else {
-                        NULL
-                    }
+                    )
                 )
             } else {
                 # Full bettr sidebar
@@ -1016,7 +1007,7 @@ bettr <- function(df = NULL, idCol = "Method",
         })
 
         # Initialize values for bettr functionality when not in upload mode
-        if (!uploadMode) {
+        if (!serverMode) {
             values <- shiny::reactiveValues(
                 df = df,
                 metrics = metrics,

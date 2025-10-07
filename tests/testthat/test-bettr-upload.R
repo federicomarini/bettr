@@ -1,12 +1,12 @@
 # Tests for bettr JSON upload functionality
 
 test_that("bettr function supports upload mode parameter", {
-    # Check if bettr function has uploadMode parameter
+    # Check if bettr function has serverMode parameter
     formals_bettr <- formals(bettr)
-    expect_true("uploadMode" %in% names(formals_bettr))
+    expect_true("serverMode" %in% names(formals_bettr))
 
     # Check default value
-    expect_false(formals_bettr$uploadMode)
+    expect_false(formals_bettr$serverMode)
 
     # Check df parameter is now optional (has default NULL)
     expect_null(formals_bettr$df)
@@ -16,9 +16,9 @@ test_that("bettr function handles NULL df parameter correctly", {
     # Check that bettr function exists
     expect_true(exists("bettr"))
 
-    # Check that the function recognizes uploadMode parameter
+    # Check that the function recognizes serverMode parameter
     formals_bettr <- formals(bettr)
-    expect_true("uploadMode" %in% names(formals_bettr))
+    expect_true("serverMode" %in% names(formals_bettr))
 })
 
 test_that("JSON file exists for testing", {

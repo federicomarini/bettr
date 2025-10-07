@@ -42,9 +42,9 @@ test_that("bettr() with data frame works in normal mode", {
 })
 
 test_that("explicit upload mode works", {
-    # Explicit uploadMode = TRUE should work
+    # Explicit serverMode = TRUE should work
     expect_no_error({
-        result <- bettr(uploadMode = TRUE, addStopButton = FALSE)
+        result <- bettr(serverMode = TRUE, addStopButton = FALSE)
     })
 })
 
@@ -52,7 +52,7 @@ test_that("bettr function signature supports all required parameters", {
     formals_bettr <- formals(bettr)
 
     # Check that all key parameters exist
-    expected_params <- c("df", "bettrSE", "idCol", "metrics", "uploadMode", "addStopButton")
+    expected_params <- c("df", "bettrSE", "idCol", "metrics", "serverMode", "addStopButton")
     for (param in expected_params) {
         expect_true(param %in% names(formals_bettr),
                    info = paste("Parameter", param, "should exist in bettr function"))
@@ -147,7 +147,7 @@ test_that("upload mode and normal mode have different behaviors", {
 
     # Upload mode - no data required
     expect_no_error({
-        upload_result <- bettr(uploadMode = TRUE, addStopButton = FALSE)
+        upload_result <- bettr(serverMode = TRUE, addStopButton = FALSE)
     })
 })
 
