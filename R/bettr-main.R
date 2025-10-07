@@ -133,9 +133,6 @@ bettr <- function(df = NULL, idCol = "Method",
                   addStopButton = TRUE, defaultWeight = 0.2,
                   uploadMode = FALSE) {
     
-    ## Handle upload mode ----------------------------------------------------
-    uploadMode <- uploadMode || is.null(df)
-    
     ## Get arguments from bettrSE if provided ---------------------------------
     if (!is.null(bettrSE)) {
         .assertVector(x = bettrSE, type = "SummarizedExperiment")
@@ -143,7 +140,7 @@ bettr <- function(df = NULL, idCol = "Method",
         df[[idCol]] <- rownames(df)
         metrics <- S4Vectors::metadata(bettrSE)$bettrInfo$metrics
         initialWeights <- S4Vectors::metadata(bettrSE)$bettrInfo$initialWeights
-        initialTransforms <- 
+        initialTransforms <-
             S4Vectors::metadata(bettrSE)$bettrInfo$initialTransforms
         metricColors <- S4Vectors::metadata(bettrSE)$bettrInfo$metricColors
         idColors <- S4Vectors::metadata(bettrSE)$bettrInfo$idColors
@@ -156,6 +153,9 @@ bettr <- function(df = NULL, idCol = "Method",
             idInfo <- NULL
         }
     }
+
+    ## Handle upload mode ----------------------------------------------------
+    uploadMode <- uploadMode || is.null(df)
     
     ## Define column names assigned internally --------------------------------
     scoreCol <- "Score"
