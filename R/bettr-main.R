@@ -80,6 +80,10 @@
 #' @param uploadMode Logical scalar. If `TRUE`, launches the app in upload mode
 #'     where users can upload JSON files (in bettr format). If `FALSE` (default),
 #'     requires data to be provided via the `df` or `bettrSE` parameter.
+#' @param cacheVersion Character string or `NULL` (default). A version identifier
+#'     for the browser cache. When specified, cached data from previous versions
+#'     will be automatically invalidated. Useful for forcing cache refresh when
+#'     deploying updates. Examples: "v1.0", "2024-01-15", or any string.
 #'
 #' @export
 #'
@@ -131,7 +135,7 @@ bettr <- function(df = NULL, idCol = "Method",
                   weightResolution = 0.05, bstheme = "darkly",
                   appTitle = "bettr", bettrSE = NULL,
                   addStopButton = TRUE, defaultWeight = 0.2,
-                  uploadMode = FALSE) {
+                  uploadMode = FALSE, cacheVersion = NULL) {
 
     ## Get arguments from bettrSE if provided ---------------------------------
     if (!is.null(bettrSE)) {
@@ -203,8 +207,107 @@ bettr <- function(df = NULL, idCol = "Method",
             ),
 
             # Main content area
-            shiny::uiOutput("dynamicContent")
-        )
+            shiny::uiOutput("dynamicContent"),
+
+            # Add JavaScript for localStorage support
+            shiny::tags$script(shiny::HTML(paste0("
+                // Get session token for logging
+                var getSessionId = function() {
+                    return Shiny.shinyapp ? Shiny.shinyapp.config.sessionId : 'unknown';
+                };
+
+                // Cache version from server
+                var CACHE_VERSION = ", if (!is.null(cacheVersion)) paste0("'", cacheVersion, "'") else "null", ";
+
+                // Save data to localStorage
+                Shiny.addCustomMessageHandler('saveToLocalStorage', function(message) {
+                    try {
+                        localStorage.setItem('bettr_cached_json', message.data);
+                        localStorage.setItem('bettr_cached_filename', message.filename);
+                        if (CACHE_VERSION !== null) {
+                            localStorage.setItem('bettr_cache_version', CACHE_VERSION);
+                        }
+                        var dataSize = (message.data.length / 1024).toFixed(2);
+                        console.log('[Session:', getSessionId(), '] Saved data to localStorage:', message.filename, '(' + dataSize + ' KB)', CACHE_VERSION ? '(version: ' + CACHE_VERSION + ')' : '');
+                    } catch(e) {
+                        console.error('[Session:', getSessionId(), '] Error saving to localStorage:', e);
+                    }
+                });
+
+                // Save app state to localStorage
+                Shiny.addCustomMessageHandler('saveStateToLocalStorage', function(state) {
+                    try {
+                        var stateJson = JSON.stringify(state);
+                        localStorage.setItem('bettr_cached_state', stateJson);
+                        var stateSize = (stateJson.length / 1024).toFixed(2);
+                        console.log('[Session:', getSessionId(), '] Saved state to localStorage (' + stateSize + ' KB)');
+                    } catch(e) {
+                        console.error('[Session:', getSessionId(), '] Error saving state to localStorage:', e);
+                    }
+                });
+
+                // Load data from localStorage on startup
+                Shiny.addCustomMessageHandler('loadFromLocalStorage', function(message) {
+                    try {
+                        var cachedVersion = localStorage.getItem('bettr_cache_version');
+                        var cachedData = localStorage.getItem('bettr_cached_json');
+                        var cachedFilename = localStorage.getItem('bettr_cached_filename');
+                        var cachedState = localStorage.getItem('bettr_cached_state');
+
+                        // Check cache version
+                        if (CACHE_VERSION !== null && cachedVersion !== CACHE_VERSION) {
+                            console.log('[Session:', getSessionId(), '] Cache version mismatch! Expected:', CACHE_VERSION, 'Found:', cachedVersion);
+                            console.log('[Session:', getSessionId(), '] Invalidating cache...');
+                            localStorage.removeItem('bettr_cached_json');
+                            localStorage.removeItem('bettr_cached_filename');
+                            localStorage.removeItem('bettr_cached_state');
+                            localStorage.removeItem('bettr_cache_version');
+                            console.log('[Session:', getSessionId(), '] Cache cleared due to version change');
+                            Shiny.setInputValue('cache_invalidated', true, {priority: 'event'});
+                            return;
+                        }
+
+                        if (cachedData) {
+                            console.log('[Session:', getSessionId(), '] Found cached data:', cachedFilename, cachedVersion ? '(version: ' + cachedVersion + ')' : '');
+                            Shiny.setInputValue('cached_json_data', cachedData);
+                            Shiny.setInputValue('cached_json_filename', cachedFilename);
+
+                            if (cachedState) {
+                                console.log('[Session:', getSessionId(), '] Found cached state');
+                                Shiny.setInputValue('cached_app_state', cachedState);
+                            } else {
+                                console.log('[Session:', getSessionId(), '] No cached state found');
+                            }
+                        } else {
+                            console.log('[Session:', getSessionId(), '] No cached data found');
+                        }
+                    } catch(e) {
+                        console.error('[Session:', getSessionId(), '] Error loading from localStorage:', e);
+                    }
+                });
+
+                // Clear localStorage
+                Shiny.addCustomMessageHandler('clearLocalStorage', function(message) {
+                    try {
+                        localStorage.removeItem('bettr_cached_json');
+                        localStorage.removeItem('bettr_cached_filename');
+                        localStorage.removeItem('bettr_cached_state');
+                        localStorage.removeItem('bettr_cache_version');
+                        console.log('[Session:', getSessionId(), '] Cleared localStorage (data + state + version)');
+                    } catch(e) {
+                        console.error('[Session:', getSessionId(), '] Error clearing localStorage:', e);
+                    }
+                });
+
+                // Check for cached data on page load
+                $(document).ready(function() {
+                    console.log('[Session:', getSessionId(), '] Checking for cached data...');
+                    setTimeout(function() {
+                        Shiny.setInputValue('check_cache', true, {priority: 'event'});
+                    }, 100);
+                });
+            "))
+        ))
 
     ## Server definition ------------------------------------------------------
     #nocov start
@@ -234,6 +337,11 @@ bettr <- function(df = NULL, idCol = "Method",
                         accept = c(".json", ".JSON"),
                         multiple = FALSE
                     ),
+                    shiny::p(
+                        class = "text-muted small",
+                        style = "margin-top: -10px;",
+                        "Uploaded data will be cached in your browser for quick reload."
+                    ),
 
                     if (addStopButton) {
                         shiny::tagList(
@@ -256,6 +364,17 @@ bettr <- function(df = NULL, idCol = "Method",
                             label = "Choose JSON File",
                             accept = c(".json", ".JSON"),
                             multiple = FALSE
+                        ),
+                        shiny::p(
+                            class = "text-muted small",
+                            style = "margin-top: -10px; margin-bottom: 10px;",
+                            "Uploaded data is cached in your browser."
+                        ),
+                        shiny::actionButton(
+                            inputId = "clearCache",
+                            label = "Clear Cached Data",
+                            class = "btn-sm btn-outline-secondary",
+                            style = "margin-top: 5px;"
                         )
                     ),
                     bslib::accordion_panel(
@@ -506,13 +625,174 @@ bettr <- function(df = NULL, idCol = "Method",
             }
         })
 
+        # Check for cached data on startup
+        shiny::observeEvent(input$check_cache, {
+            session$sendCustomMessage("loadFromLocalStorage", list())
+        }, once = TRUE)
+
+        # Handle cache invalidation due to version mismatch
+        shiny::observeEvent(input$cache_invalidated, {
+            cat("[Session:", session$token, "] Cache invalidated due to version mismatch\n")
+            shiny::showNotification(
+                "Cache was cleared due to version update. Please upload your data.",
+                duration = 8,
+                type = "warning"
+            )
+        })
+
+        # Load cached JSON data if available
+        shiny::observeEvent(input$cached_json_data, {
+            shiny::req(input$cached_json_data)
+
+            cat("[Session:", session$token, "] Loading cached JSON data...\n")
+
+            tryCatch({
+                # Parse cached JSON string
+                bettrSE <- bettrFromJSON(json = input$cached_json_data)
+
+                # Extract data from bettrSE (same as file upload)
+                df_loaded <- as.data.frame(SummarizedExperiment::assay(bettrSE, "values"))
+                bettrInfo <- S4Vectors::metadata(bettrSE)$bettrInfo
+                idCol_loaded <- bettrInfo$idCol
+                df_loaded[[idCol_loaded]] <- rownames(df_loaded)
+                metrics_loaded <- bettrInfo$metrics
+
+                metricInfo_loaded <- as.data.frame(SummarizedExperiment::colData(bettrSE))
+                if (ncol(metricInfo_loaded) == 0L) metricInfo_loaded <- NULL
+
+                idInfo_loaded <- as.data.frame(SummarizedExperiment::rowData(bettrSE))
+                if (ncol(idInfo_loaded) == 0L) idInfo_loaded <- NULL
+
+                # Update app state for bettr mode
+                app_state$bettr_data <- df_loaded
+                app_state$bettr_idCol <- idCol_loaded
+                app_state$bettr_metrics <- metrics_loaded
+                app_state$switched_to_bettr <- TRUE
+                app_state$mode <- "bettr"
+                app_state$original_filename <- if (!is.null(input$cached_json_filename)) {
+                    input$cached_json_filename
+                } else {
+                    "cached_data.json"
+                }
+
+                # Reinitialize bettr data
+                idCol <<- idCol_loaded
+                metrics <<- metrics_loaded
+                df <<- df_loaded
+
+                # Re-prepare data for bettr functionality
+                prep <<- .prepareData(
+                    df = df_loaded,
+                    idCol = idCol_loaded,
+                    metrics = metrics_loaded,
+                    initialWeights = bettrInfo$initialWeights,
+                    initialTransforms = bettrInfo$initialTransforms,
+                    metricInfo = metricInfo_loaded,
+                    metricColors = bettrInfo$metricColors,
+                    idInfo = idInfo_loaded,
+                    idColors = bettrInfo$idColors,
+                    weightResolution = weightResolution,
+                    metricCol = metricCol,
+                    defaultWeightValue = defaultWeight
+                )
+
+                # Update reactive values immediately
+                values$df <- df_loaded
+                values$metrics <- metrics_loaded
+                values$nMetrics <- length(metrics_loaded)
+                values$metricInfo <- if (!is.null(prep)) prep$metricInfo else NULL
+                values$idInfo <- if (!is.null(prep)) prep$idInfo else NULL
+                values$methods <- unique(df_loaded[[idCol_loaded]])
+                values$currentWeights <- if (!is.null(prep)) prep$initialWeights else setNames(rep(defaultWeight, length(metrics_loaded)), metrics_loaded)
+
+                # Update filter inputs with new data
+                shiny::updateSelectInput(session, "keepIds",
+                                       choices = unique(df_loaded[[idCol_loaded]]),
+                                       selected = unique(df_loaded[[idCol_loaded]]))
+
+                shiny::updateSelectInput(session, "keepMetrics",
+                                       choices = metrics_loaded,
+                                       selected = metrics_loaded)
+
+                cat("[Session:", session$token, "] Successfully loaded cached data:", app_state$original_filename, "\n")
+                shiny::showNotification(paste("Restored cached data:", app_state$original_filename),
+                                       duration = 3, type = "message")
+
+            }, error = function(e) {
+                # If cached data is corrupted, clear it
+                cat("[Session:", session$token, "] Error loading cached data:", e$message, "\n")
+                session$sendCustomMessage("clearLocalStorage", list())
+                shiny::showNotification(
+                    "Cached data could not be loaded and has been cleared.",
+                    duration = 5,
+                    type = "warning"
+                )
+            })
+        }, once = TRUE)
+
+        # Restore cached application state (weights, filters, etc.)
+        shiny::observeEvent(input$cached_app_state, {
+            shiny::req(input$cached_app_state)
+
+            cat("[Session:", session$token, "] Restoring cached application state...\n")
+
+            tryCatch({
+                # Parse the cached state JSON
+                cached_state <- jsonlite::fromJSON(input$cached_app_state)
+
+                # Restore filter selections
+                if (!is.null(cached_state$keepIds)) {
+                    shiny::updateSelectInput(session, "keepIds",
+                                           selected = cached_state$keepIds)
+                }
+
+                if (!is.null(cached_state$keepMetrics)) {
+                    shiny::updateSelectInput(session, "keepMetrics",
+                                           selected = cached_state$keepMetrics)
+                }
+
+                # Restore weights
+                if (!is.null(cached_state$weights) && is.list(cached_state$weights)) {
+                    for (metric_name in names(cached_state$weights)) {
+                        weight_value <- cached_state$weights[[metric_name]]
+                        if (!is.null(weight_value)) {
+                            shiny::updateSliderInput(session,
+                                                   paste0("weight_", metric_name),
+                                                   value = weight_value)
+                        }
+                    }
+                }
+
+                # Restore highlighting
+                if (!is.null(cached_state$highlightMethod)) {
+                    shiny::updateSelectInput(session, "highlightMethod",
+                                           selected = cached_state$highlightMethod)
+                }
+
+                # Restore score method
+                if (!is.null(cached_state$scoreMethod)) {
+                    shiny::updateRadioButtons(session, "scoreMethod",
+                                             selected = cached_state$scoreMethod)
+                }
+
+                cat("[Session:", session$token, "] Restored application state from cache\n")
+
+            }, error = function(e) {
+                cat("[Session:", session$token, "] Error restoring cached state:", e$message, "\n")
+            })
+        }, once = TRUE)
+
         # Upload functionality - JSON file handling
         shiny::observeEvent(input$jsonFile, {
             shiny::req(input$jsonFile)
 
             tryCatch({
-                # Read and parse the JSON file using bettrFromJSON
-                bettrSE <- bettrFromJSON(file = input$jsonFile$datapath)
+                # Read the JSON file content
+                json_content <- readLines(input$jsonFile$datapath, warn = FALSE)
+                json_string <- paste(json_content, collapse = "\n")
+
+                # Parse the JSON file using bettrFromJSON
+                bettrSE <- bettrFromJSON(json = json_string)
 
                 # Extract data from bettrSE
                 df_loaded <- as.data.frame(SummarizedExperiment::assay(bettrSE, "values"))
@@ -574,6 +854,12 @@ bettr <- function(df = NULL, idCol = "Method",
                                        choices = metrics_loaded,
                                        selected = metrics_loaded)
 
+                # Save to localStorage for session persistence
+                session$sendCustomMessage("saveToLocalStorage", list(
+                    data = json_string,
+                    filename = input$jsonFile$name
+                ))
+
                 shiny::showNotification("JSON file loaded successfully!")
 
             }, error = function(e) {
@@ -590,8 +876,12 @@ bettr <- function(df = NULL, idCol = "Method",
             shiny::req(input$jsonFileReload)
 
             tryCatch({
-                # Read and parse the JSON file using bettrFromJSON
-                bettrSE <- bettrFromJSON(file = input$jsonFileReload$datapath)
+                # Read the JSON file content
+                json_content <- readLines(input$jsonFileReload$datapath, warn = FALSE)
+                json_string <- paste(json_content, collapse = "\n")
+
+                # Parse the JSON file using bettrFromJSON
+                bettrSE <- bettrFromJSON(json = json_string)
 
                 # Extract data from bettrSE
                 df_loaded <- as.data.frame(SummarizedExperiment::assay(bettrSE, "values"))
@@ -651,6 +941,12 @@ bettr <- function(df = NULL, idCol = "Method",
                                        choices = metrics_loaded,
                                        selected = metrics_loaded)
 
+                # Save to localStorage for session persistence
+                session$sendCustomMessage("saveToLocalStorage", list(
+                    data = json_string,
+                    filename = input$jsonFileReload$name
+                ))
+
                 shiny::showNotification("Data reloaded successfully!")
 
             }, error = function(e) {
@@ -662,6 +958,62 @@ bettr <- function(df = NULL, idCol = "Method",
             })
         })
 
+        # Clear cache button handler
+        shiny::observeEvent(input$clearCache, {
+            session$sendCustomMessage("clearLocalStorage", list())
+            shiny::showNotification(
+                "Browser cache cleared successfully!",
+                duration = 3,
+                type = "message"
+            )
+        })
+
+        # Save application state to localStorage with debouncing
+        # Create a reactive to track when inputs change
+        state_trigger <- shiny::reactive({
+            # Track all relevant inputs
+            list(
+                keepIds = input$keepIds,
+                keepMetrics = input$keepMetrics,
+                highlightMethod = input$highlightMethod,
+                scoreMethod = input$scoreMethod,
+                # Track weight inputs if metrics are available
+                weights = if (!is.null(values$metrics)) {
+                    lapply(values$metrics, function(m) input[[paste0("weight_", m)]])
+                } else NULL
+            )
+        })
+
+        # Debounce state changes to avoid too frequent saves (1 second delay)
+        state_debounced <- shiny::debounce(state_trigger, 1000)
+
+        # Save to localStorage when state changes (after debounce)
+        shiny::observe({
+            # Only save if in bettr mode with data loaded
+            if (app_state$mode == "bettr" && !is.null(values$metrics)) {
+                state <- state_debounced()
+
+                # Collect all weight values
+                weights_list <- list()
+                for (metric in values$metrics) {
+                    weight_val <- input[[paste0("weight_", metric)]]
+                    if (!is.null(weight_val)) {
+                        weights_list[[metric]] <- weight_val
+                    }
+                }
+
+                state_to_save <- list(
+                    keepIds = input$keepIds,
+                    keepMetrics = input$keepMetrics,
+                    weights = weights_list,
+                    highlightMethod = input$highlightMethod,
+                    scoreMethod = input$scoreMethod
+                )
+
+                # Send to JavaScript
+                session$sendCustomMessage("saveStateToLocalStorage", state_to_save)
+            }
+        })
 
         # Initialize values for bettr functionality when not in upload mode
         if (!uploadMode) {
