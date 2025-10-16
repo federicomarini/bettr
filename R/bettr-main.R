@@ -1157,7 +1157,6 @@ bettr <- function(df = NULL, idCol = "Method",
                 # Instead, we'll use default values from prep$initialTransforms
                 # when inputs are NULL (see below)
 
-
                 tmp <- filtdata()
                 for (m in intersect(colnames(filtdata()), metricsInUse())) {
                     if (m %in% prep$metrics_num) {
@@ -1174,6 +1173,16 @@ bettr <- function(df = NULL, idCol = "Method",
                             transf = .getTransf(transform_val),
                             bincuts = bincuts_val
                         )
+                    } else if (m %in% prep$metrics_cat) {
+                        # Use default levels if no input available
+                        levels_val <- if (!is.null(input[[paste0(m, "_levels")]])) input[[paste0(m, "_levels")]] else prep$initialTransforms[[m]][["levels"]]
+
+                        tmp[[m]] <- .transformCategoricalVariable(
+                            x = filtdata()[[m]],
+                            levels = levels_val
+                        )
+                    } else {
+                        stop("Encountered metric that could not be identified as numeric or categorical: ", m)
                     }
                 }
 
