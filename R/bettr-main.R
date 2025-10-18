@@ -234,17 +234,6 @@ bettr <- function(df = NULL, idCol = "Method",
                     }
                 });
 
-                // Save app state to localStorage
-                Shiny.addCustomMessageHandler('saveStateToLocalStorage', function(state) {
-                    try {
-                        var stateJson = JSON.stringify(state);
-                        localStorage.setItem('bettr_cached_state', stateJson);
-                        var stateSize = (stateJson.length / 1024).toFixed(2);
-                        console.log('[Session:', getSessionId(), '] Saved state to localStorage (' + stateSize + ' KB)');
-                    } catch(e) {
-                        console.error('[Session:', getSessionId(), '] Error saving state to localStorage:', e);
-                    }
-                });
 
                 // Load data from localStorage on startup
                 Shiny.addCustomMessageHandler('loadFromLocalStorage', function(message) {
@@ -252,7 +241,6 @@ bettr <- function(df = NULL, idCol = "Method",
                         var cachedVersion = localStorage.getItem('bettr_cache_version');
                         var cachedData = localStorage.getItem('bettr_cached_json');
                         var cachedFilename = localStorage.getItem('bettr_cached_filename');
-                        var cachedState = localStorage.getItem('bettr_cached_state');
 
                         // Check cache version
                         if (CACHE_VERSION !== null && cachedVersion !== CACHE_VERSION) {
@@ -260,7 +248,6 @@ bettr <- function(df = NULL, idCol = "Method",
                             console.log('[Session:', getSessionId(), '] Invalidating cache...');
                             localStorage.removeItem('bettr_cached_json');
                             localStorage.removeItem('bettr_cached_filename');
-                            localStorage.removeItem('bettr_cached_state');
                             localStorage.removeItem('bettr_cache_version');
                             console.log('[Session:', getSessionId(), '] Cache cleared due to version change');
                             Shiny.setInputValue('cache_invalidated', true, {priority: 'event'});
@@ -271,13 +258,6 @@ bettr <- function(df = NULL, idCol = "Method",
                             console.log('[Session:', getSessionId(), '] Found cached data:', cachedFilename, cachedVersion ? '(version: ' + cachedVersion + ')' : '');
                             Shiny.setInputValue('cached_json_data', cachedData);
                             Shiny.setInputValue('cached_json_filename', cachedFilename);
-
-                            if (cachedState) {
-                                console.log('[Session:', getSessionId(), '] Found cached state');
-                                Shiny.setInputValue('cached_app_state', cachedState);
-                            } else {
-                                console.log('[Session:', getSessionId(), '] No cached state found');
-                            }
                         } else {
                             console.log('[Session:', getSessionId(), '] No cached data found');
                         }
@@ -291,9 +271,8 @@ bettr <- function(df = NULL, idCol = "Method",
                     try {
                         localStorage.removeItem('bettr_cached_json');
                         localStorage.removeItem('bettr_cached_filename');
-                        localStorage.removeItem('bettr_cached_state');
                         localStorage.removeItem('bettr_cache_version');
-                        console.log('[Session:', getSessionId(), '] Cleared localStorage (data + state + version)');
+                        console.log('[Session:', getSessionId(), '] Cleared localStorage (data + version)');
                     } catch(e) {
                         console.error('[Session:', getSessionId(), '] Error clearing localStorage:', e);
                     }
@@ -792,58 +771,6 @@ bettr <- function(df = NULL, idCol = "Method",
             })
         }, once = TRUE)
 
-        # Restore cached application state (weights, filters, etc.)
-        shiny::observeEvent(input$cached_app_state, {
-            shiny::req(input$cached_app_state)
-
-            cat("[Session:", session$token, "] Restoring cached application state...\n")
-
-            tryCatch({
-                # Parse the cached state JSON
-                cached_state <- jsonlite::fromJSON(input$cached_app_state)
-
-                # Restore filter selections
-                if (!is.null(cached_state$keepIds)) {
-                    shiny::updateSelectInput(session, "keepIds",
-                                           selected = cached_state$keepIds)
-                }
-
-                if (!is.null(cached_state$keepMetrics)) {
-                    shiny::updateSelectInput(session, "keepMetrics",
-                                           selected = cached_state$keepMetrics)
-                }
-
-                # Restore weights
-                if (!is.null(cached_state$weights) && is.list(cached_state$weights)) {
-                    for (metric_name in names(cached_state$weights)) {
-                        weight_value <- cached_state$weights[[metric_name]]
-                        if (!is.null(weight_value)) {
-                            shiny::updateSliderInput(session,
-                                                   paste0("weight_", metric_name),
-                                                   value = weight_value)
-                        }
-                    }
-                }
-
-                # Restore highlighting
-                if (!is.null(cached_state$highlightMethod)) {
-                    shiny::updateSelectInput(session, "highlightMethod",
-                                           selected = cached_state$highlightMethod)
-                }
-
-                # Restore score method
-                if (!is.null(cached_state$scoreMethod)) {
-                    shiny::updateRadioButtons(session, "scoreMethod",
-                                             selected = cached_state$scoreMethod)
-                }
-
-                cat("[Session:", session$token, "] Restored application state from cache\n")
-
-            }, error = function(e) {
-                cat("[Session:", session$token, "] Error restoring cached state:", e$message, "\n")
-            })
-        }, once = TRUE)
-
         # Upload functionality - JSON file handling
         shiny::observeEvent(input$jsonFile, {
             shiny::req(input$jsonFile)
@@ -906,53 +833,6 @@ bettr <- function(df = NULL, idCol = "Method",
                 duration = 3,
                 type = "message"
             )
-        })
-
-        # Save application state to localStorage with debouncing
-        # Create a reactive to track when inputs change
-        state_trigger <- shiny::reactive({
-            # Track all relevant inputs
-            list(
-                keepIds = input$keepIds,
-                keepMetrics = input$keepMetrics,
-                highlightMethod = input$highlightMethod,
-                scoreMethod = input$scoreMethod,
-                # Track weight inputs if metrics are available
-                weights = if (!is.null(values$metrics)) {
-                    lapply(values$metrics, function(m) input[[paste0("weight_", m)]])
-                } else NULL
-            )
-        })
-
-        # Debounce state changes to avoid too frequent saves (1 second delay)
-        state_debounced <- shiny::debounce(state_trigger, 1000)
-
-        # Save to localStorage when state changes (after debounce)
-        shiny::observe({
-            # Only save if in bettr mode with data loaded
-            if (app_state$mode == "bettr" && !is.null(values$metrics)) {
-                state <- state_debounced()
-
-                # Collect all weight values
-                weights_list <- list()
-                for (metric in values$metrics) {
-                    weight_val <- input[[paste0("weight_", metric)]]
-                    if (!is.null(weight_val)) {
-                        weights_list[[metric]] <- weight_val
-                    }
-                }
-
-                state_to_save <- list(
-                    keepIds = input$keepIds,
-                    keepMetrics = input$keepMetrics,
-                    weights = weights_list,
-                    highlightMethod = input$highlightMethod,
-                    scoreMethod = input$scoreMethod
-                )
-
-                # Send to JavaScript
-                session$sendCustomMessage("saveStateToLocalStorage", state_to_save)
-            }
         })
 
         # Initialize values for bettr functionality when not in upload mode
