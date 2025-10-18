@@ -158,7 +158,7 @@ bettr <- function(df = NULL, idCol = "Method",
         }
     }
 
-    ## Handle upload mode ----------------------------------------------------
+    ## Handle server mode ----------------------------------------------------
     serverMode <- serverMode || is.null(df)
 
     ## Define column names assigned internally --------------------------------
@@ -168,7 +168,7 @@ bettr <- function(df = NULL, idCol = "Method",
     valueCol <- "ScaledValue"
     metricGroupCol <- "metricGroup"
 
-    ## Check validity of input arguments (skip in upload mode) ---------------
+    ## Check validity of input arguments (skip in server mode) ---------------
     if (!serverMode) {
         .checkArgsBettr(df = df, idCol = idCol, metrics = metrics,
                          initialWeights = initialWeights,
@@ -192,7 +192,6 @@ bettr <- function(df = NULL, idCol = "Method",
                              metricCol = metricCol,
                              defaultWeightValue = defaultWeight)
     } else {
-        # In upload mode, initialize empty prep structure
         prep <- NULL
     }
     
@@ -209,84 +208,86 @@ bettr <- function(df = NULL, idCol = "Method",
             # Main content area
             shiny::uiOutput("dynamicContent"),
 
-            # Add JavaScript for localStorage support
-            shiny::tags$script(shiny::HTML(paste0("
-                // Get session token for logging
-                var getSessionId = function() {
-                    return Shiny.shinyapp ? Shiny.shinyapp.config.sessionId : 'unknown';
-                };
+            # Add JavaScript for localStorage support (only in serverMode)
+            if (serverMode) {
+                shiny::tags$script(shiny::HTML(paste0("
+                    // Get session token for logging
+                    var getSessionId = function() {
+                        return Shiny.shinyapp ? Shiny.shinyapp.config.sessionId : 'unknown';
+                    };
 
-                // Cache version from server
-                var CACHE_VERSION = ", if (!is.null(cacheVersion)) paste0("'", cacheVersion, "'") else "null", ";
+                    // Cache version from server
+                    var CACHE_VERSION = ", if (!is.null(cacheVersion)) paste0("'", cacheVersion, "'") else "null", ";
 
-                // Save data to localStorage
-                Shiny.addCustomMessageHandler('saveToLocalStorage', function(message) {
-                    try {
-                        localStorage.setItem('bettr_cached_json', message.data);
-                        localStorage.setItem('bettr_cached_filename', message.filename);
-                        if (CACHE_VERSION !== null) {
-                            localStorage.setItem('bettr_cache_version', CACHE_VERSION);
+                    // Save data to localStorage
+                    Shiny.addCustomMessageHandler('saveToLocalStorage', function(message) {
+                        try {
+                            localStorage.setItem('bettr_cached_json', message.data);
+                            localStorage.setItem('bettr_cached_filename', message.filename);
+                            if (CACHE_VERSION !== null) {
+                                localStorage.setItem('bettr_cache_version', CACHE_VERSION);
+                            }
+                            var dataSize = (message.data.length / 1024).toFixed(2);
+                            console.log('[Session:', getSessionId(), '] Saved data to localStorage:', message.filename, '(' + dataSize + ' KB)', CACHE_VERSION ? '(version: ' + CACHE_VERSION + ')' : '');
+                        } catch(e) {
+                            console.error('[Session:', getSessionId(), '] Error saving to localStorage:', e);
                         }
-                        var dataSize = (message.data.length / 1024).toFixed(2);
-                        console.log('[Session:', getSessionId(), '] Saved data to localStorage:', message.filename, '(' + dataSize + ' KB)', CACHE_VERSION ? '(version: ' + CACHE_VERSION + ')' : '');
-                    } catch(e) {
-                        console.error('[Session:', getSessionId(), '] Error saving to localStorage:', e);
-                    }
-                });
+                    });
 
 
-                // Load data from localStorage on startup
-                Shiny.addCustomMessageHandler('loadFromLocalStorage', function(message) {
-                    try {
-                        var cachedVersion = localStorage.getItem('bettr_cache_version');
-                        var cachedData = localStorage.getItem('bettr_cached_json');
-                        var cachedFilename = localStorage.getItem('bettr_cached_filename');
+                    // Load data from localStorage on startup
+                    Shiny.addCustomMessageHandler('loadFromLocalStorage', function(message) {
+                        try {
+                            var cachedVersion = localStorage.getItem('bettr_cache_version');
+                            var cachedData = localStorage.getItem('bettr_cached_json');
+                            var cachedFilename = localStorage.getItem('bettr_cached_filename');
 
-                        // Check cache version
-                        if (CACHE_VERSION !== null && cachedVersion !== CACHE_VERSION) {
-                            console.log('[Session:', getSessionId(), '] Cache version mismatch! Expected:', CACHE_VERSION, 'Found:', cachedVersion);
-                            console.log('[Session:', getSessionId(), '] Invalidating cache...');
+                            // Check cache version
+                            if (CACHE_VERSION !== null && cachedVersion !== CACHE_VERSION) {
+                                console.log('[Session:', getSessionId(), '] Cache version mismatch! Expected:', CACHE_VERSION, 'Found:', cachedVersion);
+                                console.log('[Session:', getSessionId(), '] Invalidating cache...');
+                                localStorage.removeItem('bettr_cached_json');
+                                localStorage.removeItem('bettr_cached_filename');
+                                localStorage.removeItem('bettr_cache_version');
+                                console.log('[Session:', getSessionId(), '] Cache cleared due to version change');
+                                Shiny.setInputValue('cache_invalidated', true, {priority: 'event'});
+                                return;
+                            }
+
+                            if (cachedData) {
+                                console.log('[Session:', getSessionId(), '] Found cached data:', cachedFilename, cachedVersion ? '(version: ' + cachedVersion + ')' : '');
+                                Shiny.setInputValue('cached_json_data', cachedData);
+                                Shiny.setInputValue('cached_json_filename', cachedFilename);
+                            } else {
+                                console.log('[Session:', getSessionId(), '] No cached data found');
+                            }
+                        } catch(e) {
+                            console.error('[Session:', getSessionId(), '] Error loading from localStorage:', e);
+                        }
+                    });
+
+                    // Clear localStorage
+                    Shiny.addCustomMessageHandler('clearLocalStorage', function(message) {
+                        try {
                             localStorage.removeItem('bettr_cached_json');
                             localStorage.removeItem('bettr_cached_filename');
                             localStorage.removeItem('bettr_cache_version');
-                            console.log('[Session:', getSessionId(), '] Cache cleared due to version change');
-                            Shiny.setInputValue('cache_invalidated', true, {priority: 'event'});
-                            return;
+                            console.log('[Session:', getSessionId(), '] Cleared localStorage (data + version)');
+                        } catch(e) {
+                            console.error('[Session:', getSessionId(), '] Error clearing localStorage:', e);
                         }
+                    });
 
-                        if (cachedData) {
-                            console.log('[Session:', getSessionId(), '] Found cached data:', cachedFilename, cachedVersion ? '(version: ' + cachedVersion + ')' : '');
-                            Shiny.setInputValue('cached_json_data', cachedData);
-                            Shiny.setInputValue('cached_json_filename', cachedFilename);
-                        } else {
-                            console.log('[Session:', getSessionId(), '] No cached data found');
-                        }
-                    } catch(e) {
-                        console.error('[Session:', getSessionId(), '] Error loading from localStorage:', e);
-                    }
-                });
-
-                // Clear localStorage
-                Shiny.addCustomMessageHandler('clearLocalStorage', function(message) {
-                    try {
-                        localStorage.removeItem('bettr_cached_json');
-                        localStorage.removeItem('bettr_cached_filename');
-                        localStorage.removeItem('bettr_cache_version');
-                        console.log('[Session:', getSessionId(), '] Cleared localStorage (data + version)');
-                    } catch(e) {
-                        console.error('[Session:', getSessionId(), '] Error clearing localStorage:', e);
-                    }
-                });
-
-                // Check for cached data on page load
-                $(document).ready(function() {
-                    console.log('[Session:', getSessionId(), '] Checking for cached data...');
-                    setTimeout(function() {
-                        Shiny.setInputValue('check_cache', true, {priority: 'event'});
-                    }, 100);
-                });
-            "))
-        ))
+                    // Check for cached data on page load
+                    $(document).ready(function() {
+                        console.log('[Session:', getSessionId(), '] Checking for cached data...');
+                        setTimeout(function() {
+                            Shiny.setInputValue('check_cache', true, {priority: 'event'});
+                        }, 100);
+                    });
+                ")))
+            }
+        )
 
     ## Helper function to load JSON data ---------------------------------------
     .loadJSONDataHelper <- function(bettrSE, json_string, filename,
@@ -351,11 +352,13 @@ bettr <- function(df = NULL, idCol = "Method",
                                choices = metrics_loaded,
                                selected = metrics_loaded)
 
-        # Save to localStorage for session persistence
-        session$sendCustomMessage("saveToLocalStorage", list(
-            data = json_string,
-            filename = filename
-        ))
+        # Save to localStorage for session persistence (only in serverMode)
+        if (serverMode) {
+            session$sendCustomMessage("saveToLocalStorage", list(
+                data = json_string,
+                filename = filename
+            ))
+        }
     }
 
     ## Server definition ------------------------------------------------------
@@ -364,7 +367,7 @@ bettr <- function(df = NULL, idCol = "Method",
 
         # App state management
         app_state <- shiny::reactiveValues(
-            mode = if (serverMode) "upload" else "bettr",
+            mode = if (serverMode) "server" else "bettr",
             uploaded_data = if (!serverMode) df else NULL,
             bettr_data = if (!serverMode) df else NULL,
             bettr_idCol = if (!serverMode) idCol else NULL,
@@ -377,8 +380,8 @@ bettr <- function(df = NULL, idCol = "Method",
 
         # Dynamic sidebar based on app mode
         output$dynamicSidebar <- shiny::renderUI({
-            if (app_state$mode == "upload") {
-                # Upload mode sidebar
+            if (app_state$mode == "server") {
+                # Server mode sidebar
                 shiny::tagList(
                     shiny::h4("Load Data"),
                     shiny::fileInput(
@@ -519,8 +522,8 @@ bettr <- function(df = NULL, idCol = "Method",
 
         # Dynamic content based on app mode
         output$dynamicContent <- shiny::renderUI({
-            if (app_state$mode == "upload") {
-                # Upload mode content
+            if (app_state$mode == "server") {
+                # Server mode content
                 shiny::tagList(
                     bslib::card(
                         shiny::h3("Welcome to bettr"),
@@ -666,23 +669,25 @@ bettr <- function(df = NULL, idCol = "Method",
             }
         })
 
-        # Check for cached data on startup
-        shiny::observeEvent(input$check_cache, {
-            session$sendCustomMessage("loadFromLocalStorage", list())
-        }, once = TRUE)
+        # Cache-related observers (only in serverMode)
+        if (serverMode) {
+            # Check for cached data on startup
+            shiny::observeEvent(input$check_cache, {
+                session$sendCustomMessage("loadFromLocalStorage", list())
+            }, once = TRUE)
 
-        # Handle cache invalidation due to version mismatch
-        shiny::observeEvent(input$cache_invalidated, {
-            cat("[Session:", session$token, "] Cache invalidated due to version mismatch\n")
-            shiny::showNotification(
-                "Cache was cleared due to version update. Please upload your data.",
-                duration = 8,
-                type = "warning"
-            )
-        })
+            # Handle cache invalidation due to version mismatch
+            shiny::observeEvent(input$cache_invalidated, {
+                cat("[Session:", session$token, "] Cache invalidated due to version mismatch\n")
+                shiny::showNotification(
+                    "Cache was cleared due to version update. Please upload your data.",
+                    duration = 8,
+                    type = "warning"
+                )
+            })
 
-        # Load cached JSON data if available
-        shiny::observeEvent(input$cached_json_data, {
+            # Load cached JSON data if available
+            shiny::observeEvent(input$cached_json_data, {
             shiny::req(input$cached_json_data)
 
             cat("[Session:", session$token, "] Loading cached JSON data...\n")
@@ -771,8 +776,8 @@ bettr <- function(df = NULL, idCol = "Method",
             })
         }, once = TRUE)
 
-        # Upload functionality - JSON file handling
-        shiny::observeEvent(input$jsonFile, {
+            # Upload functionality - JSON file handling
+            shiny::observeEvent(input$jsonFile, {
             shiny::req(input$jsonFile)
 
             tryCatch({
@@ -796,10 +801,10 @@ bettr <- function(df = NULL, idCol = "Method",
                     type = "error"
                 )
             })
-        })
+            })
 
-        # Reload functionality - JSON file handling for bettr mode
-        shiny::observeEvent(input$jsonFileReload, {
+            # Reload functionality - JSON file handling for bettr mode
+            shiny::observeEvent(input$jsonFileReload, {
             shiny::req(input$jsonFileReload)
 
             tryCatch({
@@ -823,19 +828,20 @@ bettr <- function(df = NULL, idCol = "Method",
                     type = "error"
                 )
             })
-        })
+            })
 
-        # Clear cache button handler
-        shiny::observeEvent(input$clearCache, {
-            session$sendCustomMessage("clearLocalStorage", list())
-            shiny::showNotification(
-                "Browser cache cleared successfully!",
-                duration = 3,
-                type = "message"
-            )
-        })
+            # Clear cache button handler
+            shiny::observeEvent(input$clearCache, {
+                session$sendCustomMessage("clearLocalStorage", list())
+                shiny::showNotification(
+                    "Browser cache cleared successfully!",
+                    duration = 3,
+                    type = "message"
+                )
+            })
+        }
 
-        # Initialize values for bettr functionality when not in upload mode
+        # Initialize values for bettr functionality when not in server mode
         if (!serverMode) {
             values <- shiny::reactiveValues(
                 df = df,
@@ -858,13 +864,14 @@ bettr <- function(df = NULL, idCol = "Method",
             )
         }
 
-        # Check for query parameters to auto-load JSON
-        # Use observeEvent with session$clientData$url_search which triggers once on load
-        shiny::observeEvent(session$clientData$url_search, {
-            query <- shiny::parseQueryString(session$clientData$url_search)
+        # Check for query parameters to auto-load JSON (only in serverMode)
+        if (serverMode) {
+            # Use observeEvent with session$clientData$url_search which triggers once on load
+            shiny::observeEvent(session$clientData$url_search, {
+                query <- shiny::parseQueryString(session$clientData$url_search)
 
-            # Handle jsonUrl parameter (load from URL)
-            if (!is.null(query$jsonUrl) && query$jsonUrl != "") {
+                # Handle jsonUrl parameter (load from URL)
+                if (!is.null(query$jsonUrl) && query$jsonUrl != "") {
                 cat("[Session:", session$token, "] Loading JSON from URL:", query$jsonUrl, "\n")
                 tryCatch({
                     # Download JSON from URL
@@ -939,8 +946,9 @@ bettr <- function(df = NULL, idCol = "Method",
                 })
             }
         }, once = TRUE)
+        }
 
-        # Update values when switching from upload to bettr mode
+        # Update values when switching from server to bettr mode
         shiny::observe({
             if (app_state$mode == "bettr" && !is.null(app_state$bettr_data)) {
                 # Note: prep should already be created by the JSON upload handler
@@ -957,7 +965,7 @@ bettr <- function(df = NULL, idCol = "Method",
 
         # Filtered data - only keep metrics and methods selected in the filter tab
         filtdata <- shiny::reactive({
-            if (app_state$mode == "upload") {
+            if (app_state$mode == "server") {
                 NULL
             } else {
                 shiny::validate(
@@ -1013,18 +1021,18 @@ bettr <- function(df = NULL, idCol = "Method",
 
         # Record retained metrics and methods
         metricsInUse <- shiny::reactive({
-            if (app_state$mode == "upload" || is.null(values$metrics)) return(character(0))
+            if (app_state$mode == "server" || is.null(values$metrics)) return(character(0))
             intersect(values$metrics, colnames(filtdata()))
         })
 
         methodsInUse <- shiny::reactive({
-            if (app_state$mode == "upload" || is.null(filtdata())) return(character(0))
+            if (app_state$mode == "server" || is.null(filtdata())) return(character(0))
             unique(filtdata()[[idCol]])
         })
 
         # Processed data - transform metrics
         procdata <- shiny::reactive({
-            if (app_state$mode == "upload" || is.null(prep)) {
+            if (app_state$mode == "server" || is.null(prep)) {
                 NULL
             } else {
                 shiny::validate(
@@ -1072,7 +1080,7 @@ bettr <- function(df = NULL, idCol = "Method",
         
         # Long-form data for plotting
         longdata <- shiny::reactive({
-            if (app_state$mode == "upload" || is.null(procdata())) {
+            if (app_state$mode == "server" || is.null(procdata())) {
                 NULL
             } else {
                 shiny::validate(
@@ -1089,7 +1097,7 @@ bettr <- function(df = NULL, idCol = "Method",
 
         # Long-form data with weights
         longdataweights <- shiny::reactive({
-            if (app_state$mode == "upload" || is.null(longdata())) {
+            if (app_state$mode == "server" || is.null(longdata())) {
                 NULL
             } else {
                 shiny::validate(
@@ -1115,7 +1123,7 @@ bettr <- function(df = NULL, idCol = "Method",
 
         # Collapsed data (average metrics)
         collapseddata <- shiny::reactive({
-            if (app_state$mode == "upload" || is.null(longdataweights())) {
+            if (app_state$mode == "server" || is.null(longdataweights())) {
                 NULL
             } else {
                 shiny::validate(
@@ -1133,7 +1141,7 @@ bettr <- function(df = NULL, idCol = "Method",
 
         # Calculate scores
         scoredata <- shiny::reactive({
-            if (app_state$mode == "upload" || is.null(collapseddata())) {
+            if (app_state$mode == "server" || is.null(collapseddata())) {
                 NULL
             } else {
                 shiny::validate(
@@ -1161,7 +1169,7 @@ bettr <- function(df = NULL, idCol = "Method",
         
         # Final filtered data
         plotdata <- shiny::reactive({
-            if (app_state$mode == "upload" || is.null(collapseddata()) || is.null(scoredata())) {
+            if (app_state$mode == "server" || is.null(collapseddata()) || is.null(scoredata())) {
                 NULL
             } else {
                 shiny::validate(
@@ -1194,7 +1202,7 @@ bettr <- function(df = NULL, idCol = "Method",
 
         # UI generation for bettr functionality
         output$highlightMethodUI <- shiny::renderUI({
-            if (app_state$mode == "upload") {
+            if (app_state$mode == "server") {
                 NULL
             } else {
                 shiny::selectInput(
@@ -1208,7 +1216,7 @@ bettr <- function(df = NULL, idCol = "Method",
         })
 
         output$metricGroupingUI <- shiny::renderUI({
-            if (app_state$mode == "upload") {
+            if (app_state$mode == "server") {
                 NULL
             } else {
                 shiny::selectizeInput(
@@ -1221,7 +1229,7 @@ bettr <- function(df = NULL, idCol = "Method",
         })
 
         output$idTopNGroupingUI <- shiny::renderUI({
-            if (app_state$mode == "upload") {
+            if (app_state$mode == "server") {
                 NULL
             } else {
                 shiny::selectizeInput(
@@ -1235,7 +1243,7 @@ bettr <- function(df = NULL, idCol = "Method",
 
         # Weight controls
         output$weights <- shiny::renderUI({
-            if (app_state$mode == "upload" || is.null(values$metrics) || is.null(values$currentWeights)) {
+            if (app_state$mode == "server" || is.null(values$metrics) || is.null(values$currentWeights)) {
                 NULL
             } else {
                 do.call(shiny::tagList,
@@ -1254,7 +1262,7 @@ bettr <- function(df = NULL, idCol = "Method",
 
         # Additional UI outputs for bettr functionality
         output$idFilterByInfoUI <- shiny::renderUI({
-            if (app_state$mode == "upload" || is.null(values$idInfo)) {
+            if (app_state$mode == "server" || is.null(values$idInfo)) {
                 NULL
             } else {
                 lapply(setdiff(colnames(values$idInfo), idCol),
@@ -1275,7 +1283,7 @@ bettr <- function(df = NULL, idCol = "Method",
 
         ## UI element to filter metrics by grouping columns -------------------
         output$metricFilterByInfoUI <- shiny::renderUI({
-            if (app_state$mode == "upload" || is.null(values$metricInfo)) {
+            if (app_state$mode == "server" || is.null(values$metricInfo)) {
                 NULL
             } else {
                 lapply(setdiff(colnames(values$metricInfo), metricCol),
@@ -1293,7 +1301,7 @@ bettr <- function(df = NULL, idCol = "Method",
 
         # UI element to select metric to transform ---------------------------
         output$metricToManipulateUI <- shiny::renderUI({
-            if (app_state$mode == "upload") {
+            if (app_state$mode == "server") {
                 NULL
             } else {
                 shiny::selectizeInput(
@@ -1306,7 +1314,7 @@ bettr <- function(df = NULL, idCol = "Method",
         })
 
         output$metricManipulationSummaryUI <- shiny::renderUI({
-            if (app_state$mode == "upload") {
+            if (app_state$mode == "server") {
                 NULL
             } else {
                 # Return empty for now - transformation UI is complex
@@ -1315,7 +1323,7 @@ bettr <- function(df = NULL, idCol = "Method",
         })
         
         output$close_app_ui <- shiny::renderUI({
-            if (app_state$mode == "upload" || !addStopButton) {
+            if (app_state$mode == "server" || !addStopButton) {
                 NULL
             } else {
                 shiny::actionButton("close_app", "Close app")
@@ -1324,7 +1332,7 @@ bettr <- function(df = NULL, idCol = "Method",
         
         # Plot outputs
         output$bettrHeatmapUI <- shiny::renderUI({
-            if (app_state$mode == "upload") {
+            if (app_state$mode == "server") {
                 NULL
             } else {
                 shinyjqui::jqui_resizable(
@@ -1334,7 +1342,7 @@ bettr <- function(df = NULL, idCol = "Method",
         })
         
         output$bettrHeatmap <- shiny::renderPlot({
-            if (app_state$mode == "upload" || is.null(plotdata()) || is.null(scoredata()) || is.null(prep)) {
+            if (app_state$mode == "server" || is.null(plotdata()) || is.null(scoredata()) || is.null(prep)) {
                 NULL
             } else {
                 makeHeatmap(
@@ -1360,7 +1368,7 @@ bettr <- function(df = NULL, idCol = "Method",
         
         # Parallel coordinates plot
         output$bettrParCoordplotUI <- shiny::renderUI({
-            if (app_state$mode == "upload") {
+            if (app_state$mode == "server") {
                 NULL
             } else {
                 shinyjqui::jqui_resizable(shiny::plotOutput("bettrParCoordplot"))
@@ -1368,7 +1376,7 @@ bettr <- function(df = NULL, idCol = "Method",
         })
 
         output$bettrParCoordplot <- shiny::renderPlot({
-            if (app_state$mode == "upload" || is.null(plotdata()) || is.null(scoredata()) || is.null(prep)) {
+            if (app_state$mode == "server" || is.null(plotdata()) || is.null(scoredata()) || is.null(prep)) {
                 NULL
             } else {
                 makeParCoordPlot(
@@ -1388,7 +1396,7 @@ bettr <- function(df = NULL, idCol = "Method",
         
         # Polar plot
         output$bettrPolarplotUI <- shiny::renderUI({
-            if (app_state$mode == "upload") {
+            if (app_state$mode == "server") {
                 NULL
             } else {
                 shinyjqui::jqui_resizable(shiny::plotOutput("bettrPolarplot"))
@@ -1396,7 +1404,7 @@ bettr <- function(df = NULL, idCol = "Method",
         })
 
         output$bettrPolarplot <- shiny::renderPlot({
-            if (app_state$mode == "upload" || is.null(plotdata()) || is.null(scoredata()) || is.null(prep)) {
+            if (app_state$mode == "server" || is.null(plotdata()) || is.null(scoredata()) || is.null(prep)) {
                 NULL
             } else {
                 makePolarPlot(
@@ -1415,7 +1423,7 @@ bettr <- function(df = NULL, idCol = "Method",
         
         # Bar + polar plot
         output$bettrBarPolarplotUI <- shiny::renderUI({
-            if (app_state$mode == "upload") {
+            if (app_state$mode == "server") {
                 NULL
             } else {
                 shinyjqui::jqui_resizable(shiny::plotOutput("bettrBarPolarplot"))
@@ -1423,7 +1431,7 @@ bettr <- function(df = NULL, idCol = "Method",
         })
 
         output$bettrBarPolarplot <- shiny::renderPlot({
-            if (app_state$mode == "upload" || is.null(plotdata()) || is.null(scoredata()) || is.null(prep)) {
+            if (app_state$mode == "server" || is.null(plotdata()) || is.null(scoredata()) || is.null(prep)) {
                 NULL
             } else {
                 ssc <- if (!is.null(input$scoreMethod) && input$scoreMethod == "weighted mean" && !is.null(input$barpolar_showcomp)) {
@@ -1451,7 +1459,7 @@ bettr <- function(df = NULL, idCol = "Method",
         
         # Data table output
         output$scoreTable <- DT::renderDT({
-            if (app_state$mode == "upload" || is.null(plotdata()) || is.null(scoredata())) {
+            if (app_state$mode == "server" || is.null(plotdata()) || is.null(scoredata())) {
                 NULL
             } else {
                 tmpdf <- plotdata() |>
