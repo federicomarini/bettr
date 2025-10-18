@@ -398,29 +398,8 @@ bettr <- function(df = NULL, idCol = "Method",
                 )
             } else {
                 # Full bettr sidebar
-                bslib::accordion(
-                    open = TRUE,
-                    multiple = TRUE,
-                    bslib::accordion_panel(
-                        "Load Data",
-                        shiny::fileInput(
-                            inputId = "jsonFileReload",
-                            label = "Choose JSON File",
-                            accept = c(".json", ".JSON"),
-                            multiple = FALSE
-                        ),
-                        shiny::p(
-                            class = "text-muted small",
-                            style = "margin-top: -10px; margin-bottom: 10px;",
-                            "Uploaded data is cached in your browser."
-                        ),
-                        shiny::actionButton(
-                            inputId = "clearCache",
-                            label = "Clear Cached Data",
-                            class = "btn-sm btn-outline-secondary",
-                            style = "margin-top: 5px;"
-                        )
-                    ),
+                # Build accordion panels list
+                accordion_panels <- list(
                     bslib::accordion_panel(
                         "Methods/IDs",
                         shiny::uiOutput(outputId = "highlightMethodUI"),
@@ -514,9 +493,42 @@ bettr <- function(df = NULL, idCol = "Method",
                         shiny::uiOutput(outputId = "weights"),
                         shiny::actionButton(inputId = "resetWeights",
                                             label = "Reset to uniform weights")
-                    ),
-                    shiny::uiOutput("close_app_ui")
+                    )
                 )
+
+                # Prepend Load Data panel if in serverMode
+                if (serverMode) {
+                    accordion_panels <- c(
+                        list(bslib::accordion_panel(
+                            "Load Data",
+                            shiny::fileInput(
+                                inputId = "jsonFileReload",
+                                label = "Choose JSON File",
+                                accept = c(".json", ".JSON"),
+                                multiple = FALSE
+                            ),
+                            shiny::p(
+                                class = "text-muted small",
+                                style = "margin-top: -10px; margin-bottom: 10px;",
+                                "Uploaded data is cached in your browser."
+                            ),
+                            shiny::actionButton(
+                                inputId = "clearCache",
+                                label = "Clear Cached Data",
+                                class = "btn-sm btn-outline-secondary",
+                                style = "margin-top: 5px;"
+                            )
+                        )),
+                        accordion_panels
+                    )
+                }
+
+                # Create accordion with panels
+                do.call(bslib::accordion, c(
+                    list(open = TRUE, multiple = TRUE),
+                    accordion_panels,
+                    list(shiny::uiOutput("close_app_ui"))
+                ))
             }
         })
 
