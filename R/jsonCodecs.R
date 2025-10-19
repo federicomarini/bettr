@@ -136,9 +136,7 @@ bettrToJSON <- function(bettrSE, file = NULL, pretty = TRUE) {
     }
 
     # Validate idCol
-    if (!is.character(json_list$idCol) || length(json_list$idCol) != 1) {
-        stop("idCol must be a single character string")
-    }
+    .assertScalar(x = json_list$idCol, type = "character")
 
     # Validate data
     if (!is.data.frame(json_list$data) && !is.list(json_list$data)) {
@@ -222,8 +220,9 @@ bettrToJSON <- function(bettrSE, file = NULL, pretty = TRUE) {
 #'                  metric1 = c(1, 2, 3),
 #'                  metric2 = c(3, 1, 2))
 #' bettrSE <- assembleSE(df = df)
-#' bettrToJSON(bettrSE, file = "data.json")
-#' bettrSE_reload <- bettrFromJSON(file = "data.json")
+#' json_file <- tempfile(fileext = ".json")
+#' bettrToJSON(bettrSE, file = json_file)
+#' bettrSE_reload <- bettrFromJSON(file = json_file)
 #' }
 #'
 bettrFromJSON <- function(file = NULL, json = NULL) {

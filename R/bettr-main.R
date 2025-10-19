@@ -97,7 +97,8 @@
 #'     selectInput hr reactiveValues reactive outputOptions renderUI
 #'     selectizeInput updateTabsetPanel observe observeEvent tabPanelBody
 #'     plotOutput tagList tags HTML validate need renderPlot updateNumericInput
-#'     sliderInput shinyApp stopApp
+#'     sliderInput shinyApp stopApp showNotification parseQueryString
+#'     updateSelectInput fileInput req
 #' @importFrom DT renderDT DTOutput dataTableOutput
 #' @importFrom shinyjqui jqui_resizable
 #' @importFrom tidyr pivot_wider

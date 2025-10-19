@@ -1,10 +1,24 @@
 ---
+title: "Server Mode Guide for bettr"
+author: "bettr package authors"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Server Mode Guide for bettr}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
   markdown: 
     wrap: 72
 ---
 
-# Server Mode Guide for bettr
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
 
 **Version 1.6.0 and later**
 
@@ -41,9 +55,12 @@ The `bettr()` function now supports a `serverMode` parameter that
 launches the app in a special mode where users upload JSON files through
 the browser.
 
-**Benefits:** - No R programming required for end users - Multiple users
-can use the same server instance with their own data - Data is isolated
-per user session - Automatic browser caching for quick reload
+**Benefits:**
+
+-   No R programming required for end users
+-   Multiple users can use the same server instance with their own data
+-   Data is isolated per user session
+-   Automatic browser caching for quick reload
 
 ### 2. JSON Serialization {#json-serialization}
 
@@ -52,37 +69,49 @@ New functions for converting bettr data to/from JSON format:
 -   `bettrToJSON()` - Export `SummarizedExperiment` to JSON
 -   `bettrFromJSON()` - Import JSON back to `SummarizedExperiment`
 
-**Benefits:** - Portable data format (language-agnostic) - Easy data
-sharing between users and systems - Preserves all metadata, colors,
-weights, and transformations - Enables web-based workflows
+**Benefits:**
+
+-   Portable data format (language-agnostic)
+-   Easy data sharing between users and systems
+-   Preserves all metadata, colors, weights, and transformations
+-   Enables web-based workflows
 
 ### 3. Browser localStorage Caching
 
-Automatic client-side caching of both data and application state.
+Automatic client-side caching of uploaded JSON data in server mode.
 
-**What gets cached:** - Uploaded JSON data - Metric weights (all slider
-positions) - Filter selections (selected methods and metrics) -
-Highlighted method - Score aggregation method
+**What gets cached:**
 
-**Benefits:** - Page refresh doesn't lose your work - Survives browser
-restarts - No manual saving required - Automatic with 1-second debounce
+-   Uploaded JSON data
+
+**Benefits:**
+
+-   Page refresh doesn't lose your work
+-   Survives browser restarts
+-   No manual saving required
+-   Automatic caching after upload
 
 ### 4. Cache Versioning
 
 Administrators can force cache invalidation when deploying updates.
 
-**Use cases:** - Deploy schema changes that require fresh data - Force
-all users to re-upload after breaking changes - Manage cache in
-multi-tenant environments - Troubleshooting cache-related issues
+**Use cases:**
+
+-   Deploy schema changes that require fresh data
+-   Force all users to re-upload after breaking changes
+-   Manage cache in multi-tenant environments
+-   Troubleshooting cache-related issues
 
 ### 5. URL Parameters for Programmatic Loading {#url-parameters-for-programmatic-loading}
 
 Load JSON data automatically via URL query parameters.
 
-**Benefits:** - Create direct links to specific visualizations -
-Integrate with external tools and pipelines - Automate opening
-visualizations after benchmark runs - Share analysis results with a
-simple URL
+**Benefits:**
+
+-   Create direct links to specific visualizations
+-   Integrate with external tools and pipelines
+-   Automate opening visualizations after benchmark runs
+-   Share analysis results with a simple URL
 
 ------------------------------------------------------------------------
 
@@ -90,7 +119,7 @@ simple URL
 
 ### Starting a Server
 
-``` r
+```{r server-start}
 library(bettr)
 
 # Basic server mode
@@ -117,13 +146,19 @@ bettr(serverMode = TRUE, bstheme = "flatly")
 
 ### User Interface
 
-**Upload Mode Interface:** - Clean, simple upload area - "Choose JSON
-File" button - Information about browser caching - No "Close app" button
-(for multi-user safety)
+**Upload Mode Interface:**
 
-**After Upload:** - Full bettr visualization interface - All standard
-features available - "Load Data" panel for uploading new files - "Clear
-Cached Data" button
+-   Clean, simple upload area
+-   "Choose JSON File" button
+-   Information about browser caching
+-   No "Close app" button (for multi-user safety)
+
+**After Upload:**
+
+-   Full bettr visualization interface
+-   All standard features available
+-   "Load Data" panel for uploading new files
+-   "Clear Cached Data" button
 
 ------------------------------------------------------------------------
 
@@ -133,7 +168,7 @@ Cached Data" button
 
 #### From Data Frames
 
-``` r
+```{r json-from-dataframe}
 library(bettr)
 
 # Create benchmark data
@@ -166,14 +201,16 @@ bettrSE <- assembleSE(
 )
 
 # Export to JSON
-bettrToJSON(bettrSE, file = "benchmark_results.json")
+json_file <- tempfile(fileext = ".json")
+bettrToJSON(bettrSE, file = json_file)
 ```
 
 #### From Existing SummarizedExperiment
 
-``` r
+```{r json-from-se}
 # If you already have a SummarizedExperiment
-bettrToJSON(my_existing_SE, file = "my_analysis.json")
+json_file <- tempfile(fileext = ".json")
+bettrToJSON(my_existing_SE, file = json_file)
 
 # Get JSON as string (for programmatic use)
 json_string <- bettrToJSON(my_existing_SE, file = NULL)
@@ -181,7 +218,7 @@ json_string <- bettrToJSON(my_existing_SE, file = NULL)
 
 ### Reading JSON Files
 
-``` r
+```{r json-read}
 # Read from file
 bettrSE <- bettrFromJSON(file = "benchmark_results.json")
 
@@ -191,16 +228,6 @@ bettrSE <- bettrFromJSON(json = json_string)
 # Use in non-server mode
 bettr(bettrSE = bettrSE)
 ```
-
-### What's Preserved in JSON
-
-✅ **All metric values** - Exact numeric data ✅ **Method/entity IDs** -
-Row identifiers ✅ **Metric names** - Column identifiers ✅ **Initial
-transformations** - Flip, offset, transform type, cuts ✅ **Initial
-weights** - Default metric weights ✅ **Metric metadata** - MetricInfo
-data frame ✅ **Method metadata** - IdInfo data frame ✅ **Color
-mappings** - Both metric and method colors ✅ **ID column name** -
-Entity identifier column
 
 ------------------------------------------------------------------------
 
@@ -219,13 +246,16 @@ users open the app.
 http://localhost:4567/?jsonUrl=https://example.com/data.json
 ```
 
-**Use cases:** - Data hosted on web servers - GitHub raw file URLs -
-Cloud storage (S3, Google Cloud Storage, etc.) - Internal company
-servers
+**Use cases:**
+
+-   Data hosted on web servers
+-   GitHub raw file URLs
+-   Cloud storage (S3, Google Cloud Storage, etc.)
+-   Internal company servers
 
 **Example:**
 
-``` r
+```{r url-jsonurl}
 # Start server
 bettr(serverMode = TRUE)
 
@@ -240,16 +270,20 @@ browseURL(full_url)
 
 #### 2. Load from File Path (`jsonFile`)
 
-```         
+```
 http://localhost:4567/?jsonFile=/absolute/path/to/data.json
 ```
 
-**Use cases:** - Local server deployments - Internal network file
-shares - Automated pipelines on same machine - Development and testing
+**Use cases:**
+
+-   Local server deployments
+-   Internal network file shares
+-   Automated pipelines on same machine
+-   Development and testing
 
 **Example:**
 
-``` r
+```{r url-jsonfile}
 # Start server
 bettr(serverMode = TRUE)
 
@@ -257,6 +291,26 @@ bettr(serverMode = TRUE)
 base_url <- "http://localhost:4567"
 file_path <- "/Users/username/benchmarks/latest_results.json"
 full_url <- paste0(base_url, "/?jsonFile=", URLencode(file_path, reserved = TRUE))
+
+# Open in browser
+browseURL(full_url)
+```
+
+**Using the included example data:**
+
+The bettr package includes a pre-exported JSON file from the DuoClustering2018
+dataset that can be used for testing and examples.
+
+```{r url-jsonfile-example}
+# Start server
+bettr(serverMode = TRUE)
+
+# Get path to included example JSON file
+json_path <- system.file("extdata", "duo2018_bettr.json", package = "bettr")
+
+# Construct URL
+base_url <- "http://localhost:4567"
+full_url <- paste0(base_url, "/?jsonFile=", URLencode(json_path, reserved = TRUE))
 
 # Open in browser
 browseURL(full_url)
@@ -270,12 +324,10 @@ browseURL(full_url)
 
 1.  **Automatic Save:**
     -   When you upload a JSON file, it's saved to browser localStorage
-    -   All UI changes (weights, filters, etc.) are saved after 1 second
-        of inactivity
+    -   Happens immediately after successful upload
     -   No manual action required
 2.  **Automatic Restore:**
     -   When you reload the page, cached data is automatically restored
-    -   All your settings are preserved exactly as you left them
     -   A notification confirms the restoration
 3.  **Cache Storage:**
     -   Stored in browser's localStorage (typically 5-10MB limit)
@@ -295,14 +347,17 @@ Load Data
 └── Clear Cached Data (button)
 ```
 
-Click to: - Remove all cached data - Remove all cached state - Start
-fresh with a new dataset - Free up browser storage
+Click to:
+
+-   Remove all cached data
+-   Start fresh with a new dataset
+-   Free up browser storage
 
 ### Cache Versioning (Administrators)
 
 #### Setting Up Versioning
 
-``` r
+```{r cache-versioning}
 # Deploy version 1.0
 bettr(serverMode = TRUE, cacheVersion = "v1.0")
 
@@ -314,7 +369,7 @@ bettr(serverMode = TRUE, cacheVersion = "v1.1")
 
 Any string works - choose what makes sense for your workflow:
 
-``` r
+```{r version-formats}
 # Semantic versioning
 cacheVersion = "v1.2.3"
 
@@ -330,8 +385,12 @@ cacheVersion = "production-release-oct2025"
 
 #### User Experience
 
-When version changes: 1. User opens the app 2. Browser detects version
-mismatch 3. Cache is automatically cleared 4. User sees: **"Cache was
-cleared due to version update. Please upload your data."** 5. User
-uploads their JSON file again 6. New cache is created with current
-version
+When version changes:
+
+1.  User opens the app
+2.  Browser detects version mismatch
+3.  Cache is automatically cleared
+4.  User sees: **"Cache was cleared due to version update. Please upload
+    your data."**
+5.  User uploads their JSON file again
+6.  New cache is created with current version

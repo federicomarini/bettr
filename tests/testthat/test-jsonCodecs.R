@@ -193,7 +193,7 @@ test_that("bettrFromJSON works", {
     # Invalid idCol
     json_bad_idcol <- '{"idCol": 123, "data": [{"Method": "M1"}]}'
     expect_error(bettrFromJSON(json = json_bad_idcol),
-                 "idCol must be a single character string")
+                 "must be of class 'character'")
 
     # idCol not in data
     json_idcol_missing <- '{"idCol": "missing", "data": [{"Method": "M1"}]}'
