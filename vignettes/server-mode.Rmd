@@ -2,13 +2,17 @@
 title: "Server Mode Guide for bettr"
 author: "bettr package authors"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
 vignette: >
   %\VignetteIndexEntry{Server Mode Guide for bettr}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
-editor_options: 
-  markdown: 
+editor_options:
+  markdown:
     wrap: 72
 ---
 
@@ -22,19 +26,7 @@ knitr::opts_chunk$set(
 
 **Version 1.6.0 and later**
 
-## Table of Contents
-
-1.  [Overview](#overview)
-2.  [What's New in Version 1.6.0](#whats-new-in-version-160)
-3.  [Server Mode Basics](#server-mode-basics)
-4.  [JSON Serialization](#json-serialization)
-5.  [URL Parameters for Programmatic
-    Loading](#url-parameters-for-programmatic-loading)
-6.  [Browser Cache Management](#browser-cache-management)
-
-------------------------------------------------------------------------
-
-## Overview {#overview}
+## Overview
 
 Version 1.6.0 introduces **server mode**, a new way to deploy and use
 bettr that enables browser-based JSON file uploads, automatic caching,
@@ -49,7 +41,7 @@ and programmatic data loading via URLs. This makes bettr suitable for:
 
 ## What's New in Version 1.6.0
 
-### 1. Server Mode for JSON Uploads
+### Server Mode for JSON Uploads
 
 The `bettr()` function now supports a `serverMode` parameter that
 launches the app in a special mode where users upload JSON files through
@@ -62,7 +54,7 @@ the browser.
 -   Data is isolated per user session
 -   Automatic browser caching for quick reload
 
-### 2. JSON Serialization {#json-serialization}
+### JSON Serialization
 
 New functions for converting bettr data to/from JSON format:
 
@@ -76,7 +68,7 @@ New functions for converting bettr data to/from JSON format:
 -   Preserves all metadata, colors, weights, and transformations
 -   Enables web-based workflows
 
-### 3. Browser localStorage Caching
+### Browser localStorage Caching
 
 Automatic client-side caching of uploaded JSON data in server mode.
 
@@ -91,7 +83,7 @@ Automatic client-side caching of uploaded JSON data in server mode.
 -   No manual saving required
 -   Automatic caching after upload
 
-### 4. Cache Versioning
+### Cache Versioning
 
 Administrators can force cache invalidation when deploying updates.
 
@@ -102,7 +94,7 @@ Administrators can force cache invalidation when deploying updates.
 -   Manage cache in multi-tenant environments
 -   Troubleshooting cache-related issues
 
-### 5. URL Parameters for Programmatic Loading {#url-parameters-for-programmatic-loading}
+### URL Parameters for Programmatic Loading
 
 Load JSON data automatically via URL query parameters.
 
@@ -115,7 +107,7 @@ Load JSON data automatically via URL query parameters.
 
 ------------------------------------------------------------------------
 
-## Server Mode Basics {#server-mode-basics}
+## Server Mode Basics
 
 ### Starting a Server
 
@@ -205,6 +197,80 @@ json_file <- tempfile(fileext = ".json")
 bettrToJSON(bettrSE, file = json_file)
 ```
 
+<details>
+<summary>**Click to view example JSON structure**</summary>
+
+The exported JSON file has the following structure:
+
+```json
+{
+  "idCol": "Method",
+  "data": [
+    {
+      "Method": "AlgorithmA",
+      "Accuracy": 0.95,
+      "Speed": 120,
+      "Memory": 256,
+      "_row": "AlgorithmA"
+    },
+    {
+      "Method": "AlgorithmB",
+      "Accuracy": 0.92,
+      "Speed": 150,
+      "Memory": 512,
+      "_row": "AlgorithmB"
+    },
+    {
+      "Method": "AlgorithmC",
+      "Accuracy": 0.89,
+      "Speed": 100,
+      "Memory": 128,
+      "_row": "AlgorithmC"
+    }
+  ],
+  "metricInfo": [
+    {
+      "Metric": "Accuracy",
+      "Type": "Quality",
+      "Unit": "Proportion"
+    },
+    {
+      "Metric": "Speed",
+      "Type": "Performance",
+      "Unit": "ms"
+    },
+    {
+      "Metric": "Memory",
+      "Type": "Resource",
+      "Unit": "MB"
+    }
+  ],
+  "idInfo": {},
+  "initialWeights": {},
+  "initialTransforms": {
+    "Speed": {
+      "flip": true,
+      "transform": "[0,1]"
+    },
+    "Memory": {
+      "flip": true,
+      "transform": "[0,1]"
+    }
+  }
+}
+```
+
+**Key components:**
+
+- `idCol`: Name of the identifier column
+- `data`: Array of objects, one per method with all metric values
+- `metricInfo`: Metadata about each metric (optional classifications, units, etc.)
+- `idInfo`: Additional metadata about methods (optional)
+- `initialWeights`: Default metric weights (optional)
+- `initialTransforms`: Transformations to apply to metrics (flip for "lower is better", transform for normalization)
+
+</details>
+
 #### From Existing SummarizedExperiment
 
 ```{r json-from-se}
@@ -240,7 +306,7 @@ users open the app.
 
 ### Two Loading Methods
 
-#### 1. Load from URL (`jsonUrl`)
+#### Load from URL (`jsonUrl`)
 
 ```         
 http://localhost:4567/?jsonUrl=https://example.com/data.json
@@ -268,9 +334,9 @@ full_url <- paste0(base_url, "/?jsonUrl=", URLencode(data_url, reserved = TRUE))
 browseURL(full_url)
 ```
 
-#### 2. Load from File Path (`jsonFile`)
+#### Load from File Path (`jsonFile`)
 
-```
+```         
 http://localhost:4567/?jsonFile=/absolute/path/to/data.json
 ```
 
@@ -298,8 +364,8 @@ browseURL(full_url)
 
 **Using the included example data:**
 
-The bettr package includes a pre-exported JSON file from the DuoClustering2018
-dataset that can be used for testing and examples.
+The bettr package includes a pre-exported JSON file from the
+DuoClustering2018 dataset that can be used for testing and examples.
 
 ```{r url-jsonfile-example}
 # Start server
@@ -318,7 +384,7 @@ browseURL(full_url)
 
 ------------------------------------------------------------------------
 
-## Browser Cache Management {#browser-cache-management}
+## Browser Cache Management
 
 ### How Caching Works
 
