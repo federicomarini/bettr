@@ -292,7 +292,8 @@ bettr <- function(df = NULL, idCol = "Method",
 
     ## Helper function to load JSON data ---------------------------------------
     .loadJSONDataHelper <- function(bettrSE, json_string, filename,
-                                     app_state, session, values) {
+                                     app_state, session, values,
+                                     save_to_storage = serverMode) {
         # Extract data from bettrSE
         df_loaded <- as.data.frame(SummarizedExperiment::assay(bettrSE, "values"))
         bettrInfo <- S4Vectors::metadata(bettrSE)$bettrInfo
@@ -353,8 +354,8 @@ bettr <- function(df = NULL, idCol = "Method",
                                choices = metrics_loaded,
                                selected = metrics_loaded)
 
-        # Save to localStorage for session persistence (only in serverMode)
-        if (serverMode) {
+        # Save to localStorage for session persistence (only when requested)
+        if (save_to_storage) {
             session$sendCustomMessage("saveToLocalStorage", list(
                 data = json_string,
                 filename = filename
@@ -709,72 +710,20 @@ bettr <- function(df = NULL, idCol = "Method",
                 # Parse cached JSON string
                 bettrSE <- bettrFromJSON(json = input$cached_json_data)
 
-                # Extract data from bettrSE (same as file upload)
-                df_loaded <- as.data.frame(SummarizedExperiment::assay(bettrSE, "values"))
-                bettrInfo <- S4Vectors::metadata(bettrSE)$bettrInfo
-                idCol_loaded <- bettrInfo$idCol
-                df_loaded[[idCol_loaded]] <- rownames(df_loaded)
-                metrics_loaded <- bettrInfo$metrics
-
-                metricInfo_loaded <- as.data.frame(SummarizedExperiment::colData(bettrSE))
-                if (ncol(metricInfo_loaded) == 0L) metricInfo_loaded <- NULL
-
-                idInfo_loaded <- as.data.frame(SummarizedExperiment::rowData(bettrSE))
-                if (ncol(idInfo_loaded) == 0L) idInfo_loaded <- NULL
-
-                # Update app state for bettr mode
-                app_state$bettr_data <- df_loaded
-                app_state$bettr_idCol <- idCol_loaded
-                app_state$bettr_metrics <- metrics_loaded
-                app_state$switched_to_bettr <- TRUE
-                app_state$mode <- "bettr"
-                app_state$original_filename <- if (!is.null(input$cached_json_filename)) {
+                # Determine filename from cached data or use default
+                filename <- if (!is.null(input$cached_json_filename)) {
                     input$cached_json_filename
                 } else {
                     "cached_data.json"
                 }
 
-                # Reinitialize bettr data
-                idCol <<- idCol_loaded
-                metrics <<- metrics_loaded
-                df <<- df_loaded
+                # Load data using helper function (don't re-save to localStorage)
+                .loadJSONDataHelper(bettrSE, input$cached_json_data, filename,
+                                   app_state, session, values,
+                                   save_to_storage = FALSE)
 
-                # Re-prepare data for bettr functionality
-                prep <<- .prepareData(
-                    df = df_loaded,
-                    idCol = idCol_loaded,
-                    metrics = metrics_loaded,
-                    initialWeights = bettrInfo$initialWeights,
-                    initialTransforms = bettrInfo$initialTransforms,
-                    metricInfo = metricInfo_loaded,
-                    metricColors = bettrInfo$metricColors,
-                    idInfo = idInfo_loaded,
-                    idColors = bettrInfo$idColors,
-                    weightResolution = weightResolution,
-                    metricCol = metricCol,
-                    defaultWeightValue = defaultWeight
-                )
-
-                # Update reactive values immediately
-                values$df <- df_loaded
-                values$metrics <- metrics_loaded
-                values$nMetrics <- length(metrics_loaded)
-                values$metricInfo <- if (!is.null(prep)) prep$metricInfo else NULL
-                values$idInfo <- if (!is.null(prep)) prep$idInfo else NULL
-                values$methods <- unique(df_loaded[[idCol_loaded]])
-                values$currentWeights <- if (!is.null(prep)) prep$initialWeights else setNames(rep(defaultWeight, length(metrics_loaded)), metrics_loaded)
-
-                # Update filter inputs with new data
-                shiny::updateSelectInput(session, "keepIds",
-                                       choices = unique(df_loaded[[idCol_loaded]]),
-                                       selected = unique(df_loaded[[idCol_loaded]]))
-
-                shiny::updateSelectInput(session, "keepMetrics",
-                                       choices = metrics_loaded,
-                                       selected = metrics_loaded)
-
-                cat("[Session:", session$token, "] Successfully loaded cached data:", app_state$original_filename, "\n")
-                shiny::showNotification(paste("Restored cached data:", app_state$original_filename),
+                cat("[Session:", session$token, "] Successfully loaded cached data:", filename, "\n")
+                shiny::showNotification(paste("Restored cached data:", filename),
                                        duration = 3, type = "message")
 
             }, error = function(e) {
