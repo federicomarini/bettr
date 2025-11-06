@@ -1042,6 +1042,8 @@ bettr <- function(df = NULL, idCol = "Method",
         })
         
         ## Long-form data for plotting ----------------------------------------
+        ## Needs to use the processed data, since we must make sure that the
+        ## value that goes in the 'value' column is numeric
         longdata <- shiny::reactive({
             if (app_state$serverMode || is.null(procdata())) {
                 return(NULL)
@@ -1070,18 +1072,18 @@ bettr <- function(df = NULL, idCol = "Method",
                 weightControls <- grep("_weight", names(input),
                                        fixed = TRUE, value = TRUE)
                 names(weightControls) <- weightControls
-                .addWeightsToLongData(
-                    df = longdata(),
-                    metricCollapseGroup = if (!is.null(input$metricCollapseGroup)) input$metricCollapseGroup else FALSE,
-                    metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
-                    metricGroupCol = metricGroupCol,
-                weights = lapply(weightControls, function(nm) {
-                    input[[nm]]
-                }),
-                weightCol = weightCol,
-                metrics = metricsInUse(),
-                metricCol = metricCol
-            )
+                  .addWeightsToLongData(
+                      df = longdata(),
+                      metricCollapseGroup = if (!is.null(input$metricCollapseGroup)) input$metricCollapseGroup else FALSE,
+                      metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
+                      metricGroupCol = metricGroupCol,
+                      weights = lapply(weightControls, function(nm) {
+                          input[[nm]]
+                      }),
+                      weightCol = weightCol,
+                      metrics = metricsInUse(),
+                      metricCol = metricCol
+                  )
         })
 
         ## Collapsed data (average metrics)
@@ -1093,13 +1095,17 @@ bettr <- function(df = NULL, idCol = "Method",
             shiny::validate(
                     shiny::need(longdataweights(), "")
                 )
-            .collapseLongData(df = longdataweights(),
-                              metricCollapseGroup = if (!is.null(input$metricCollapseGroup)) input$metricCollapseGroup else FALSE,
-                              metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
-                              idCol = idCol, metricGroupCol = metricGroupCol,
-                              valueCol = valueCol, weightCol = weightCol,
-                              metricCol = metricCol,
-                              collapseMethod = if (!is.null(input$metricCollapseMethod)) input$metricCollapseMethod else "mean")
+                .collapseLongData(
+                  df = longdataweights(),
+                  metricCollapseGroup = if (!is.null(input$metricCollapseGroup)) input$metricCollapseGroup else FALSE,
+                  metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
+                  idCol = idCol, 
+                  metricGroupCol = metricGroupCol,
+                  valueCol = valueCol, 
+                  weightCol = weightCol,
+                  metricCol = metricCol,
+                  collapseMethod = if (!is.null(input$metricCollapseMethod)) input$metricCollapseMethod else "mean"
+                )
         })
 
         ## Calculate scores ---------------------------------------------------
@@ -1456,15 +1462,15 @@ bettr <- function(df = NULL, idCol = "Method",
             }
 
             makePolarPlot(
-                    bettrList = NULL,
-                    plotdata = plotdata(),
-                    idCol = idCol,
-                    metricCol = metricCol, valueCol = valueCol,
-                    metricGroupCol = metricGroupCol,
-                    metricColors = prep$metricColors,
-                    metricCollapseGroup = if (!is.null(input$metricCollapseGroup)) input$metricCollapseGroup else FALSE,
-                metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
-                labelSize = if (!is.null(input$labelsize)) input$labelsize else 10
+              bettrList = NULL,
+              plotdata = plotdata(),
+              idCol = idCol,
+              metricCol = metricCol, valueCol = valueCol,
+              metricGroupCol = metricGroupCol,
+              metricColors = prep$metricColors,
+              metricCollapseGroup = if (!is.null(input$metricCollapseGroup)) input$metricCollapseGroup else FALSE,
+              metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
+              labelSize = if (!is.null(input$labelsize)) input$labelsize else 10
             )
         })
 
@@ -1499,8 +1505,8 @@ bettr <- function(df = NULL, idCol = "Method",
                     metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
                     methods = methodsInUse(),
                     labelSize = if (!is.null(input$labelsize)) input$labelsize else 10,
-                showComposition = ssc,
-                scaleFactorPolars = if (!is.null(input$barpolar_scalefactor)) input$barpolar_scalefactor else 1.5
+                    showComposition = ssc,
+                    scaleFactorPolars = if (!is.null(input$barpolar_scalefactor)) input$barpolar_scalefactor else 1.5
             )
         })
 
@@ -1535,8 +1541,8 @@ bettr <- function(df = NULL, idCol = "Method",
                     labelSize = if (!is.null(input$labelsize)) input$labelsize else 10,
                     showRowNames = if (!is.null(input$show_row_names)) input$show_row_names else TRUE,
                     plotType = if (!is.null(input$heatmap_plot_type)) input$heatmap_plot_type else "Heatmap",
-                rownamewidth_cm = if (!is.null(input$hm_rownamewidth)) input$hm_rownamewidth else 6,
-                colnameheight_cm = if (!is.null(input$hm_colnameheight)) input$hm_colnameheight else 6
+                    rownamewidth_cm = if (!is.null(input$hm_rownamewidth)) input$hm_rownamewidth else 6,
+                    colnameheight_cm = if (!is.null(input$hm_colnameheight)) input$hm_colnameheight else 6
             )
         })
 
