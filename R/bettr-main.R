@@ -925,7 +925,8 @@ bettr <- function(df = NULL, idCol = "Method",
             }
         })
 
-        # Filtered data - only keep metrics and methods selected in the filter tab
+        ## Filtered data ------------------------------------------------------
+        ## Only keep metrics and methods selected in the filter tab
         filtdata <- shiny::reactive({
             if (app_state$mode == "server") {
                 NULL
@@ -981,7 +982,7 @@ bettr <- function(df = NULL, idCol = "Method",
             }
         })
 
-        # Record retained metrics and methods
+        ## Record retained metrics and methods
         metricsInUse <- shiny::reactive({
             if (app_state$mode == "server" || is.null(values$metrics)) return(character(0))
             intersect(values$metrics, colnames(filtdata()))
@@ -992,7 +993,7 @@ bettr <- function(df = NULL, idCol = "Method",
             unique(filtdata()[[idCol]])
         })
 
-        # Processed data - transform metrics
+        ## Processed data -----------------------------------------------------
         procdata <- shiny::reactive({
             if (app_state$mode == "server" || is.null(prep)) {
                 NULL
@@ -1040,7 +1041,7 @@ bettr <- function(df = NULL, idCol = "Method",
             }
         })
         
-        # Long-form data for plotting
+        ## Long-form data for plotting ----------------------------------------
         longdata <- shiny::reactive({
             if (app_state$mode == "server" || is.null(procdata())) {
                 NULL
@@ -1057,7 +1058,7 @@ bettr <- function(df = NULL, idCol = "Method",
             }
         })
 
-        # Long-form data with weights
+        ## Long-form data with weights
         longdataweights <- shiny::reactive({
             if (app_state$mode == "server" || is.null(longdata())) {
                 NULL
@@ -1083,7 +1084,7 @@ bettr <- function(df = NULL, idCol = "Method",
             }
         })
 
-        # Collapsed data (average metrics)
+        ## Collapsed data (average metrics)
         collapseddata <- shiny::reactive({
             if (app_state$mode == "server" || is.null(longdataweights())) {
                 NULL
@@ -1101,7 +1102,7 @@ bettr <- function(df = NULL, idCol = "Method",
             }
         })
 
-        # Calculate scores
+        ## Calculate scores ---------------------------------------------------
         scoredata <- shiny::reactive({
             if (app_state$mode == "server" || is.null(collapseddata())) {
                 NULL
@@ -1129,7 +1130,7 @@ bettr <- function(df = NULL, idCol = "Method",
             }
         })
         
-        # Final filtered data
+        ## Final filtered data ------------------------------------------------
         plotdata <- shiny::reactive({
             if (app_state$mode == "server" || is.null(collapseddata()) || is.null(scoredata())) {
                 NULL
@@ -1146,83 +1147,7 @@ bettr <- function(df = NULL, idCol = "Method",
             }
         })
         
-        # Initialize filter controls when switching to bettr mode
-        shiny::observe({
-            if (app_state$mode == "bettr" && !is.null(values$df) && !is.null(values$methods) && !is.null(values$metrics)) {
-                if (is.null(input$keepIds)) {
-                    shiny::updateSelectInput(session, "keepIds",
-                                             choices = values$methods,
-                                             selected = values$methods)
-                }
-                if (is.null(input$keepMetrics)) {
-                    shiny::updateSelectInput(session, "keepMetrics",
-                                             choices = values$metrics,
-                                             selected = values$metrics)
-                }
-            }
-        })
-
-        # UI generation for bettr functionality
-        output$highlightMethodUI <- shiny::renderUI({
-            if (app_state$mode == "server") {
-                NULL
-            } else {
-                shiny::selectInput(
-                    inputId = "highlightMethod",
-                    label = "Highlight ID",
-                    choices = methodsInUse(),
-                    selected = NULL,
-                    multiple = TRUE
-                )
-            }
-        })
-
-        output$metricGroupingUI <- shiny::renderUI({
-            if (app_state$mode == "server") {
-                NULL
-            } else {
-                shiny::selectizeInput(
-                    inputId = "metricGrouping",
-                    label = "Grouping of metrics",
-                    choices = c("---", if (!is.null(values$metricInfo)) setdiff(colnames(values$metricInfo), metricCol) else character(0)),
-                    selected = "---"
-                )
-            }
-        })
-
-        output$idTopNGroupingUI <- shiny::renderUI({
-            if (app_state$mode == "server") {
-                NULL
-            } else {
-                shiny::selectizeInput(
-                    inputId = "idTopNGrouping",
-                    label = "Grouping of IDs",
-                    choices = c("---", if (!is.null(values$idInfo)) setdiff(colnames(values$idInfo), idCol) else character(0)),
-                    selected = "---"
-                )
-            }
-        })
-
-        # Weight controls
-        output$weights <- shiny::renderUI({
-            if (app_state$mode == "server" || is.null(values$metrics) || is.null(values$currentWeights)) {
-                NULL
-            } else {
-                do.call(shiny::tagList,
-                        lapply(metricsInUse(), function(i) {
-                            shiny::sliderInput(
-                                inputId = paste0(i, "_weight"),
-                                label = i,
-                                value = if (i %in% names(values$currentWeights)) values$currentWeights[[i]] else defaultWeight,
-                                min = 0,
-                                max = 1,
-                                step = weightResolution
-                            )
-                        }))
-            }
-        })
-
-        # Additional UI outputs for bettr functionality
+        ## UI element to filter methods by grouping columns -------------------
         output$idFilterByInfoUI <- shiny::renderUI({
             if (app_state$mode == "server" || is.null(values$idInfo)) {
                 NULL
@@ -1261,7 +1186,50 @@ bettr <- function(df = NULL, idCol = "Method",
             }
         })
 
-        # UI element to select metric to transform ---------------------------
+        ## UI element to select grouping of metrics ---------------------------
+        output$metricGroupingUI <- shiny::renderUI({
+            if (app_state$mode == "server") {
+                NULL
+            } else {
+                shiny::selectizeInput(
+                    inputId = "metricGrouping",
+                    label = "Grouping of metrics",
+                    choices = c("---", if (!is.null(values$metricInfo)) setdiff(colnames(values$metricInfo), metricCol) else character(0)),
+                    selected = "---"
+                )
+            }
+        })
+
+        ## UI element to select grouping of methods before selecting top N ----
+        output$idTopNGroupingUI <- shiny::renderUI({
+            if (app_state$mode == "server") {
+                NULL
+            } else {
+                shiny::selectizeInput(
+                    inputId = "idTopNGrouping",
+                    label = "Grouping of IDs",
+                    choices = c("---", if (!is.null(values$idInfo)) setdiff(colnames(values$idInfo), idCol) else character(0)),
+                    selected = "---"
+                )
+            }
+        })
+
+        ## UI element to select method to highlight ---------------------------
+        output$highlightMethodUI <- shiny::renderUI({
+            if (app_state$mode == "server") {
+                NULL
+            } else {
+                shiny::selectInput(
+                    inputId = "highlightMethod",
+                    label = "Highlight ID",
+                    choices = methodsInUse(),
+                    selected = NULL,
+                    multiple = TRUE
+                )
+            }
+        })
+
+        ## UI element to select metric to transform ---------------------------
         output$metricToManipulateUI <- shiny::renderUI({
             if (app_state$mode == "server") {
                 NULL
@@ -1409,51 +1377,43 @@ bettr <- function(df = NULL, idCol = "Method",
 
         })
 
-        output$close_app_ui <- shiny::renderUI({
-            if (app_state$mode == "server" || !addStopButton) {
-                NULL
-            } else {
-                shiny::actionButton("close_app", "Close app")
-            }
-        })
-        
-        # Plot outputs
-        output$bettrHeatmapUI <- shiny::renderUI({
-            if (app_state$mode == "server") {
-                NULL
-            } else {
-                shinyjqui::jqui_resizable(
-                    shiny::plotOutput("bettrHeatmap",
-                                      height = paste0(if (!is.null(input$hmheight)) input$hmheight else 600, "px")))
-            }
-        })
-        
-        output$bettrHeatmap <- shiny::renderPlot({
-            if (app_state$mode == "server" || is.null(plotdata()) || is.null(scoredata()) || is.null(prep)) {
-                NULL
-            } else {
-                makeHeatmap(
-                    bettrList = NULL,
-                    plotdata = plotdata(), scoredata = scoredata(),
-                    idCol = idCol, metricCol = metricCol, valueCol = valueCol,
-                    weightCol = weightCol, scoreCol = scoreCol,
-                    metricGroupCol = metricGroupCol,
-                    metricInfo = values$metricInfo,
-                    metricColors = prep$metricColors,
-                    idInfo = values$idInfo,
-                    idColors = prep$idColors,
-                    metricCollapseGroup = if (!is.null(input$metricCollapseGroup)) input$metricCollapseGroup else FALSE,
-                    metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
-                    labelSize = if (!is.null(input$labelsize)) input$labelsize else 10,
-                    showRowNames = if (!is.null(input$show_row_names)) input$show_row_names else TRUE,
-                    plotType = if (!is.null(input$heatmap_plot_type)) input$heatmap_plot_type else "Heatmap",
-                    rownamewidth_cm = if (!is.null(input$hm_rownamewidth)) input$hm_rownamewidth else 6,
-                    colnameheight_cm = if (!is.null(input$hm_colnameheight)) input$hm_colnameheight else 6
+        ## Reset all weights upon action button click -------------------------
+        shiny::observeEvent(input$resetWeights, {
+            for (j in metrics) {
+                shiny::updateNumericInput(
+                    session, inputId = paste0(j, "_weight"),
+                    value = defaultWeight
                 )
             }
         })
-        
-        # Parallel coordinates plot
+
+        ## Score table --------------------------------------------------------
+        output$scoreTable <- DT::renderDT({
+            if (app_state$mode == "server" || is.null(plotdata()) || is.null(scoredata())) {
+                NULL
+            } else {
+                tmpdf <- plotdata() |>
+                    dplyr::mutate("{valueCol}" := signif(.data[[valueCol]], digits = 4)) |>
+                    dplyr::select(dplyr::all_of(c(idCol, valueCol, metricCol))) |>
+                    tidyr::pivot_wider(names_from = .data[[metricCol]],
+                                       values_from = .data[[valueCol]]) |>
+                    dplyr::left_join(scoredata(), by = idCol) |>
+                    dplyr::mutate("{scoreCol}" := signif(.data[[scoreCol]], digits = 4)) |>
+                    dplyr::relocate(dplyr::all_of(idCol))
+
+                ordering <- if (!is.null(input$id_ordering)) input$id_ordering else "high-to-low"
+                if (ordering == "high-to-low") {
+                    tmpdf |> dplyr::arrange(dplyr::desc(.data[[scoreCol]]))
+                } else {
+                    tmpdf |> dplyr::arrange(.data[[scoreCol]])
+                }
+            }
+        }, filter = list(position = "top", clear = FALSE),
+        extensions = "Buttons",
+        options = list(scrollX = TRUE, pageLength = 100,
+                       dom = "Bfrtip", buttons = c("csv")))
+
+        ## Parallel coordinates plot ------------------------------------------
         output$bettrParCoordplotUI <- shiny::renderUI({
             if (app_state$mode == "server") {
                 NULL
@@ -1480,8 +1440,8 @@ bettr <- function(df = NULL, idCol = "Method",
                 )
             }
         })
-        
-        # Polar plot
+
+        ## Polar plot ---------------------------------------------------------
         output$bettrPolarplotUI <- shiny::renderUI({
             if (app_state$mode == "server") {
                 NULL
@@ -1507,8 +1467,8 @@ bettr <- function(df = NULL, idCol = "Method",
                 )
             }
         })
-        
-        # Bar + polar plot
+
+        ## Bar + polar plot ---------------------------------------------------
         output$bettrBarPolarplotUI <- shiny::renderUI({
             if (app_state$mode == "server") {
                 NULL
@@ -1543,32 +1503,72 @@ bettr <- function(df = NULL, idCol = "Method",
                 )
             }
         })
-        
-        # Data table output
-        output$scoreTable <- DT::renderDT({
-            if (app_state$mode == "server" || is.null(plotdata()) || is.null(scoredata())) {
+
+        ## Heatmap ------------------------------------------------------------
+        output$bettrHeatmapUI <- shiny::renderUI({
+            if (app_state$mode == "server") {
                 NULL
             } else {
-                tmpdf <- plotdata() |>
-                    dplyr::mutate("{valueCol}" := signif(.data[[valueCol]], digits = 4)) |>
-                    dplyr::select(dplyr::all_of(c(idCol, valueCol, metricCol))) |>
-                    tidyr::pivot_wider(names_from = .data[[metricCol]],
-                                       values_from = .data[[valueCol]]) |>
-                    dplyr::left_join(scoredata(), by = idCol) |>
-                    dplyr::mutate("{scoreCol}" := signif(.data[[scoreCol]], digits = 4)) |>
-                    dplyr::relocate(dplyr::all_of(idCol))
-
-                ordering <- if (!is.null(input$id_ordering)) input$id_ordering else "high-to-low"
-                if (ordering == "high-to-low") {
-                    tmpdf |> dplyr::arrange(dplyr::desc(.data[[scoreCol]]))
-                } else {
-                    tmpdf |> dplyr::arrange(.data[[scoreCol]])
-                }
+                shinyjqui::jqui_resizable(
+                    shiny::plotOutput("bettrHeatmap",
+                                      height = paste0(if (!is.null(input$hmheight)) input$hmheight else 600, "px")))
             }
-        }, filter = list(position = "top", clear = FALSE),
-        extensions = "Buttons",
-        options = list(scrollX = TRUE, pageLength = 100,
-                       dom = "Bfrtip", buttons = c("csv")))
+        })
+        
+        output$bettrHeatmap <- shiny::renderPlot({
+            if (app_state$mode == "server" || is.null(plotdata()) || is.null(scoredata()) || is.null(prep)) {
+                NULL
+            } else {
+                makeHeatmap(
+                    bettrList = NULL,
+                    plotdata = plotdata(), scoredata = scoredata(),
+                    idCol = idCol, metricCol = metricCol, valueCol = valueCol,
+                    weightCol = weightCol, scoreCol = scoreCol,
+                    metricGroupCol = metricGroupCol,
+                    metricInfo = values$metricInfo,
+                    metricColors = prep$metricColors,
+                    idInfo = values$idInfo,
+                    idColors = prep$idColors,
+                    metricCollapseGroup = if (!is.null(input$metricCollapseGroup)) input$metricCollapseGroup else FALSE,
+                    metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
+                    labelSize = if (!is.null(input$labelsize)) input$labelsize else 10,
+                    showRowNames = if (!is.null(input$show_row_names)) input$show_row_names else TRUE,
+                    plotType = if (!is.null(input$heatmap_plot_type)) input$heatmap_plot_type else "Heatmap",
+                    rownamewidth_cm = if (!is.null(input$hm_rownamewidth)) input$hm_rownamewidth else 6,
+                    colnameheight_cm = if (!is.null(input$hm_colnameheight)) input$hm_colnameheight else 6
+                )
+            }
+        })
+
+        ## Define weight controls ---------------------------------------------
+        ## Make sure that weights are retained even when the collapsing by
+        ## group status (and thus the displayed weight sliders) changes
+        output$weights <- shiny::renderUI({
+            if (app_state$mode == "server" || is.null(values$metrics) || is.null(values$currentWeights)) {
+                NULL
+            } else {
+                do.call(shiny::tagList,
+                        lapply(metricsInUse(), function(i) {
+                            shiny::sliderInput(
+                                inputId = paste0(i, "_weight"),
+                                label = i,
+                                value = if (i %in% names(values$currentWeights)) values$currentWeights[[i]] else defaultWeight,
+                                min = 0,
+                                max = 1,
+                                step = weightResolution
+                            )
+                        }))
+            }
+        })
+
+        ## Close app ----------------------------------------------------------
+        output$close_app_ui <- shiny::renderUI({
+            if (app_state$mode == "server" || !addStopButton) {
+                NULL
+            } else {
+                shiny::actionButton("close_app", "Close app")
+            }
+        })
 
         # Close app handler
         if (addStopButton) {
