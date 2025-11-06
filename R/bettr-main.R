@@ -1325,16 +1325,141 @@ bettr <- function(df = NULL, idCol = "Method",
                 )
             }
         })
+        shiny::outputOptions(output, "metricToManipulateUI",
+                             suspendWhenHidden = FALSE)
 
-        output$metricManipulationSummaryUI <- shiny::renderUI({
-            if (app_state$mode == "server") {
-                NULL
-            } else {
-                # Return empty for now - transformation UI is complex
-                NULL
-            }
+        ## Display transformation options for selected metric -----------------
+        shiny::observeEvent(input$metricToManipulate, {
+            shiny::updateTabsetPanel(inputId = "metricManipulationSummary",
+                                     selected = input$metricToManipulate)
         })
-        
+
+        ## UI element to transform metric values ------------------------------
+        shiny::observe({
+            output$metricManipulationSummaryUI <- shiny::renderUI({
+                if (app_state$mode == "server") {
+                    NULL
+                } else {
+                    do.call(
+                        shiny::tabsetPanel,
+                        c(list(type = "hidden",
+                               id = "metricManipulationSummary",
+                               ## Empty body when "---" is selected
+                               shiny::tabPanelBody(
+                                   value = "---",
+                                   NULL
+                               )),
+                          ## One tab panel per metric. The actual panel content is
+                          ## created below (it's different for numeric and
+                          ## categorical variables)
+                          lapply(metricsInUse(), function(i) {
+                              shiny::tabPanelBody(
+                                  value = i,
+                                  shiny::fluidRow(
+                                      ## Input controls
+                                      shiny::column(
+                                          4L,
+                                          shiny::uiOutput(
+                                              outputId = paste0(i, "_transformUI")
+                                          )
+                                      ),
+                                      ## Summary plots
+                                      shiny::column(
+                                          8L,
+                                          shiny::plotOutput(
+                                              outputId = paste0(i, "_plotsummary")
+                                          )
+                                      )
+                                  )
+                              )
+                          })
+                        )
+                    )
+                }
+            })
+            shiny::outputOptions(output, "metricManipulationSummaryUI",
+                                 suspendWhenHidden = FALSE)
+        })
+
+        ## Create transformation interface for numeric metrics ----------------
+        lapply(prep$metrics_num, function(m) {
+            output[[paste0(m, "_transformUI")]] <- shiny::renderUI({
+                shiny::tagList(
+                    shiny::checkboxInput(
+                        inputId = paste0(m, "_flip"),
+                        label = "Flip",
+                        value = prep$initialTransforms[[m]][["flip"]]
+                    ),
+                    shiny::numericInput(
+                        inputId = paste0(m, "_offset"),
+                        label = "Offset",
+                        value = prep$initialTransforms[[m]][["offset"]]
+                    ),
+                    shiny::radioButtons(
+                        inputId = paste0(m, "_transform"),
+                        label = "Transform",
+                        choices = c("None", "z-score",
+                                    "[0,1]", "[-1,1]",
+                                    "Rank", "Rank+[0,1]", "z-score+[0,1]"),
+                        selected = prep$initialTransforms[[m]][["transform"]]
+                    ),
+                    shiny::selectizeInput(
+                        inputId = paste0(m, "_bincuts"),
+                        label = "Cut points for\ncategorization",
+                        choices = prep$initialTransforms[[m]][["cuts"]],
+                        selected = prep$initialTransforms[[m]][["cuts"]],
+                        multiple = TRUE,
+                        options = list(create = TRUE)
+                    )
+                )
+            })
+        })
+
+        ## Create transformation interface for categorical metrics ------------
+        lapply(prep$metrics_cat, function(m) {
+            output[[paste0(m, "_transformUI")]] <- shiny::renderUI({
+                shiny::tagList(
+                    sortable::rank_list(
+                        text = "Levels",
+                        labels = levels(factor(values$df[[m]])),
+                        input_id = paste0(m, "_levels"),
+                        class = c("default-sortable", "custom-sortable")
+                    ),
+                    ## Set the colors for the levels ranked list box
+                    ## First color is surrounding, second is levels
+                    shiny::tags$style(
+                        shiny::HTML(".rank-list-container.custom-sortable {
+                                    background-color: #3c453c;
+                                    }
+                                    .custom-sortable .rank-list-item {
+                                    background-color: #02075d;
+                                    }
+                                    ")
+                    )
+                )
+            })
+        })
+
+        ## Make sure that hidden tabs (metrics that are currently not being
+        ## transformed) are not suspended
+        lapply(metrics, function(m) {
+            shiny::outputOptions(output, paste0(m, "_transformUI"),
+                                 suspendWhenHidden = FALSE)
+        })
+
+        ## Create summary plots for transformed metric ------------------------
+        shiny::observe({
+            lapply(metricsInUse(), function(m) {
+                output[[paste0(m, "_plotsummary")]] <- shiny::renderPlot({
+                    shiny::validate(
+                        shiny::need(procdata(), "No processed data")
+                    )
+                    .makeMetricSummaryPlot(x = procdata()[[m]])
+                })
+            })
+
+        })
+
         output$close_app_ui <- shiny::renderUI({
             if (app_state$mode == "server" || !addStopButton) {
                 NULL

@@ -214,8 +214,6 @@ bettrToJSON <- function(bettrSE, file = NULL, pretty = TRUE) {
 #' @importFrom jsonlite fromJSON
 #'
 #' @examples
-#' \dontrun{
-#' # Export and reimport
 #' df <- data.frame(Method = c("M1", "M2", "M3"),
 #'                  metric1 = c(1, 2, 3),
 #'                  metric2 = c(3, 1, 2))
@@ -223,7 +221,6 @@ bettrToJSON <- function(bettrSE, file = NULL, pretty = TRUE) {
 #' json_file <- tempfile(fileext = ".json")
 #' bettrToJSON(bettrSE, file = json_file)
 #' bettrSE_reload <- bettrFromJSON(file = json_file)
-#' }
 #'
 bettrFromJSON <- function(file = NULL, json = NULL) {
     # Input validation
