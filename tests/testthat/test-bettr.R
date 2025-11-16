@@ -186,4 +186,8 @@ test_that("bettr runs with valid inputs", {
     ## Change theme
     app <- bettr(df, idCol = "Method", bstheme = "sketchy")
     expect_s3_class(app, "shiny.appobj")
+    
+    ## Server mode
+    app <- bettr(serverMode = TRUE)
+    expect_s3_class(app, "shiny.appobj")
 })

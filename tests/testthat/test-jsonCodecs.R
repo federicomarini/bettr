@@ -72,6 +72,26 @@ test_that("bettrToJSON works", {
 
     unlink(tmp_file)
 
+    ## Special cases
+    ## -------------------------------------------------------------------------
+    ## ... unnamed metric/idColors
+    tmp <- se_full
+    out <- jsonlite::fromJSON(bettrToJSON(tmp, pretty = TRUE))
+    expect_identical(out$metricColors$Group, 
+                     as.list(S4Vectors::metadata(se_full)$bettrInfo$metricColors$Group))
+    expect_identical(out$idColors$Method, 
+                     as.list(S4Vectors::metadata(se_full)$bettrInfo$idColors$Method))
+    
+    S4Vectors::metadata(tmp)$bettrInfo$metricColors$Group <- 
+        unname(S4Vectors::metadata(tmp)$bettrInfo$metricColors$Group)
+    S4Vectors::metadata(tmp)$bettrInfo$idColors$Method <- 
+        unname(S4Vectors::metadata(tmp)$bettrInfo$idColors$Method)
+    out <- jsonlite::fromJSON(bettrToJSON(tmp, pretty = TRUE))
+    expect_identical(out$metricColors$Group, 
+                     unname(S4Vectors::metadata(se_full)$bettrInfo$metricColors$Group))
+    expect_identical(out$idColors$Method, 
+                     unname(S4Vectors::metadata(se_full)$bettrInfo$idColors$Method))
+    
     ## Test error conditions
     ## -------------------------------------------------------------------------
     expect_error(bettrToJSON("not_a_se"),
@@ -88,6 +108,29 @@ test_that("bettrToJSON works", {
     S4Vectors::metadata(se_invalid) <- list()
     expect_error(bettrToJSON(se_invalid),
                  "bettrSE must contain bettrInfo in metadata")
+    
+    tmp0 <- jsonlite::fromJSON(bettrToJSON(se_full))
+    tmp <- tmp0
+    tmp$data <- as.matrix(tmp$data)
+    expect_error(.validateBettrJSON(tmp), 
+                 "data must be a data frame or list")
+    tmp <- tmp0
+    tmp$initialTransforms <- 1:3
+    expect_error(.validateBettrJSON(tmp), 
+                 "initialTransforms must be a list")
+    tmp <- tmp0
+    tmp$initialTransforms <- list(a = 1:3)
+    expect_error(.validateBettrJSON(tmp), 
+                 "Each initialTransform entry must be a list")
+    tmp <- tmp0
+    tmp$initialTransforms$metric1$unknown <- TRUE
+    expect_warning(.validateBettrJSON(tmp), 
+                   "has unknown fields")
+    tmp <- tmp0
+    tmp$initialWeights <- as.character(unname(tmp$initialWeights))
+    expect_error(.validateBettrJSON(tmp), 
+                 "initialWeights must be a named numeric")
+    
 })
 
 test_that("bettrFromJSON works", {

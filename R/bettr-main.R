@@ -296,6 +296,7 @@ bettr <- function(df = NULL, idCol = "Method",
         )
 
     ## Helper function to load JSON data ---------------------------------------
+    #nocov start
     .loadJSONDataHelper <- function(bettrSE, json_string, filename,
                                     app_state, session, values,
                                     save_to_storage = serverMode) {
@@ -367,6 +368,7 @@ bettr <- function(df = NULL, idCol = "Method",
             ))
         }
     }
+    #nocov end
 
     ## Server definition ------------------------------------------------------
     #nocov start
