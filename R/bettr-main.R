@@ -113,6 +113,7 @@
 #' @importFrom stats setNames
 #' @importFrom SummarizedExperiment assay colData rowData
 #' @importFrom S4Vectors metadata
+#' @importFrom utils download.file
 #'
 #' @examples
 #' df <- data.frame(Method = c("M1", "M2", "M3"), metric1 = c(1, 2, 3),

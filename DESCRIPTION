@@ -51,7 +51,8 @@ Imports:
     DT,
     SummarizedExperiment,
     S4Vectors,
-    jsonlite
+    jsonlite,
+    utils
 Config/testthat/edition: 3
 biocViews: Visualization, ShinyApps, GUI
 URL: https://github.com/federicomarini/bettr
