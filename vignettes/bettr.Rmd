@@ -53,7 +53,7 @@ the values of several evaluation metrics.
 
 `bettr` can be installed from Bioconductor (from release 3.19 onwards): 
 
-```{r, eval=FALSE}
+```{r installation, eval=FALSE}
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
@@ -62,7 +62,7 @@ BiocManager::install("bettr")
 
 # Usage
 
-```{r}
+```{r load-pkg}
 suppressPackageStartupMessages({
     library("bettr")
     library("SummarizedExperiment")
@@ -76,7 +76,7 @@ metrics for several methods. In addition, the user can provide additional
 annotations and characteristics for the methods and metrics, which can be 
 used to group and filter them in the interactive application. 
 
-```{r}
+```{r define-small-data}
 ## Data for two metrics (metric1, metric2) for three methods (M1, M2, M3)
 df <- data.frame(Method = c("M1", "M2", "M3"),
                  metric1 = c(1.0, 2.0, 3.0),
@@ -95,7 +95,7 @@ To simplify handling and sharing, the data can be combined into a
 `SummarizedExperiment` object (with methods as rows and metrics as columns) as 
 follows: 
 
-```{r}
+```{r assemble-se}
 se <- assembleSE(df = df, idCol = "Method", metricInfo = metricInfo,
                  idInfo = idInfo)
 se
@@ -105,7 +105,7 @@ The interactive application to explore the rankings can then be launched by
 calling the `bettr()` function. The input can be either the assembled 
 `SummarizedExperiment` object or the individual components. 
 
-```{r}
+```{r launch-bettr}
 #| eval: false
 
 ## Alternative 1
@@ -123,7 +123,7 @@ single-cell clustering methods performed by
 for a set of evaluation metrics applied to results obtained by several 
 clustering methods are provided in a `.csv` file in the package:
 
-```{r}
+```{r example-scrnaseq}
 res <- read.csv(system.file("extdata", "duo2018_results.csv",
                             package = "bettr"))
 dim(res)
@@ -137,7 +137,7 @@ which was applied to clustering output from 12 data sets. We encode this
 "grouping" of metrics in a data frame, in such a way that we can later 
 collapse performance across data sets in `bettr`: 
 
-```{r}
+```{r summary-metricinfo}
 metricInfo <- tibble(Metric = colnames(res)[-1L]) |>
     mutate(Class = sub("_.*", "", Metric))
 head(metricInfo)
@@ -160,7 +160,7 @@ scale the three other metrics linearly to the interval `[0, 1]` to make them
 more comparable to the `ARI` values. We record these transformations in a list, 
 that will be passed to `bettr`:
 
-```{r}
+```{r initial-transforms}
 ## Initialize list
 initialTransforms <- lapply(res[, grep("elapsed|nclust.vs.true|s.norm.vs.true",
                                        colnames(res), value = TRUE)],
@@ -190,7 +190,7 @@ Only values that deviate from the defaults need to be specified.
 Finally, we can define a set of colors that we would like to use for 
 visualizing the methods and metrics in `bettr`. 
 
-```{r}
+```{r define-colors}
 metricColors <- list(
     Class = c(ARI = "purple", elapsed = "forestgreen",
               nclust.vs.true = "blue",
@@ -210,7 +210,7 @@ idColors <- list(
 All the information defined so far can be combined in a `SummarizedExperiment`
 object, as shown above for the small example data: 
 
-```{r}
+```{r se-duo}
 duo2018 <- assembleSE(df = res, idCol = "method", metricInfo = metricInfo,
                       initialTransforms = initialTransforms,
                       metricColors = metricColors, idColors = idColors)
@@ -222,7 +222,7 @@ the 48 performance measures for the 14 clustering methods.
 The `metricInfo` is stored in the `colData`, and the lists of colors and the 
 initial transforms in the `metadata`:
 
-```{r}
+```{r display-duo}
 ## Display the whole performance table
 tibble(assay(duo2018, "values"))
 
@@ -241,7 +241,7 @@ metadata(duo2018)$bettrInfo$initialTransforms$elapsed_Koh
 
 Now, we can launch the app for this data set:
 
-```{r}
+```{r launch-duo}
 #| eval: false
 
 bettr(bettrSE = duo2018, bstheme = "sandstone")
@@ -288,7 +288,7 @@ for plotting (replicating the steps that are performed in the app), as well as
 access to the plotting functions themselves. The following code replicates the 
 results for the example above.
 
-```{r}
+```{r programmatic}
 #| fig.width: 7
 #| fig.height: 7
 
@@ -318,7 +318,7 @@ To enable such export, first generate the `app` object using the `bettr()`
 function, and then assign the call to `shiny::runApp()` to a variable to 
 capture the output. For example: 
 
-```{r}
+```{r export-data}
 if (interactive()) {
     app <- bettr(bettrSE = duo2018, bstheme = "sandstone")
     out <- shiny::runApp(app)
@@ -355,7 +355,7 @@ https://github.com/federicomarini/bettr.
 
 # Session info {-}
 
-```{r}
+```{r session-info}
 sessionInfo()
 ```
 

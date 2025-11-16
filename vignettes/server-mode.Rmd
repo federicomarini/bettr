@@ -19,8 +19,7 @@ editor_options:
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
-  eval = FALSE
+  comment = "#>"
 )
 ```
 
@@ -112,6 +111,8 @@ Load JSON data automatically via URL query parameters.
 ### Starting a Server
 
 ```{r server-start}
+#| eval: false
+
 library(bettr)
 
 # Basic server mode
@@ -161,6 +162,8 @@ bettr(serverMode = TRUE, bstheme = "flatly")
 #### From Data Frames
 
 ```{r json-from-dataframe}
+#| eval: false
+
 library(bettr)
 
 # Create benchmark data
@@ -274,6 +277,8 @@ The exported JSON file has the following structure:
 #### From Existing SummarizedExperiment
 
 ```{r json-from-se}
+#| eval: false
+
 # If you already have a SummarizedExperiment
 json_file <- tempfile(fileext = ".json")
 bettrToJSON(my_existing_SE, file = json_file)
@@ -285,6 +290,8 @@ json_string <- bettrToJSON(my_existing_SE, file = NULL)
 ### Reading JSON Files
 
 ```{r json-read}
+#| eval: false
+
 # Read from file
 bettrSE <- bettrFromJSON(file = "benchmark_results.json")
 
@@ -322,6 +329,8 @@ http://localhost:4567/?jsonUrl=https://example.com/data.json
 **Example:**
 
 ```{r url-jsonurl}
+#| eval: false
+
 # Start server
 bettr(serverMode = TRUE)
 
@@ -350,6 +359,8 @@ http://localhost:4567/?jsonFile=/absolute/path/to/data.json
 **Example:**
 
 ```{r url-jsonfile}
+#| eval: false
+
 # Start server
 bettr(serverMode = TRUE)
 
@@ -368,6 +379,8 @@ The bettr package includes a pre-exported JSON file from the
 DuoClustering2018 dataset that can be used for testing and examples.
 
 ```{r url-jsonfile-example}
+#| eval: false
+
 # Start server
 bettr(serverMode = TRUE)
 
@@ -424,6 +437,8 @@ Click to:
 #### Setting Up Versioning
 
 ```{r cache-versioning}
+#| eval: false
+
 # Deploy version 1.0
 bettr(serverMode = TRUE, cacheVersion = "v1.0")
 
@@ -436,6 +451,8 @@ bettr(serverMode = TRUE, cacheVersion = "v1.1")
 Any string works - choose what makes sense for your workflow:
 
 ```{r version-formats}
+#| eval: false
+
 # Semantic versioning
 cacheVersion = "v1.2.3"
 
@@ -460,3 +477,10 @@ When version changes:
     your data."**
 5.  User uploads their JSON file again
 6.  New cache is created with current version
+
+# Session info {-}
+
+```{r session-info}
+sessionInfo()
+```
+
