@@ -111,7 +111,7 @@ bettrToJSON <- function(bettrSE, file = NULL, pretty = TRUE) {
 
     # Convert to JSON
     json_str <- jsonlite::toJSON(json_list, pretty = pretty,
-                                  auto_unbox = TRUE, na = "null")
+                                 auto_unbox = TRUE, na = "null")
 
     # Convert to plain character (removes "json" class from jsonlite)
     json_str <- as.character(json_str)
@@ -179,7 +179,7 @@ bettrToJSON <- function(bettrSE, file = NULL, pretty = TRUE) {
             invalid <- setdiff(names(trans), valid_fields)
             if (length(invalid) > 0) {
                 warning("Transform for '", metric_name,
-                       "' has unknown fields: ", paste(invalid, collapse = ", "))
+                        "' has unknown fields: ", paste(invalid, collapse = ", "))
             }
         }
     }

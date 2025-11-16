@@ -172,15 +172,15 @@ bettr <- function(df = NULL, idCol = "Method",
     ## Check validity of input arguments (skip in server mode) ---------------
     if (!serverMode) {
         .checkArgsBettr(df = df, idCol = idCol, metrics = metrics,
-                         initialWeights = initialWeights,
-                         initialTransforms = initialTransforms,
-                         metricInfo = metricInfo, metricColors = metricColors,
-                         idInfo = idInfo, idColors = idColors,
-                         weightResolution = weightResolution,
-                         bstheme = bstheme, appTitle = appTitle,
-                         addStopButton = addStopButton,
-                         defaultWeightValue = defaultWeight)
-
+                        initialWeights = initialWeights,
+                        initialTransforms = initialTransforms,
+                        metricInfo = metricInfo, metricColors = metricColors,
+                        idInfo = idInfo, idColors = idColors,
+                        weightResolution = weightResolution,
+                        bstheme = bstheme, appTitle = appTitle,
+                        addStopButton = addStopButton,
+                        defaultWeightValue = defaultWeight)
+        
         ## Prepare data -----------------------------------------------------------
         prep <- .prepareData(df = df, idCol = idCol, metrics = metrics,
                              initialWeights = initialWeights,
@@ -292,8 +292,8 @@ bettr <- function(df = NULL, idCol = "Method",
 
     ## Helper function to load JSON data ---------------------------------------
     .loadJSONDataHelper <- function(bettrSE, json_string, filename,
-                                     app_state, session, values,
-                                     save_to_storage = serverMode) {
+                                    app_state, session, values,
+                                    save_to_storage = serverMode) {
         # Extract data from bettrSE
         df_loaded <- as.data.frame(SummarizedExperiment::assay(bettrSE, "values"))
         bettrInfo <- S4Vectors::metadata(bettrSE)$bettrInfo
@@ -347,13 +347,13 @@ bettr <- function(df = NULL, idCol = "Method",
 
         # Update filter inputs with new data
         shiny::updateSelectInput(session, "keepIds",
-                               choices = unique(df_loaded[[idCol_loaded]]),
-                               selected = unique(df_loaded[[idCol_loaded]]))
-
+                                 choices = unique(df_loaded[[idCol_loaded]]),
+                                 selected = unique(df_loaded[[idCol_loaded]]))
+        
         shiny::updateSelectInput(session, "keepMetrics",
-                               choices = metrics_loaded,
-                               selected = metrics_loaded)
-
+                                 choices = metrics_loaded,
+                                 selected = metrics_loaded)
+        
         # Save to localStorage for session persistence (only when requested)
         if (save_to_storage) {
             session$sendCustomMessage("saveToLocalStorage", list(
@@ -403,129 +403,129 @@ bettr <- function(df = NULL, idCol = "Method",
             # Full bettr sidebar
             # Build accordion panels list
             accordion_panels <- list(
-                    bslib::accordion_panel(
-                        "Methods/IDs",
-                        shiny::uiOutput(outputId = "highlightMethodUI"),
-                        shiny::radioButtons(
-                            inputId = "scoreMethod",
-                            label = "Score aggregation method",
-                            choices = c("weighted mean",
-                                        "weighted median",
-                                        "weighted fraction highest",
-                                        "weighted fraction lowest"),
-                            selected = "weighted mean",
-                            inline = TRUE
+                bslib::accordion_panel(
+                    "Methods/IDs",
+                    shiny::uiOutput(outputId = "highlightMethodUI"),
+                    shiny::radioButtons(
+                        inputId = "scoreMethod",
+                        label = "Score aggregation method",
+                        choices = c("weighted mean",
+                                    "weighted median",
+                                    "weighted fraction highest",
+                                    "weighted fraction lowest"),
+                        selected = "weighted mean",
+                        inline = TRUE
+                    ),
+                    shiny::radioButtons(
+                        inputId = "id_ordering",
+                        label = "ID ordering by score",
+                        choices = c("high-to-low",
+                                    "low-to-high"),
+                        selected = "high-to-low",
+                        inline = TRUE
+                    ),
+                    shiny::checkboxInput(
+                        inputId = "showOnlyTopIds",
+                        label = "Show only top IDs",
+                        value = FALSE
+                    ),
+                    shiny::conditionalPanel(
+                        condition = "input.showOnlyTopIds == true",
+                        shiny::numericInput(
+                            inputId = "nbrTopIds",
+                            label = "Number of IDs",
+                            value = 10L
                         ),
-                        shiny::radioButtons(
-                            inputId = "id_ordering",
-                            label = "ID ordering by score",
-                            choices = c("high-to-low",
-                                        "low-to-high"),
-                            selected = "high-to-low",
-                            inline = TRUE
-                        ),
+                        shiny::uiOutput(outputId = "idTopNGroupingUI")
+                    )
+                ),
+                bslib::accordion_panel(
+                    "Metrics",
+                    shiny::uiOutput(outputId = "metricGroupingUI"),
+                    shiny::conditionalPanel(
+                        condition = "input.metricGrouping != '---'",
                         shiny::checkboxInput(
-                            inputId = "showOnlyTopIds",
-                            label = "Show only top IDs",
+                            inputId = "metricCollapseGroup",
+                            label = "Collapse by group",
                             value = FALSE
-                        ),
-                        shiny::conditionalPanel(
-                            condition = "input.showOnlyTopIds == true",
-                            shiny::numericInput(
-                                inputId = "nbrTopIds",
-                                label = "Number of IDs",
-                                value = 10L
-                            ),
-                            shiny::uiOutput(outputId = "idTopNGroupingUI")
                         )
                     ),
-                    bslib::accordion_panel(
-                        "Metrics",
-                        shiny::uiOutput(outputId = "metricGroupingUI"),
-                        shiny::conditionalPanel(
-                            condition = "input.metricGrouping != '---'",
-                            shiny::checkboxInput(
-                                inputId = "metricCollapseGroup",
-                                label = "Collapse by group",
-                                value = FALSE
-                            )
-                        ),
-                        shiny::conditionalPanel(
-                            condition = "input.metricCollapseGroup == true",
-                            shiny::radioButtons(
-                                inputId = "metricCollapseMethod",
-                                label = "Collapse method",
-                                choices = c("mean", "max", "min"),
-                                selected = "mean"
-                            )
+                    shiny::conditionalPanel(
+                        condition = "input.metricCollapseGroup == true",
+                        shiny::radioButtons(
+                            inputId = "metricCollapseMethod",
+                            label = "Collapse method",
+                            choices = c("mean", "max", "min"),
+                            selected = "mean"
                         )
+                    )
+                ),
+                bslib::accordion_panel(
+                    "Plot settings",
+                    shiny::numericInput(
+                        inputId = "labelsize",
+                        label = "Label size",
+                        value = 10L, min = 2L, max = 20L, step = 1L
                     ),
-                    bslib::accordion_panel(
-                        "Plot settings",
-                        shiny::numericInput(
-                            inputId = "labelsize",
-                            label = "Label size",
-                            value = 10L, min = 2L, max = 20L, step = 1L
+                    shiny::numericInput(
+                        inputId = "hmheight",
+                        label = "Heatmap height (manual)",
+                        value = 600L, min = 100L, max = 1000L
+                    ),
+                    shiny::actionButton(
+                        inputId = "autoAdjustHmHeight",
+                        label = "Auto-adjust height"
+                    ),
+                    shiny::numericInput(
+                        inputId = "hm_rownamewidth",
+                        label = "Heatmap row name max width (cm)",
+                        value = 6L, min = 1L, max = 15L
+                    ),
+                    shiny::numericInput(
+                        inputId = "hm_colnameheight",
+                        label = "Heatmap column name max height (cm)",
+                        value = 6L, min = 1L, max = 15L
+                    )
+                    # shiny::actionButton(
+                    #     inputId = "update_size",
+                    #     label = "Get current height"
+                    # )
+                ),
+                bslib::accordion_panel(
+                    "Weights",
+                    shiny::uiOutput(outputId = "weights"),
+                    shiny::actionButton(inputId = "resetWeights",
+                                        label = "Reset to uniform weights")
+                )
+            )
+            
+            # Prepend Load Data panel if in serverMode
+            if (serverMode) {
+                accordion_panels <- c(
+                    list(bslib::accordion_panel(
+                        "Load Data",
+                        shiny::fileInput(
+                            inputId = "jsonFileReload",
+                            label = "Choose JSON File",
+                            accept = c(".json", ".JSON"),
+                            multiple = FALSE
                         ),
-                        shiny::numericInput(
-                            inputId = "hmheight",
-                            label = "Heatmap height (manual)",
-                            value = 600L, min = 100L, max = 1000L
+                        shiny::p(
+                            class = "text-muted small",
+                            style = "margin-top: -10px; margin-bottom: 10px;",
+                            "Uploaded data is cached in your browser."
                         ),
                         shiny::actionButton(
-                            inputId = "autoAdjustHmHeight",
-                            label = "Auto-adjust height"
-                        ),
-                        shiny::numericInput(
-                            inputId = "hm_rownamewidth",
-                            label = "Heatmap row name max width (cm)",
-                            value = 6L, min = 1L, max = 15L
-                        ),
-                        shiny::numericInput(
-                            inputId = "hm_colnameheight",
-                            label = "Heatmap column name max height (cm)",
-                            value = 6L, min = 1L, max = 15L
+                            inputId = "clearCache",
+                            label = "Clear Cached Data",
+                            class = "btn-sm btn-outline-secondary",
+                            style = "margin-top: 5px;"
                         )
-                        # shiny::actionButton(
-                        #     inputId = "update_size",
-                        #     label = "Get current height"
-                        # )
-                    ),
-                    bslib::accordion_panel(
-                        "Weights",
-                        shiny::uiOutput(outputId = "weights"),
-                        shiny::actionButton(inputId = "resetWeights",
-                                            label = "Reset to uniform weights")
-                    )
+                    )),
+                    accordion_panels
                 )
-
-                # Prepend Load Data panel if in serverMode
-                if (serverMode) {
-                    accordion_panels <- c(
-                        list(bslib::accordion_panel(
-                            "Load Data",
-                            shiny::fileInput(
-                                inputId = "jsonFileReload",
-                                label = "Choose JSON File",
-                                accept = c(".json", ".JSON"),
-                                multiple = FALSE
-                            ),
-                            shiny::p(
-                                class = "text-muted small",
-                                style = "margin-top: -10px; margin-bottom: 10px;",
-                                "Uploaded data is cached in your browser."
-                            ),
-                            shiny::actionButton(
-                                inputId = "clearCache",
-                                label = "Clear Cached Data",
-                                class = "btn-sm btn-outline-secondary",
-                                style = "margin-top: 5px;"
-                            )
-                        )),
-                        accordion_panels
-                    )
-                }
-
+            }
+            
             # Create accordion with panels
             do.call(bslib::accordion, c(
                 list(open = TRUE, multiple = TRUE),
@@ -549,51 +549,51 @@ bettr <- function(df = NULL, idCol = "Method",
 
             # Full bettr content with tabset panel
             shiny::tabsetPanel(
-                    type = "tabs",
-                    shiny::tabPanel(
-                        "Heatmap",
-                        shiny::br(),
-                        shiny::fluidRow(
-                            shiny::column(
-                                3,
-                                shiny::checkboxInput(
-                                    inputId = "show_row_names",
-                                    label = "Show row names",
-                                    value = TRUE
-                                )
-                            ),
-                            shiny::column(
-                                6,
-                                shiny::radioButtons(
-                                    inputId = "heatmap_plot_type",
-                                    label = "Plot type",
-                                    choices = c("Heatmap", "Dot plot"),
-                                    selected = "Heatmap", inline = TRUE
-                                )
+                type = "tabs",
+                shiny::tabPanel(
+                    "Heatmap",
+                    shiny::br(),
+                    shiny::fluidRow(
+                        shiny::column(
+                            3,
+                            shiny::checkboxInput(
+                                inputId = "show_row_names",
+                                label = "Show row names",
+                                value = TRUE
                             )
                         ),
-                        shiny::uiOutput("bettrHeatmapUI")
+                        shiny::column(
+                            6,
+                            shiny::radioButtons(
+                                inputId = "heatmap_plot_type",
+                                label = "Plot type",
+                                choices = c("Heatmap", "Dot plot"),
+                                selected = "Heatmap", inline = TRUE
+                            )
+                        )
                     ),
-                    shiny::tabPanel(
-                        "Parallel coordinates",
-                        shiny::br(),
-                        shiny::uiOutput("bettrParCoordplotUI")
-                    ),
-                    shiny::tabPanel(
-                        "Polar plot",
-                        shiny::br(),
-                        shiny::uiOutput("bettrPolarplotUI")
-                    ),
-                    shiny::tabPanel(
-                        "Bar/polar plot",
-                        shiny::br(),
-                        shiny::fluidRow(
-                            shiny::column(
-                                2,
-                                shiny::conditionalPanel(
-                                    condition =
-                                        "input.scoreMethod == 'weighted mean'",
-                                    shiny::checkboxInput(
+                    shiny::uiOutput("bettrHeatmapUI")
+                ),
+                shiny::tabPanel(
+                    "Parallel coordinates",
+                    shiny::br(),
+                    shiny::uiOutput("bettrParCoordplotUI")
+                ),
+                shiny::tabPanel(
+                    "Polar plot",
+                    shiny::br(),
+                    shiny::uiOutput("bettrPolarplotUI")
+                ),
+                shiny::tabPanel(
+                    "Bar/polar plot",
+                    shiny::br(),
+                    shiny::fluidRow(
+                        shiny::column(
+                            2,
+                            shiny::conditionalPanel(
+                                condition =
+                                    "input.scoreMethod == 'weighted mean'",
+                                shiny::checkboxInput(
                                     inputId = "barpolar_showcomp",
                                     label = "Show\nscore\ncomposition",
                                     value = FALSE
@@ -702,94 +702,94 @@ bettr <- function(df = NULL, idCol = "Method",
 
             # Load cached JSON data if available
             shiny::observeEvent(input$cached_json_data, {
-            shiny::req(input$cached_json_data)
-
-            cat("[Session:", session$token, "] Loading cached JSON data...\n")
-
-            tryCatch({
-                # Parse cached JSON string
-                bettrSE <- bettrFromJSON(json = input$cached_json_data)
-
-                # Determine filename from cached data or use default
-                filename <- if (!is.null(input$cached_json_filename)) {
-                    input$cached_json_filename
-                } else {
-                    "cached_data.json"
-                }
-
-                # Load data using helper function (don't re-save to localStorage)
-                .loadJSONDataHelper(bettrSE, input$cached_json_data, filename,
-                                   app_state, session, values,
-                                   save_to_storage = FALSE)
-
-                cat("[Session:", session$token, "] Successfully loaded cached data:", filename, "\n")
-                shiny::showNotification(paste("Restored cached data:", filename),
-                                       duration = 3, type = "message")
-
-            }, error = function(e) {
-                # If cached data is corrupted, clear it
-                cat("[Session:", session$token, "] Error loading cached data:", e$message, "\n")
-                session$sendCustomMessage("clearLocalStorage", list())
-                shiny::showNotification(
-                    "Cached data could not be loaded and has been cleared.",
-                    duration = 5,
-                    type = "warning"
-                )
-            })
-        }, once = TRUE)
-
+                shiny::req(input$cached_json_data)
+                
+                cat("[Session:", session$token, "] Loading cached JSON data...\n")
+                
+                tryCatch({
+                    # Parse cached JSON string
+                    bettrSE <- bettrFromJSON(json = input$cached_json_data)
+                    
+                    # Determine filename from cached data or use default
+                    filename <- if (!is.null(input$cached_json_filename)) {
+                        input$cached_json_filename
+                    } else {
+                        "cached_data.json"
+                    }
+                    
+                    # Load data using helper function (don't re-save to localStorage)
+                    .loadJSONDataHelper(bettrSE, input$cached_json_data, filename,
+                                        app_state, session, values,
+                                        save_to_storage = FALSE)
+                    
+                    cat("[Session:", session$token, "] Successfully loaded cached data:", filename, "\n")
+                    shiny::showNotification(paste("Restored cached data:", filename),
+                                            duration = 3, type = "message")
+                    
+                }, error = function(e) {
+                    # If cached data is corrupted, clear it
+                    cat("[Session:", session$token, "] Error loading cached data:", e$message, "\n")
+                    session$sendCustomMessage("clearLocalStorage", list())
+                    shiny::showNotification(
+                        "Cached data could not be loaded and has been cleared.",
+                        duration = 5,
+                        type = "warning"
+                    )
+                })
+            }, once = TRUE)
+            
             # Upload functionality - JSON file handling
             shiny::observeEvent(input$jsonFile, {
-            shiny::req(input$jsonFile)
-
-            tryCatch({
-                # Read the JSON file content
-                json_content <- readLines(input$jsonFile$datapath, warn = FALSE)
-                json_string <- paste(json_content, collapse = "\n")
-
-                # Parse the JSON file using bettrFromJSON
-                bettrSE <- bettrFromJSON(json = json_string)
-
-                # Load the data using helper function
-                .loadJSONDataHelper(bettrSE, json_string, input$jsonFile$name,
-                                   app_state, session, values)
-
-                shiny::showNotification("JSON file loaded successfully!")
-
-            }, error = function(e) {
-                shiny::showNotification(
-                    paste("Error reading JSON file:", e$message),
-                    duration = 10,
-                    type = "error"
-                )
-            })
+                shiny::req(input$jsonFile)
+                
+                tryCatch({
+                    # Read the JSON file content
+                    json_content <- readLines(input$jsonFile$datapath, warn = FALSE)
+                    json_string <- paste(json_content, collapse = "\n")
+                    
+                    # Parse the JSON file using bettrFromJSON
+                    bettrSE <- bettrFromJSON(json = json_string)
+                    
+                    # Load the data using helper function
+                    .loadJSONDataHelper(bettrSE, json_string, input$jsonFile$name,
+                                        app_state, session, values)
+                    
+                    shiny::showNotification("JSON file loaded successfully!")
+                    
+                }, error = function(e) {
+                    shiny::showNotification(
+                        paste("Error reading JSON file:", e$message),
+                        duration = 10,
+                        type = "error"
+                    )
+                })
             })
 
             # Reload functionality - JSON file handling for bettr mode
             shiny::observeEvent(input$jsonFileReload, {
-            shiny::req(input$jsonFileReload)
-
-            tryCatch({
-                # Read the JSON file content
-                json_content <- readLines(input$jsonFileReload$datapath, warn = FALSE)
-                json_string <- paste(json_content, collapse = "\n")
-
-                # Parse the JSON file using bettrFromJSON
-                bettrSE <- bettrFromJSON(json = json_string)
-
-                # Load the data using helper function
-                .loadJSONDataHelper(bettrSE, json_string, input$jsonFileReload$name,
-                                   app_state, session, values)
-
-                shiny::showNotification("Data reloaded successfully!")
-
-            }, error = function(e) {
-                shiny::showNotification(
-                    paste("Error reloading data:", e$message),
-                    duration = 10,
-                    type = "error"
-                )
-            })
+                shiny::req(input$jsonFileReload)
+                
+                tryCatch({
+                    # Read the JSON file content
+                    json_content <- readLines(input$jsonFileReload$datapath, warn = FALSE)
+                    json_string <- paste(json_content, collapse = "\n")
+                    
+                    # Parse the JSON file using bettrFromJSON
+                    bettrSE <- bettrFromJSON(json = json_string)
+                    
+                    # Load the data using helper function
+                    .loadJSONDataHelper(bettrSE, json_string, input$jsonFileReload$name,
+                                        app_state, session, values)
+                    
+                    shiny::showNotification("Data reloaded successfully!")
+                    
+                }, error = function(e) {
+                    shiny::showNotification(
+                        paste("Error reloading data:", e$message),
+                        duration = 10,
+                        type = "error"
+                    )
+                })
             })
 
             # Clear cache button handler
@@ -834,80 +834,80 @@ bettr <- function(df = NULL, idCol = "Method",
 
                 # Handle jsonUrl parameter (load from URL)
                 if (!is.null(query$jsonUrl) && query$jsonUrl != "") {
-                cat("[Session:", session$token, "] Loading JSON from URL:", query$jsonUrl, "\n")
-                tryCatch({
-                    # Download JSON from URL
-                    temp_file <- tempfile(fileext = ".json")
-                    download.file(query$jsonUrl, temp_file, quiet = TRUE)
-                    json_content <- readLines(temp_file, warn = FALSE)
-                    json_string <- paste(json_content, collapse = "\n")
-                    unlink(temp_file)
-
-                    # Parse and load the JSON
-                    bettrSE <- bettrFromJSON(json = json_string)
-
-                    # Extract filename from URL
-                    filename <- basename(query$jsonUrl)
-
-                    # Load the data using helper function
-                    .loadJSONDataHelper(bettrSE, json_string, filename,
-                                       app_state, session, values)
-
-                    cat("[Session:", session$token, "] Successfully loaded JSON from URL\n")
-                    shiny::showNotification(
-                        paste0("Loaded data from URL: ", filename),
-                        duration = 5,
-                        type = "message"
-                    )
-                }, error = function(e) {
-                    cat("[Session:", session$token, "] Error loading JSON from URL:", conditionMessage(e), "\n")
-                    shiny::showNotification(
-                        paste0("Failed to load JSON from URL: ", conditionMessage(e)),
-                        duration = 10,
-                        type = "error"
-                    )
-                })
-            }
-
-            # Handle jsonFile parameter (load from local file path)
-            if (!is.null(query$jsonFile) && query$jsonFile != "") {
-                cat("[Session:", session$token, "] Loading JSON from file:", query$jsonFile, "\n")
-                tryCatch({
-                    # Check if file exists
-                    if (!file.exists(query$jsonFile)) {
-                        stop("File not found: ", query$jsonFile)
-                    }
-
-                    # Read JSON file
-                    json_content <- readLines(query$jsonFile, warn = FALSE)
-                    json_string <- paste(json_content, collapse = "\n")
-
-                    # Parse and load the JSON
-                    bettrSE <- bettrFromJSON(json = json_string)
-
-                    # Extract filename from path
-                    filename <- basename(query$jsonFile)
-
-                    # Load the data using helper function
-                    .loadJSONDataHelper(bettrSE, json_string, filename,
-                                       app_state, session, values)
-
-                    cat("[Session:", session$token, "] Successfully loaded JSON from file\n")
-                    shiny::showNotification(
-                        paste0("Loaded data from file: ", filename),
-                        duration = 5,
-                        type = "message"
-                    )
-                }, error = function(e) {
-                    cat("[Session:", session$token, "] Error loading JSON from file:", conditionMessage(e), "\n")
-                    shiny::showNotification(
-                        paste0("Failed to load JSON from file: ", conditionMessage(e)),
-                        duration = 10,
-                        type = "error"
-                    )
-                })
-            }
-        }, once = TRUE)
+                    cat("[Session:", session$token, "] Loading JSON from URL:", query$jsonUrl, "\n")
+                    tryCatch({
+                        # Download JSON from URL
+                        temp_file <- tempfile(fileext = ".json")
+                        download.file(query$jsonUrl, temp_file, quiet = TRUE)
+                        json_content <- readLines(temp_file, warn = FALSE)
+                        json_string <- paste(json_content, collapse = "\n")
+                        unlink(temp_file)
+                        
+                        # Parse and load the JSON
+                        bettrSE <- bettrFromJSON(json = json_string)
+                        
+                        # Extract filename from URL
+                        filename <- basename(query$jsonUrl)
+                        
+                        # Load the data using helper function
+                        .loadJSONDataHelper(bettrSE, json_string, filename,
+                                            app_state, session, values)
+                        
+                        cat("[Session:", session$token, "] Successfully loaded JSON from URL\n")
+                        shiny::showNotification(
+                            paste0("Loaded data from URL: ", filename),
+                            duration = 5,
+                            type = "message"
+                        )
+                    }, error = function(e) {
+                        cat("[Session:", session$token, "] Error loading JSON from URL:", conditionMessage(e), "\n")
+                        shiny::showNotification(
+                            paste0("Failed to load JSON from URL: ", conditionMessage(e)),
+                            duration = 10,
+                            type = "error"
+                        )
+                    })
+                }
+                
+                # Handle jsonFile parameter (load from local file path)
+                if (!is.null(query$jsonFile) && query$jsonFile != "") {
+                    cat("[Session:", session$token, "] Loading JSON from file:", query$jsonFile, "\n")
+                    tryCatch({
+                        # Check if file exists
+                        if (!file.exists(query$jsonFile)) {
+                            stop("File not found: ", query$jsonFile)
+                        }
+                        
+                        # Read JSON file
+                        json_content <- readLines(query$jsonFile, warn = FALSE)
+                        json_string <- paste(json_content, collapse = "\n")
+                        
+                        # Parse and load the JSON
+                        bettrSE <- bettrFromJSON(json = json_string)
+                        
+                        # Extract filename from path
+                        filename <- basename(query$jsonFile)
+                        
+                        # Load the data using helper function
+                        .loadJSONDataHelper(bettrSE, json_string, filename,
+                                            app_state, session, values)
+                        
+                        cat("[Session:", session$token, "] Successfully loaded JSON from file\n")
+                        shiny::showNotification(
+                            paste0("Loaded data from file: ", filename),
+                            duration = 5,
+                            type = "message"
+                        )
+                    }, error = function(e) {
+                        cat("[Session:", session$token, "] Error loading JSON from file:", conditionMessage(e), "\n")
+                        shiny::showNotification(
+                            paste0("Failed to load JSON from file: ", conditionMessage(e)),
+                            duration = 10,
+                            type = "error"
+                        )
+                    })
+                }
+            }, once = TRUE)
         }
 
         # Update values when switching from server to bettr mode
@@ -933,44 +933,44 @@ bettr <- function(df = NULL, idCol = "Method",
             }
 
             shiny::validate(
-                    shiny::need(values$df, "No data"),
-                    shiny::need(values$methods, "No methods"),
-                    shiny::need(values$metrics, "No metrics")
-                )
-
-                # Use defaults if filter inputs are not yet initialized
-                keepIds <- if (!is.null(input$keepIds)) input$keepIds else values$methods
-                keepMetrics <- if (!is.null(input$keepMetrics)) input$keepMetrics else values$metrics
-
-                idFilters <- if (!is.null(values$idInfo)) setdiff(colnames(values$idInfo), idCol) else character(0)
-                metricFilters <- if (!is.null(values$metricInfo)) setdiff(colnames(values$metricInfo), metricCol) else character(0)
-
-                # Build keepIdsBy with defaults
-                keepIdsBy <- lapply(
-                    setNames(idFilters, nm = idFilters),
-                    function(nm) {
-                        inp <- input[[paste0("keepIdBy_", nm)]]
-                        if (is.null(inp) && !is.null(values$idInfo)) {
-                            unique(values$idInfo[[nm]])
-                        } else {
-                            inp
-                        }
+                shiny::need(values$df, "No data"),
+                shiny::need(values$methods, "No methods"),
+                shiny::need(values$metrics, "No metrics")
+            )
+            
+            # Use defaults if filter inputs are not yet initialized
+            keepIds <- if (!is.null(input$keepIds)) input$keepIds else values$methods
+            keepMetrics <- if (!is.null(input$keepMetrics)) input$keepMetrics else values$metrics
+            
+            idFilters <- if (!is.null(values$idInfo)) setdiff(colnames(values$idInfo), idCol) else character(0)
+            metricFilters <- if (!is.null(values$metricInfo)) setdiff(colnames(values$metricInfo), metricCol) else character(0)
+            
+            # Build keepIdsBy with defaults
+            keepIdsBy <- lapply(
+                setNames(idFilters, nm = idFilters),
+                function(nm) {
+                    inp <- input[[paste0("keepIdBy_", nm)]]
+                    if (is.null(inp) && !is.null(values$idInfo)) {
+                        unique(values$idInfo[[nm]])
+                    } else {
+                        inp
                     }
-                )
-
-                # Build keepMetricsBy with defaults
-                keepMetricsBy <- lapply(
-                    setNames(metricFilters, nm = metricFilters),
-                    function(nm) {
-                        inp <- input[[paste0("keepMetricBy_", nm)]]
-                        if (is.null(inp) && !is.null(values$metricInfo)) {
-                            unique(values$metricInfo[[nm]])
-                        } else {
-                            inp
-                        }
+                }
+            )
+            
+            # Build keepMetricsBy with defaults
+            keepMetricsBy <- lapply(
+                setNames(metricFilters, nm = metricFilters),
+                function(nm) {
+                    inp <- input[[paste0("keepMetricBy_", nm)]]
+                    if (is.null(inp) && !is.null(values$metricInfo)) {
+                        unique(values$metricInfo[[nm]])
+                    } else {
+                        inp
                     }
-                )
-
+                }
+            )
+            
             .filterData(
                 df = values$df, idInfo = values$idInfo, idCol = idCol,
                 keepIds = keepIds,
@@ -1000,41 +1000,41 @@ bettr <- function(df = NULL, idCol = "Method",
             }
 
             shiny::validate(
-                    shiny::need(filtdata(), ""),
-                    shiny::need(metricsInUse(), ""),
-                    shiny::need(prep, "")
-                )
-                # Note: We don't validate transformation inputs here because they
-                # may not be initialized yet (user hasn't visited Transform tab).
-                # Instead, we'll use default values from prep$initialTransforms
-                # when inputs are NULL (see below)
-
-                tmp <- filtdata()
-                for (m in intersect(colnames(filtdata()), metricsInUse())) {
-                    if (m %in% prep$metrics_num) {
-                        # Use default transforms if no input available
-                        flip_val <- if (!is.null(input[[paste0(m, "_flip")]])) input[[paste0(m, "_flip")]] else prep$initialTransforms[[m]][["flip"]]
-                        offset_val <- if (!is.null(input[[paste0(m, "_offset")]])) input[[paste0(m, "_offset")]] else prep$initialTransforms[[m]][["offset"]]
-                        transform_val <- if (!is.null(input[[paste0(m, "_transform")]])) input[[paste0(m, "_transform")]] else prep$initialTransforms[[m]][["transform"]]
-                        bincuts_val <- if (!is.null(input[[paste0(m, "_bincuts")]])) sort(as.numeric(input[[paste0(m, "_bincuts")]])) else prep$initialTransforms[[m]][["cuts"]]
-
-                        tmp[[m]] <- .transformNumericVariable(
-                            x = filtdata()[[m]],
-                            flip = flip_val,
-                            offset = offset_val,
-                            transf = .getTransf(transform_val),
-                            bincuts = bincuts_val
-                        )
-                    } else if (m %in% prep$metrics_cat) {
-                        # Use default levels if no input available
-                        levels_val <- if (!is.null(input[[paste0(m, "_levels")]])) input[[paste0(m, "_levels")]] else prep$initialTransforms[[m]][["levels"]]
-
-                        tmp[[m]] <- .transformCategoricalVariable(
-                            x = filtdata()[[m]],
-                            levels = levels_val
-                        )
-                    } else {
-                        stop("Encountered metric that could not be identified as numeric or categorical: ", m)
+                shiny::need(filtdata(), ""),
+                shiny::need(metricsInUse(), ""),
+                shiny::need(prep, "")
+            )
+            # Note: We don't validate transformation inputs here because they
+            # may not be initialized yet (user hasn't visited Transform tab).
+            # Instead, we'll use default values from prep$initialTransforms
+            # when inputs are NULL (see below)
+            
+            tmp <- filtdata()
+            for (m in intersect(colnames(filtdata()), metricsInUse())) {
+                if (m %in% prep$metrics_num) {
+                    # Use default transforms if no input available
+                    flip_val <- if (!is.null(input[[paste0(m, "_flip")]])) input[[paste0(m, "_flip")]] else prep$initialTransforms[[m]][["flip"]]
+                    offset_val <- if (!is.null(input[[paste0(m, "_offset")]])) input[[paste0(m, "_offset")]] else prep$initialTransforms[[m]][["offset"]]
+                    transform_val <- if (!is.null(input[[paste0(m, "_transform")]])) input[[paste0(m, "_transform")]] else prep$initialTransforms[[m]][["transform"]]
+                    bincuts_val <- if (!is.null(input[[paste0(m, "_bincuts")]])) sort(as.numeric(input[[paste0(m, "_bincuts")]])) else prep$initialTransforms[[m]][["cuts"]]
+                    
+                    tmp[[m]] <- .transformNumericVariable(
+                        x = filtdata()[[m]],
+                        flip = flip_val,
+                        offset = offset_val,
+                        transf = .getTransf(transform_val),
+                        bincuts = bincuts_val
+                    )
+                } else if (m %in% prep$metrics_cat) {
+                    # Use default levels if no input available
+                    levels_val <- if (!is.null(input[[paste0(m, "_levels")]])) input[[paste0(m, "_levels")]] else prep$initialTransforms[[m]][["levels"]]
+                    
+                    tmp[[m]] <- .transformCategoricalVariable(
+                        x = filtdata()[[m]],
+                        levels = levels_val
+                    )
+                } else {
+                    stop("Encountered metric that could not be identified as numeric or categorical: ", m)
                 }
             }
 
@@ -1050,8 +1050,8 @@ bettr <- function(df = NULL, idCol = "Method",
             }
 
             shiny::validate(
-                    shiny::need(procdata(), "")
-                )
+                shiny::need(procdata(), "")
+            )
             .makeLongData(df = procdata(), idCol = idCol,
                           metrics = metricsInUse(), metricCol = metricCol,
                           valueCol = valueCol,
@@ -1067,23 +1067,23 @@ bettr <- function(df = NULL, idCol = "Method",
             }
 
             shiny::validate(
-                    shiny::need(longdata(), "")
-                )
-                weightControls <- grep("_weight", names(input),
-                                       fixed = TRUE, value = TRUE)
-                names(weightControls) <- weightControls
-                  .addWeightsToLongData(
-                      df = longdata(),
-                      metricCollapseGroup = if (!is.null(input$metricCollapseGroup)) input$metricCollapseGroup else FALSE,
-                      metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
-                      metricGroupCol = metricGroupCol,
-                      weights = lapply(weightControls, function(nm) {
-                          input[[nm]]
-                      }),
-                      weightCol = weightCol,
-                      metrics = metricsInUse(),
-                      metricCol = metricCol
-                  )
+                shiny::need(longdata(), "")
+            )
+            weightControls <- grep("_weight", names(input),
+                                   fixed = TRUE, value = TRUE)
+            names(weightControls) <- weightControls
+            .addWeightsToLongData(
+                df = longdata(),
+                metricCollapseGroup = if (!is.null(input$metricCollapseGroup)) input$metricCollapseGroup else FALSE,
+                metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
+                metricGroupCol = metricGroupCol,
+                weights = lapply(weightControls, function(nm) {
+                    input[[nm]]
+                }),
+                weightCol = weightCol,
+                metrics = metricsInUse(),
+                metricCol = metricCol
+            )
         })
 
         ## Collapsed data (average metrics)
@@ -1093,19 +1093,19 @@ bettr <- function(df = NULL, idCol = "Method",
             }
 
             shiny::validate(
-                    shiny::need(longdataweights(), "")
-                )
-                .collapseLongData(
-                  df = longdataweights(),
-                  metricCollapseGroup = if (!is.null(input$metricCollapseGroup)) input$metricCollapseGroup else FALSE,
-                  metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
-                  idCol = idCol, 
-                  metricGroupCol = metricGroupCol,
-                  valueCol = valueCol, 
-                  weightCol = weightCol,
-                  metricCol = metricCol,
-                  collapseMethod = if (!is.null(input$metricCollapseMethod)) input$metricCollapseMethod else "mean"
-                )
+                shiny::need(longdataweights(), "")
+            )
+            .collapseLongData(
+                df = longdataweights(),
+                metricCollapseGroup = if (!is.null(input$metricCollapseGroup)) input$metricCollapseGroup else FALSE,
+                metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
+                idCol = idCol, 
+                metricGroupCol = metricGroupCol,
+                valueCol = valueCol, 
+                weightCol = weightCol,
+                metricCol = metricCol,
+                collapseMethod = if (!is.null(input$metricCollapseMethod)) input$metricCollapseMethod else "mean"
+            )
         })
 
         ## Calculate scores ---------------------------------------------------
@@ -1115,21 +1115,21 @@ bettr <- function(df = NULL, idCol = "Method",
             }
 
             shiny::validate(
-                    shiny::need(collapseddata(), "")
-                )
-                scoreDf <- .calculateScores(
-                    df = collapseddata(),
-                    scoreMethod = if (!is.null(input$scoreMethod)) input$scoreMethod else "weighted mean",
-                    idCol = idCol, scoreCol = scoreCol,
-                    weightCol = weightCol, valueCol = valueCol,
-                    metricCol = metricCol
-                )
-                scoreDf <- .sortAndFilterScoreData(
-                    scoreDf = scoreDf,
-                    idInfo = values$idInfo,
-                    idCol = idCol, scoreCol = scoreCol,
-                    idTopNGrouping = if (!is.null(input$idTopNGrouping)) input$idTopNGrouping else "---",
-                    idOrdering = if (!is.null(input$id_ordering)) input$id_ordering else "high-to-low",
+                shiny::need(collapseddata(), "")
+            )
+            scoreDf <- .calculateScores(
+                df = collapseddata(),
+                scoreMethod = if (!is.null(input$scoreMethod)) input$scoreMethod else "weighted mean",
+                idCol = idCol, scoreCol = scoreCol,
+                weightCol = weightCol, valueCol = valueCol,
+                metricCol = metricCol
+            )
+            scoreDf <- .sortAndFilterScoreData(
+                scoreDf = scoreDf,
+                idInfo = values$idInfo,
+                idCol = idCol, scoreCol = scoreCol,
+                idTopNGrouping = if (!is.null(input$idTopNGrouping)) input$idTopNGrouping else "---",
+                idOrdering = if (!is.null(input$id_ordering)) input$id_ordering else "high-to-low",
                 showOnlyTopIds = if (!is.null(input$showOnlyTopIds)) input$showOnlyTopIds else FALSE,
                 nbrTopIds = if (!is.null(input$nbrTopIds)) input$nbrTopIds else 10
             )
@@ -1143,9 +1143,9 @@ bettr <- function(df = NULL, idCol = "Method",
             }
 
             shiny::validate(
-                    shiny::need(collapseddata(), ""),
-                    shiny::need(scoredata(), "")
-                )
+                shiny::need(collapseddata(), ""),
+                shiny::need(scoredata(), "")
+            )
             tmp <- collapseddata() |>
                 dplyr::filter(.data[[idCol]] %in% scoredata()[[idCol]])
             tmp[[idCol]] <- factor(tmp[[idCol]],
@@ -1155,8 +1155,8 @@ bettr <- function(df = NULL, idCol = "Method",
         
         observeEvent(input$autoAdjustHmHeight,
                      shiny::updateNumericInput(
-                       session, "hmheight",
-                       value = 200L + 35L * length(unique(plotdata()[[idCol]]))
+                         session, "hmheight",
+                         value = 200L + 35L * length(unique(plotdata()[[idCol]]))
                      ))
         
         ## UI element to filter methods by grouping columns -------------------
@@ -1273,37 +1273,37 @@ bettr <- function(df = NULL, idCol = "Method",
                 }
 
                 do.call(
-                        shiny::tabsetPanel,
-                        c(list(type = "hidden",
-                               id = "metricManipulationSummary",
-                               ## Empty body when "---" is selected
-                               shiny::tabPanelBody(
-                                   value = "---",
-                                   NULL
-                               )),
-                          ## One tab panel per metric. The actual panel content is
-                          ## created below (it's different for numeric and
-                          ## categorical variables)
-                          lapply(metricsInUse(), function(i) {
-                              shiny::tabPanelBody(
-                                  value = i,
-                                  shiny::fluidRow(
-                                      ## Input controls
-                                      shiny::column(
-                                          4L,
-                                          shiny::uiOutput(
-                                              outputId = paste0(i, "_transformUI")
-                                          )
-                                      ),
-                                      ## Summary plots
-                                      shiny::column(
-                                          8L,
-                                          shiny::plotOutput(
-                                              outputId = paste0(i, "_plotsummary")
-                                          )
+                    shiny::tabsetPanel,
+                    c(list(type = "hidden",
+                           id = "metricManipulationSummary",
+                           ## Empty body when "---" is selected
+                           shiny::tabPanelBody(
+                               value = "---",
+                               NULL
+                           )),
+                      ## One tab panel per metric. The actual panel content is
+                      ## created below (it's different for numeric and
+                      ## categorical variables)
+                      lapply(metricsInUse(), function(i) {
+                          shiny::tabPanelBody(
+                              value = i,
+                              shiny::fluidRow(
+                                  ## Input controls
+                                  shiny::column(
+                                      4L,
+                                      shiny::uiOutput(
+                                          outputId = paste0(i, "_transformUI")
+                                      )
+                                  ),
+                                  ## Summary plots
+                                  shiny::column(
+                                      8L,
+                                      shiny::plotOutput(
+                                          outputId = paste0(i, "_plotsummary")
                                       )
                                   )
                               )
+                          )
                       })
                     )
                 )
@@ -1408,14 +1408,14 @@ bettr <- function(df = NULL, idCol = "Method",
             }
 
             tmpdf <- plotdata() |>
-                    dplyr::mutate("{valueCol}" := signif(.data[[valueCol]], digits = 4)) |>
-                    dplyr::select(dplyr::all_of(c(idCol, valueCol, metricCol))) |>
-                    tidyr::pivot_wider(names_from = .data[[metricCol]],
-                                       values_from = .data[[valueCol]]) |>
-                    dplyr::left_join(scoredata(), by = idCol) |>
-                    dplyr::mutate("{scoreCol}" := signif(.data[[scoreCol]], digits = 4)) |>
-                    dplyr::relocate(dplyr::all_of(idCol))
-
+                dplyr::mutate("{valueCol}" := signif(.data[[valueCol]], digits = 4)) |>
+                dplyr::select(dplyr::all_of(c(idCol, valueCol, metricCol))) |>
+                tidyr::pivot_wider(names_from = .data[[metricCol]],
+                                   values_from = .data[[valueCol]]) |>
+                dplyr::left_join(scoredata(), by = idCol) |>
+                dplyr::mutate("{scoreCol}" := signif(.data[[scoreCol]], digits = 4)) |>
+                dplyr::relocate(dplyr::all_of(idCol))
+            
             ordering <- if (!is.null(input$id_ordering)) input$id_ordering else "high-to-low"
             if (ordering == "high-to-low") {
                 tmpdf |> dplyr::arrange(dplyr::desc(.data[[scoreCol]]))
@@ -1442,16 +1442,16 @@ bettr <- function(df = NULL, idCol = "Method",
             }
 
             makeParCoordPlot(
-              bettrList = NULL,
-              plotdata = plotdata(), idCol = idCol,
-              metricCol = metricCol, valueCol = valueCol,
-              metricGroupCol = metricGroupCol,
-              metricColors = prep$metricColors,
-              idColors = prep$idColors,
-              methods = methodsInUse(),
-              metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
-              highlightMethod = if (!is.null(input$highlightMethod)) input$highlightMethod else NULL,
-              labelSize = if (!is.null(input$labelsize)) input$labelsize else 10
+                bettrList = NULL,
+                plotdata = plotdata(), idCol = idCol,
+                metricCol = metricCol, valueCol = valueCol,
+                metricGroupCol = metricGroupCol,
+                metricColors = prep$metricColors,
+                idColors = prep$idColors,
+                methods = methodsInUse(),
+                metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
+                highlightMethod = if (!is.null(input$highlightMethod)) input$highlightMethod else NULL,
+                labelSize = if (!is.null(input$labelsize)) input$labelsize else 10
             )
         })
 
@@ -1470,15 +1470,15 @@ bettr <- function(df = NULL, idCol = "Method",
             }
 
             makePolarPlot(
-              bettrList = NULL,
-              plotdata = plotdata(),
-              idCol = idCol,
-              metricCol = metricCol, valueCol = valueCol,
-              metricGroupCol = metricGroupCol,
-              metricColors = prep$metricColors,
-              metricCollapseGroup = if (!is.null(input$metricCollapseGroup)) input$metricCollapseGroup else FALSE,
-              metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
-              labelSize = if (!is.null(input$labelsize)) input$labelsize else 10
+                bettrList = NULL,
+                plotdata = plotdata(),
+                idCol = idCol,
+                metricCol = metricCol, valueCol = valueCol,
+                metricGroupCol = metricGroupCol,
+                metricColors = prep$metricColors,
+                metricCollapseGroup = if (!is.null(input$metricCollapseGroup)) input$metricCollapseGroup else FALSE,
+                metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
+                labelSize = if (!is.null(input$labelsize)) input$labelsize else 10
             )
         })
 
@@ -1495,26 +1495,26 @@ bettr <- function(df = NULL, idCol = "Method",
             if (app_state$serverMode || is.null(plotdata()) || is.null(scoredata()) || is.null(prep)) {
                 return(NULL)
             }
-
-                ssc <- if (!is.null(input$scoreMethod) && input$scoreMethod == "weighted mean" && !is.null(input$barpolar_showcomp)) {
-                    input$barpolar_showcomp
-                } else {
-                    FALSE
-                }
-                makeBarPolarPlot(
-                    bettrList = NULL,
-                    plotdata = plotdata(), scoredata = scoredata(),
-                    idCol = idCol,
-                    metricCol = metricCol, valueCol = valueCol,
-                    weightCol = weightCol, scoreCol = scoreCol,
-                    metricGroupCol = metricGroupCol,
-                    metricColors = prep$metricColors,
-                    metricCollapseGroup = if (!is.null(input$metricCollapseGroup)) input$metricCollapseGroup else FALSE,
-                    metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
-                    methods = methodsInUse(),
-                    labelSize = if (!is.null(input$labelsize)) input$labelsize else 10,
-                    showComposition = ssc,
-                    scaleFactorPolars = if (!is.null(input$barpolar_scalefactor)) input$barpolar_scalefactor else 1.5
+            
+            ssc <- if (!is.null(input$scoreMethod) && input$scoreMethod == "weighted mean" && !is.null(input$barpolar_showcomp)) {
+                input$barpolar_showcomp
+            } else {
+                FALSE
+            }
+            makeBarPolarPlot(
+                bettrList = NULL,
+                plotdata = plotdata(), scoredata = scoredata(),
+                idCol = idCol,
+                metricCol = metricCol, valueCol = valueCol,
+                weightCol = weightCol, scoreCol = scoreCol,
+                metricGroupCol = metricGroupCol,
+                metricColors = prep$metricColors,
+                metricCollapseGroup = if (!is.null(input$metricCollapseGroup)) input$metricCollapseGroup else FALSE,
+                metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
+                methods = methodsInUse(),
+                labelSize = if (!is.null(input$labelsize)) input$labelsize else 10,
+                showComposition = ssc,
+                scaleFactorPolars = if (!is.null(input$barpolar_scalefactor)) input$barpolar_scalefactor else 1.5
             )
         })
 
@@ -1535,22 +1535,22 @@ bettr <- function(df = NULL, idCol = "Method",
             }
 
             makeHeatmap(
-                    bettrList = NULL,
-                    plotdata = plotdata(), scoredata = scoredata(),
-                    idCol = idCol, metricCol = metricCol, valueCol = valueCol,
-                    weightCol = weightCol, scoreCol = scoreCol,
-                    metricGroupCol = metricGroupCol,
-                    metricInfo = values$metricInfo,
-                    metricColors = prep$metricColors,
-                    idInfo = values$idInfo,
-                    idColors = prep$idColors,
-                    metricCollapseGroup = if (!is.null(input$metricCollapseGroup)) input$metricCollapseGroup else FALSE,
-                    metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
-                    labelSize = if (!is.null(input$labelsize)) input$labelsize else 10,
-                    showRowNames = if (!is.null(input$show_row_names)) input$show_row_names else TRUE,
-                    plotType = if (!is.null(input$heatmap_plot_type)) input$heatmap_plot_type else "Heatmap",
-                    rownamewidth_cm = if (!is.null(input$hm_rownamewidth)) input$hm_rownamewidth else 6,
-                    colnameheight_cm = if (!is.null(input$hm_colnameheight)) input$hm_colnameheight else 6
+                bettrList = NULL,
+                plotdata = plotdata(), scoredata = scoredata(),
+                idCol = idCol, metricCol = metricCol, valueCol = valueCol,
+                weightCol = weightCol, scoreCol = scoreCol,
+                metricGroupCol = metricGroupCol,
+                metricInfo = values$metricInfo,
+                metricColors = prep$metricColors,
+                idInfo = values$idInfo,
+                idColors = prep$idColors,
+                metricCollapseGroup = if (!is.null(input$metricCollapseGroup)) input$metricCollapseGroup else FALSE,
+                metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
+                labelSize = if (!is.null(input$labelsize)) input$labelsize else 10,
+                showRowNames = if (!is.null(input$show_row_names)) input$show_row_names else TRUE,
+                plotType = if (!is.null(input$heatmap_plot_type)) input$heatmap_plot_type else "Heatmap",
+                rownamewidth_cm = if (!is.null(input$hm_rownamewidth)) input$hm_rownamewidth else 6,
+                colnameheight_cm = if (!is.null(input$hm_colnameheight)) input$hm_colnameheight else 6
             )
         })
 
