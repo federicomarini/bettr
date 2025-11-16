@@ -30,9 +30,7 @@
 #'
 bettrToJSON <- function(bettrSE, file = NULL, pretty = TRUE) {
     .assertVector(x = bettrSE, type = "SummarizedExperiment")
-    if (!is.null(file)) {
-        .assertScalar(x = file, type = "character")
-    }
+    .assertScalar(x = file, type = "character", allowNULL = TRUE)
     .assertScalar(x = pretty, type = "logical")
 
     # Extract metadata
