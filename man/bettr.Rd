@@ -133,5 +133,5 @@ if (interactive()) {
 
 }
 \author{
-Charlotte Soneson
+Charlotte Soneson, Daniel Incicau
 }

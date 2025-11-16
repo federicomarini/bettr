@@ -32,3 +32,6 @@ bettrSE <- assembleSE(df = df)
 json_str <- bettrToJSON(bettrSE)
 
 }
+\author{
+Daniel Incicau
+}

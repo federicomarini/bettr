@@ -98,7 +98,7 @@
 #'     selectizeInput updateTabsetPanel observe observeEvent tabPanelBody
 #'     plotOutput tagList tags HTML validate need renderPlot updateNumericInput
 #'     sliderInput shinyApp stopApp showNotification parseQueryString
-#'     updateSelectInput fileInput req
+#'     updateSelectInput fileInput req h4 p h3
 #' @importFrom DT renderDT DTOutput dataTableOutput
 #' @importFrom shinyjqui jqui_resizable
 #' @importFrom tidyr pivot_wider
@@ -106,10 +106,13 @@
 #' @importFrom shinyjqui jqui_resizable
 #' @importFrom dplyr filter select mutate left_join arrange relocate
 #'     all_of
-#' @importFrom bslib bs_theme sidebar accordion accordion_panel page_sidebar
+#' @importFrom bslib bs_theme sidebar accordion accordion_panel page_sidebar 
+#'     card
 #' @importFrom rlang .data
 #' @importFrom DT DTOutput renderDT
 #' @importFrom stats setNames
+#' @importFrom SummarizedExperiment assay colData rowData
+#' @importFrom S4Vectors metadata
 #'
 #' @examples
 #' df <- data.frame(Method = c("M1", "M2", "M3"), metric1 = c(1, 2, 3),

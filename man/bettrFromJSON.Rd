@@ -25,6 +25,11 @@ df <- data.frame(Method = c("M1", "M2", "M3"),
                  metric1 = c(1, 2, 3),
                  metric2 = c(3, 1, 2))
 bettrSE <- assembleSE(df = df)
-bettrToJSON(bettrSE, file = "data.json")
-bettrSE_reload <- bettrFromJSON(file = "data.json")
+json_file <- tempfile(fileext = ".json")
+bettrToJSON(bettrSE, file = json_file)
+bettrSE_reload <- bettrFromJSON(file = json_file)
+
+}
+\author{
+Daniel Incicau
 }
