@@ -5,9 +5,9 @@
 \title{Launch bettr app to explore and aggregate performance metrics}
 \usage{
 bettr(
-  df,
+  df = NULL,
   idCol = "Method",
-  metrics = setdiff(colnames(df), idCol),
+  metrics = if (!is.null(df)) setdiff(colnames(df), idCol) else NULL,
   initialWeights = NULL,
   initialTransforms = list(),
   metricInfo = NULL,
@@ -19,7 +19,9 @@ bettr(
   appTitle = "bettr",
   bettrSE = NULL,
   addStopButton = TRUE,
-  defaultWeight = 0.2
+  defaultWeight = 0.2,
+  serverMode = FALSE,
+  cacheVersion = NULL
 )
 }
 \arguments{
@@ -96,6 +98,15 @@ button to stop the app (by calling \code{shiny::stopApp}).}
 
 \item{defaultWeight}{Numeric scalar between 0 and 1, giving the default
 weight to assign to each metric.}
+
+\item{serverMode}{Logical scalar. If \code{TRUE}, launches the app in server mode
+where users can upload JSON files (in bettr format). If \code{FALSE} (default),
+requires data to be provided via the \code{df} or \code{bettrSE} parameter.}
+
+\item{cacheVersion}{Character string or \code{NULL} (default). A version identifier
+for the browser cache. When specified, cached data from previous versions
+will be automatically invalidated. Useful for forcing cache refresh when
+deploying updates. Examples: "v1.0", "2024-01-15", or any string.}
 }
 \value{
 A shiny application

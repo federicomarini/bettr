@@ -115,3 +115,6 @@ se <- assembleSE(df = resSummaryWide, idCol = "method",
                  idColors = list(method = methodColors),
                  metricColors = metricColors, metricInfo = metricInfo)
 saveRDS(se, file = file.path("inst", "extdata", "duo2018se.rds"))
+
+## Also save as JSON for server mode examples
+bettrToJSON(se, file = file.path("inst", "extdata", "duo2018_bettr.json"))

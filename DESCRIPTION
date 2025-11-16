@@ -8,7 +8,10 @@ Authors@R:
              comment = c(ORCID = '0000-0003-3252-7758')),
       person("Charlotte", "Soneson", 
              role = c("aut", "cre"), email ="charlottesoneson@gmail.com", 
-             comment = c(ORCID = '0000-0003-3833-2169')))
+             comment = c(ORCID = '0000-0003-3833-2169')),
+      person("Daniel", "Incicau", 
+             role = "aut", email ="daniel.incicau@gmail.com", 
+             comment = c(ORCID = '0009-0001-1748-6145')))
 Description: bettr provides a set of interactive visualization methods to 
     explore the results of a benchmarking study, where typically more than a 
     single performance measures are computed. The user can weight the 
@@ -26,7 +29,7 @@ RoxygenNote: 7.3.3
 Roxygen: list(markdown = TRUE)
 Depends:
     R (>= 4.4.0)
-Imports: 
+Imports:
     dplyr (>= 1.0),
     tidyr,
     ggplot2 (>= 3.4.1),
@@ -47,7 +50,8 @@ Imports:
     scales,
     DT,
     SummarizedExperiment,
-    S4Vectors
+    S4Vectors,
+    jsonlite
 Config/testthat/edition: 3
 biocViews: Visualization, ShinyApps, GUI
 URL: https://github.com/federicomarini/bettr

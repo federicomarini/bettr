@@ -1,3 +1,11 @@
+# bettr 1.6.0
+
+* Add `serverMode` to enable JSON uploads directly in the browser
+* Introduce `bettrToJSON()` / `bettrFromJSON()` for JSON serialization of `SummarizedExperiment` objects
+* Support `jsonUrl` and `jsonFile` URL parameters for automatic data loading
+* Add browser localStorage caching with cache versioning
+* Add new vignette on server mode
+
 # bettr 1.5.3
 
 * Expand vignette with more details about the app
@@ -21,7 +29,7 @@
 
 # bettr 0.99.1
 
-* Add R (>= 4.4.0) to Depends
+* Add R (\>= 4.4.0) to Depends
 
 # bettr 0.99.0
 
