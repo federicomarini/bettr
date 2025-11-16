@@ -1153,6 +1153,12 @@ bettr <- function(df = NULL, idCol = "Method",
             tmp
         })
         
+        observeEvent(input$autoAdjustHmHeight,
+                     shiny::updateNumericInput(
+                       session, "hmheight",
+                       value = 200L + 35L * length(unique(plotdata()[[idCol]]))
+                     ))
+        
         ## UI element to filter methods by grouping columns -------------------
         output$idFilterByInfoUI <- shiny::renderUI({
             if (app_state$serverMode || is.null(values$idInfo)) {
@@ -1191,6 +1197,8 @@ bettr <- function(df = NULL, idCol = "Method",
                        )
                    })
         })
+        shiny::outputOptions(output, "metricFilterByInfoUI",
+                             suspendWhenHidden = FALSE)
 
         ## UI element to select grouping of metrics ---------------------------
         output$metricGroupingUI <- shiny::renderUI({
@@ -1416,8 +1424,8 @@ bettr <- function(df = NULL, idCol = "Method",
             }
         }, filter = list(position = "top", clear = FALSE),
         extensions = "Buttons",
-        options = list(scrollX = TRUE, pageLength = 100,
-                       dom = "Bfrtip", buttons = c("csv")))
+        options = list(scrollX = TRUE, pageLength = 100L,
+                       dom = "Bfrtip", buttons = "csv"))
 
         ## Parallel coordinates plot ------------------------------------------
         output$bettrParCoordplotUI <- shiny::renderUI({
@@ -1434,16 +1442,16 @@ bettr <- function(df = NULL, idCol = "Method",
             }
 
             makeParCoordPlot(
-                    bettrList = NULL,
-                    plotdata = plotdata(), idCol = idCol,
-                    metricCol = metricCol, valueCol = valueCol,
-                    metricGroupCol = metricGroupCol,
-                    metricColors = prep$metricColors,
-                    idColors = prep$idColors,
-                    methods = methodsInUse(),
-                    metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
-                highlightMethod = if (!is.null(input$highlightMethod)) input$highlightMethod else NULL,
-                labelSize = if (!is.null(input$labelsize)) input$labelsize else 10
+              bettrList = NULL,
+              plotdata = plotdata(), idCol = idCol,
+              metricCol = metricCol, valueCol = valueCol,
+              metricGroupCol = metricGroupCol,
+              metricColors = prep$metricColors,
+              idColors = prep$idColors,
+              methods = methodsInUse(),
+              metricGrouping = if (!is.null(input$metricGrouping)) input$metricGrouping else "---",
+              highlightMethod = if (!is.null(input$highlightMethod)) input$highlightMethod else NULL,
+              labelSize = if (!is.null(input$labelsize)) input$labelsize else 10
             )
         })
 
@@ -1549,22 +1557,58 @@ bettr <- function(df = NULL, idCol = "Method",
         ## Define weight controls ---------------------------------------------
         ## Make sure that weights are retained even when the collapsing by
         ## group status (and thus the displayed weight sliders) changes
+        shiny::observe({
+            lapply(prep$metricsWithWeights, function(mww) {
+                if (!is.null(input[[paste0(mww, "_weight")]])) {
+                    values$currentWeights[mww] <-
+                        input[[paste0(mww, "_weight")]]
+                }
+            })
+        })
+
         output$weights <- shiny::renderUI({
             if (app_state$serverMode || is.null(values$metrics) || is.null(values$currentWeights)) {
-                return(NULL)
+                NULL
+            } else {
+                if (input$metricCollapseGroup &&
+                    input$metricGrouping != "---") {
+                    if (is.null(longdata()[[metricGroupCol]])) {
+                        NULL
+                    } else {
+                        do.call(shiny::tagList,
+                                lapply(unique(longdata()[[metricGroupCol]]),
+                                       function(i) {
+                                           shiny::sliderInput(
+                                               inputId = paste0(
+                                                   input$metricGrouping,
+                                                   "_", i,
+                                                   "_weight"
+                                               ),
+                                               label = i,
+                                               value = values$currentWeights[
+                                                   paste0(input$metricGrouping,
+                                                          "_", i)
+                                               ],
+                                               min = 0.0,
+                                               max = 1.0,
+                                               step = weightResolution
+                                           )
+                                       }))
+                    }
+                } else {
+                    do.call(shiny::tagList,
+                            lapply(metricsInUse(), function(i) {
+                                shiny::sliderInput(
+                                    inputId = paste0(i, "_weight"),
+                                    label = i,
+                                    value = values$currentWeights[i],
+                                    min = 0.0,
+                                    max = 1.0,
+                                    step = weightResolution
+                                )
+                            }))
+                }
             }
-
-            do.call(shiny::tagList,
-                        lapply(metricsInUse(), function(i) {
-                            shiny::sliderInput(
-                                inputId = paste0(i, "_weight"),
-                                label = i,
-                                value = if (i %in% names(values$currentWeights)) values$currentWeights[[i]] else defaultWeight,
-                                min = 0,
-                                max = 1,
-                            step = weightResolution
-                        )
-                    }))
         })
 
         ## Close app ----------------------------------------------------------
@@ -1579,7 +1623,23 @@ bettr <- function(df = NULL, idCol = "Method",
         # Close app handler
         if (addStopButton) {
             shiny::observeEvent(input$close_app, {
-                shiny::stopApp()
+                shiny::stopApp(returnValue = list(
+                    plotdata = plotdata(),
+                    scoredata = scoredata(),
+                    idColors = prep$idColors,
+                    metricColors = prep$metricColors,
+                    metricGrouping = input$metricGrouping,
+                    metricCollapseGroup = input$metricCollapseGroup,
+                    idInfo = values$idInfo,
+                    metricInfo = values$metricInfo,
+                    metricGroupCol = metricGroupCol,
+                    methods = methodsInUse(),
+                    idCol = idCol,
+                    metricCol = metricCol,
+                    valueCol = valueCol,
+                    weightCol = weightCol,
+                    scoreCol = scoreCol
+                ))
             })
         }
     }
