@@ -14,6 +14,8 @@
 #'     to file and returns the file path invisibly.
 #'
 #' @export
+#' 
+#' @author Daniel Incicau
 #'
 #' @importFrom jsonlite toJSON
 #' @importFrom SummarizedExperiment assay colData rowData
@@ -210,6 +212,8 @@ bettrToJSON <- function(bettrSE, file = NULL, pretty = TRUE) {
 #'     \code{bettr}.
 #'
 #' @export
+#' 
+#' @author Daniel Incicau
 #'
 #' @importFrom jsonlite fromJSON
 #'

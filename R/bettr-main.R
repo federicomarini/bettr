@@ -87,7 +87,7 @@
 #'
 #' @export
 #'
-#' @author Charlotte Soneson
+#' @author Charlotte Soneson, Daniel Incicau
 #'
 #' @returns
 #' A shiny application
