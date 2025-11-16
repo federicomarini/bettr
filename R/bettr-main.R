@@ -159,7 +159,9 @@ bettr <- function(df = NULL, idCol = "Method",
         }
     }
 
-    ## Handle server mode ----------------------------------------------------
+    ## Handle server mode -----------------------------------------------------
+    .assertScalar(x = serverMode, type = "logical")
+    .assertScalar(x = cacheVersion, type = "character", allowNULL = TRUE)
     serverMode <- serverMode || is.null(df)
 
     ## Define column names assigned internally --------------------------------
@@ -169,7 +171,7 @@ bettr <- function(df = NULL, idCol = "Method",
     valueCol <- "ScaledValue"
     metricGroupCol <- "metricGroup"
 
-    ## Check validity of input arguments (skip in server mode) ---------------
+    ## Check validity of input arguments (skip in server mode) ----------------
     if (!serverMode) {
         .checkArgsBettr(df = df, idCol = idCol, metrics = metrics,
                         initialWeights = initialWeights,
@@ -181,7 +183,7 @@ bettr <- function(df = NULL, idCol = "Method",
                         addStopButton = addStopButton,
                         defaultWeightValue = defaultWeight)
         
-        ## Prepare data -----------------------------------------------------------
+        ## Prepare data -------------------------------------------------------
         prep <- .prepareData(df = df, idCol = idCol, metrics = metrics,
                              initialWeights = initialWeights,
                              initialTransforms = initialTransforms,
