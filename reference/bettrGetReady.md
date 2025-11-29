@@ -1,0 +1,196 @@
+# Prepare data for plotting with bettr
+
+Prepare input data for plotting with bettr. This function replicates the
+steps that are performed in the shiny app.
+
+## Usage
+
+``` r
+bettrGetReady(
+  df,
+  idCol = "Method",
+  metrics = setdiff(colnames(df), idCol),
+  initialWeights = NULL,
+  initialTransforms = list(),
+  metricInfo = NULL,
+  metricColors = NULL,
+  idInfo = NULL,
+  idColors = NULL,
+  scoreMethod = "weighted mean",
+  idOrdering = "high-to-low",
+  showOnlyTopIds = FALSE,
+  nbrTopIds = 10L,
+  idTopNGrouping = NULL,
+  keepIds = NULL,
+  metricGrouping = NULL,
+  metricCollapseGroup = FALSE,
+  metricCollapseMethod = "mean",
+  defaultWeight = 0.2,
+  bettrSE = NULL
+)
+```
+
+## Arguments
+
+- df:
+
+  A `data.frame` in wide format. Should contain one column with the IDs
+  of the entities to be compared, and one column for each metric to use
+  for the comparison.
+
+- idCol:
+
+  Character scalar, indicating the name of the column of `df` and/or
+  `idInfo` that contains IDs of the entities to be compared (e.g.,
+  methods).
+
+- metrics:
+
+  Character vector, indicating which of the columns of `df` that
+  correspond to metrics of interest. Only metrics included here will be
+  displayed.
+
+- initialWeights:
+
+  Named numeric vector providing initial weights for each metric to use
+  for aggregating them into a final score. Must contain one entry per
+  metric included in `metrics`.
+
+- initialTransforms:
+
+  Named list with initial values of transformation parameters for each
+  metric. Each list entry should correspond to one metric, and take the
+  form of a list with up to four elements, named:
+
+      * **flip**: Logical scalar; whether or not to flip the sign of the
+          metric values. Defaults to `FALSE`.
+      * **offset**: Numeric scalar; offset to add to the (flipped)
+          metric values. Defaults to `0`.
+      * **transform**: Character scalar; one of 'None', 'z-score',
+          '\[0,1\]', '\[-1,1\]', 'Rank', 'Rank+\[0,1\]' or 'z-score+\[0,1\]',
+          indicating which transform to apply to
+          the metric values (after any flipping and/or adding the offset).
+          Defaults to 'None'.
+      * **cuts**: Numeric vector or `NULL`; the cut points that will
+          be used to bin the metric values (after the other transformations).
+          Defaults to `NULL`.
+
+      Only values deviating from the defaults need to be explicitly specified,
+      the others will be initialized to their default values.
+
+- metricInfo:
+
+  `data.frame` with annotations for metrics. Must have a column named
+  'Metric' identifying the respective metrics.
+
+- metricColors:
+
+  Named list with colors used for columns of `metricInfo`. Should follow
+  the format required for ComplexHeatmap heatmap annotations. The list
+  can include an entry named 'Metric', which contains a named vector
+  with colors to use for metrics.
+
+- idInfo:
+
+  `data.frame` with annotations for entities. Must have a column named
+  according to `idCol` identifying the respective entities.
+
+- idColors:
+
+  Named list with colors used for columns of `idInfo`. Should follow the
+  format required for ComplexHeatmap heatmap annotations. The list can
+  include an entry named according to `idCol`, which contains a named
+  vector with colors to use for entities.
+
+- scoreMethod:
+
+  Character scalar specifying the scoring method, that is, how to
+  aggregate scores across metrics. Should be one of `"weighted mean"`,
+  `"weighted median"`, `"weighted fraction highest"` or
+  `"weighted fraction lowest"`.
+
+- idOrdering:
+
+  Character scalar indicating whether methods should be ranked with
+  highest aggregated scores on top (`"high-to-low"`) or opposite
+  (`"low-to-high"`).
+
+- showOnlyTopIds:
+
+  Logical scalar indicating whether to only retain the top N methods
+  (ranked by the aggregated score).
+
+- nbrTopIds:
+
+  If `showOnlyTopIds` is `TRUE`, the number of top-ranked methods to
+  retain.
+
+- idTopNGrouping:
+
+  If `showOnlyTopIds` is `TRUE`, a character scalar providing the name
+  of a column in `idInfo` that groups the methods. If specified, he top
+  `nbrTopIds` within each group will be retained.
+
+- keepIds:
+
+  Character vector indicating which methods (a subset of the values in
+  `df[[idCol]]`) that should be considered. If `NULL`, all methods are
+  considered.
+
+- metricGrouping:
+
+  A character scalar providing the name of a column in `metricInfo` by
+  which metrics should be grouped. If `NULL`, no grouping is performed.
+
+- metricCollapseGroup:
+
+  A logical scalar indicating whether metric values should be collapsed
+  within each group defined by `metricGrouping`.
+
+- metricCollapseMethod:
+
+  If `metricCollapseGroup` is `TRUE`, the way in which metric values are
+  collapsed within a group. Should be one of `"mean"`, `"max"` or
+  `"min"`.
+
+- defaultWeight:
+
+  Numeric scalar between 0 and 1, giving the default weight to assign to
+  each metric.
+
+- bettrSE:
+
+  A `SummarizedExperiment` generated by `assembleSE`. If this is not
+  `NULL`, `df`, `metrics`, `initialWeights`, `initialTransforms`,
+  `metricInfo`, `metricColors`, `idInfo` and `idColors` arguments will
+  be ignored and the information will be extracted from the
+  `SummarizedExperiment` object.
+
+## Value
+
+A list of objects, which can be directly used as inputs for the bettr
+plotting functions. See the man page for the respective plotting
+function for more details.
+
+## Author
+
+Charlotte Soneson
+
+## Examples
+
+``` r
+## Generate example data
+df <- data.frame(Method = c("M1", "M2", "M3"),
+                 metric1 = c(1, 2, 3),
+                 metric2 = c(3, 1, 2))
+metricInfo <- data.frame(Metric = c("metric1", "metric2", "metric3"),
+                         Group = c("G1", "G2", "G2"))
+idInfo <- data.frame(Method = c("M1", "M2", "M3"),
+                     Type = c("T1", "T1", "T2"))
+prepData <- bettrGetReady(df = df, idCol = "Method",
+                          metricInfo = metricInfo, idInfo = idInfo)
+prepData <- bettrGetReady(df = df, idCol = "Method",
+                          metricInfo = metricInfo, idInfo = idInfo,
+                          metricGrouping = "Group",
+                          metricCollapseGroup = TRUE)
+```
