@@ -83,18 +83,46 @@ For example, a user working locally in R may find it more convenient to generate
 _bettr_ can also be deployed in server mode, allowing users to upload their own input data (in JSON format) to a running app. 
 
 
-# Statement of need
+# Statement of Need
 
 The interactive nature of _bettr_ makes it particularly suitable for visual, exploratory analysis of benchmarking results, since the user can interactively modify the weights associated with the different evaluation metrics and immediately see how it affects the ranking of the methods. 
 It is also straightforward for authors of benchmarking studies to deploy an instance of _bettr_ using, e.g., a local Shiny server or a commercial option such as [https://shinyapps.io](https://shinyapps.io), to allow readers to easily explore their results. 
-Complementary functionality for creating static summary representations (e.g., heatmap-like visualizations) of benchmarking results is provided e.g. by the funkyheatmap package [@cannoodt2025-funkyheatmap], and benchmarking platforms such as OpenEBench [@capella2017-openebench] and OpenProblems [@Luecken2025-openproblems] also produce result visualizations for the included benchmarks. 
-However, existing tools typically lack either flexibility in input format or means of deployment, or the ability to explore results interactively, and are not intended to support user-specific metric weighting. 
 
-# Availability and examples
+# State of the Field
+
+Complementary functionality for creating summary representations (e.g., heatmap-like visualizations) of benchmarking results is provided e.g. by the funkyheatmap package [@cannoodt2025-funkyheatmap], and benchmarking platforms such as OpenEBench [@capella2017-openebench] and OpenProblems [@Luecken2025-openproblems] also produce result visualizations for the included benchmarks. 
+However, existing tools typically lack flexibility in either input format or means of deployment, or the ability to explore results interactively, and are not intended to support user-specific metric weighting.
+To the best of our knowledge, _bettr_ is the first generic tool for benchmark visualization that combines interactivity and flexibility in metric weighting with ease of use and a transparent, programmatic interface. 
+
+# Software Design
+
+The design philosophy behind _bettr_ focuses on flexibility, accessibility, and reproducibility. 
+By supporting several input formats, from collections of data frames via a single R-based object to an all-encompassing JSON file, _bettr_ can be used for downstream analysis and visualization of results generated using a wide range of benchmark setups and programming languages. 
+_bettr_ is fully open source and easily installable as an R package, mainly distributed via Bioconductor with the most recent development version also available on GitHub.
+In addition, it is available via [_r-universe_](https://bioc.r-universe.dev/bettr), which among other things provides binaries for several platforms, including WebAssembly.
+As a complement to the interactive interface, full reproducibility is enabled by the equivalent programmatic interface to the functionality, as well as the ability to export the processed data as either a shareable csv file containing the metric values as well as the final score, or an R list that can be used directly as the input for further analysis and visualization.
+
+# Research Impact Statement
+
+In 2025, _bettr_ was [downloaded](https://bioconductor.org/packages/stats/bioc/bettr/) almost 3,000 times (by 1,593 unique IPs) from Bioconductor alone. 
+Adoption of _bettr_ is expected to increase further in the near future, as it has become the first supported integration for automated metrics reporting within the [Omnibenchmark](https://www.omnibenchmark.org) project. 
+Omnibenchmark [@mallona2026-omnibenchmark] is a benchmarking system that automates and standardizes routine aspects of benchmarking through standardisation and formalisation of benchmarking plans. 
+During execution, Omnibenchmark collects computational performance metrics (e.g., peak memory usage, CPU utilization, runtime, etc), as well as, where applicable, algorithmic performance metrics (e.g., F1 scores, ARIs, etc). 
+These results are then exported via a command-line interface in a JSON format compatible with _bettr_, enabling automated reporting. 
+This integration lowers the barrier for benchmark authors to produce rich, interactive summaries of complex benchmarking studies without requiring custom visualization pipelines. 
+Hence, broader adoption of Omnibenchmark as a benchmarking framework is expected to further drive the use of _bettr_ as an interactive platform for exploring and interpreting benchmark results. 
+
+# Availability and Examples
 
 _bettr_ is available via [Bioconductor](https://www.bioconductor.org/packages/bettr/) and on [GitHub](https://github.com/federicomarini/bettr). 
 A collection of example data sets and _bettr_ configurations are available from [https://github.com/csoneson/bettr-examples](https://github.com/csoneson/bettr-examples). 
 In addition, an example instance, using data from @soneson2018-bias, is deployed on [https://csoneson.shinyapps.io/soneson2018de/](https://csoneson.shinyapps.io/soneson2018de/). 
+
+# AI Usage Disclosure
+
+The majority of the _bettr_ codebase was developed over several years, in a public GitHub repository, without the use of generative AI. 
+For one pull request (#25), adding the capabilities to support JSON files as input and to cache the state of the app, Claude Sonnet 4.5 (Anthropic) was used to  assist with drafting implementation of new functions and UI components based on predefined design documents, while maintaining existing functionality as is.
+At least two of the package developers reviewed the code carefully, edited it where necessary, and verified that the new code performed as intended and did not introduce regressions in existing functionality (which was further verified using the comprehensive set of existing unit tests).
 
 # Acknowledgements
 
