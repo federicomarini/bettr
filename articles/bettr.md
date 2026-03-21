@@ -771,13 +771,13 @@ encourage users to contribute to that via a Pull Request to
 
 ``` r
 sessionInfo()
-#> R Under development (unstable) (2025-11-24 r89053)
-#> Platform: aarch64-apple-darwin20
-#> Running under: macOS Sequoia 15.7.2
+#> R Under development (unstable) (2026-03-20 r89666)
+#> Platform: aarch64-apple-darwin23
+#> Running under: macOS Sequoia 15.7.4
 #> 
 #> Matrix products: default
-#> BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
-#> LAPACK: /Library/Frameworks/R.framework/Versions/4.6-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+#> BLAS:   /Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libRblas.0.dylib 
+#> LAPACK: /Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
 #> 
 #> locale:
 #> [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -790,46 +790,46 @@ sessionInfo()
 #> [8] base     
 #> 
 #> other attached packages:
-#>  [1] dplyr_1.1.4                 tibble_3.3.0               
-#>  [3] SummarizedExperiment_1.41.0 Biobase_2.71.0             
-#>  [5] GenomicRanges_1.63.0        Seqinfo_1.1.0              
+#>  [1] dplyr_1.2.0                 tibble_3.3.1               
+#>  [3] SummarizedExperiment_1.41.1 Biobase_2.71.0             
+#>  [5] GenomicRanges_1.63.1        Seqinfo_1.1.0              
 #>  [7] IRanges_2.45.0              S4Vectors_0.49.0           
 #>  [9] BiocGenerics_0.57.0         generics_0.1.4             
 #> [11] MatrixGenerics_1.23.0       matrixStats_1.5.0          
 #> [13] bettr_1.7.1                 BiocStyle_2.39.0           
 #> 
 #> loaded via a namespace (and not attached):
-#>  [1] gridExtra_2.3         rlang_1.1.6           magrittr_2.0.4       
-#>  [4] clue_0.3-66           GetoptLong_1.1.0      otel_0.2.0           
-#>  [7] compiler_4.6.0        png_0.1-8             systemfonts_1.3.1    
-#> [10] vctrs_0.6.5           stringr_1.6.0         pkgconfig_2.0.3      
+#>  [1] gridExtra_2.3         rlang_1.1.7           magrittr_2.0.4       
+#>  [4] clue_0.3-67           GetoptLong_1.1.0      otel_0.2.0           
+#>  [7] compiler_4.6.0        png_0.1-9             systemfonts_1.3.2    
+#> [10] vctrs_0.7.1           stringr_1.6.0         pkgconfig_2.0.3      
 #> [13] shape_1.4.6.1         crayon_1.5.3          fastmap_1.2.0        
 #> [16] backports_1.5.0       XVector_0.51.0        labeling_0.4.3       
 #> [19] utf8_1.2.6            learnr_0.11.6         shinyjqui_0.4.1      
-#> [22] promises_1.5.0        rmarkdown_2.30        ragg_1.5.0           
-#> [25] purrr_1.2.0           xfun_0.54             cachem_1.1.0         
-#> [28] jsonlite_2.0.0        later_1.4.4           DelayedArray_0.37.0  
-#> [31] parallel_4.6.0        cluster_2.1.8.1       R6_2.6.1             
-#> [34] bslib_0.9.0           stringi_1.8.7         RColorBrewer_1.1-3   
-#> [37] rpart_4.1.24          jquerylib_0.1.4       Rcpp_1.1.0           
-#> [40] bookdown_0.45         assertthat_0.2.1      iterators_1.0.14     
-#> [43] knitr_1.50            base64enc_0.1-3       httpuv_1.6.16        
+#> [22] promises_1.5.0        rmarkdown_2.30        ragg_1.5.1           
+#> [25] purrr_1.2.1           xfun_0.57             cachem_1.1.0         
+#> [28] jsonlite_2.0.0        later_1.4.8           DelayedArray_0.37.0  
+#> [31] parallel_4.6.0        cluster_2.1.8.2       R6_2.6.1             
+#> [34] bslib_0.10.0          stringi_1.8.7         RColorBrewer_1.1-3   
+#> [37] rpart_4.1.24          jquerylib_0.1.4       assertthat_0.2.1     
+#> [40] Rcpp_1.1.1            bookdown_0.46         iterators_1.0.14     
+#> [43] knitr_1.51            base64enc_0.1-6       httpuv_1.6.17        
 #> [46] Matrix_1.7-4          nnet_7.3-20           tidyselect_1.2.1     
-#> [49] rstudioapi_0.17.1     abind_1.4-8           yaml_2.3.11          
-#> [52] doParallel_1.0.17     codetools_0.2-20      lattice_0.22-7       
-#> [55] withr_3.0.2           shiny_1.11.1          S7_0.2.1             
-#> [58] evaluate_1.0.5        foreign_0.8-90        desc_1.4.3           
-#> [61] circlize_0.4.16       pillar_1.11.1         BiocManager_1.30.26  
-#> [64] checkmate_2.3.3       DT_0.34.0             foreach_1.5.2        
-#> [67] rprojroot_2.1.1       ggplot2_4.0.1         scales_1.4.0         
-#> [70] xtable_1.8-4          glue_1.8.0            Hmisc_5.2-4          
-#> [73] tools_4.6.0           data.table_1.17.8     fs_1.6.6             
-#> [76] cowplot_1.2.0         grid_4.6.0            tidyr_1.3.1          
-#> [79] sortable_0.5.0        colorspace_2.1-2      htmlTable_2.4.3      
-#> [82] Formula_1.2-5         cli_3.6.5             textshaping_1.0.4    
-#> [85] S4Arrays_1.11.1       ComplexHeatmap_2.27.0 gtable_0.3.6         
-#> [88] sass_0.4.10           digest_0.6.39         SparseArray_1.11.6   
+#> [49] rstudioapi_0.18.0     abind_1.4-8           yaml_2.3.12          
+#> [52] doParallel_1.0.17     codetools_0.2-20      lattice_0.22-9       
+#> [55] withr_3.0.2           shiny_1.13.0          S7_0.2.1             
+#> [58] evaluate_1.0.5        foreign_0.8-91        desc_1.4.3           
+#> [61] circlize_0.4.17       pillar_1.11.1         BiocManager_1.30.27  
+#> [64] checkmate_2.3.4       DT_0.34.0             foreach_1.5.2        
+#> [67] rprojroot_2.1.1       ggplot2_4.0.2         scales_1.4.0         
+#> [70] xtable_1.8-8          glue_1.8.0            Hmisc_5.2-5          
+#> [73] tools_4.6.0           data.table_1.18.2.1   fs_1.6.7             
+#> [76] cowplot_1.2.0         grid_4.6.0            tidyr_1.3.2          
+#> [79] sortable_0.6.0        colorspace_2.1-2      htmlTable_2.4.3      
+#> [82] Formula_1.2-5         cli_3.6.5             textshaping_1.0.5    
+#> [85] S4Arrays_1.11.1       ComplexHeatmap_2.27.1 gtable_0.3.6         
+#> [88] sass_0.4.10           digest_0.6.39         SparseArray_1.11.11  
 #> [91] rjson_0.2.23          htmlwidgets_1.6.4     farver_2.1.2         
-#> [94] htmltools_0.5.8.1     pkgdown_2.2.0.9000    lifecycle_1.0.4      
+#> [94] htmltools_0.5.9       pkgdown_2.2.0.9000    lifecycle_1.0.5      
 #> [97] GlobalOptions_0.1.3   mime_0.13
 ```
