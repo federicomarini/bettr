@@ -6,10 +6,12 @@
 
 <br>
 
-<!-- badges: start -->
-[![R-CMD-check](https://github.com/federicomarini/bettr/workflows/R-CMD-check/badge.svg)](https://github.com/federicomarini/bettr/actions)
-[![Codecov.io coverage status](https://codecov.io/github/federicomarini/bettr/coverage.svg?branch=devel)](https://codecov.io/github/federicomarini/bettr)
-<!-- badges: end -->
+## Quick links
+
+* [Full documentation](https://federicomarini.github.io/bettr/articles/bettr.html)
+* [Practical examples](https://github.com/csoneson/bettr-examples)
+
+## Overview
 
 As new (computational) methods come along, it becomes essential to compare 
 their performance to existing ones via objective and fair benchmarking.
@@ -64,3 +66,8 @@ If you would like to contribute to `bettr`, you can do so by sending a pull
 request to this repository. If the contribution involves changes in the 
 functionality provided by `bettr`, we encourage you to first open an issue to 
 discuss the intended contribution.
+
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/federicomarini/bettr/workflows/R-CMD-check/badge.svg)](https://github.com/federicomarini/bettr/actions)
+[![Codecov.io coverage status](https://codecov.io/github/federicomarini/bettr/coverage.svg?branch=devel)](https://codecov.io/github/federicomarini/bettr)
+<!-- badges: end -->
