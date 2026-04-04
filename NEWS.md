@@ -1,3 +1,7 @@
+# bettr 1.7.2
+
+* Move the "Highlight method" UI inside the parallel coordinates plot tab
+
 # bettr 1.6.0
 
 * Add `serverMode` to enable JSON uploads directly in the browser
