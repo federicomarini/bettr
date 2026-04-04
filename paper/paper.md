@@ -59,15 +59,13 @@ bibliography: paper.bib
 # Summary
 
 Method benchmarking is a core part of many research fields and aims to establish best practices in method selection and application as well as help identifying gaps and possibilities for improvement in existing methods. 
-A typical benchmarking study scores a set of methods using a variety of different metrics, intended to capture different aspects of performance and usability. 
+A typical benchmarking study scores a set of methods using a variety of different metrics intended to capture different aspects of performance and usability (e.g., area under the receiver operating characteristic (ROC) curve for a classification task, or execution time). 
 For practical purposes, e.g., when a user needs to select a method for their own analysis, it is often the case that not all of the evaluated metrics are equally important. 
 For example, the ability of a statistical method to handle arbitrarily complex experimental designs may not be relevant if the user only needs to perform a two-group comparison, while memory frugality may be of high importance if the analysis will be performed on a system with limited computational resources. 
 Hence, having the ability to easily and adaptively create a weighted summary score by which the methods can be ranked, or alternatively to create a visual summary of only the desired metrics, would make it possible for users to tailor their method choice based on the aspects that are most relevant to them. 
 
 Inspired by the [OECD 'Better Life Index'](https://www.oecd.org/en/data/tools/oecd-better-life-index.html), which allows users to score OECD countries by a customizable weighted average of various factors contributing to human well-being, we developed the _bettr_ R/Bioconductor package to provide similar support for consumers of benchmarking studies. 
 Given a table with values of evaluation metrics across the evaluated methods, as well as optional method annotations and metric groupings, _bettr_ allows users to visualize performance summaries emphasizing the aspects and evaluation metrics that are most important to them (Figure 1). 
-Examples of metrics include the area under the receiver operating characteristic (ROC) curve for a classification task, or the execution time. 
-Method annotations (e.g., whether they are designed to work on untransformed or log-transformed input data) allows the user to evaluate whether methods with certain characteristics tend to perform better than others. 
 _bettr_ can be used interactively as an R/Shiny application [@chang2025-shiny], or programmatically by calling the underlying functions directly for full reproducibility and integration into analytical pipelines (see the package vignettes for more details). 
 
 ![Screenshot of a _bettr_ application illustrating the benchmarking results from @soneson2018-bias. 
@@ -77,16 +75,21 @@ The colored bars to the left of the plot represent categorical annotations and c
 In addition to the displayed dot plot, the results can be visualized in several other ways, including a heatmap, polar plots, and using parallel coordinates. 
 Moreover, the set of methods and metrics to include in the display can be controlled by the user via the 'Filter methods/metrics' tab.](bettr-screenshot-heatmap.png)
 
-_bettr_ accepts input in multiple formats, including a collection of data frames, a SummarizedExperiment object [@morgan2025-se] or a JSON file, and contains functions for converting one input format to another. 
+
+# Statement of Need
+
+Method benchmarking is a prolific area of research across different fields of application. 
+However, in many cases the conclusions presented in benchmarking papers are hard for a reader to explore further, since the results (e.g., performance metrics) are often not readily available or provided in an explorable format [@Sonrel2023-metaanalysis].
+As a consequence, much of the interpretation is left solely to the benchmarker. 
+_bettr_ aims to address this asymmetry and enable both authors and readers of benchmarking studies to explore the results more easily and flexibly.
+
+For the reader of a benchmarking study, the interactive nature of _bettr_ makes it particularly suitable for such visual, exploratory analysis since they can interactively modify the importance associated with the different evaluation metrics and immediately see how it affects the ranking of the methods. 
+For authors of benchmarking studies, it is straightforward to deploy an instance of _bettr_ using, e.g., a local Shiny server or a commercial option such as [https://shinyapps.io](https://shinyapps.io), to allow readers to easily explore their results.
+Moreover, _bettr_ accepts input in multiple formats, including a collection of data frames, a SummarizedExperiment object [@morgan2025-se] or a JSON file, and contains functions for converting one input format to another. 
 This increases the flexibility of the application and makes it easy to combine with a variety of workflows. 
 For example, a user working locally in R may find it more convenient to generate a set of data frames, while an automated benchmarking workflow could export all necessary components in a single, platform-independent JSON file. 
 _bettr_ can also be deployed in server mode, allowing users to upload their own input data (in JSON format) to a running app. 
 
-
-# Statement of Need
-
-The interactive nature of _bettr_ makes it particularly suitable for visual, exploratory analysis of benchmarking results, since the user can interactively modify the weights associated with the different evaluation metrics and immediately see how it affects the ranking of the methods. 
-It is also straightforward for authors of benchmarking studies to deploy an instance of _bettr_ using, e.g., a local Shiny server or a commercial option such as [https://shinyapps.io](https://shinyapps.io), to allow readers to easily explore their results. 
 
 # State of the Field
 
