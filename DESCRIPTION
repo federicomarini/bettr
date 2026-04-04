@@ -1,7 +1,7 @@
 Package: bettr
 Title: A Better Way To Explore What Is Best
-Version: 1.7.1
-Date: 2025-11-16
+Version: 1.7.2
+Date: 2026-04-04
 Authors@R: 
     c(person("Federico", "Marini", 
              role = "aut", email = "marinif@uni-mainz.de", 
