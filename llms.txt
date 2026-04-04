@@ -6,6 +6,14 @@
 
   
 
+## Quick links
+
+- [Full
+  documentation](https://federicomarini.github.io/bettr/articles/bettr.html)
+- [Practical examples](https://github.com/csoneson/bettr-examples)
+
+## Overview
+
 As new (computational) methods come along, it becomes essential to
 compare their performance to existing ones via objective and fair
 benchmarking.

@@ -88,8 +88,8 @@ makeParCoordPlot(
 
 - highlightMethod:
 
-  Character scalar indicating a method that should be highlighted in the
-  plot.
+  Character vector indicating one or more methods that should be
+  highlighted in the plot.
 
 - labelSize:
 
