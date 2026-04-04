@@ -413,7 +413,6 @@ bettr <- function(df = NULL, idCol = "Method",
             accordion_panels <- list(
                 bslib::accordion_panel(
                     "Methods/IDs",
-                    shiny::uiOutput(outputId = "highlightMethodUI"),
                     shiny::radioButtons(
                         inputId = "scoreMethod",
                         label = "Score aggregation method",
@@ -585,6 +584,7 @@ bettr <- function(df = NULL, idCol = "Method",
                 shiny::tabPanel(
                     "Parallel coordinates",
                     shiny::br(),
+                    shiny::uiOutput(outputId = "highlightMethodUI"),
                     shiny::uiOutput("bettrParCoordplotUI")
                 ),
                 shiny::tabPanel(

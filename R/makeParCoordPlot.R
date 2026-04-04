@@ -13,7 +13,7 @@
     .assertVector(x = methods, type = "character")
     .assertScalar(x = metricGrouping, type = "character", allowNULL = TRUE)
     .assertScalar(x = labelSize, type = "numeric")
-    .assertScalar(x = highlightMethod, type = "character", allowNULL = TRUE)
+    .assertVector(x = highlightMethod, type = "character", allowNULL = TRUE)
 }
 
 #' Create a parallel coordinates plot
@@ -23,8 +23,8 @@
 #' that all required columns are available.
 #'
 #' @inheritParams makeHeatmap
-#' @param highlightMethod Character scalar indicating a method that should be
-#'     highlighted in the plot.
+#' @param highlightMethod Character vector indicating one or more methods that 
+#'     should be highlighted in the plot.
 #' @param methods Character vector containing the methods to include.
 #'     If \code{NULL} (default), all methods will be used.
 #'

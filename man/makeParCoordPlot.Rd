@@ -65,8 +65,8 @@ If \code{NULL} (default), all methods will be used.}
 \code{prepData$metricGrouping}, where \code{prepData} is the output
 from \code{bettrGetReady}.}
 
-\item{highlightMethod}{Character scalar indicating a method that should be
-highlighted in the plot.}
+\item{highlightMethod}{Character vector indicating one or more methods that
+should be highlighted in the plot.}
 
 \item{labelSize}{Numeric scalar providing the size of the labels in the plot.}
 }
