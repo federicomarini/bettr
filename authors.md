@@ -15,13 +15,13 @@ Source:
 [`DESCRIPTION`](https://github.com/federicomarini/bettr/blob/devel/DESCRIPTION)
 
 Marini F, Soneson C, Incicau D (2026). *bettr: A Better Way To Explore
-What Is Best*. R package version 1.7.2,
+What Is Best*. R package version 1.9.0,
 <https://github.com/federicomarini/bettr>.
 
     @Manual{,
       title = {bettr: A Better Way To Explore What Is Best},
       author = {Federico Marini and Charlotte Soneson and Daniel Incicau},
       year = {2026},
-      note = {R package version 1.7.2},
+      note = {R package version 1.9.0},
       url = {https://github.com/federicomarini/bettr},
     }
