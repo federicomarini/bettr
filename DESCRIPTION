@@ -25,7 +25,6 @@ Suggests:
     testthat (>= 3.0.0),
     BiocStyle
 VignetteBuilder: knitr
-RoxygenNote: 7.3.3
 Roxygen: list(markdown = TRUE)
 Depends:
     R (>= 4.4.0)
@@ -57,3 +56,4 @@ Config/testthat/edition: 3
 biocViews: Visualization, ShinyApps, GUI
 URL: https://github.com/federicomarini/bettr
 BugReports: https://github.com/federicomarini/bettr/issues
+Config/roxygen2/version: 8.1.0
