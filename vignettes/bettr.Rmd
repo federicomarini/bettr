@@ -83,8 +83,8 @@ df <- data.frame(Method = c("M1", "M2", "M3"),
                  metric2 = c(3.0, 1.0, 2.0))
 
 ## More information for metrics
-metricInfo <- data.frame(Metric = c("metric1", "metric2", "metric3"),
-                         Group = c("G1", "G2", "G2"))
+metricInfo <- data.frame(Metric = c("metric1", "metric2"),
+                         Group = c("G1", "G2"))
 
 ## More information for methods ('IDs')
 idInfo <- data.frame(Method = c("M1", "M2", "M3"),
