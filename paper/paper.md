@@ -80,21 +80,20 @@ Moreover, the set of methods and metrics to include in the display can be contro
 
 Method benchmarking is a prolific area of research across different fields of application. 
 However, in many cases the conclusions presented in benchmarking papers are hard for a reader to explore further, since the results (e.g., performance metrics) are often not readily available or provided in an explorable format [@Sonrel2023-metaanalysis].
-As a consequence, much of the interpretation is left solely to the benchmarker. 
+As a consequence, much of the interpretation is left solely to the benchmarker and the view that they choose to highlight in the static paper figures. 
 _bettr_ aims to address this asymmetry and enable both authors and readers of benchmarking studies to explore the results more easily and flexibly.
-
-For the reader of a benchmarking study, the interactive nature of _bettr_ makes it particularly suitable for such visual, exploratory analysis since they can interactively modify the importance associated with the different evaluation metrics and immediately see how it affects the ranking of the methods. 
-For authors of benchmarking studies, it is straightforward to deploy an instance of _bettr_ using, e.g., a local Shiny server or a commercial option such as [https://shinyapps.io](https://shinyapps.io), to allow readers to easily explore their results.
-Moreover, _bettr_ accepts input in multiple formats, including a collection of data frames, a SummarizedExperiment object [@morgan2025-se] or a JSON file, and contains functions for converting one input format to another. 
-This increases the flexibility of the application and makes it easy to combine with a variety of workflows. 
-For example, a user working locally in R may find it more convenient to generate a set of data frames, while an automated benchmarking workflow could export all necessary components in a single, platform-independent JSON file. 
-_bettr_ can also be deployed in server mode, allowing users to upload their own input data (in JSON format) to a running app. 
+This has the potential to increase the usefulness of published benchmarks by democratizing the interpretation of the benchmark results and enabling a reader to select the most suitable method for their specific setup in a more nuanced manner.
 
 
 # State of the Field
 
 Complementary functionality for creating summary representations (e.g., heatmap-like visualizations) of benchmarking results is provided e.g. by the funkyheatmap package [@cannoodt2025-funkyheatmap], and benchmarking platforms such as OpenEBench [@capella2017-openebench] and OpenProblems [@Luecken2025-openproblems] also produce result visualizations for the included benchmarks. 
 However, existing tools typically lack flexibility in either input format or means of deployment, or the ability to explore results interactively, and are not intended to support user-specific metric weighting.
+In contrast, _bettr_ accepts input in multiple formats, including a collection of data frames, a SummarizedExperiment object [@morgan2025-se] or a JSON file, and contains functions for converting one input format to another. 
+This increases the flexibility of the application and makes it easy to combine with a variety of workflows. 
+For example, a user working locally in R may find it more convenient to generate a set of data frames, while an automated benchmarking workflow could export all necessary components in a single, platform-independent JSON file. 
+_bettr_ can also be deployed in server mode, allowing users to upload their own input data (in JSON format) to a running app. 
+
 To the best of our knowledge, _bettr_ is the first generic tool for benchmark visualization that combines interactivity and flexibility in metric weighting with ease of use and a transparent, programmatic interface. 
 
 # Software Design
