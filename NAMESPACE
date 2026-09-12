@@ -9,129 +9,161 @@ export(makeBarPolarPlot)
 export(makeHeatmap)
 export(makeParCoordPlot)
 export(makePolarPlot)
-importFrom(ComplexHeatmap,Heatmap)
-importFrom(ComplexHeatmap,anno_barplot)
-importFrom(ComplexHeatmap,columnAnnotation)
-importFrom(ComplexHeatmap,draw)
-importFrom(ComplexHeatmap,pindex)
-importFrom(ComplexHeatmap,rowAnnotation)
-importFrom(DT,DTOutput)
-importFrom(DT,dataTableOutput)
-importFrom(DT,renderDT)
-importFrom(Hmisc,cut2)
-importFrom(Hmisc,wtd.quantile)
-importFrom(S4Vectors,DataFrame)
-importFrom(S4Vectors,metadata)
-importFrom(SummarizedExperiment,SummarizedExperiment)
-importFrom(SummarizedExperiment,assay)
-importFrom(SummarizedExperiment,colData)
-importFrom(SummarizedExperiment,rowData)
-importFrom(bslib,accordion)
-importFrom(bslib,accordion_panel)
-importFrom(bslib,bs_theme)
-importFrom(bslib,card)
-importFrom(bslib,page_sidebar)
-importFrom(bslib,sidebar)
+importFrom(ComplexHeatmap,
+  Heatmap,
+  anno_barplot,
+  columnAnnotation,
+  draw,
+  pindex,
+  rowAnnotation
+)
+importFrom(DT,
+  DTOutput,
+  dataTableOutput,
+  renderDT
+)
+importFrom(Hmisc,
+  cut2,
+  wtd.quantile
+)
+importFrom(S4Vectors,
+  DataFrame,
+  metadata
+)
+importFrom(SummarizedExperiment,
+  SummarizedExperiment,
+  assay,
+  colData,
+  rowData
+)
+importFrom(bslib,
+  accordion,
+  accordion_panel,
+  bs_theme,
+  card,
+  page_sidebar,
+  sidebar
+)
 importFrom(circlize,colorRamp2)
-importFrom(cowplot,draw_plot)
-importFrom(cowplot,get_legend)
-importFrom(cowplot,plot_grid)
-importFrom(dplyr,all_of)
-importFrom(dplyr,any_of)
-importFrom(dplyr,arrange)
-importFrom(dplyr,contains)
-importFrom(dplyr,desc)
-importFrom(dplyr,filter)
-importFrom(dplyr,group_by)
-importFrom(dplyr,left_join)
-importFrom(dplyr,mutate)
-importFrom(dplyr,pull)
-importFrom(dplyr,relocate)
-importFrom(dplyr,select)
-importFrom(dplyr,slice_max)
-importFrom(dplyr,slice_min)
-importFrom(dplyr,summarize)
-importFrom(dplyr,ungroup)
-importFrom(ggplot2,aes)
-importFrom(ggplot2,coord_flip)
-importFrom(ggplot2,coord_polar)
-importFrom(ggplot2,element_blank)
-importFrom(ggplot2,element_text)
-importFrom(ggplot2,expand_limits)
-importFrom(ggplot2,facet_wrap)
-importFrom(ggplot2,geom_bar)
-importFrom(ggplot2,geom_boxplot)
-importFrom(ggplot2,geom_col)
-importFrom(ggplot2,geom_jitter)
-importFrom(ggplot2,geom_line)
-importFrom(ggplot2,geom_point)
-importFrom(ggplot2,ggplot)
-importFrom(ggplot2,labs)
-importFrom(ggplot2,scale_fill_manual)
-importFrom(ggplot2,scale_linewidth_manual)
-importFrom(ggplot2,theme)
-importFrom(ggplot2,theme_minimal)
-importFrom(ggplot2,ylim)
-importFrom(grDevices,colors)
-importFrom(grDevices,hcl)
-importFrom(grid,gpar)
-importFrom(grid,grid.circle)
-importFrom(grid,grid.rect)
-importFrom(grid,unit)
-importFrom(grid,unit.c)
-importFrom(jsonlite,fromJSON)
-importFrom(jsonlite,toJSON)
+importFrom(cowplot,
+  draw_plot,
+  get_legend,
+  plot_grid
+)
+importFrom(dplyr,
+  all_of,
+  any_of,
+  arrange,
+  contains,
+  desc,
+  filter,
+  group_by,
+  left_join,
+  mutate,
+  pull,
+  relocate,
+  select,
+  slice_max,
+  slice_min,
+  summarize,
+  ungroup
+)
+importFrom(ggplot2,
+  aes,
+  coord_flip,
+  coord_polar,
+  element_blank,
+  element_text,
+  expand_limits,
+  facet_wrap,
+  geom_bar,
+  geom_boxplot,
+  geom_col,
+  geom_jitter,
+  geom_line,
+  geom_point,
+  ggplot,
+  labs,
+  scale_fill_manual,
+  scale_linewidth_manual,
+  theme,
+  theme_minimal,
+  ylim
+)
+importFrom(grDevices,
+  colors,
+  hcl
+)
+importFrom(grid,
+  gpar,
+  grid.circle,
+  grid.rect,
+  unit,
+  unit.c
+)
+importFrom(jsonlite,
+  fromJSON,
+  toJSON
+)
 importFrom(methods,is)
-importFrom(rlang,":=")
-importFrom(rlang,.data)
+importFrom(rlang,
+  ":=",
+  .data
+)
 importFrom(scales,rescale)
-importFrom(shiny,HTML)
-importFrom(shiny,actionButton)
-importFrom(shiny,br)
-importFrom(shiny,checkboxInput)
-importFrom(shiny,column)
-importFrom(shiny,conditionalPanel)
-importFrom(shiny,fileInput)
-importFrom(shiny,fluidRow)
-importFrom(shiny,h3)
-importFrom(shiny,h4)
-importFrom(shiny,hr)
-importFrom(shiny,need)
-importFrom(shiny,numericInput)
-importFrom(shiny,observe)
-importFrom(shiny,observeEvent)
-importFrom(shiny,outputOptions)
-importFrom(shiny,p)
-importFrom(shiny,parseQueryString)
-importFrom(shiny,plotOutput)
-importFrom(shiny,radioButtons)
-importFrom(shiny,reactive)
-importFrom(shiny,reactiveValues)
-importFrom(shiny,renderPlot)
-importFrom(shiny,renderUI)
-importFrom(shiny,req)
-importFrom(shiny,selectInput)
-importFrom(shiny,selectizeInput)
-importFrom(shiny,shinyApp)
-importFrom(shiny,showNotification)
-importFrom(shiny,sliderInput)
-importFrom(shiny,stopApp)
-importFrom(shiny,tabPanel)
-importFrom(shiny,tabPanelBody)
-importFrom(shiny,tabsetPanel)
-importFrom(shiny,tagList)
-importFrom(shiny,tags)
-importFrom(shiny,uiOutput)
-importFrom(shiny,updateNumericInput)
-importFrom(shiny,updateSelectInput)
-importFrom(shiny,updateTabsetPanel)
-importFrom(shiny,validate)
+importFrom(shiny,
+  HTML,
+  actionButton,
+  br,
+  checkboxInput,
+  column,
+  conditionalPanel,
+  fileInput,
+  fluidRow,
+  h3,
+  h4,
+  hr,
+  need,
+  numericInput,
+  observe,
+  observeEvent,
+  outputOptions,
+  p,
+  parseQueryString,
+  plotOutput,
+  radioButtons,
+  reactive,
+  reactiveValues,
+  renderPlot,
+  renderUI,
+  req,
+  selectInput,
+  selectizeInput,
+  shinyApp,
+  showNotification,
+  sliderInput,
+  stopApp,
+  tabPanel,
+  tabPanelBody,
+  tabsetPanel,
+  tagList,
+  tags,
+  uiOutput,
+  updateNumericInput,
+  updateSelectInput,
+  updateTabsetPanel,
+  validate
+)
 importFrom(shinyjqui,jqui_resizable)
 importFrom(sortable,rank_list)
 importFrom(stats,setNames)
-importFrom(tibble,column_to_rownames)
-importFrom(tibble,tibble)
-importFrom(tidyr,pivot_longer)
-importFrom(tidyr,pivot_wider)
-importFrom(tidyr,spread)
+importFrom(tibble,
+  column_to_rownames,
+  tibble
+)
+importFrom(tidyr,
+  pivot_longer,
+  pivot_wider,
+  spread
+)
 importFrom(utils,download.file)
