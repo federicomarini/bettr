@@ -51,6 +51,31 @@ The latest development version can be installed from GitHub via
 BiocManager::install("federicomarini/bettr")
 ```
 
+## Quick start
+
+The following code launches a `bettr` session using a small example data set
+with three methods and two metrics.
+
+```r
+library(bettr)
+
+## Data for three methods (M1-M3), evaluated using two metrics (metric1, metric2).
+df <- data.frame(Method = c("M1", "M2", "M3"),
+                 metric1 = c(1.0, 2.0, 3.0),
+                 metric2 = c(3.0, 1.0, 2.0))
+
+## Additional information about metrics
+metricInfo <- data.frame(Metric = c("metric1", "metric2"),
+                         Group = c("G1", "G2"))
+
+## Additional information about methods
+idInfo <- data.frame(Method = c("M1", "M2", "M3"),
+                     Type = c("T1", "T1", "T2"))
+
+## Launch a bettr session
+bettr(df = df, idCol = "Method", metricInfo = metricInfo, idInfo = idInfo)
+```
+
 ## Usage
 
 For more details on how to use `bettr`, we refer to the 
