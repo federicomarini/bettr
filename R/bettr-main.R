@@ -40,21 +40,21 @@
 #'     parameters for each metric. Each list entry should correspond to one
 #'     metric, and take the form of a list with up to four elements, named:
 #'
-#'     * **flip**: Logical scalar; whether or not to flip the sign of the
-#'         metric values. Defaults to `FALSE`.
-#'     * **offset**: Numeric scalar; offset to add to the (flipped)
-#'         metric values. Defaults to `0`.
-#'     * **transform**: Character scalar; one of 'None', 'z-score',
-#'         '\[0,1\]', '\[-1,1\]', 'Rank', 'Rank+\[0,1\]' or 'z-score+\[0,1\]',
-#'         indicating which transform to apply to
-#'         the metric values (after any flipping and/or adding the offset).
-#'         Defaults to 'None'.
-#'     * **cuts**: Numeric vector or `NULL`; the cut points that will
-#'         be used to bin the metric values (after the other transformations).
-#'         Defaults to `NULL`.
+#' * **flip**: Logical scalar; whether or not to flip the sign of the
+#'     metric values. Defaults to `FALSE`.
+#' * **offset**: Numeric scalar; offset to add to the (flipped)
+#'     metric values. Defaults to `0`.
+#' * **transform**: Character scalar; one of 'None', 'z-score',
+#'     '\[0,1\]', '\[-1,1\]', 'Rank', 'Rank+\[0,1\]' or 'z-score+\[0,1\]',
+#'     indicating which transform to apply to
+#'     the metric values (after any flipping and/or adding the offset).
+#'     Defaults to 'None'.
+#' * **cuts**: Numeric vector or `NULL`; the cut points that will
+#'     be used to bin the metric values (after the other transformations).
+#'     Defaults to `NULL`.
 #'
-#'     Only values deviating from the defaults need to be explicitly specified,
-#'     the others will be initialized to their default values.
+#' Only values deviating from the defaults need to be explicitly specified,
+#' the others will be initialized to their default values.
 #' @param metricInfo `data.frame` with annotations for metrics. Must have
 #'     a column named 'Metric' identifying the respective metrics.
 #' @param metricColors Named list with colors used for columns of

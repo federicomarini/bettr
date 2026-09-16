@@ -15,7 +15,7 @@ by their performance based on several different metrics).
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/federicomarini/bettr}
+  \item \url{https://federicomarini.github.io/bettr}
   \item Report bugs at \url{https://github.com/federicomarini/bettr/issues}
 }
 

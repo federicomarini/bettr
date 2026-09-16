@@ -54,6 +54,6 @@ Imports:
     utils
 Config/testthat/edition: 3
 biocViews: Visualization, ShinyApps, GUI
-URL: https://github.com/federicomarini/bettr
+URL: https://federicomarini.github.io/bettr
 BugReports: https://github.com/federicomarini/bettr/issues
 Config/roxygen2/version: 8.1.0
