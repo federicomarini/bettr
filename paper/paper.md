@@ -72,8 +72,10 @@ _bettr_ can be used interactively as an R/Shiny application [@chang2025-shiny], 
 The size and color of the circles indicate the evaluation score for each method (rows) and metric (columns), with higher values being more favorable. 
 The bars above the plot indicate the current weights for the metrics (these are controlled by the sliders in the bottom of the left sidebar), and the bars to the right of the plot represent the aggregated scores for the methods (in this case, the weighted mean across metrics). 
 The colored bars to the left of the plot represent categorical annotations and characterizations of the methods, which are not taken into account when determining the ranking. 
-In addition to the displayed dot plot, the results can be visualized in several other ways, including a heatmap, polar plots, and using parallel coordinates. 
-Moreover, the set of methods and metrics to include in the display can be controlled by the user via the 'Filter methods/metrics' tab.](bettr-screenshot-heatmap.png)
+In addition to the displayed dot plot, the results can be visualized in several other ways, including a heatmap, polar plots, and using parallel coordinates (horizontal tabs). 
+Moreover, the set of methods and metrics to include in the display can be controlled by the user via the 'Filter methods/metrics' tab, and the transformations applied to the different metrics can be controlled via the 'Transform metrics' tab. 
+Finally, the data can be displayed in tabular form and exported via the 'Data table' tab.
+In addition to providing controls for the metric weights, the left-hand side bar allows the user to control how metric scores are aggregated to form the final ranking, and how metrics are grouped together.](bettr-screenshot-heatmap.png)
 
 
 # Statement of Need
@@ -87,21 +89,25 @@ This has the potential to increase the usefulness of published benchmarks by dem
 
 # State of the Field
 
-Complementary functionality for creating summary representations (e.g., heatmap-like visualizations) of benchmarking results is provided e.g. by the funkyheatmap package [@cannoodt2025-funkyheatmap], and benchmarking platforms such as OpenEBench [@capella2017-openebench] and OpenProblems [@Luecken2025-openproblems] also produce result visualizations for the included benchmarks. 
-However, existing tools typically lack flexibility in either input format or means of deployment, or the ability to explore results interactively, and are not intended to support user-specific metric weighting.
-In contrast, _bettr_ accepts input in multiple formats, including a collection of data frames, a SummarizedExperiment object [@morgan2025-se] or a JSON file, and contains functions for converting one input format to another. 
-This increases the flexibility of the application and makes it easy to combine with a variety of workflows. 
-For example, a user working locally in R may find it more convenient to generate a set of data frames, while an automated benchmarking workflow could export all necessary components in a single, platform-independent JSON file. 
-_bettr_ can also be deployed in server mode, allowing users to upload their own input data (in JSON format) to a running app. 
+Most published visualizations of benchmark results are created with custom scripts using generic R or python graphics libraries. 
+A small number of dedicated viewers for benchmark results exist, and _bettr_ was designed to complement their functionality, rather than to replace them. 
+The funkyheatmap R package [@cannoodt2025-funkyheatmap] generates elaborate, publication-ready static heatmaps of diverse types of benchmark results. 
+It is also wrapped into a standalone executable as well as a [nextflow module] (https://funkyheatmap.github.io/funkyheatmap/articles/nextflow.html), and the funkyheatmap.js [extension] (https://funkyheatmap.github.io/funkyheatmapjs/index.html) can be used to create visualizations that can be interactively browsed and sorted by a selected metric. 
+However, it was not designed to accommodate in-depth exploration via interactive aggregation or re-weighting of metrics by the user, highlighting a fundamental difference in design philosophy compared to _bettr_. 
+Benchmarking platforms such as [OpenEBench](https://openebench.bsc.es/) [@capella2017-openebench] and [OpenProblems](https://openproblems.bio/) [@Luecken2025-openproblems] also produce result visualizations for the included benchmarks, with OpenProblems using funkyheatmap for this purpose. 
+These again serve a different use case than _bettr_: by being fully integrated into the respective platforms, they provide consistent visualizations for all included benchmarks, but are not as easily accessible to a user aiming to visualize the results of their own study. 
+Similarly to funkyheatmap, they also do not support user-specified metric weighting or aggregation. 
 
-To the best of our knowledge, _bettr_ is the first generic tool for benchmark visualization that combines interactivity and flexibility in metric weighting with ease of use and a transparent, programmatic interface. 
+Thus, to the best of our knowledge, _bettr_ is the first generic tool for benchmark visualization that combines interactivity and flexibility in metric weighting with ease of use and a transparent, programmatic interface. 
 
 # Software Design
 
 The design philosophy behind _bettr_ focuses on flexibility, accessibility, and reproducibility. 
-By supporting several input formats, from collections of data frames via a single R-based object to an all-encompassing JSON file, _bettr_ can be used for downstream analysis and visualization of results generated using a wide range of benchmark setups and programming languages. 
+By supporting several input formats, from collections of data frames via a single SummarizedExperiment object [@morgan2025-se] to an all-encompassing JSON file, _bettr_ can be used for downstream analysis and visualization of results generated using a wide range of benchmark setups and programming languages. 
+For example, a user working locally in R may find it more convenient to generate a set of data frames, while an automated benchmarking workflow could export all necessary components in a single, platform-independent JSON file. 
+_bettr_ can also be deployed in server mode, allowing users to upload their own input data (in JSON format) to a running app. 
 _bettr_ is fully open source and easily installable as an R package, mainly distributed via Bioconductor with the most recent development version also available on GitHub.
-In addition, it is available via [_r-universe_](https://bioc.r-universe.dev/bettr), which among other things provides binaries for several platforms, including WebAssembly.
+In addition, it is available via [_r-universe_](https://bioc.r-universe.dev/bettr), which among other things provides binaries for several platforms, including WebAssembly/WebR; (https://github.com/r-wasm/webr/).
 As a complement to the interactive interface, full reproducibility is enabled by the equivalent programmatic interface to the functionality, as well as the ability to export the processed data as either a shareable csv file containing the metric values as well as the final score, or an R list that can be used directly as the input for further analysis and visualization.
 
 # Research Impact Statement
@@ -134,3 +140,4 @@ MDR acknowledges funding from the Swiss National Science Foundation (grants 2000
 The funders did not have any role in the design of the study, the collection, analysis and interpretation of data, or in writing the manuscript.
 
 # References
+
