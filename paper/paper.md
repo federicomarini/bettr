@@ -108,7 +108,7 @@ For example, a user working locally in R may find it more convenient to generate
 _bettr_ can also be deployed in server mode, allowing users to upload their own input data (in JSON format) to a running app. 
 _bettr_ is fully open source and easily installable as an R package, mainly distributed via Bioconductor with the most recent development version also available on GitHub.
 In addition, it is available via [_r-universe_](https://bioc.r-universe.dev/bettr), which among other things provides binaries for several platforms, including WebAssembly/WebR; (https://github.com/r-wasm/webr/).
-As a complement to the interactive interface, full reproducibility is enabled by the equivalent programmatic interface to the functionality, as well as the ability to export the processed data as either a shareable csv file containing the metric values as well as the final score, or an R list that can be used directly as the input for further analysis and visualization.
+As a complement to the interactive interface, full reproducibility is enabled by the equivalent programmatic interface to the functionality, as well as the ability to export the processed data as either a shareable CSV file containing the metric values as well as the final score, or an R list that can be used directly as the input for further analysis and visualization.
 
 # Research Impact Statement
 
