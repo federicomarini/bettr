@@ -115,7 +115,7 @@ As a complement to the interactive interface, full reproducibility is enabled by
 In 2025, _bettr_ was [downloaded](https://bioconductor.org/packages/stats/bioc/bettr/) almost 3,000 times (by 1,593 unique IPs) from Bioconductor alone. 
 Adoption of _bettr_ is expected to increase further in the near future, as it has become the first supported integration for automated metrics reporting within the [Omnibenchmark](https://www.omnibenchmark.org) project. 
 Omnibenchmark [@mallona2026-omnibenchmark] is a benchmarking system that automates and standardizes routine aspects of benchmarking through standardization and formalization of benchmarking plans. 
-During execution, Omnibenchmark collects computational performance metrics (e.g., peak memory usage, CPU utilization, run time, etc), as well as, where applicable, algorithmic performance metrics (e.g., F1 scores, ARIs, etc). 
+During execution, Omnibenchmark collects computational performance metrics (e.g., peak memory usage, CPU utilization, run time, etc.), as well as, where applicable, algorithmic performance metrics (e.g., F1 scores, ARIs, etc.). 
 These results are then exported via a command-line interface in a JSON format compatible with _bettr_, enabling automated reporting. 
 This integration lowers the barrier for benchmark authors to produce rich, interactive summaries of complex benchmarking studies without requiring custom visualization pipelines. 
 Hence, broader adoption of Omnibenchmark as a benchmarking framework is expected to further drive the use of _bettr_ as an interactive platform for exploring and interpreting benchmark results. 
