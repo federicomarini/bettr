@@ -1,5 +1,5 @@
 ---
-title: 'Interactive exploration of benchmarking results with _bettr_'
+title: 'Interactive exploration of benchmarking results with bettr'
 tags:
   - R
   - benchmarking
