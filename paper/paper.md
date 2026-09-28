@@ -89,7 +89,7 @@ This has the potential to increase the usefulness of published benchmarks by dem
 
 # State of the Field
 
-Most published visualizations of benchmark results are created with custom scripts using generic R or python graphics libraries. 
+Most published visualizations of benchmark results are created with custom scripts using generic R or Python graphics libraries. 
 A small number of dedicated viewers for benchmark results exist, and _bettr_ was designed to complement their functionality, rather than to replace them. 
 The funkyheatmap R package [@cannoodt2025-funkyheatmap] generates elaborate, publication-ready static heatmaps of diverse types of benchmark results. 
 It is also wrapped into a standalone executable as well as a [nextflow module](https://funkyheatmap.github.io/funkyheatmap/articles/nextflow.html), and the funkyheatmap.js [extension](https://funkyheatmap.github.io/funkyheatmapjs/index.html) can be used to create visualizations that can be interactively browsed and sorted by a selected metric. 
